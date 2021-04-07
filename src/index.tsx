@@ -27,8 +27,8 @@ Sentry.init({
 ReactDOM.render(<Provider store={store}>
     <Router>
         <Auth0Provider
-            domain="cevi.eu.auth0.com"
-            clientId="WaucEsaDiY4B99zv64pGjiE2VqJFr16A"
+            domain={process.env.REACT_APP_AUTH0_DOMAIN as string}
+            clientId={process.env.REACT_APP_AUTH0_CLIENT_ID as string}
             redirectUri={window.location.origin}
         >
             <App />
