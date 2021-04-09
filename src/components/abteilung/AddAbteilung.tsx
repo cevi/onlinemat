@@ -15,14 +15,19 @@ export const AddAbteilung = (props: AddAbteilungProps) => {
     const [abteilungsName, setAbteilungsName] = useState<string>('');
 
     const addAbteilungToDB = async () => {
-        const response = await firestore().collection(abteilungenCollection).add({
-            name: abteilungsName
-        })
-        if(response.id) {
-            message.success(`Abteilung ${abteilungsName} erfolgreich erstellt`);
-        } else {
-            message.error('Es ist leider ein Fehler aufgetreten')
+        try {
+            const response = await firestore().collection(abteilungenCollection).add({
+                name: abteilungsName
+            })
+            if(response.id) {
+                message.success(`Abteilung ${abteilungsName} erfolgreich erstellt`);
+            } else {
+                message.error('Es ist leider ein Fehler aufgetreten')
+            }
+        } catch(ex) {
+            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
         }
+        
         setAbteilungsName('')
         setIsModalVisible(false)
     }

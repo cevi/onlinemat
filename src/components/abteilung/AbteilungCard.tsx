@@ -15,8 +15,12 @@ export const AbteilungCard = (props: AbteilungCardProps) => {
     const { abteilung } = props;
 
     const delteAbteilung = async () => {
-        await firestore().collection(abteilungenCollection).doc(abteilung.id).delete();
-        message.info(`${abteilung.name} erfolgreich gelöscht`)
+        try {
+            await firestore().collection(abteilungenCollection).doc(abteilung.id).delete();
+            message.info(`${abteilung.name} erfolgreich gelöscht`)
+        } catch(ex) {
+            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+        }
     } 
 
     return <Card title={abteilung.name} extra={abteilung.id} style={{ width: 300 }}>

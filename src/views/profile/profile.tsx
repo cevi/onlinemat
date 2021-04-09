@@ -41,6 +41,7 @@ export const ProfileView = () => {
                     <p>Sub: {(user as Auth0User).sub}</p>
                     <p>Updated at: {moment((user as Auth0User).updated_at).format('L LT')}</p>
                     <p>Firebase User ID: {(firebaseUser.appUser && firebaseUser.appUser.firebaseUser.uid) || '-'}</p>
+                    <p>Roles: {JSON.stringify((user as Auth0User)['https://mat.cevi.tools/roles'])}</p>
                 </Card>
             </div>
         }

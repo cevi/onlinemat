@@ -53,19 +53,6 @@ export const AbteilungenView = () => {
                         })
                 }
             </Row>
-
-
-            {/* {
-            !!user && 
-                <Result
-                    status='success'
-                    title='Onlinemat Dashboard'
-                    subTitle={`Willkommen ${user.name}, du kannst jetzt loslegen.`}
-                >
-                </Result>
-            </div>
-        } */}
-
         </div>
     </div>
 }
