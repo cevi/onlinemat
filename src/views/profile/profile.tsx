@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { PageHeader, Spin, Card } from 'antd';
@@ -8,12 +8,30 @@ import Avatar from 'antd/lib/avatar/avatar';
 import { Auth0User } from 'types/auth0.types';
 import moment from 'moment';
 import { useUser } from 'hooks/use-user';
+import { firestore } from 'config/firebase/firebase';
+import { usersCollection } from 'config/firebase/collections';
+import { UserData } from 'types/user.type';
 
 export const ProfileView = () => {
     const { user, isAuthenticated, isLoading  } = useAuth0();
     const firebaseUser = useUser();
-    
 
+    const [loading, setLoading] = useState(false);
+
+    const [userData, setUserData] = useState<UserData | undefined>(undefined);
+    
+    useEffect(() => {
+        setLoading(true);
+        if(!firebaseUser.appUser) return;
+
+        return firestore().collection(usersCollection).doc((firebaseUser.appUser.firebaseUser.uid)).onSnapshot(doc => {
+            setLoading(false);
+                setUserData({
+                    ...doc.data() as UserData,
+                    id: doc.id
+                })
+        });
+    }, [isAuthenticated]);
 
     return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])}>
         <PageHeader title='Profile'></PageHeader>
@@ -41,7 +59,7 @@ export const ProfileView = () => {
                     <p>Sub: {(user as Auth0User).sub}</p>
                     <p>Updated at: {moment((user as Auth0User).updated_at).format('L LT')}</p>
                     <p>Firebase User ID: {(firebaseUser.appUser && firebaseUser.appUser.firebaseUser.uid) || '-'}</p>
-                    <p>Roles: {JSON.stringify((user as Auth0User)['https://mat.cevi.tools/roles'])}</p>
+                    <p>Staff: {(userData)?.staff ?  'Ja' : 'Nein'}</p>
                 </Card>
             </div>
         }
