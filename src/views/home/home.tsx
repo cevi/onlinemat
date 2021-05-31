@@ -25,7 +25,7 @@ export const HomeView = () => {
                 <Result
                     status='success'
                     title='Onlinemat Dashboard'
-                    subTitle={`Willkommen ${user.name}, du kannst jetzt loslegen.`}
+                    subTitle={`Willkommen ${user.given_name}, du kannst jetzt loslegen.`}
                 >
                 </Result>
             </div>
