@@ -9,9 +9,13 @@ import { abteilungenCollection } from 'config/firebase/collections';
 import { Abteilung } from 'types/abteilung.type';
 import { AbteilungCard } from 'components/abteilung/AbteilungCard';
 import { AddAbteilung } from 'components/abteilung/AddAbteilung';
+import { Switch, Route, useRouteMatch  } from 'react-router';
+import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 
 export const AbteilungenView = () => {
     const { user, isAuthenticated } = useAuth0();
+
+    const { path, url } = useRouteMatch();
 
     const [loading, setLoading] = useState(false);
 
@@ -32,27 +36,33 @@ export const AbteilungenView = () => {
     }, [isAuthenticated]);
 
 
-    return <div className={classNames(appStyles['flex-grower'])}>
-        <PageHeader title='Abteilungen'></PageHeader>
+    return  <div className={classNames(appStyles['flex-grower'])}>
 
+                <Switch>
+                    {/* <Route path={`${path}/new`} component={CreateClothingShop} /> */}
+                    <Route path={`${path}/:abteilungId`} component={AbteilungMaterialView} />
+                    <Route exact path={path}>
 
+                        <PageHeader title='Abteilungen'></PageHeader>
 
-        <div className={classNames(appStyles['flex-grower'])} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'stretch' }}>
-            <Row gutter={[16, 16]} className={classNames(styles['row'])}>
-                <Col key='add' xs={24} md={12} lg={8} xxl={6}>
-                    <AddAbteilung/>
-                </Col>
-                {
-                    loading ?
-                        <Spin />
-                        :
-                        abteilungen.sort((a, b) => a.name.normalize().localeCompare(b.name.normalize())).map(ab => {
-                            return <Col key={ab.id} xs={24} md={12} lg={8} xxl={6}>
-                                <AbteilungCard abteilung={ab} />
-                            </Col>
-                        })
-                }
-            </Row>
-        </div>
+                        <div className={classNames(appStyles['flex-grower'])} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'stretch' }}>
+                            <Row gutter={[16, 16]} className={classNames(styles['row'])}>
+                                <Col key='add' xs={24} md={12} lg={8} xxl={6}>
+                                    <AddAbteilung/>
+                                </Col>
+                                {
+                                    loading ?
+                                        <Spin />
+                                        :
+                                        abteilungen.sort((a, b) => a.name.normalize().localeCompare(b.name.normalize())).map(ab => {
+                                            return <Col key={ab.id} xs={24} md={12} lg={8} xxl={6}>
+                                                <AbteilungCard abteilung={ab} />
+                                            </Col>
+                                        })
+                                }
+                            </Row>
+                        </div>
+                    </Route>
+                </Switch>
     </div>
 }

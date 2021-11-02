@@ -4,6 +4,7 @@ import { Abteilung } from 'types/abteilung.type';
 import { DeleteOutlined } from '@ant-design/icons';
 import { firestore } from 'config/firebase/firebase';
 import { abteilungenCollection } from 'config/firebase/collections';
+import { useHistory, useRouteMatch } from 'react-router';
 
 export interface AbteilungCardProps {
     abteilung: Abteilung
@@ -13,6 +14,10 @@ export interface AbteilungCardProps {
 export const AbteilungCard = (props: AbteilungCardProps) => {
 
     const { abteilung } = props;
+
+    const { push } = useHistory();
+    const { url } = useRouteMatch();
+
 
     const delteAbteilung = async () => {
         try {
@@ -34,6 +39,7 @@ export const AbteilungCard = (props: AbteilungCardProps) => {
             <Button type='ghost' danger icon={<DeleteOutlined />}>
                 Löschen
             </Button>
+            <Button onClick={() => push(`${url}/${abteilung.id}`)}>Öffnen</Button>
         </Popconfirm>
     </Card>
 }
