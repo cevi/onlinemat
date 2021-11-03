@@ -9,13 +9,13 @@ import { Material } from 'types/material.types';
 import { useParams } from 'react-router';
 import { AddMaterial } from 'components/material/AddMaterial';
 import { ShoppingCartOutlined } from '@ant-design/icons';
-import { AddCategorie } from 'components/categorie/AddMaterial';
+import { AddCategorie } from 'components/categorie/AddCategorie';
 import { Categorie } from 'types/categorie.types';
 import { Abteilung } from 'types/abteilung.type';
 
 export type AbteilungMaterialViewParams = {
     abteilungId: string;
-  };
+};
 
 export const AbteilungMaterialView = () => {
     const { user, isAuthenticated } = useAuth0();
@@ -36,7 +36,7 @@ export const AbteilungMaterialView = () => {
 
     //fetch abteilung
     useEffect(() => {
-        setMatLoading(true);
+        setAbteilungLoading(true);
         return firestore().collection(abteilungenCollection).doc(abteilungId).onSnapshot(snap => {
             setAbteilungLoading(false);
             const abteilungLoaded = {

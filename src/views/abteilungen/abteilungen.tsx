@@ -11,6 +11,7 @@ import { AbteilungCard } from 'components/abteilung/AbteilungCard';
 import { AddAbteilung } from 'components/abteilung/AddAbteilung';
 import { Switch, Route, useRouteMatch  } from 'react-router';
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
+import { AbteilungDetail } from 'components/abteilung/AbteilungDetails';
 
 export const AbteilungenView = () => {
     const { user, isAuthenticated } = useAuth0();
@@ -40,7 +41,8 @@ export const AbteilungenView = () => {
 
                 <Switch>
                     {/* <Route path={`${path}/new`} component={CreateClothingShop} /> */}
-                    <Route path={`${path}/:abteilungId`} component={AbteilungMaterialView} />
+                    <Route path={`${path}/:abteilungId/mat`} component={AbteilungMaterialView} />
+                    <Route path={`${path}/:abteilungId`} component={AbteilungDetail} />
                     <Route exact path={path}>
 
                         <PageHeader title='Abteilungen'></PageHeader>
