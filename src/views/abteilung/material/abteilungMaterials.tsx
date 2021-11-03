@@ -144,8 +144,10 @@ export const AbteilungMaterialView = () => {
                     return a.weightInKg - b.weightInKg ;
                 }
                 return 0;
-            }
-
+            },
+            render: (text: string, record: Material) => (
+                <p key={`${record.id}_weightInKg`}>{ record.weightInKg ? `${record.weightInKg} Kg` : 'Unbekannt' }</p>
+            ),
         },
         {
             title: 'Anzahl',

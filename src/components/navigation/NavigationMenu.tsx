@@ -7,7 +7,7 @@ import { AppRoutes, HomeRoute } from 'routes';
 import { useLocation, useHistory, Route, Switch } from 'react-router';
 import { auth } from 'config/firebase/firebase';
 import { AppRoute } from 'routes';
-import { LogoutOutlined } from '@ant-design/icons';
+import { LoginOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useAuth0 } from '@auth0/auth0-react';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -17,7 +17,7 @@ const NavigationMenu: React.FC = () => {
   const { pathname } = useLocation();
   const { push } = useHistory();
 
-  const { isAuthenticated, logout, isLoading  } = useAuth0();
+  const { isAuthenticated, isLoading, logout, loginWithRedirect  } = useAuth0();
 
   //TODO: fix
   const isAdmin = true;
@@ -68,6 +68,9 @@ const NavigationMenu: React.FC = () => {
                 </Menu.Item>
                   }
                 })
+            }
+            {
+              !isAuthenticated && <Menu.Item onClick={() => { loginWithRedirect()}} key='login'><LoginOutlined /><span>Anmelden</span></Menu.Item>
             }
             {
               !!isAuthenticated && <Menu.Item onClick={async () => { await auth().signOut(); logout({returnTo: window.location.origin})}} key='logout' className={classNames(styles['logout'])}><LogoutOutlined /><span>Abmelden</span></Menu.Item>

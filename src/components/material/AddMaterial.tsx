@@ -72,6 +72,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
         setCount(1)
         setConsumables(false)
         setIsModalVisible(false)
+        setCategorieIds([])
     }
 
     return <>

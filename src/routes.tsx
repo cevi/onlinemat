@@ -35,7 +35,7 @@ export const AppRoutes: AppRoute[] = [
         displayName: 'Login',
         icon: <LoginOutlined />,
         public: true,
-        showInMenue: true,
+        showInMenue: false,
         view: LoginView
     },
     {
