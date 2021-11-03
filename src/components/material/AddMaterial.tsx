@@ -5,6 +5,7 @@ import { firestore } from 'config/firebase/firebase';
 import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
 import { Categorie } from 'types/categorie.types';
 import { useAuth0 } from '@auth0/auth0-react';
+import { PicturesWall } from 'components/pictures/PictureWall';
 
 export interface AddMaterialProps {
     abteilungId: string
@@ -113,6 +114,8 @@ export const AddMaterial = (props: AddMaterialProps) => {
                                 categories.map(cat => <Option key={cat.id} value={cat.id}>{cat.name}</Option>)
                             }
                     </Select>
+
+                    <PicturesWall imageUrls={['https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg', 'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg']}/>
                 </>
             }
             

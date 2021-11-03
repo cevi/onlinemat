@@ -6,4 +6,5 @@ export interface Material {
     weightInKg?: number
     count: number
     consumables: boolean
+    imageUrls?: string[]
 }

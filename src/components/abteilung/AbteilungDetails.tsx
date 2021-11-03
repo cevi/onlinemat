@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Col, Image, Input, PageHeader, Row, Spin, Form, Button, message } from 'antd';
+import { Col, Image, Input, PageHeader, Row, Spin, Form, Button, message, Popconfirm } from 'antd';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import moduleStyles from './Abteilung.module.scss'
@@ -7,8 +7,9 @@ import { Abteilung } from 'types/abteilung.type';
 import { firestore } from 'config/firebase/firebase';
 import { abteilungenCollection } from 'config/firebase/collections';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useParams } from 'react-router';
+import { useHistory, useParams, useRouteMatch } from 'react-router';
 import ceviLogoImage from "../../assets/cevi_logo.png";
+import { DeleteOutlined } from '@ant-design/icons';
 
 
 export interface AbteilungDetailProps {
@@ -23,6 +24,8 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
     const { abteilungId } = useParams<AbteilungDetailViewParams>();
     const { isAuthenticated } = useAuth0();
+    const { push } = useHistory();
+    const { url } = useRouteMatch();
 
     const[abteilung, setAbteilung] = useState<Abteilung>();
 
@@ -53,8 +56,18 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
         }
     }
 
+    const delteAbteilung = async (ab: Abteilung) => {
+        try {
+            await firestore().collection(abteilungenCollection).doc(ab.id).delete();
+            message.info(`${ab.name} erfolgreich gelöscht`)
+            push('/')
+        } catch(ex) {
+            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+        }
+    } 
 
-    if(abteilungLoading) return <Spin/>
+
+    if(abteilungLoading || !abteilung) return <Spin/>
 
     return <div className={classNames(appStyles['flex-grower'])}>
                 <PageHeader title={`Abteilung ${abteilung?.name}`}>
@@ -101,6 +114,19 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                             Speichern
                                         </Button>
                                     </Form.Item>
+                                </Col>
+                                <Col span={8}>
+                                    <Popconfirm
+                                        title='Möchtest du diese Abteilung wirklich löschen?'
+                                        onConfirm={() => delteAbteilung(abteilung)}
+                                        onCancel={() => { }}
+                                        okText='Ja'
+                                        cancelText='Nein'
+                                    >
+                                        <Button type='ghost' danger icon={<DeleteOutlined />}>
+                                            Löschen
+                                        </Button>
+                                    </Popconfirm>
                                 </Col>
                             </Row>
                         </div>

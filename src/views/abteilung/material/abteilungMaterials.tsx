@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { Table, PageHeader, Spin, Button, Input } from 'antd';
+import { PageHeader, Spin, Input, Radio } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
 import { firestore } from 'config/firebase/firebase';
 import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
 import { Material } from 'types/material.types';
 import { useParams } from 'react-router';
 import { AddMaterial } from 'components/material/AddMaterial';
-import { ShoppingCartOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
 import { AddCategorie } from 'components/categorie/AddCategorie';
 import { Categorie } from 'types/categorie.types';
 import { Abteilung } from 'types/abteilung.type';
+import { MaterialTable } from 'components/material/MaterialTable';
+import { MaterialGrid } from 'components/material/MaterialGrid';
 
 export type AbteilungMaterialViewParams = {
     abteilungId: string;
@@ -33,6 +35,7 @@ export const AbteilungMaterialView = () => {
     const [categorie, setCategorie] = useState<Categorie[]>([])
 
     const [query, setQuery] = useState<string | undefined>(undefined);
+    const [displayMode, setDisplayMode] = useState<'table' | 'grid'>('table');
 
     //fetch abteilung
     useEffect(() => {
@@ -81,92 +84,6 @@ export const AbteilungMaterialView = () => {
 
     }
 
-    const filterCategorie = (value: any, record: Material): boolean => {
-        let result: boolean = false;
-
-        if(record.categoryIds) {
-            record.categoryIds.forEach(catId => {
-                if(catId.indexOf(value as string) === 0) {
-                    result = true;
-                }
-            })
-        }
-
-        return result;
-    }
-
-    const displayCategorieNames = (catIds: string[]) => {
-        let result: string[] = [];
-        catIds.forEach(categoryId => {
-            const cat = categorie.find(cat => cat.id == categoryId);
-            if(cat) {
-                result.push(cat.name);
-            }
-        })
-        
-        return result.join();
-    }
-
-    const columns = [
-        {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            sorter: (a: Material, b: Material) => a.name.normalize().localeCompare(b.name.normalize())
-        },
-        {
-            title: 'Bemerkung',
-            dataIndex: 'comment',
-            key: 'comment',
-            sorter: (a: Material, b: Material) => a.comment.normalize().localeCompare(b.comment.normalize()),
-        },
-        {
-            title: 'Kategorie',
-            dataIndex: 'categoryIds',
-            key: 'categoryIds',
-            filters: categorie.map(cat => { 
-                return { 
-                    text: cat.name, 
-                    value: cat.id
-                }
-            }),
-            onFilter: (value: any, record: Material) => filterCategorie(value, record),
-            render: (text: string, record: Material) => (
-                <p key={`${record.id}_category`}>{displayCategorieNames(record.categoryIds || [])}</p>
-            ),
-        },
-        {
-            title: 'Gewicht',
-            key: 'weightInKg',
-            dataIndex: 'weightInKg',
-            sorter: (a: Material, b: Material) => {
-                if(a.weightInKg && b.weightInKg) {
-                    return a.weightInKg - b.weightInKg ;
-                }
-                return 0;
-            },
-            render: (text: string, record: Material) => (
-                <p key={`${record.id}_weightInKg`}>{ record.weightInKg ? `${record.weightInKg} Kg` : 'Unbekannt' }</p>
-            ),
-        },
-        {
-            title: 'Anzahl',
-            key: 'count',
-            render: (text: string, record: Material) => (
-                <p key={`${record.id}_count`}>{record.consumables ? 'Unbegrenzt' : record.count}</p>
-            ),
-            sorter: (a: Material, b: Material) => a.count - b.count
-        },
-        {
-            title: 'Warenkorb',
-            key: 'basket',
-            render: (text: string, record: Material) => (
-                <Button type="primary" icon={<ShoppingCartOutlined />} onClick={()=> { addToBasket(record.id) }}/>
-            )
-        }
-      ];
-
-
     return <div className={classNames(appStyles['flex-grower'])}>
         <PageHeader title={`Abteilung ${abteilung?.name}`}></PageHeader>
 
@@ -187,7 +104,17 @@ export const AbteilungMaterialView = () => {
                                 size="large"
                                 onSearch={(query) => setQuery(query)}
                             />
-                            <Table columns={columns} dataSource={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} />
+                            <Radio.Group value={displayMode} onChange={(e) => setDisplayMode(e.target.value as 'table' | 'grid')}>
+                                <Radio.Button value='grid' >{<AppstoreOutlined />}</Radio.Button>
+                                <Radio.Button value='table'>{<MenuOutlined />}</Radio.Button>
+                            </Radio.Group>
+
+                            {
+                                displayMode === 'table' && <MaterialTable categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket}/>
+                            }
+                             {
+                                displayMode === 'grid' && <MaterialGrid categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket}/>
+                            }
                         </>
                 }
         </div>

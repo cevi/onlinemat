@@ -1,13 +1,11 @@
 import React from 'react';
-import { Button, Card, Image, message, Popconfirm } from 'antd';
+import { Button, Card, Image } from 'antd';
 import { Abteilung } from 'types/abteilung.type';
-import { DeleteOutlined } from '@ant-design/icons';
-import { firestore } from 'config/firebase/firebase';
-import { abteilungenCollection } from 'config/firebase/collections';
 import { useHistory, useRouteMatch } from 'react-router';
 import ceviLogoImage from "../../assets/cevi_logo.png";
 import classNames from 'classnames';
-import moduleStyles from './Abteilung.module.scss'
+import moduleStyles from './Abteilung.module.scss';
+import appStyles from 'styles.module.scss';
 
 export interface AbteilungCardProps {
     abteilung: Abteilung
@@ -21,38 +19,18 @@ export const AbteilungCard = (props: AbteilungCardProps) => {
     const { push } = useHistory();
     const { url } = useRouteMatch();
 
-
-    const delteAbteilung = async () => {
-        try {
-            await firestore().collection(abteilungenCollection).doc(abteilung.id).delete();
-            message.info(`${abteilung.name} erfolgreich gelöscht`)
-        } catch(ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
-        }
-    } 
-
     return <Card 
                 title={abteilung.name} 
                 extra={abteilung.id} 
                 style={{ width: 300 }}
-                cover={<div className={classNames(moduleStyles['cardLogoWrapper'])}><Image
+                cover={<div className={classNames(appStyles['cardLogoWrapper'])}><Image
                     height={100}
                     width='auto'
                     src={abteilung?.logoUrl || `${ceviLogoImage}`}
                     preview={false}
                 /></div>}
             >
-        <Popconfirm
-            title='Möchtest du diese Abteilung wirklich löschen?'
-            onConfirm={delteAbteilung}
-            onCancel={() => { }}
-            okText='Ja'
-            cancelText='Nein'
-        >
-            <Button type='ghost' danger icon={<DeleteOutlined />}>
-                Löschen
-            </Button>
-            <Button onClick={() => push(`${url}/${abteilung.id}`)}>Öffnen</Button>
-        </Popconfirm>
+        <Button onClick={() => push(`${url}/${abteilung.id}`)}>Details</Button>
+        <Button onClick={() => push(`${url}/${abteilung.id}/mat`)}>Material</Button>
     </Card>
 }
