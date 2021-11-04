@@ -8,15 +8,16 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { PicturesWall } from 'components/pictures/PictureWall';
 import { Material } from 'types/material.types';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { validateMessages } from 'util/FormValdationMessages';
 
 export interface AddMaterialProps {
     abteilungId: string
+    onSuccess?: () => void
 }
-
 
 export const AddMaterial = (props: AddMaterialProps) => {
 
-    const { abteilungId } = props;
+    const { abteilungId, onSuccess } = props;
 
     const { isAuthenticated } = useAuth0();
 
@@ -24,8 +25,6 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
     const { TextArea } = Input;
     const { Option } = Select;
-
-    const [isModalVisible, setIsModalVisible] = useState(false);
 
     const [catLoading, setCatLoading] = useState(false);
 
@@ -73,7 +72,9 @@ export const AddMaterial = (props: AddMaterialProps) => {
                 message.success(`Material ${form.getFieldValue('name')} erfolgreich erstellt`);
                 form.resetFields();
                 setRenderMatImages([])
-                setIsModalVisible(false)
+                if(onSuccess) {
+                    onSuccess()
+                }
             } else {
                 message.error('Es ist leider ein Fehler aufgetreten')
             }
@@ -84,153 +85,181 @@ export const AddMaterial = (props: AddMaterialProps) => {
     }
 
     return <>
+        {
+            catLoading ? <Spin /> : <>
+
+                <Form
+                    form={form}
+                    initialValues={{ consumables: false, categorieIds: [], comment: '', weightInKg: null, imageUrls: [] }}
+                    onValuesChange={() => {
+                        if (renderMatImages !== form.getFieldValue('imageUrls')) {
+                            setRenderMatImages(form.getFieldValue('imageUrls'))
+                        }
+                    }}
+                    onFinish={addMaterial}
+                    validateMessages={validateMessages}
+                >
+                    <Form.Item
+                        label="Name"
+                        name="name"
+                        rules={[
+                            { required: true },
+                            { type: 'string', min: 1 },
+                        ]}
+                    >
+                        <Input
+                            placeholder="Materialname"
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        label="Bemerkung"
+                        name="comment"
+                        rules={[
+                            { required: false },
+                        ]}
+                    >
+                        <TextArea
+                            placeholder="Bemerkung"
+                            rows={4}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        label="Anzahl"
+                        name="count"
+                        rules={[
+                            { required: true },
+                        ]}
+                    >
+                        <InputNumber min={1} />
+                    </Form.Item>
+                    <Form.Item
+                        label="Gewicht in Kg"
+                        name="weightInKg"
+                        rules={[
+                            { required: false },
+                        ]}
+                    >
+                        <InputNumber />
+                    </Form.Item>
+                    <Form.Item
+                        label="Ist Verbrauchsmaterial"
+                        name="consumables"
+                        rules={[
+                            { required: true },
+
+                        ]}
+                    >
+                        <Switch />
+                    </Form.Item>
+                    <Form.Item
+                        label="Kategorien"
+                        name="categorieIds"
+                        rules={[
+                            { required: false },
+                        ]}
+                    >
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            style={{ width: '100%' }}
+                            placeholder="Kategorien"
+                        >
+                            {
+                                categories.map(cat => <Option key={cat.id} value={cat.id}>{cat.name}</Option>)
+                            }
+                        </Select>
+                    </Form.Item>
+                    <Form.List
+                        name="imageUrls"
+                        rules={[
+                            {
+                                validator: async (_, names) => {
+                                    // if (!names || names.length < 2) {
+                                    //   return Promise.reject(new Error('At least 2 passengers'));
+                                    // }
+                                },
+                            },
+                        ]}
+                    >
+                        {(fields, { add, remove }, { errors }) => (
+                            <>
+                                {fields.map((field, index) => (
+                                    <Form.Item
+                                        {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
+                                        label={index === 0 ? 'Bilder Urls' : ''}
+                                        required={false}
+                                        key={field.key}
+                                    >
+                                        <Form.Item
+                                            {...field}
+                                            validateTrigger={['onChange', 'onBlur']}
+                                            rules={[
+                                                {
+                                                    required: false,
+                                                    whitespace: true,
+                                                },
+                                            ]}
+                                            noStyle
+                                        >
+                                            <Input placeholder="Material Bild Url" style={{ width: '90%' }} />
+                                        </Form.Item>
+                                        <MinusCircleOutlined
+                                            className="dynamic-delete-button"
+                                            onClick={() => remove(field.name)}
+                                        />
+                                    </Form.Item>
+                                ))}
+                                <Form.Item>
+                                    <Button
+                                        type="dashed"
+                                        onClick={() => add()}
+                                        style={{ width: '100%' }}
+                                        icon={<PlusOutlined />}
+                                    >
+                                        Bild hinzufügen
+                                    </Button>
+                                </Form.Item>
+                            </>
+                        )}
+                    </Form.List>
+
+                    <PicturesWall showRemove={false} imageUrls={renderMatImages} />
+
+                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                        <Button type="primary" htmlType="submit">
+                            Material hinzufügen
+                        </Button>
+                    </Form.Item>
+
+                </Form>
+                
+            </>
+        }
+    </>
+}
+
+export const AddMaterialButton = (props: AddMaterialProps) => {
+
+    const { abteilungId } = props;
+
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    return <>
         <Button type="primary" onClick={() => { setIsModalVisible(!isModalVisible) }}>
             Material hinzufügen
         </Button>
-        <Modal title="Material hinzufügen" visible={isModalVisible} onOk={addMaterial} onCancel={() => { setIsModalVisible(false) }}>
-            {
-                catLoading ? <Spin /> : <>
-
-                    <Form
-                        form={form}
-                        initialValues={{ consumables: false, categorieIds: [], comment: '', weightInKg: null, imageUrls: [] }}
-                        onValuesChange={()=>{
-                            if(renderMatImages !== form.getFieldValue('imageUrls')) {
-                                setRenderMatImages(form.getFieldValue('imageUrls'))
-                            }
-                        }}
-                    >
-                        <Form.Item
-                            label="Name"
-                            name="name"
-                            rules={[
-                                { required: true },
-                                { type: 'string', min: 1 },
-                            ]}
-                        >
-                            <Input
-                                placeholder="Materialname"
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="Bemerkung"
-                            name="comment"
-                            rules={[
-                                { required: false },
-                            ]}
-                        >
-                            <TextArea
-                                placeholder="Bemerkung"
-                                rows={4}
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="Anzahl"
-                            name="count"
-                            rules={[
-                                { required: true },
-                            ]}
-                        >
-                            <InputNumber min={1} />
-                        </Form.Item>
-                        <Form.Item
-                            label="Gewicht in Kg"
-                            name="weightInKg"
-                            rules={[
-                                { required: false },
-                            ]}
-                        >
-                            <InputNumber />
-                        </Form.Item>
-                        <Form.Item
-                            label="Ist Verbrauchsmaterial"
-                            name="consumables"
-                            rules={[
-                                { required: true },
-
-                            ]}
-                        >
-                            <Switch />
-                        </Form.Item>
-                        <Form.Item
-                            label="Kategorien"
-                            name="categorieIds"
-                            rules={[
-                                { required: false },
-                            ]}
-                        >
-                            <Select
-                                mode="multiple"
-                                allowClear
-                                style={{ width: '100%' }}
-                                placeholder="Kategorien"
-                            >
-                                {
-                                    categories.map(cat => <Option key={cat.id} value={cat.id}>{cat.name}</Option>)
-                                }
-                            </Select>
-                        </Form.Item>
-                        <Form.List
-                            name="imageUrls"
-                            rules={[
-                                {
-                                    validator: async (_, names) => {
-                                        // if (!names || names.length < 2) {
-                                        //   return Promise.reject(new Error('At least 2 passengers'));
-                                        // }
-                                    },
-                                },
-                            ]}
-                        >
-                            {(fields, { add, remove }, { errors }) => (
-                                <>
-                                    {fields.map((field, index) => (
-                                        <Form.Item
-                                            {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                                            label={index === 0 ? 'Bilder Urls' : ''}
-                                            required={false}
-                                            key={field.key}
-                                        >
-                                            <Form.Item
-                                                {...field}
-                                                validateTrigger={['onChange', 'onBlur']}
-                                                rules={[
-                                                    {
-                                                        required: false,
-                                                        whitespace: true,
-                                                    },
-                                                ]}
-                                                noStyle
-                                            >
-                                                <Input placeholder="Material Bild Url" style={{ width: '90%' }} />
-                                            </Form.Item>
-                                            <MinusCircleOutlined
-                                                className="dynamic-delete-button"
-                                                onClick={() => remove(field.name)}
-                                            />
-                                        </Form.Item>
-                                    ))}
-                                    <Form.Item>
-                                        <Button
-                                            type="dashed"
-                                            onClick={() => add()}
-                                            style={{ width: '100%' }}
-                                            icon={<PlusOutlined />}
-                                        >
-                                           Bild hinzufügen
-                                        </Button>
-                                    </Form.Item>
-                                </>
-                            )}
-                        </Form.List>
-
-                    </Form>
-
-
-                    <PicturesWall showRemove={false} imageUrls={renderMatImages} />
-                </>
-            }
-
+        <Modal 
+            title="Material hinzufügen" 
+            visible={isModalVisible} 
+            onCancel={() => { setIsModalVisible(false) }}
+            footer={[
+                <Button key="back" onClick={() => { setIsModalVisible(false) }}>
+                  Abbrechen
+                </Button>,
+              ]}
+        >
+            <AddMaterial abteilungId={abteilungId} onSuccess={()=> { setIsModalVisible(false)}}/>
         </Modal>
     </>
+
 }

@@ -10,6 +10,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useHistory, useParams } from 'react-router';
 import ceviLogoImage from "../../assets/cevi_logo.png";
 import { DeleteOutlined } from '@ant-design/icons';
+import { validateMessages } from 'util/FormValdationMessages';
 
 
 export interface AbteilungDetailProps {
@@ -90,6 +91,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                 onFinish={updateAbteilung}
                                 onFinishFailed={()=>{}}
                                 autoComplete="off"
+                                validateMessages={validateMessages}
                             >
                                 <Row gutter={[16, 24]}>
                                     <Col span={8}>
@@ -99,7 +101,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                             rules={[
                                                 { required: true },
                                                 { type: 'string', min: 6 },
-                                            ]}    
+                                            ]}
                                         >
                                             <Input
                                                 placeholder="Abteilungsname" 

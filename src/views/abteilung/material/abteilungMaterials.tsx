@@ -7,9 +7,9 @@ import { firestore } from 'config/firebase/firebase';
 import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
 import { Material } from 'types/material.types';
 import { useParams } from 'react-router';
-import { AddMaterial } from 'components/material/AddMaterial';
+import { AddMaterial, AddMaterialButton } from 'components/material/AddMaterial';
 import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
-import { AddCategorie } from 'components/categorie/AddCategorie';
+import { AddCategorie, AddCategorieButton } from 'components/categorie/AddCategorie';
 import { Categorie } from 'types/categorie.types';
 import { Abteilung } from 'types/abteilung.type';
 import { MaterialTable } from 'components/material/MaterialTable';
@@ -90,8 +90,8 @@ export const AbteilungMaterialView = () => {
 
 
         <div className={classNames(appStyles['flex-grower'])}>
-            <AddMaterial abteilungId={abteilungId}/>
-            <AddCategorie abteilungId={abteilungId}/>
+            <AddMaterialButton abteilungId={abteilungId}/>
+            <AddCategorieButton abteilungId={abteilungId}/>
                 {
                     matLoading || catLoading || abteilungLoading ?
                         <Spin />
