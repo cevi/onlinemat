@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { PageHeader, Spin, Card } from 'antd';
+import { PageHeader, Spin, Card, message } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
 import Meta from 'antd/lib/card/Meta';
 import Avatar from 'antd/lib/avatar/avatar';
@@ -13,23 +13,25 @@ import { usersCollection } from 'config/firebase/collections';
 import { UserData } from 'types/user.type';
 
 export const ProfileView = () => {
-    const { user, isAuthenticated, isLoading  } = useAuth0();
+    const { user, isAuthenticated, isLoading } = useAuth0();
     const firebaseUser = useUser();
 
     const [loading, setLoading] = useState(false);
 
     const [userData, setUserData] = useState<UserData | undefined>(undefined);
-    
+
     useEffect(() => {
         setLoading(true);
-        if(!firebaseUser.appUser) return;
+        if (!firebaseUser.appUser) return;
 
         return firestore().collection(usersCollection).doc((firebaseUser.appUser.firebaseUser.uid)).onSnapshot(doc => {
             setLoading(false);
-                setUserData({
-                    ...doc.data() as UserData,
-                    id: doc.id
-                })
+            setUserData({
+                ...doc.data() as UserData,
+                id: doc.id
+            })
+        }, (err) => {
+            message.error(`Es ist ein Fehler aufgetreten ${err}`)
         });
     }, [isAuthenticated]);
 
@@ -59,7 +61,7 @@ export const ProfileView = () => {
                     <p>Sub: {(user as Auth0User).sub}</p>
                     <p>Updated at: {moment((user as Auth0User).updated_at).format('L LT')}</p>
                     <p>Firebase User ID: {(firebaseUser.appUser && firebaseUser.appUser.firebaseUser.uid) || '-'}</p>
-                    <p>Staff: {(userData)?.staff ?  'Ja' : 'Nein'}</p>
+                    <p>Staff: {(userData)?.staff ? 'Ja' : 'Nein'}</p>
                 </Card>
             </div>
         }

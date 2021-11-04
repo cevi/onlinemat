@@ -37,19 +37,24 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     //fetch abteilung
     useEffect(() => {
         setAbteilungLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilungId).onSnapshot(snap => {
-            setAbteilungLoading(false);
-            const abteilungLoaded = {
-                    ...snap.data() as Abteilung,
-                    id: snap.id
-                } as Abteilung;
-            setAbteilung(abteilungLoaded);
-            form.setFieldsValue({
-                name: abteilungLoaded.name,
-                ceviDBId: abteilungLoaded.ceviDBId,
-                logoUrl: abteilungLoaded.logoUrl
-            })
-        });
+        try {
+            return firestore().collection(abteilungenCollection).doc(abteilungId).onSnapshot(snap => {
+                setAbteilungLoading(false);
+                const abteilungLoaded = {
+                        ...snap.data() as Abteilung,
+                        id: snap.id
+                    } as Abteilung;
+                setAbteilung(abteilungLoaded);
+                form.setFieldsValue({
+                    name: abteilungLoaded.name,
+                    ceviDBId: abteilungLoaded.ceviDBId || '',
+                    logoUrl: abteilungLoaded.logoUrl || ''
+                })
+            });
+        } catch(ex) {
+            message.error(`Es ist ein Fehler aufgetreten ${ex}`)
+        }
+        
     }, [isAuthenticated]);
 
     const updateAbteilung = async () => {
@@ -80,7 +85,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                         <div className={classNames(moduleStyles['ceviLogoWrapper'])}>
                             <Image
                                 width={200}
-                                src={abteilung?.logoUrl && abteilung.ceviDBId !== '' ? abteilung.logoUrl :  `${ceviLogoImage}`}
+                                src={abteilung?.logoUrl && abteilung.logoUrl !== '' ? abteilung.logoUrl :  `${ceviLogoImage}`}
                                 preview={false}
                             />
                         </div>
@@ -92,6 +97,10 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                 onFinishFailed={()=>{}}
                                 autoComplete="off"
                                 validateMessages={validateMessages}
+                                initialValues={{
+                                    ceviDBId: '',
+                                    logoUrl: ''
+                                }}
                             >
                                 <Row gutter={[16, 24]}>
                                     <Col span={8}>
@@ -111,7 +120,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                     <Col span={8}>
                                         <Form.Item 
                                             label="Cevi DB Abteilungs ID"
-                                            name="ceviDBGroupID"
+                                            name="ceviDBId"
                                             rules={[
                                                 { required: false }
                                             ]}

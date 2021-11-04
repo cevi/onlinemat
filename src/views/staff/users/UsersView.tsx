@@ -1,4 +1,4 @@
-import { Input, PageHeader, Spin } from 'antd';
+import { Input, message, PageHeader, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
@@ -25,11 +25,12 @@ export const UsersView = () => {
 
     const [usersLoading, setUsersLoading] = useState(false);
 
-    const  [users, setUsers] = useState<UserData[]>([]);
+    const [users, setUsers] = useState<UserData[]>([]);
     const [query, setQuery] = useState<string | undefined>(undefined);
 
     //fetch users
     useEffect(() => {
+
         setUsersLoading(true);
         return firestore().collection(usersCollection).onSnapshot(snap => {
             setUsersLoading(false);
@@ -40,6 +41,8 @@ export const UsersView = () => {
                 } as any;
             });
             setUsers(usersLoaded);
+        }, (err) => {
+            message.error(`Es ist ein Fehler aufgetreten ${err}`)
         });
     }, [isAuthenticated]);
 
@@ -49,7 +52,7 @@ export const UsersView = () => {
         <div className={classNames(appStyles['flex-grower'])}>
 
             {
-                usersLoading && <Spin/>
+                usersLoading && <Spin />
             }
             <Search
                 placeholder="nach Benutzern suchen"
@@ -58,7 +61,7 @@ export const UsersView = () => {
                 size="large"
                 onSearch={(query: string) => setQuery(query)}
             />
-            <UserTable users={query ? users.filter(user => user.displayName.toLowerCase().includes(query.toLowerCase()) || user.email.toLowerCase().includes(query.toLowerCase())) : users} makeStaff={promoteDemoteStaff}/>
+            <UserTable users={query ? users.filter(user => user.displayName.toLowerCase().includes(query.toLowerCase()) || user.email.toLowerCase().includes(query.toLowerCase())) : users} makeStaff={promoteDemoteStaff} />
         </div>
     </div>
 
@@ -70,7 +73,11 @@ export const promoteDemoteStaff = async (userId: string) => {
 
     const isStaff = userData.staff ? userData.staff : false
 
-    await firestore().collection(usersCollection).doc(userId).update({
-        staff: !isStaff
-    })
+    try {
+        await firestore().collection(usersCollection).doc(userId).update({
+            staff: !isStaff
+        })
+    } catch (ex) {
+        message.error(`Es ist ein Fehler aufgetreten ${ex}`)
+    }
 }

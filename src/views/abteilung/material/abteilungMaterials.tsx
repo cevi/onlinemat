@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { PageHeader, Spin, Input, Radio } from 'antd';
+import { PageHeader, Spin, Input, Radio, message } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
 import { firestore } from 'config/firebase/firebase';
 import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
@@ -47,6 +47,8 @@ export const AbteilungMaterialView = () => {
                     id: snap.id
                 } as Abteilung;
             setAbteilung(abteilungLoaded);
+        }, (err) => {
+            message.error(`Es ist ein Fehler aufgetreten ${err}`)
         });
     }, [isAuthenticated]);
 
@@ -62,6 +64,8 @@ export const AbteilungMaterialView = () => {
                 } as any;
             });
             setMaterial(materialLoaded);
+        }, (err) => {
+            message.error(`Es ist ein Fehler aufgetreten ${err}`)
         });
     }, [isAuthenticated]);
 
@@ -77,6 +81,8 @@ export const AbteilungMaterialView = () => {
                 } as any;
             });
             setCategorie(categoriesLoaded);
+        }, (err) => {
+            message.error(`Es ist ein Fehler aufgetreten ${err}`)
         });
     }, [isAuthenticated]);
 
