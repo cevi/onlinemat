@@ -1,9 +1,10 @@
 import React from 'react';
-import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons'
+import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined, GlobalOutlined } from '@ant-design/icons'
 import { HomeView } from 'views/home/home';
 import { LoginView } from 'views/login/login';
 import { ProfileView } from 'views/profile/profile';
-import { AbteilungenView } from 'views/abteilungen/abteilungen';
+import { AbteilungenView } from 'views/staff/abteilungen/abteilungen';
+import { UsersView } from 'views/staff/users/UsersView';
 
 
 export interface AppRoute {
@@ -15,7 +16,7 @@ export interface AppRoute {
     // is this route available when the user *is* logged in
     private?: boolean
     // if this route is available when signed in, does it require the user to be admin?
-    adminOnly?: boolean
+    staffOnly?: boolean
     // include this route in the sidebar
     showInMenue: boolean
     view: React.FC
@@ -41,12 +42,21 @@ export const AppRoutes: AppRoute[] = [
     {
         key: '/abteilungen',
         displayName: 'Abteilungen',
+        icon: <GlobalOutlined />,
+        public: false,
+        private: true,
+        staffOnly: true,
+        showInMenue: true,
+        view: AbteilungenView
+    },
+    {
+        key: '/users',
+        displayName: 'Benutzer',
         icon: <TeamOutlined />,
         public: false,
         private: true,
-        adminOnly: true,
         showInMenue: true,
-        view: AbteilungenView
+        view: UsersView
     },
     {
         key: '/profile',

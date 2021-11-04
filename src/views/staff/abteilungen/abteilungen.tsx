@@ -14,9 +14,9 @@ import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMateria
 import { AbteilungDetail } from 'components/abteilung/AbteilungDetails';
 
 export const AbteilungenView = () => {
-    const { user, isAuthenticated } = useAuth0();
+    const { isAuthenticated } = useAuth0();
 
-    const { path, url } = useRouteMatch();
+    const { path } = useRouteMatch();
 
     const [loading, setLoading] = useState(false);
 

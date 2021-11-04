@@ -1,5 +1,4 @@
-import { ShoppingCartOutlined } from '@ant-design/icons';
-import { Button, Card, Carousel, Col, Image, Row, Table } from 'antd';
+import { Card, Carousel, Col, Image, Row } from 'antd';
 import Meta from 'antd/lib/card/Meta';
 import React from 'react';
 import { Categorie } from 'types/categorie.types';

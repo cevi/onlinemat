@@ -9,6 +9,7 @@ import { auth } from 'config/firebase/firebase';
 import { AppRoute } from 'routes';
 import { LoginOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useAuth0 } from '@auth0/auth0-react';
+import { useUser } from 'hooks/use-user';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -18,9 +19,11 @@ const NavigationMenu: React.FC = () => {
   const { push } = useHistory();
 
   const { isAuthenticated, isLoading, logout, loginWithRedirect  } = useAuth0();
+  const firebaseUser = useUser();
+
 
   //TODO: fix
-  const isAdmin = true;
+  const isStaff = firebaseUser.appUser?.isStaff;
 
 
   const filteredRoutes = AppRoutes.filter((appRoute: AppRoute) => {
@@ -29,7 +32,7 @@ const NavigationMenu: React.FC = () => {
     // if the route is not available on login, do not make it available
     if(!appRoute.private) return false;
     // if the route requires admin, only make it available if the user is admin
-    if(appRoute.adminOnly) return isAdmin;
+    if(appRoute.staffOnly) return isStaff;
 
     return appRoute.private;
   });
@@ -58,7 +61,7 @@ const NavigationMenu: React.FC = () => {
           >
             {
               isLoading ?
-                <Menu.Item><div style={{justifyContent: 'center', display: 'flex'}}><Spin/></div></Menu.Item>
+                <Menu.Item key='menuLoader'><div style={{justifyContent: 'center', display: 'flex'}}><Spin/></div></Menu.Item>
                 :
                 [HomeRoute, ...filteredRoutes].map(appRoute => {
                   if(appRoute.showInMenue) {

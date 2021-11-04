@@ -4,7 +4,6 @@ import { Abteilung } from 'types/abteilung.type';
 import { useHistory, useRouteMatch } from 'react-router';
 import ceviLogoImage from "../../assets/cevi_logo.png";
 import classNames from 'classnames';
-import moduleStyles from './Abteilung.module.scss';
 import appStyles from 'styles.module.scss';
 
 export interface AbteilungCardProps {

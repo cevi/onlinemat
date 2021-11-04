@@ -99,7 +99,7 @@ export const filterCategorie = (value: any, record: Material): boolean => {
 export const displayCategorieNames = (categorie: Categorie[], catIds: string[]) => {
     let result: string[] = [];
     catIds.forEach(categoryId => {
-        const cat = categorie.find(cat => cat.id == categoryId);
+        const cat = categorie.find(cat => cat.id === categoryId);
         if(cat) {
             result.push(cat.name);
         }

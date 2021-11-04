@@ -1,7 +1,7 @@
 export interface UserData {
     id: string;
     displayName: string;
-    emaiL: string;
+    email: string;
     photoURL?: string;
     staff?: boolean;
 }

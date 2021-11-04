@@ -40,12 +40,12 @@ export const ProfileView = () => {
         }
         {
             (!!user && isAuthenticated) && <div className={classNames(appStyles['flex-grower'], appStyles['center-container'])}>
-                <Card loading={isLoading}>
+                <Card loading={isLoading || loading}>
                     <Meta
                         avatar={
                             <Avatar src={user.picture ? user.picture : 'https://static.asianetnews.com/img/default-user-avatar.png'} />
                         }
-                        title={(user as Auth0User).name}
+                        title={userData?.displayName}
                         description={(user as Auth0User).email}
                     />
                     <p>Name: {(user as Auth0User).name}</p>
