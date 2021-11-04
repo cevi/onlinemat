@@ -3,7 +3,7 @@ import Meta from 'antd/lib/card/Meta';
 import React from 'react';
 import { Categorie } from 'types/categorie.types';
 import { Material } from "types/material.types";
-import ceviLogoImage from "../../assets/cevi_logo.png";
+import ceviLogoImage from "assets/cevi_logo.png";
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 

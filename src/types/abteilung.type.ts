@@ -4,3 +4,9 @@ export interface Abteilung {
     ceviDBId?: string
     logoUrl?: string
 }
+
+
+export interface AbteilungMember {
+    userId: string
+    role: 'guest' | 'member' | 'matchef' | 'admin'
+}

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { PageHeader, Result, Typography } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
-import ceviLogoImage from "../../assets/cevi_logo.png";
+import ceviLogoImage from "assets/cevi_logo.png";
 
 export const HomeView = () => {
     const { user, isAuthenticated  } = useAuth0();

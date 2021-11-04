@@ -8,7 +8,7 @@ import { firestore } from 'config/firebase/firebase';
 import { abteilungenCollection } from 'config/firebase/collections';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useHistory, useParams } from 'react-router';
-import ceviLogoImage from "../../assets/cevi_logo.png";
+import ceviLogoImage from "assets/cevi_logo.png";
 import { DeleteOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
 
