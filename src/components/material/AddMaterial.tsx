@@ -214,7 +214,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
                                         <Button
                                             type="dashed"
                                             onClick={() => add()}
-                                            style={{ width: '60%' }}
+                                            style={{ width: '100%' }}
                                             icon={<PlusOutlined />}
                                         >
                                            Bild hinzufügen
