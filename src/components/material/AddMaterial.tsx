@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, message, Switch, InputNumber, Select, Spin } from 'antd';
+import { Button, Input, message, Switch, InputNumber, Select, Spin, Form } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
 import { firestore } from 'config/firebase/firebase';
 import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
 import { Categorie } from 'types/categorie.types';
 import { useAuth0 } from '@auth0/auth0-react';
 import { PicturesWall } from 'components/pictures/PictureWall';
+import { Material } from 'types/material.types';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 
 export interface AddMaterialProps {
     abteilungId: string
@@ -18,21 +20,36 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
     const { isAuthenticated } = useAuth0();
 
+    const [form] = Form.useForm<Material>();
+
     const { TextArea } = Input;
     const { Option } = Select;
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    const [name, setName] = useState<string>('');
-    const [comment, setComment] = useState<string>('');
-    const [weightInKg, setWeightInKg] = useState<number>(0);
-    const [count, setCount] = useState<number>(1);
-    const [consumables, setConsumables] = useState<boolean>(false);
-    const [categorieIds, setCategorieIds] = useState<string[]>([]);
-
     const [catLoading, setCatLoading] = useState(false);
 
     const [categories, setCategories] = useState<Categorie[]>([])
+
+    const [renderMatImages, setRenderMatImages] = useState([]);
+
+    const formItemLayout = {
+        labelCol: {
+            xs: { span: 24 },
+            sm: { span: 4 },
+        },
+        wrapperCol: {
+            xs: { span: 24 },
+            sm: { span: 20 },
+        },
+    };
+
+    const formItemLayoutWithOutLabel = {
+        wrapperCol: {
+            xs: { span: 24, offset: 0 },
+            sm: { span: 20, offset: 4 },
+        },
+    };
 
     //fetch categories
     useEffect(() => {
@@ -51,74 +68,169 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
     const addMaterial = async () => {
         try {
-            const response = await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).add({
-                name,
-                comment,
-                weightInKg,
-                count,
-                consumables,
-            })
-            if(response.id) {
-                message.success(`Material ${name} erfolgreich erstellt`);
+            const response = await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).add(form.getFieldsValue() as Material)
+            if (response.id) {
+                message.success(`Material ${form.getFieldValue('name')} erfolgreich erstellt`);
+                form.resetFields();
+                setRenderMatImages([])
+                setIsModalVisible(false)
             } else {
                 message.error('Es ist leider ein Fehler aufgetreten')
             }
-        } catch(ex) {
+        } catch (ex) {
             message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
         }
-        
-        setName('')
-        setComment('')
-        setWeightInKg(0)
-        setCount(1)
-        setConsumables(false)
-        setIsModalVisible(false)
-        setCategorieIds([])
+
     }
 
     return <>
-        <Button type="primary" onClick={()=>{setIsModalVisible(!isModalVisible)}}>
+        <Button type="primary" onClick={() => { setIsModalVisible(!isModalVisible) }}>
             Material hinzufügen
-      </Button>
-        <Modal title="Material hinzufügen" visible={isModalVisible} onOk={addMaterial} onCancel={()=>{ setIsModalVisible(false) }}>
+        </Button>
+        <Modal title="Material hinzufügen" visible={isModalVisible} onOk={addMaterial} onCancel={() => { setIsModalVisible(false) }}>
             {
-                catLoading ? <Spin /> :<>
-                    <Input
-                        value={name}
-                        onChange={(e: any)=> setName(e.currentTarget.value)}
-                        placeholder="Name" />
-                    <TextArea 
-                        value={comment}
-                        onChange={(e: any)=> setComment(e.currentTarget.value)}
-                        placeholder="Bemerkung"
-                        rows={4} />
-                    {!consumables && <><p>Anzahl</p><InputNumber value={count} min={1} onChange={(number)=> setCount(number)} /></> }
-                    <p>Gewicht in Kg</p><InputNumber value={weightInKg} onChange={(number)=> setWeightInKg(number)} />
-                    <p>Ist Verbrauchsmaterial</p>
-                    <Switch checked={consumables} onChange={()=> { 
-                        if(consumables) {
-                            setCount(0)
-                        }
-                        setConsumables(!consumables)
-                        }}
-                    />
-                    <Select
-                        mode="multiple"
-                        allowClear
-                        value={categorieIds}
-                        style={{ width: '100%' }}
-                        placeholder="Kategorien"
-                        onChange={(vals) => setCategorieIds(vals)}
-                        >
-                            {
-                                categories.map(cat => <Option key={cat.id} value={cat.id}>{cat.name}</Option>)
-                            }
-                    </Select>
+                catLoading ? <Spin /> : <>
 
-                    <PicturesWall imageUrls={['https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg', 'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg']}/>
+                    <Form
+                        form={form}
+                        initialValues={{ consumables: false, categorieIds: [], comment: '', weightInKg: null, imageUrls: [] }}
+                        onValuesChange={()=>{
+                            if(renderMatImages !== form.getFieldValue('imageUrls')) {
+                                setRenderMatImages(form.getFieldValue('imageUrls'))
+                            }
+                        }}
+                    >
+                        <Form.Item
+                            label="Name"
+                            name="name"
+                            rules={[
+                                { required: true },
+                                { type: 'string', min: 1 },
+                            ]}
+                        >
+                            <Input
+                                placeholder="Materialname"
+                            />
+                        </Form.Item>
+                        <Form.Item
+                            label="Bemerkung"
+                            name="comment"
+                            rules={[
+                                { required: false },
+                            ]}
+                        >
+                            <TextArea
+                                placeholder="Bemerkung"
+                                rows={4}
+                            />
+                        </Form.Item>
+                        <Form.Item
+                            label="Anzahl"
+                            name="count"
+                            rules={[
+                                { required: true },
+                            ]}
+                        >
+                            <InputNumber min={1} />
+                        </Form.Item>
+                        <Form.Item
+                            label="Gewicht in Kg"
+                            name="weightInKg"
+                            rules={[
+                                { required: false },
+                            ]}
+                        >
+                            <InputNumber />
+                        </Form.Item>
+                        <Form.Item
+                            label="Ist Verbrauchsmaterial"
+                            name="consumables"
+                            rules={[
+                                { required: true },
+
+                            ]}
+                        >
+                            <Switch />
+                        </Form.Item>
+                        <Form.Item
+                            label="Kategorien"
+                            name="categorieIds"
+                            rules={[
+                                { required: false },
+                            ]}
+                        >
+                            <Select
+                                mode="multiple"
+                                allowClear
+                                style={{ width: '100%' }}
+                                placeholder="Kategorien"
+                            >
+                                {
+                                    categories.map(cat => <Option key={cat.id} value={cat.id}>{cat.name}</Option>)
+                                }
+                            </Select>
+                        </Form.Item>
+                        <Form.List
+                            name="imageUrls"
+                            rules={[
+                                {
+                                    validator: async (_, names) => {
+                                        // if (!names || names.length < 2) {
+                                        //   return Promise.reject(new Error('At least 2 passengers'));
+                                        // }
+                                    },
+                                },
+                            ]}
+                        >
+                            {(fields, { add, remove }, { errors }) => (
+                                <>
+                                    {fields.map((field, index) => (
+                                        <Form.Item
+                                            {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
+                                            label={index === 0 ? 'Bilder Urls' : ''}
+                                            required={false}
+                                            key={field.key}
+                                        >
+                                            <Form.Item
+                                                {...field}
+                                                validateTrigger={['onChange', 'onBlur']}
+                                                rules={[
+                                                    {
+                                                        required: false,
+                                                        whitespace: true,
+                                                    },
+                                                ]}
+                                                noStyle
+                                            >
+                                                <Input placeholder="Material Bild Url" style={{ width: '90%' }} />
+                                            </Form.Item>
+                                            <MinusCircleOutlined
+                                                className="dynamic-delete-button"
+                                                onClick={() => remove(field.name)}
+                                            />
+                                        </Form.Item>
+                                    ))}
+                                    <Form.Item>
+                                        <Button
+                                            type="dashed"
+                                            onClick={() => add()}
+                                            style={{ width: '60%' }}
+                                            icon={<PlusOutlined />}
+                                        >
+                                           Bild hinzufügen
+                                        </Button>
+                                    </Form.Item>
+                                </>
+                            )}
+                        </Form.List>
+
+                    </Form>
+
+
+                    <PicturesWall showRemove={false} imageUrls={renderMatImages} />
                 </>
             }
-            
+
         </Modal>
     </>
 }
