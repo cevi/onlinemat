@@ -41,7 +41,8 @@ export const UserTable = (props: UserTableProps) => {
                     unCheckedChildren={<CloseOutlined />}
                     onChange={()=> { makeStaff(record.id) }}
                 />
-            )
+            ),
+            sorter: (a: UserData, b: UserData) => ((a.staff || false) === (b.staff || false)) ? 0 : (a.staff || false) ? -1 : 1,
         }
       ];
 

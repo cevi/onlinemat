@@ -9,4 +9,6 @@ export interface Abteilung {
 export interface AbteilungMember {
     userId: string
     role: 'guest' | 'member' | 'matchef' | 'admin'
+    approved: boolean
+    banned?: boolean
 }

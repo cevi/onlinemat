@@ -73,10 +73,10 @@ const NavigationMenu: React.FC = () => {
                 })
             }
             {
-              !isAuthenticated && <Menu.Item onClick={() => { loginWithRedirect()}} key='login'><LoginOutlined /><span>Anmelden</span></Menu.Item>
+              !isAuthenticated && !isLoading && <Menu.Item onClick={() => { loginWithRedirect()}} key='login'><LoginOutlined /><span>Anmelden</span></Menu.Item>
             }
             {
-              !!isAuthenticated && <Menu.Item onClick={async () => { await auth().signOut(); logout({returnTo: window.location.origin})}} key='logout' className={classNames(styles['logout'])}><LogoutOutlined /><span>Abmelden</span></Menu.Item>
+              !!isAuthenticated && !isLoading && <Menu.Item onClick={async () => { await auth().signOut(); logout({returnTo: window.location.origin})}} key='logout' className={classNames(styles['logout'])}><LogoutOutlined /><span>Abmelden</span></Menu.Item>
             }
         </Menu>
       </Sider>
