@@ -37,6 +37,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
     const [abteilungLoading, setAbteilungLoading] = useState(false);
     const [membersLoading, setMembersLoading] = useState(false);
+    const [userDataLoading, setuserDataLoading] = useState(false);
 
 
     //fetch abteilung
@@ -82,6 +83,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
     useEffect(() => {
         const loadUser = async () => {
+            setuserDataLoading(true)
             const promises: Promise<UserData>[] = [];
             const localUserData = userData; 
             members.forEach(member => {
@@ -89,7 +91,6 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                 if (!userData[uid]) {
                     //fetch full user data
                     const userDoc = firestore().collection(usersCollection).doc(uid).get().then((doc) => {
-
                         return {
                             ...doc.data(),
                             id: doc.id
@@ -104,7 +105,8 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             values.forEach(val => {
                 localUserData[val.id] = val;
             })
-            setUserData(localUserData)
+            await setUserData(localUserData)
+            setuserDataLoading(false)
         }
 
         loadUser();
@@ -225,7 +227,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             </Row>
             <Row>
                 <Col span={24}>
-                    <MemberTable members={members} usersData={userData} />
+                    <MemberTable loading={userDataLoading || membersLoading} abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/>
                 </Col>
             </Row>
         </PageHeader>

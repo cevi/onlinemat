@@ -1,3 +1,5 @@
+import { UserData } from "./user.type";
+
 export interface Abteilung {
     id: string
     name: string
@@ -11,4 +13,8 @@ export interface AbteilungMember {
     role: 'guest' | 'member' | 'matchef' | 'admin'
     approved: boolean
     banned?: boolean
+}
+
+export interface AbteilungMemberUserData extends AbteilungMember, UserData {
+
 }
