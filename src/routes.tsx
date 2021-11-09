@@ -55,6 +55,7 @@ export const AppRoutes: AppRoute[] = [
         icon: <TeamOutlined />,
         public: false,
         private: true,
+        staffOnly: true,
         showInMenue: true,
         view: UsersView
     },
