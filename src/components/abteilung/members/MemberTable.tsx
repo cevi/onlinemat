@@ -25,7 +25,9 @@ export const MemberTable = (props: MemberTableProps) => {
     const renderActions = (record: AbteilungMember) => {
 
         if(record.banned && !!record.banned) {
-            return <Button type="primary" onClick={()=> unBanMember(abteilungId, record.userId)}>Benutzer entsperren</Button>
+            return <div className={classNames(moduleStyles['actions'])}>
+                        <Button type="primary" onClick={()=> unBanMember(abteilungId, record.userId)}>Benutzer entsperren</Button>
+                    </div>
         }
 
         if(!record.approved || !!!record.approved ) {
