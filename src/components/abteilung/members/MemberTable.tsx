@@ -19,8 +19,9 @@ export const MemberTable = (props: MemberTableProps) => {
 
     const { abteilungId, loading, members } = props;
 
-
     const { Option } = Select;
+
+    const roles = [{key: 'guest', name: 'Gast'}, {key: 'member', name: 'Mitglied'}, {key: 'matchef', name: 'Matchef'}, {key: 'admin', name: 'Admin'}];
 
     const renderActions = (record: AbteilungMember) => {
 
@@ -34,7 +35,7 @@ export const MemberTable = (props: MemberTableProps) => {
 
             //show approve / deny / ban
             return <div className={classNames(moduleStyles['actions'])}>
-                <Button type="primary" onClick={()=> approveMemberRequest(abteilungId, record.userId)}>{`als ${record.role} Annehmen`}</Button>
+                <Button type="primary" onClick={()=> approveMemberRequest(abteilungId, record.userId)}>{`als ${roles.find(r => r.key === record.role)?.name || record.role} Annehmen`}</Button>
                 <Button type="dashed" danger onClick={()=> denyMemberRequest(abteilungId, record.userId)}>Ablehnen</Button>
                 <Tooltip title="Die Anfrage wird abgelehnt und der Benutzer kann in Zukunft keinen neuen Antrag stellen">
                     <Button type="primary" danger onClick={()=> banMember(abteilungId, record.userId)}>Sperren</Button>
@@ -46,7 +47,7 @@ export const MemberTable = (props: MemberTableProps) => {
         return <div className={classNames(moduleStyles['actions'])}>
             <Select key={`${record.userId}_roleSelection`} value={record.role} style={{ width: 120 }} onChange={(role) => changeRoleOfMember(abteilungId, record.userId, role)}>
                 {
-                    ['guest', 'member', 'matchef', 'admin'].map(role => <Option key={`${record.userId}_role_${role}`} value={role}>{role}</Option>)
+                    roles.map(role => <Option key={`${record.userId}_role_${role.key}`} value={role.key}>{role.name}</Option>)
                 }
             </Select>
             <Button type="dashed" danger onClick={()=> removeMember(abteilungId, record.userId)}>Entfernen</Button>
@@ -84,7 +85,7 @@ export const MemberTable = (props: MemberTableProps) => {
       ];
 
 
-      return <Table loading={loading} columns={columns} dataSource={members} />;
+      return <Table loading={loading} columns={columns} dataSource={members.sort((a: AbteilungMemberUserData, b: AbteilungMemberUserData) => ((a.approved || false) === (b.approved || false)) ? 0 : (a.approved || false) ? 1 : -1)} />;
 
 
 }
