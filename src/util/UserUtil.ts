@@ -42,12 +42,21 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
       if(!user.roles) user.roles = {};
 
       for(const abteilungId of Object.keys(user.roles)) {
+
         const role: AbteilungMember['role'] = user.roles[abteilungId] as AbteilungMember['role'];
 
         switch(role) {
           case 'admin':
+            can('read', 'Abteilung', { id: abteilungId });
+            can('update', 'Abteilung', { id: abteilungId });
+            can('delete', 'Abteilung', { id: abteilungId });
+            can('order', 'Abteilung', { id: abteilungId });
+            break;
 
           case 'matchef':
+            can('read', 'Abteilung', { id: abteilungId });
+            can('order', 'Abteilung', { id: abteilungId });
+            break;
 
           case 'member':
             can('read', 'Abteilung', { id: abteilungId });
@@ -56,6 +65,7 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
 
           case 'guest':
             can('read', 'Abteilung', { id: abteilungId });
+            can('order', 'Abteilung', { id: abteilungId });
 
         }
       }
@@ -63,7 +73,6 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
       //basic user
       can('read', 'Abteilung');
     }
-
 
     ability.update(rules);
 }

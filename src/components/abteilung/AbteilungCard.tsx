@@ -6,6 +6,7 @@ import ceviLogoImage from "assets/cevi_logo.png";
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { Can } from 'config/casl/casl';
+import { JoinAbteilungButton } from './join/JoinAbteilung';
 
 export interface AbteilungCardProps {
     abteilung: Abteilung
@@ -35,6 +36,9 @@ export const AbteilungCard = (props: AbteilungCardProps) => {
                 </Can>
                 <Can I='order' this={abteilung}>
                     <Button onClick={() => push(`${url}/${abteilung.id}/mat`)}>Material</Button>
+                </Can>
+                <Can not I='order' this={abteilung}>
+                    <JoinAbteilungButton abteilungId={abteilung.id} abteilungName={abteilung.name} />
                 </Can>
     </Card>
 }

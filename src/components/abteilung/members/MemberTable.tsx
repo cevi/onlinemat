@@ -12,14 +12,14 @@ export interface MemberTableProps {
     loading: boolean
 }
 
+export const roles = [{ key: 'guest', name: 'Gast' }, { key: 'member', name: 'Mitglied' }, { key: 'matchef', name: 'Matchef' }, { key: 'admin', name: 'Admin' }];
+
 
 export const MemberTable = (props: MemberTableProps) => {
 
     const { abteilungId, loading, members } = props;
 
     const { Option } = Select;
-
-    const roles = [{ key: 'guest', name: 'Gast' }, { key: 'member', name: 'Mitglied' }, { key: 'matchef', name: 'Matchef' }, { key: 'admin', name: 'Admin' }];
 
     const renderActions = (record: AbteilungMemberUserData) => {
 
