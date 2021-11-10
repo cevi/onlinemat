@@ -19,11 +19,10 @@ const NavigationMenu: React.FC = () => {
   const { push } = useHistory();
 
   const { isAuthenticated, isLoading, logout, loginWithRedirect  } = useAuth0();
-  const firebaseUser = useUser();
+  const userState = useUser();
 
 
-  //TODO: fix
-  const isStaff = firebaseUser.appUser?.isStaff;
+  const isStaff = userState.appUser?.userData.staff || false;
 
 
   const filteredRoutes = AppRoutes.filter((appRoute: AppRoute) => {

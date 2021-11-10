@@ -13,6 +13,8 @@
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
     "@auth0/auth0-react": "^1.4.0",
+    "@casl/ability": "^5.4.3",
+    "@casl/react": "^2.3.0",
     "@sentry/react": "^6.2.5",
     "@sentry/tracing": "^6.2.5",
     "@testing-library/jest-dom": "^4.2.4",

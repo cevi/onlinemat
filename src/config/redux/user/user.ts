@@ -7,8 +7,7 @@ import { abteilungenCollection, abteilungenMembersCollection } from 'config/fire
 
 export interface AppUser {
     firebaseUser: firebase.default.User, 
-    isStaff: boolean
-    roles: {[abteilungId: string] : string}
+    userData: UserData
 }
 
 export interface UserState {
@@ -31,26 +30,13 @@ export const UserReducer: Reducer<UserState, AnyAction> = handleActions<UserStat
     })
 }, defaultState) as Reducer<UserState, AnyAction>;
 
-export const setUser = (user: firebase.default.User | null) => {
+export const setUser = (user: firebase.default.User | null, userData: UserData | null) => {
     return async (dispatch: Dispatch<AnyAction>) => {
-        if(!user) {
+        if(!user || !userData) {
             dispatch(setUserInner(null));
             return;
         }
-        const uid = user.uid;
-        let isStaff = false;
-        let roles = {};
-        try {
-            const adminDoc = await firestore().collection('users').doc(uid).get();
-            isStaff = (adminDoc.data() as UserData).staff || false;
-            roles =  (adminDoc.data() as UserData).roles || {}
 
-            const memberList = await firestore().collectionGroup(abteilungenMembersCollection).where('userId', '==', uid).get();
-            console.log('memberList', memberList)
-        } catch(err) {
-            console.error('Failed to fetch user data', err);
-        }
-
-        dispatch(setUserInner({ firebaseUser: user, isStaff: isStaff, roles: roles }))
+        dispatch(setUserInner({ firebaseUser: user, userData }))
     }
 }

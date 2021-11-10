@@ -11,6 +11,8 @@ import * as Sentry from '@sentry/react';
 import App from 'App';
 import { Auth0Provider } from "@auth0/auth0-react";
 import { Integrations } from "@sentry/tracing";
+import { AbilityContext } from 'config/casl/casl';
+import { ability } from 'config/casl/ability';
 
 const store = configureStore();
 
@@ -32,7 +34,10 @@ ReactDOM.render(<Provider store={store}>
             redirectUri={window.location.origin}
             cacheLocation='localstorage'
         >
-            <App />
+            <AbilityContext.Provider value={ability}>
+                <App />
+            </AbilityContext.Provider>
+            
         </Auth0Provider>
     </Router>
 </Provider>, document.getElementById('root'));

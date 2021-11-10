@@ -21,26 +21,26 @@ export const MemberTable = (props: MemberTableProps) => {
 
     const { Option } = Select;
 
-    const roles = [{key: 'guest', name: 'Gast'}, {key: 'member', name: 'Mitglied'}, {key: 'matchef', name: 'Matchef'}, {key: 'admin', name: 'Admin'}];
+    const roles = [{ key: 'guest', name: 'Gast' }, { key: 'member', name: 'Mitglied' }, { key: 'matchef', name: 'Matchef' }, { key: 'admin', name: 'Admin' }];
 
     const renderActions = (record: AbteilungMember) => {
 
-        if(record.banned && !!record.banned) {
+        if (record.banned && !!record.banned) {
             return <div className={classNames(moduleStyles['actions'])}>
-                        <Button type="primary" onClick={()=> unBanMember(abteilungId, record.userId)}>Benutzer entsperren</Button>
-                    </div>
+                <Button type="primary" onClick={() => unBanMember(abteilungId, record.userId)}>Benutzer entsperren</Button>
+            </div>
         }
 
-        if(!record.approved || !!!record.approved ) {
+        if (!record.approved || !!!record.approved) {
 
             //show approve / deny / ban
             return <div className={classNames(moduleStyles['actions'])}>
-                <Button type="primary" onClick={()=> approveMemberRequest(abteilungId, record.userId)}>{`als ${roles.find(r => r.key === record.role)?.name || record.role} Annehmen`}</Button>
-                <Button type="dashed" danger onClick={()=> denyMemberRequest(abteilungId, record.userId)}>Ablehnen</Button>
+                <Button type="primary" onClick={() => approveMemberRequest(abteilungId, record.userId)}>{`als ${roles.find(r => r.key === record.role)?.name || record.role} Annehmen`}</Button>
+                <Button type="dashed" danger onClick={() => denyMemberRequest(abteilungId, record.userId)}>Ablehnen</Button>
                 <Tooltip title="Die Anfrage wird abgelehnt und der Benutzer kann in Zukunft keinen neuen Antrag stellen">
-                    <Button type="primary" danger onClick={()=> banMember(abteilungId, record.userId)}>Sperren</Button>
+                    <Button type="primary" danger onClick={() => banMember(abteilungId, record.userId)}>Sperren</Button>
                 </Tooltip>
-                
+
             </div>
         }
 
@@ -50,9 +50,9 @@ export const MemberTable = (props: MemberTableProps) => {
                     roles.map(role => <Option key={`${record.userId}_role_${role.key}`} value={role.key}>{role.name}</Option>)
                 }
             </Select>
-            <Button type="dashed" danger onClick={()=> removeMember(abteilungId, record.userId)}>Entfernen</Button>
+            <Button type="dashed" danger onClick={() => removeMember(abteilungId, record.userId)}>Entfernen</Button>
         </div>
-        
+
     }
 
     const columns = [
@@ -77,15 +77,16 @@ export const MemberTable = (props: MemberTableProps) => {
         {
             title: 'Rolle',
             key: 'role',
+            dataIndex: 'role',
             sorter: (a: AbteilungMemberUserData, b: AbteilungMemberUserData) => a.role.normalize().localeCompare(b.role.normalize()),
             render: (text: string, record: AbteilungMemberUserData) => (
                 renderActions(record)
             )
         }
-      ];
+    ];
 
 
-      return <Table loading={loading} columns={columns} dataSource={members.sort((a: AbteilungMemberUserData, b: AbteilungMemberUserData) => ((a.approved || false) === (b.approved || false)) ? 0 : (a.approved || false) ? 1 : -1)} />;
+    return <Table loading={loading} columns={columns} dataSource={members.sort((a: AbteilungMemberUserData, b: AbteilungMemberUserData) => ((a.approved || false) === (b.approved || false)) ? 0 : (a.approved || false) ? 1 : -1)} />;
 
 
 }
