@@ -1,9 +1,7 @@
-import { firestore } from 'config/firebase/firebase';
 import { Reducer, AnyAction } from 'redux';
 import { handleActions, createAction } from 'redux-actions';
 import { Dispatch } from 'react';
 import { UserData } from 'types/user.type';
-import { abteilungenCollection, abteilungenMembersCollection } from 'config/firebase/collections';
 
 export interface AppUser {
     firebaseUser: firebase.default.User, 

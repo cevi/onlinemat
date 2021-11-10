@@ -5,8 +5,8 @@ import { UserData } from 'types/user.type';
 
 
 export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
-    const { can, build, rules } = new AbilityBuilder(AppAbility);
-  
+    const { can, rules } = new AbilityBuilder(AppAbility);
+
     if (!!user.staff) {
       //Read
       can('read', 'Abteilung');
@@ -19,7 +19,6 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
       can('create', 'Abteilung');
       can('create', 'Material');
       can('create', 'AbteilungMember');
-      can('create', 'UserData');
 
       //Update
       can('update', 'Abteilung');
@@ -71,7 +70,7 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
       }
 
       //basic user
-      can('read', 'Abteilung');
+      
     }
 
     ability.update(rules);

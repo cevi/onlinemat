@@ -13,6 +13,8 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
 import { MemberTable } from './members/MemberTable';
 import { UserData } from 'types/user.type';
+import { Can } from 'config/casl/casl';
+import { ability } from 'config/casl/ability';
 
 
 export interface AbteilungDetailProps {
@@ -48,6 +50,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                 setAbteilungLoading(false);
                 const abteilungLoaded = {
                     ...snap.data(),
+                    __caslSubjectType__: 'Abteilung',
                     id: snap.id
                 } as Abteilung;
                 setAbteilung(abteilungLoaded);
@@ -134,6 +137,8 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
         }
     }
 
+    const disabled = ability.cannot('update', 'Abteilung');
+
 
     if (abteilungLoading || membersLoading || !abteilung) return <Spin />
 
@@ -172,6 +177,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                 >
                                     <Input
                                         placeholder="Abteilungsname"
+                                        disabled={disabled}
                                     />
                                 </Form.Item>
                             </Col>
@@ -185,6 +191,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                 >
                                     <Input
                                         placeholder="Cevi DB Id"
+                                        disabled={disabled}
                                     />
                                 </Form.Item>
                             </Col>
@@ -200,38 +207,43 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                 >
                                     <Input
                                         placeholder="Cevi Logo Url"
+                                        disabled={disabled}
                                     />
                                 </Form.Item>
                             </Col>
-                            <Col span={8}>
-                                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                                    <Button type="primary" htmlType="submit">
-                                        Speichern
-                                    </Button>
-                                </Form.Item>
-                            </Col>
-                            <Col span={8}>
-                                <Popconfirm
-                                    title='Möchtest du diese Abteilung wirklich löschen?'
-                                    onConfirm={() => delteAbteilung(abteilung)}
-                                    onCancel={() => { }}
-                                    okText='Ja'
-                                    cancelText='Nein'
-                                >
-                                    <Button type='ghost' danger icon={<DeleteOutlined />}>
-                                        Löschen
-                                    </Button>
-                                </Popconfirm>
-                            </Col>
+                            <Can I='update' this={abteilung}>
+                                <Col span={8}>
+                                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                                        <Button type="primary" htmlType="submit">
+                                            Speichern
+                                        </Button>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={8}>
+                                    <Popconfirm
+                                        title='Möchtest du diese Abteilung wirklich löschen?'
+                                        onConfirm={() => delteAbteilung(abteilung)}
+                                        onCancel={() => { }}
+                                        okText='Ja'
+                                        cancelText='Nein'
+                                    >
+                                        <Button type='ghost' danger icon={<DeleteOutlined />}>
+                                            Löschen
+                                        </Button>
+                                    </Popconfirm>
+                                </Col>
+                            </Can>
                         </Row>
                     </Form>
                 </div>
             </Row>
-            <Row>
-                <Col span={24}>
-                    <MemberTable loading={userDataLoading || membersLoading} abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/>
-                </Col>
-            </Row>
+            <Can I='update' this={abteilung}>
+                <Row>
+                    <Col span={24}>
+                        <MemberTable loading={userDataLoading || membersLoading} abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/>
+                    </Col>
+                </Row>
+            </Can>
         </PageHeader>
     </div>
 

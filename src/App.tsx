@@ -8,7 +8,7 @@ import { usersCollection } from 'config/firebase/collections';
 import { UserData } from 'types/user.type';
 import { message } from 'antd';
 import { ability } from 'config/casl/ability';
-import { updateAbility } from 'util/UserUtil';
+import { updateAbility } from 'util/UserPermission';
 
 const App = () => {
 
