@@ -12,6 +12,7 @@ import { AddAbteilung } from 'components/abteilung/AddAbteilung';
 import { Switch, Route, useRouteMatch } from 'react-router';
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 import { AbteilungDetail } from 'components/abteilung/AbteilungDetails';
+import { Can } from 'config/casl/casl';
 
 export const AbteilungenView = () => {
     const { isAuthenticated } = useAuth0();
@@ -52,9 +53,13 @@ export const AbteilungenView = () => {
 
                 <div className={classNames(appStyles['flex-grower'])} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'stretch' }}>
                     <Row gutter={[16, 16]} className={classNames(styles['row'])}>
-                        <Col key='add' xs={24} md={12} lg={8} xxl={6}>
-                            <AddAbteilung />
-                        </Col>
+                        
+                        <Can I='create' a='Abteilung'>
+                            <Col key='addAbteilung' xs={24} md={24} lg={24} xxl={24}>
+                                <AddAbteilung />
+                            </Col>
+                        </Can>
+                        
                         {
                             loading ?
                                 <Spin />

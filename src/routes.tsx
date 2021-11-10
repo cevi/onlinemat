@@ -3,8 +3,8 @@ import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined, GlobalOutlined
 import { HomeView } from 'views/home/home';
 import { LoginView } from 'views/login/login';
 import { ProfileView } from 'views/profile/profile';
-import { AbteilungenView } from 'views/staff/abteilungen/abteilungen';
 import { UsersView } from 'views/staff/users/UsersView';
+import { AbteilungenView } from 'views/abteilung/abteilungen';
 
 
 export interface AppRoute {
