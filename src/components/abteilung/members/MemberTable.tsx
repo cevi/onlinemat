@@ -1,12 +1,17 @@
-import { Table, Select, Button, Tooltip } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Table, Select, Button, Tooltip, message } from 'antd';
 import { AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
 import { approveMemberRequest, banMember, changeRoleOfMember, denyMemberRequest, removeMember, unBanMember } from 'util/MemberUtil';
 import classNames from 'classnames';
 import moduleStyles from './MemberTable.module.scss'
+import { UserData } from 'types/user.type';
+import { firestore } from 'config/firebase/firebase';
+import { abteilungenCollection, abteilungenMembersCollection, usersCollection } from 'config/firebase/collections';
+import { useAuth0 } from '@auth0/auth0-react';
 
 
 
-export interface MemberTableProps {
+export interface MemberImplTableProps {
     abteilungId: string
     members: AbteilungMemberUserData[]
     loading: boolean
@@ -15,7 +20,7 @@ export interface MemberTableProps {
 export const roles = [{ key: 'guest', name: 'Gast' }, { key: 'member', name: 'Mitglied' }, { key: 'matchef', name: 'Matchef' }, { key: 'admin', name: 'Admin' }];
 
 
-export const MemberTable = (props: MemberTableProps) => {
+export const MemberTableImpl = (props: MemberImplTableProps) => {
 
     const { abteilungId, loading, members } = props;
 
@@ -86,5 +91,77 @@ export const MemberTable = (props: MemberTableProps) => {
 
     return <Table loading={loading} columns={columns} dataSource={members.sort((a: AbteilungMemberUserData, b: AbteilungMemberUserData) => ((a.approved || false) === (b.approved || false)) ? 0 : (a.approved || false) ? 1 : -1)} />;
 
+}
 
+export interface MemberTableProps {
+    abteilungId: string
+}
+
+export const MemberTable = (props: MemberTableProps) => {
+
+    const { abteilungId } = props;
+    const { isAuthenticated } = useAuth0();
+
+
+    const [members, setMembers] = useState<AbteilungMember[]>([]);
+    const [userData, setUserData] = useState<{ [uid: string]: UserData }>({});
+
+    const [membersLoading, setMembersLoading] = useState(false);
+    const [userDataLoading, setuserDataLoading] = useState(false);
+
+
+    //fetch members
+    useEffect(() => {
+        setMembersLoading(true);
+        return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMembersCollection).onSnapshot(snap => {
+            setMembersLoading(false);
+            const membersLoaded = snap.docs.flatMap(doc => {
+
+                return {
+                    ...doc.data(),
+                    __caslSubjectType__: 'AbteilungMember',
+                    userId: doc.id
+                } as AbteilungMember;
+            });
+            setMembers(membersLoaded);
+        }, (err) => {
+            message.error(`Es ist ein Fehler aufgetreten ${err}`)
+        });
+    }, [isAuthenticated]);
+
+    useEffect(() => {
+        const loadUser = async () => {
+            setuserDataLoading(true)
+            const promises: Promise<UserData>[] = [];
+            const localUserData = userData; 
+            members.forEach(member => {
+                const uid = member.userId;
+                if (!userData[uid]) {
+                    //fetch full user data
+                    const userDoc = firestore().collection(usersCollection).doc(uid).get().then((doc) => {
+                        return {
+                            ...doc.data(),
+                            __caslSubjectType__: 'UserData',
+                            id: doc.id
+                        } as UserData
+                    });
+                    promises.push(userDoc);
+                }
+            })
+
+            const values = await Promise.all(promises);
+
+            values.forEach(val => {
+                localUserData[val.id] = val;
+            })
+            await setUserData(localUserData)
+            setuserDataLoading(false)
+        }
+
+        loadUser();
+
+    }, [members])
+
+
+    return <MemberTableImpl loading={userDataLoading || membersLoading} abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/>
 }

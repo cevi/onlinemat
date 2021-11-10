@@ -12,7 +12,6 @@ import ceviLogoImage from "assets/cevi_logo.png";
 import { DeleteOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
 import { MemberTable } from './members/MemberTable';
-import { UserData } from 'types/user.type';
 import { Can } from 'config/casl/casl';
 import { ability } from 'config/casl/ability';
 
@@ -34,13 +33,8 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
 
     const [abteilung, setAbteilung] = useState<Abteilung>();
-    const [members, setMembers] = useState<AbteilungMember[]>([]);
-    const [userData, setUserData] = useState<{ [uid: string]: UserData }>({});
 
     const [abteilungLoading, setAbteilungLoading] = useState(false);
-    const [membersLoading, setMembersLoading] = useState(false);
-    const [userDataLoading, setuserDataLoading] = useState(false);
-
 
     //fetch abteilung
     useEffect(() => {
@@ -66,57 +60,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
     }, [isAuthenticated]);
 
-    //fetch members
-    useEffect(() => {
-        setMembersLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMembersCollection).onSnapshot(snap => {
-            setMembersLoading(false);
-            const membersLoaded = snap.docs.flatMap(doc => {
-
-                return {
-                    ...doc.data(),
-                    __caslSubjectType__: 'AbteilungMember',
-                    userId: doc.id
-                } as AbteilungMember;
-            });
-            setMembers(membersLoaded);
-        }, (err) => {
-            message.error(`Es ist ein Fehler aufgetreten ${err}`)
-        });
-    }, [isAuthenticated]);
-
-    useEffect(() => {
-        const loadUser = async () => {
-            setuserDataLoading(true)
-            const promises: Promise<UserData>[] = [];
-            const localUserData = userData; 
-            members.forEach(member => {
-                const uid = member.userId;
-                if (!userData[uid]) {
-                    //fetch full user data
-                    const userDoc = firestore().collection(usersCollection).doc(uid).get().then((doc) => {
-                        return {
-                            ...doc.data(),
-                            __caslSubjectType__: 'UserData',
-                            id: doc.id
-                        } as UserData
-                    });
-                    promises.push(userDoc);
-                }
-            })
-
-            const values = await Promise.all(promises);
-
-            values.forEach(val => {
-                localUserData[val.id] = val;
-            })
-            await setUserData(localUserData)
-            setuserDataLoading(false)
-        }
-
-        loadUser();
-
-    }, [members])
+    
 
     const updateAbteilung = async () => {
         try {
@@ -140,7 +84,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const disabled = ability.cannot('update', 'Abteilung');
 
 
-    if (abteilungLoading || membersLoading || !abteilung) return <Spin />
+    if (abteilungLoading || !abteilung) return <Spin />
 
     return <div className={classNames(appStyles['flex-grower'])}>
         <PageHeader title={`Abteilung ${abteilung?.name}`}>
@@ -240,7 +184,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             <Can I='update' this={abteilung}>
                 <Row>
                     <Col span={24}>
-                        <MemberTable loading={userDataLoading || membersLoading} abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/>
+                        <MemberTable abteilungId={abteilung.id}/>
                     </Col>
                 </Row>
             </Can>

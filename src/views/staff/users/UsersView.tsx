@@ -52,9 +52,6 @@ export const UsersView = () => {
 
         <div className={classNames(appStyles['flex-grower'])}>
 
-            {
-                usersLoading && <Spin />
-            }
             <Search
                 placeholder="nach Benutzern suchen"
                 allowClear
@@ -62,7 +59,7 @@ export const UsersView = () => {
                 size="large"
                 onSearch={(query: string) => setQuery(query)}
             />
-            <UserTable users={query ? users.filter(user => user.displayName.toLowerCase().includes(query.toLowerCase()) || user.email.toLowerCase().includes(query.toLowerCase())) : users} makeStaff={promoteDemoteStaff} />
+            <UserTable loading={usersLoading} users={query ? users.filter(user => user.displayName.toLowerCase().includes(query.toLowerCase()) || user.email.toLowerCase().includes(query.toLowerCase())) : users} makeStaff={promoteDemoteStaff} />
         </div>
     </div>
 

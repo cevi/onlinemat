@@ -9,13 +9,14 @@ import { UserData } from 'types/user.type';
 
 export interface UserTableProps {
     users: UserData[]
+    loading: boolean
     makeStaff: (userId: string) => void
 }
 
 
 export const UserTable = (props: UserTableProps) => {
 
-    const { users, makeStaff } = props;
+    const { users, loading, makeStaff } = props;
 
     const columns = [
         {
@@ -47,7 +48,7 @@ export const UserTable = (props: UserTableProps) => {
       ];
 
 
-      return <Table columns={columns} dataSource={users} />;
+      return <Table columns={columns} dataSource={users} loading={loading} />;
 
 
 }
