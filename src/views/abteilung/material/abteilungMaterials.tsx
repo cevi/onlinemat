@@ -59,9 +59,10 @@ export const AbteilungMaterialView = () => {
             setMatLoading(false);
             const materialLoaded = snap.docs.flatMap(doc => {
                 return {
-                    ...doc.data() as Material,
+                    ...doc.data(),
+                    __caslSubjectType__: 'Material',
                     id: doc.id
-                } as any;
+                } as Material;
             });
             setMaterial(materialLoaded);
         }, (err) => {
@@ -76,9 +77,10 @@ export const AbteilungMaterialView = () => {
             setCatLoading(false);
             const categoriesLoaded = snap.docs.flatMap(doc => {
                 return {
-                    ...doc.data() as Categorie,
+                    ...doc.data(),
+                    __caslSubjectType__: 'Categorie',
                     id: doc.id
-                } as any;
+                } as Categorie;
             });
             setCategorie(categoriesLoaded);
         }, (err) => {

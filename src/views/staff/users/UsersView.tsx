@@ -36,9 +36,10 @@ export const UsersView = () => {
             setUsersLoading(false);
             const usersLoaded = snap.docs.flatMap(doc => {
                 return {
-                    ...doc.data() as UserData,
+                    ...doc.data(),
+                    __caslSubjectType__: 'UserData',
                     id: doc.id
-                } as any;
+                } as UserData;
             });
             setUsers(usersLoaded);
         }, (err) => {

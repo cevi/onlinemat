@@ -1,5 +1,6 @@
 
 export interface Auth0User {
+    __caslSubjectType__ : 'Auth0User',
     'https://mat.cevi.tools/firebase_token': string,
     given_name: string,
     nickname: string,

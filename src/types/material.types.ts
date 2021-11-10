@@ -1,4 +1,5 @@
 export interface Material {
+    __caslSubjectType__ : 'Material'
     id: string
     name: string
     comment: string

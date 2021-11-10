@@ -45,7 +45,6 @@ export const AppRoutes: AppRoute[] = [
         icon: <GlobalOutlined />,
         public: false,
         private: true,
-        staffOnly: true,
         showInMenue: true,
         view: AbteilungenView
     },

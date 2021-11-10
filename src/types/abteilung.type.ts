@@ -1,6 +1,7 @@
 import { UserData } from "./user.type";
 
 export interface Abteilung {
+    __caslSubjectType__ : 'Abteilung'
     id: string
     name: string
     ceviDBId?: string
@@ -9,12 +10,12 @@ export interface Abteilung {
 
 
 export interface AbteilungMember {
+    __caslSubjectType__ : 'AbteilungMember'
     userId: string
     role: 'guest' | 'member' | 'matchef' | 'admin'
     approved: boolean
     banned?: boolean
 }
 
-export interface AbteilungMemberUserData extends AbteilungMember, UserData {
-
+export interface AbteilungMemberUserData extends Omit<AbteilungMember, "__caslSubjectType__">, Omit<UserData, "__caslSubjectType__"> {
 }

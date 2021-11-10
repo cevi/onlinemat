@@ -57,9 +57,10 @@ export const AddMaterial = (props: AddMaterialProps) => {
             setCatLoading(false);
             const categoriesLoaded = snap.docs.flatMap(doc => {
                 return {
-                    ...doc.data() as Categorie,
+                    ...doc.data(),
+                    __caslSubjectType__: 'Categorie',
                     id: doc.id
-                } as any;
+                } as Categorie;
             });
             setCategories(categoriesLoaded);
         });

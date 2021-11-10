@@ -1,7 +1,5 @@
 import { Table, Select, Button, Tooltip } from 'antd';
-import React from 'react';
 import { AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
-import { UserData } from 'types/user.type';
 import { approveMemberRequest, banMember, changeRoleOfMember, denyMemberRequest, removeMember, unBanMember } from 'util/MemberUtil';
 import classNames from 'classnames';
 import moduleStyles from './MemberTable.module.scss'
@@ -23,7 +21,7 @@ export const MemberTable = (props: MemberTableProps) => {
 
     const roles = [{ key: 'guest', name: 'Gast' }, { key: 'member', name: 'Mitglied' }, { key: 'matchef', name: 'Matchef' }, { key: 'admin', name: 'Admin' }];
 
-    const renderActions = (record: AbteilungMember) => {
+    const renderActions = (record: AbteilungMemberUserData) => {
 
         if (record.banned && !!record.banned) {
             return <div className={classNames(moduleStyles['actions'])}>

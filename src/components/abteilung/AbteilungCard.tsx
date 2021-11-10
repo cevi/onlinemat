@@ -5,6 +5,7 @@ import { useHistory, useRouteMatch } from 'react-router';
 import ceviLogoImage from "assets/cevi_logo.png";
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
+import { Can } from 'config/casl/casl';
 
 export interface AbteilungCardProps {
     abteilung: Abteilung
@@ -29,7 +30,11 @@ export const AbteilungCard = (props: AbteilungCardProps) => {
                     preview={false}
                 /></div>}
             >
-        <Button onClick={() => push(`${url}/${abteilung.id}`)}>Details</Button>
-        <Button onClick={() => push(`${url}/${abteilung.id}/mat`)}>Material</Button>
+                <Can I='read' this={abteilung}>
+                    <Button onClick={() => push(`${url}/${abteilung.id}`)}>Details</Button>
+                </Can>
+                <Can I='order' this={abteilung}>
+                    <Button onClick={() => push(`${url}/${abteilung.id}/mat`)}>Material</Button>
+                </Can>
     </Card>
 }

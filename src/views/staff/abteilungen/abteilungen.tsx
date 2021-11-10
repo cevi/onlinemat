@@ -28,9 +28,10 @@ export const AbteilungenView = () => {
             setLoading(false);
             const abteilungenLoaded = snap.docs.flatMap(doc => {
                 return {
-                    ...doc.data() as Abteilung,
+                    ...doc.data(),
+                    __caslSubjectType__: 'Abteilung',
                     id: doc.id
-                } as any;
+                } as Abteilung;
             });
             setAbteilungen(abteilungenLoaded);
         }, (err) => {

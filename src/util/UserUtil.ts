@@ -1,16 +1,69 @@
 import { AbilityBuilder, Ability } from '@casl/ability';
-import { Actions, Subjects } from 'config/casl/ability';
+import { Abilities, AppAbility } from 'config/casl/ability';
+import { AbteilungMember } from 'types/abteilung.type';
 import { UserData } from 'types/user.type';
 
 
-export const updateAbility = (ability: Ability, user: UserData) => {
-    const { can, rules } = new AbilityBuilder(Ability);
+export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
+    const { can, build, rules } = new AbilityBuilder(AppAbility);
   
     if (!!user.staff) {
-      can('', 'homepage');
+      //Read
+      can('read', 'Abteilung');
+      can('read', 'Material');
+      can('read', 'AbteilungMember');
+      can('read', 'UserData');
+      can('read', 'users');
+
+      //Create
+      can('create', 'Abteilung');
+      can('create', 'Material');
+      can('create', 'AbteilungMember');
+      can('create', 'UserData');
+
+      //Update
+      can('update', 'Abteilung');
+      can('update', 'Material');
+      can('update', 'AbteilungMember');
+      can('update', 'UserData');
+
+      //Delete
+      can('delete', 'Abteilung');
+      can('delete', 'Material');
+      can('delete', 'AbteilungMember');
+      can('delete', 'UserData');
+
+      //Order
+      can('order', 'Abteilung');
+
     } else {
-      can('read', 'all');
+      //add roles based on abteilung
+
+      if(!user.roles) user.roles = {};
+
+      for(const abteilungId of Object.keys(user.roles)) {
+        const role: AbteilungMember['role'] = user.roles[abteilungId] as AbteilungMember['role'];
+
+        switch(role) {
+          case 'admin':
+
+          case 'matchef':
+
+          case 'member':
+            can('read', 'Abteilung', { id: abteilungId });
+            can('order', 'Abteilung', { id: abteilungId });
+            break;
+
+          case 'guest':
+            can('read', 'Abteilung', { id: abteilungId });
+
+        }
+      }
+
+      //basic user
+      can('read', 'Abteilung');
     }
-  
-    ability.update(rules as any);
-  }
+
+
+    ability.update(rules);
+}

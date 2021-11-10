@@ -72,6 +72,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
                 return {
                     ...doc.data(),
+                    __caslSubjectType__: 'AbteilungMember',
                     userId: doc.id
                 } as AbteilungMember;
             });
@@ -93,6 +94,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                     const userDoc = firestore().collection(usersCollection).doc(uid).get().then((doc) => {
                         return {
                             ...doc.data(),
+                            __caslSubjectType__: 'UserData',
                             id: doc.id
                         } as UserData
                     });
