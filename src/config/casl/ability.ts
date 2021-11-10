@@ -4,7 +4,7 @@ import { Abteilung, AbteilungMember } from 'types/abteilung.type';
 import { Material } from 'types/material.types';
 import { UserData } from 'types/user.type';
 
-export type Actions = 'create' | 'read' | 'update' | 'delete' | 'order';
+export type Actions = 'create' | 'read' | 'update' | 'delete' | 'order' | 'joinRequest';
 
 export type Subjects =  InferSubjects<Abteilung | Material | UserData | AbteilungMember> | 'users';
 
