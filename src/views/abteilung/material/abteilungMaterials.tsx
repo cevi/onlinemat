@@ -14,6 +14,8 @@ import { Categorie } from 'types/categorie.types';
 import { Abteilung } from 'types/abteilung.type';
 import { MaterialTable } from 'components/material/MaterialTable';
 import { MaterialGrid } from 'components/material/MaterialGrid';
+import { Can } from 'config/casl/casl';
+import { AbteilungEntityCasl } from 'config/casl/ability';
 
 export type AbteilungMaterialViewParams = {
     abteilungId: string;
@@ -98,8 +100,14 @@ export const AbteilungMaterialView = () => {
 
 
         <div className={classNames(appStyles['flex-grower'])}>
-            <AddMaterialButton abteilungId={abteilungId}/>
-            <AddCategorieButton abteilungId={abteilungId}/>
+            <Can I={'create'} this={{ __caslSubjectType__: 'Material', abteilungId } as AbteilungEntityCasl}>
+                <AddMaterialButton abteilungId={abteilungId}/>
+            </Can>
+
+            <Can I={'create'} this={{ __caslSubjectType__: 'Categorie', abteilungId } as AbteilungEntityCasl}>
+                <AddCategorieButton abteilungId={abteilungId}/>
+            </Can>
+           
                 {
                     matLoading || catLoading || abteilungLoading ?
                         <Spin />

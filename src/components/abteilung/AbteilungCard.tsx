@@ -8,6 +8,7 @@ import appStyles from 'styles.module.scss';
 import moduleStyles from './Abteilung.module.scss';
 import { Can } from 'config/casl/casl';
 import { JoinAbteilungButton } from './join/JoinAbteilung';
+import { useUser } from 'hooks/use-user';
 
 export interface AbteilungCardProps {
     abteilung: Abteilung
@@ -18,8 +19,12 @@ export const AbteilungCard = (props: AbteilungCardProps) => {
 
     const { abteilung } = props;
 
+    const user = useUser()
+
     const { push } = useHistory();
     const { url } = useRouteMatch();
+
+    const userRole = user.appUser?.userData['roles'] ? user.appUser?.userData?.roles[abteilung.id] : ''
 
     return <Card
         title={abteilung.name}
@@ -35,15 +40,12 @@ export const AbteilungCard = (props: AbteilungCardProps) => {
         <div className={classNames(moduleStyles['cardActions'])}>
             <Can I='read' this={abteilung}>
                 <Button onClick={() => push(`${url}/${abteilung.id}`)}>Details</Button>
-            </Can>
-            <Can I='order' this={abteilung}>
                 <Button onClick={() => push(`${url}/${abteilung.id}/mat`)}>Material</Button>
             </Can>
-            <Can not I='order' this={abteilung}>
-                <Can I='joinRequest' this={abteilung} passThrough>
-                    {(allowed: boolean) => allowed ? <JoinAbteilungButton abteilungId={abteilung.id} abteilungName={abteilung.name} /> : <Tag color="geekblue">Angefragt</Tag>}
-
-                </Can>
+            <Can not I='read' this={abteilung}>
+                { 
+                    userRole !== 'pending' ? <JoinAbteilungButton abteilungId={abteilung.id} abteilungName={abteilung.name} /> : <Tag color="geekblue">Angefragt</Tag>
+                }
             </Can>
         </div>
 

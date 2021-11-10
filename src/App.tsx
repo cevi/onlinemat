@@ -42,8 +42,10 @@ const App = () => {
 
   useMemo(() => {
     if (isAuthenticated && user && user['https://mat.cevi.tools/firebase_token']) {
-      auth().signInWithCustomToken(user['https://mat.cevi.tools/firebase_token'])
+      const token = user['https://mat.cevi.tools/firebase_token']
+      auth().signInWithCustomToken(token).catch(err => console.error('unable to login to firebase with token', err))
     }
+
   }, [user])
 
 

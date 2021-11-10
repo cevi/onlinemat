@@ -77,7 +77,7 @@ export const JoinAbteilung = (props: JoinAbteilungProps) => {
 
 export const JoinAbteilungButton = (props: JoinAbteilungProps) => {
 
-    const { abteilungId,abteilungName } = props;
+    const { abteilungId, abteilungName } = props;
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -95,7 +95,7 @@ export const JoinAbteilungButton = (props: JoinAbteilungProps) => {
                 </Button>,
               ]}
         >
-            <JoinAbteilung abteilungId={abteilungId} onSuccess={()=> { setIsModalVisible(false)}}/>
+            <JoinAbteilung abteilungId={abteilungId} abteilungName={abteilungName} onSuccess={()=> { setIsModalVisible(false)}}/>
         </Modal>
     </>
 

@@ -8,32 +8,42 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
   const { can, cannot, rules } = new AbilityBuilder(AppAbility);
 
   if (!!user.staff) {
-    //Read
-    can('read', 'Abteilung');
-    can('read', 'Material');
-    can('read', 'AbteilungMember');
-    can('read', 'UserData');
-    can('read', 'users');
-
-    //Create
+    //Abteilung
     can('create', 'Abteilung');
-    can('create', 'Material');
-    can('create', 'AbteilungMember');
-
-    //Update
+    can('read', 'Abteilung');
     can('update', 'Abteilung');
+    can('delete', 'Abteilung');
+
+    //Material
+    can('create', 'Material');
+    can('read', 'Material');
     can('update', 'Material');
+    can('delete', 'Material');
+
+    //Categorie
+    can('create', 'Categorie');
+    can('read', 'Categorie');
+    can('update', 'Categorie');
+    can('delete', 'Categorie');
+
+    //AbteilungMember
+    can('create', 'AbteilungMember');
+    can('read', 'AbteilungMember');
     can('update', 'AbteilungMember');
+    can('delete', 'AbteilungMember');
+
+    //UserData
+    can('read', 'UserData');
     can('update', 'UserData');
 
-    //Delete
-    can('delete', 'Abteilung');
-    can('delete', 'Material');
-    can('delete', 'AbteilungMember');
-    can('delete', 'UserData');
+    //Users
+    can('read', 'users');
 
     //Order
-    can('order', 'Abteilung');
+    can('create', 'Order');
+    can('read', 'Order');
+    can('update', 'Order');
+    can('delete', 'Order');
 
   } else {
     //add roles based on abteilung
@@ -44,31 +54,55 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
 
       const role = user.roles[abteilungId] as (AbteilungMember['role'] | 'pending');
 
-      if (role === 'pending') {
-        cannot('joinRequest', 'Abteilung', { id: abteilungId });
-      } else {
-        switch (role) {
-          case 'admin':
-            can('update', 'Abteilung', { id: abteilungId });
-            can('delete', 'Abteilung', { id: abteilungId });
-            can('order', 'Abteilung', { id: abteilungId });
-            break;
+      switch (role) {
+        case 'admin':
+          //Abteilung
+          can('update', 'Abteilung', { id: abteilungId });
+          can('delete', 'Abteilung', { id: abteilungId });
 
-          case 'matchef':
-            break;
+          //Material
+          can('create', 'Material', { abteilungId: abteilungId });
+          can('update', 'Material', { abteilungId: abteilungId });
+          can('delete', 'Material', { abteilungId: abteilungId });
 
-          case 'member':
-            break;
+          //Categorie
+          can('create', 'Categorie', { abteilungId: abteilungId });
+          can('update', 'Categorie', { abteilungId: abteilungId });
+          can('delete', 'Categorie', { abteilungId: abteilungId });
 
-          case 'guest':
+          break;
+
+        case 'matchef':
+          //Material
+          can('create', 'Material', { abteilungId: abteilungId });
+          can('update', 'Material', { abteilungId: abteilungId });
+          can('delete', 'Material', { abteilungId: abteilungId });
 
 
-        }
-        //all members of abteilung
-        can('read', 'Abteilung', { id: abteilungId });
-        can('order', 'Abteilung', { id: abteilungId });
+          //Categorie
+          can('create', 'Categorie', { abteilungId: abteilungId });
+          can('update', 'Categorie', { abteilungId: abteilungId });
+          can('delete', 'Categorie', { abteilungId: abteilungId });
+          break;
+
+        case 'member':
+          break;
+
+        case 'guest':
 
       }
+
+      //default member rights
+
+      //Abteilung
+      if(role !== 'pending') {
+        can('read', 'Abteilung', { id: abteilungId });
+      }
+      
+
+      //order
+      can('create', 'Order', { abteilungId: abteilungId });
+
 
     }
 
