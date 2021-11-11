@@ -14,56 +14,70 @@ import { validateMessages } from 'util/FormValdationMessages';
 import { MemberTable } from './members/MemberTable';
 import { Can } from 'config/casl/casl';
 import { ability } from 'config/casl/ability';
+import { slugify } from 'util/FormUtil';
+import { getAbteilungIdBySlugOrId } from 'util/AbteilungUtil';
 
 
 export interface AbteilungDetailProps {
 }
 
 export type AbteilungDetailViewParams = {
-    abteilungId: string;
+    abteilungSlugOrId: string;
 };
 
 
 export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
-    const { abteilungId } = useParams<AbteilungDetailViewParams>();
+    const { abteilungSlugOrId } = useParams<AbteilungDetailViewParams>();
     const { isAuthenticated } = useAuth0();
     const { push } = useHistory();
     const [form] = Form.useForm<Abteilung>();
 
 
+    const [abteilungId, setAbteilungId] = useState<string | undefined>(undefined);
     const [abteilung, setAbteilung] = useState<Abteilung>();
 
     const [abteilungLoading, setAbteilungLoading] = useState(false);
 
     //fetch abteilung
     useEffect(() => {
-        setAbteilungLoading(true);
-        try {
-            return firestore().collection(abteilungenCollection).doc(abteilungId).onSnapshot(snap => {
-                setAbteilungLoading(false);
-                const abteilungLoaded = {
-                    ...snap.data(),
-                    __caslSubjectType__: 'Abteilung',
-                    id: snap.id
-                } as Abteilung;
-                setAbteilung(abteilungLoaded);
-                form.setFieldsValue({
-                    name: abteilungLoaded.name,
-                    ceviDBId: abteilungLoaded.ceviDBId || '',
-                    logoUrl: abteilungLoaded.logoUrl || ''
-                })
-            });
-        } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten ${ex}`)
+        const listener = async () => {
+            const abteilungId = await getAbteilungIdBySlugOrId(abteilungSlugOrId);
+            setAbteilungId(abteilungId);
+            setAbteilungLoading(true);
+            try {
+                return firestore().collection(abteilungenCollection).doc(abteilungId).onSnapshot(snap => {
+                    setAbteilungLoading(false);
+                    const abteilungLoaded = {
+                        ...snap.data(),
+                        __caslSubjectType__: 'Abteilung',
+                        id: snap.id
+                    } as Abteilung;
+                    setAbteilung(abteilungLoaded);
+                    form.setFieldsValue({
+                        name: abteilungLoaded.name,
+                        slug: abteilungLoaded.slug,
+                        ceviDBId: abteilungLoaded.ceviDBId || '',
+                        logoUrl: abteilungLoaded.logoUrl || ''
+                    })
+                });
+            } catch (ex) {
+                message.error(`Es ist ein Fehler aufgetreten ${ex}`)
+            }
         }
+
+        listener();
 
     }, [isAuthenticated]);
 
-    
+
 
     const updateAbteilung = async () => {
         try {
+            if(!abteilungId) {
+                message.error(`Unbekannte Abteilung: ${abteilungSlugOrId}`)
+                return;
+            }
             await firestore().collection(abteilungenCollection).doc(abteilungId).update(form.getFieldsValue() as Abteilung);
             message.success(`Änderungen erfolgreich gespeichert`);
         } catch (ex) {
@@ -127,6 +141,39 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                             </Col>
                             <Col span={8}>
                                 <Form.Item
+                                    label="Slug"
+                                    name="slug"
+                                    tooltip={'Url lesbarer Name'}
+                                    rules={[
+                                        { required: true },
+                                        { type: 'string', min: 4 },
+                                        {
+                                            validator: (rule: any, value: string, cb: (msg?: string) => void) => {
+                                                //check for whitespaces
+                                                if (value.includes(' ')) {
+                                                    return cb('Der Slug darf keine Leerzeichen haben')
+                                                }
+                                                //Check if contains upper case
+                                                if (value.toLowerCase() !== value) {
+                                                    return cb('Der Slug muss klein geschrieben werden')
+                                                }
+
+                                                //OK
+                                                return cb();
+                                            }
+                                        }
+                                    ]}
+
+                                >
+                                    <Input
+                                        placeholder="Slug"
+                                        onChange={(val) => form.setFieldsValue({ slug: slugify(val.currentTarget.value) })}
+                                        disabled={disabled}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Form.Item
                                     label="Cevi DB Abteilungs ID"
                                     name="ceviDBId"
                                     rules={[
@@ -184,7 +231,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             <Can I='update' this={abteilung}>
                 <Row>
                     <Col span={24}>
-                        <MemberTable abteilungId={abteilung.id}/>
+                        <MemberTable abteilungId={abteilung.id} />
                     </Col>
                 </Row>
             </Can>

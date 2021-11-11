@@ -46,7 +46,7 @@ export const AbteilungenView = () => {
         <Switch>
             {/* <Route path={`${path}/new`} component={CreateClothingShop} /> */}
             <Route path={`${path}/:abteilungId/mat`} component={AbteilungMaterialView} />
-            <Route path={`${path}/:abteilungId`} component={AbteilungDetail} />
+            <Route path={`${path}/:abteilungSlugOrId`} component={AbteilungDetail} />
             <Route exact path={path}>
 
                 <PageHeader title='Abteilungen'></PageHeader>

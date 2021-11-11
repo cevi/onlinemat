@@ -4,6 +4,7 @@ export interface Abteilung {
     __caslSubjectType__ : 'Abteilung'
     id: string
     name: string
+    slug: string
     ceviDBId?: string
     logoUrl?: string
 }

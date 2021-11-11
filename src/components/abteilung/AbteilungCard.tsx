@@ -39,8 +39,8 @@ export const AbteilungCard = (props: AbteilungCardProps) => {
     >
         <div className={classNames(moduleStyles['cardActions'])}>
             <Can I='read' this={abteilung}>
-                <Button onClick={() => push(`${url}/${abteilung.id}`)}>Details</Button>
-                <Button onClick={() => push(`${url}/${abteilung.id}/mat`)}>Material</Button>
+                <Button onClick={() => push(`${url}/${abteilung.slug || abteilung.id}`)}>Details</Button>
+                <Button onClick={() => push(`${url}/${abteilung.slug || abteilung.id}/mat`)}>Material</Button>
             </Can>
             <Can not I='read' this={abteilung}>
                 { 

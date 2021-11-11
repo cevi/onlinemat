@@ -1,4 +1,4 @@
-import { Input, message, PageHeader, Spin } from 'antd';
+import { Col, Input, message, PageHeader, Row, Spin, Statistic } from 'antd';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
@@ -51,6 +51,11 @@ export const UsersView = () => {
         <PageHeader title={`Benutzer`}></PageHeader>
 
         <div className={classNames(appStyles['flex-grower'])}>
+            <Row>
+                <Col span={12}>
+                    <Statistic title='Benutzer' value={users.length} />
+                </Col>
+            </Row>
 
             <Search
                 placeholder="nach Benutzern suchen"
