@@ -28,7 +28,6 @@ export const AbteilungCard = (props: AbteilungCardProps) => {
 
     return <Card
         title={abteilung.name}
-        extra={abteilung.id}
         style={{ width: 300 }}
         cover={<div className={classNames(appStyles['cardLogoWrapper'])}><Image
             height={100}
