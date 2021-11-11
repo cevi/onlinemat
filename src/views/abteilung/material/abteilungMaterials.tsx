@@ -16,9 +16,10 @@ import { MaterialTable } from 'components/material/MaterialTable';
 import { MaterialGrid } from 'components/material/MaterialGrid';
 import { Can } from 'config/casl/casl';
 import { AbteilungEntityCasl } from 'config/casl/ability';
+import { getAbteilungIdBySlugOrId } from 'util/AbteilungUtil';
 
 export type AbteilungMaterialViewParams = {
-    abteilungId: string;
+    abteilungSlugOrId: string;
 };
 
 export const AbteilungMaterialView = () => {
@@ -26,8 +27,9 @@ export const AbteilungMaterialView = () => {
 
     const { Search } = Input;
 
-    const { abteilungId } = useParams<AbteilungMaterialViewParams>();
-    const[abteilung, setAbteilung] = useState<Abteilung>();
+    const { abteilungSlugOrId } = useParams<AbteilungMaterialViewParams>();
+    const [abteilungId, setAbteilungId] = useState<string | undefined>(undefined);
+    const [abteilung, setAbteilung] = useState<Abteilung>();
 
     const [abteilungLoading, setAbteilungLoading] = useState(false);
     const [matLoading, setMatLoading] = useState(false);
@@ -41,57 +43,68 @@ export const AbteilungMaterialView = () => {
 
     //fetch abteilung
     useEffect(() => {
-        setAbteilungLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilungId).onSnapshot(snap => {
-            setAbteilungLoading(false);
-            const abteilungLoaded = {
+        const listener = async () => {
+            const abteilungId = await getAbteilungIdBySlugOrId(abteilungSlugOrId);
+            setAbteilungId(abteilungId);
+
+            //fetch abteilung
+            setAbteilungLoading(true);
+            firestore().collection(abteilungenCollection).doc(abteilungId).onSnapshot(snap => {
+                setAbteilungLoading(false);
+                const abteilungLoaded = {
                     ...snap.data() as Abteilung,
                     id: snap.id
                 } as Abteilung;
-            setAbteilung(abteilungLoaded);
-        }, (err) => {
-            message.error(`Es ist ein Fehler aufgetreten ${err}`)
-        });
+                setAbteilung(abteilungLoaded);
+            }, (err) => {
+                message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            });
+
+            //fetch material
+            setMatLoading(true);
+            firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).onSnapshot(snap => {
+                setMatLoading(false);
+                const materialLoaded = snap.docs.flatMap(doc => {
+                    return {
+                        ...doc.data(),
+                        __caslSubjectType__: 'Material',
+                        id: doc.id
+                    } as Material;
+                });
+                setMaterial(materialLoaded);
+            }, (err) => {
+                message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            });
+
+            //fetch categories
+            setCatLoading(true);
+            return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).onSnapshot(snap => {
+                setCatLoading(false);
+                const categoriesLoaded = snap.docs.flatMap(doc => {
+                    return {
+                        ...doc.data(),
+                        __caslSubjectType__: 'Categorie',
+                        id: doc.id
+                    } as Categorie;
+                });
+                setCategorie(categoriesLoaded);
+            }, (err) => {
+                message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            });
+
+        }
+
+        listener()
+
     }, [isAuthenticated]);
 
-    //fetch material
-    useEffect(() => {
-        setMatLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).onSnapshot(snap => {
-            setMatLoading(false);
-            const materialLoaded = snap.docs.flatMap(doc => {
-                return {
-                    ...doc.data(),
-                    __caslSubjectType__: 'Material',
-                    id: doc.id
-                } as Material;
-            });
-            setMaterial(materialLoaded);
-        }, (err) => {
-            message.error(`Es ist ein Fehler aufgetreten ${err}`)
-        });
-    }, [isAuthenticated]);
-
-    //fetch categories
-    useEffect(() => {
-        setCatLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).onSnapshot(snap => {
-            setCatLoading(false);
-            const categoriesLoaded = snap.docs.flatMap(doc => {
-                return {
-                    ...doc.data(),
-                    __caslSubjectType__: 'Categorie',
-                    id: doc.id
-                } as Categorie;
-            });
-            setCategorie(categoriesLoaded);
-        }, (err) => {
-            message.error(`Es ist ein Fehler aufgetreten ${err}`)
-        });
-    }, [isAuthenticated]);
 
     const addToBasket = (materialId: string) => {
 
+    }
+
+    if(!abteilungId) {
+        return <Spin/>
     }
 
     return <div className={classNames(appStyles['flex-grower'])}>
@@ -101,38 +114,38 @@ export const AbteilungMaterialView = () => {
 
         <div className={classNames(appStyles['flex-grower'])}>
             <Can I={'create'} this={{ __caslSubjectType__: 'Material', abteilungId } as AbteilungEntityCasl}>
-                <AddMaterialButton abteilungId={abteilungId}/>
+                <AddMaterialButton abteilungId={abteilungId} />
             </Can>
 
             <Can I={'create'} this={{ __caslSubjectType__: 'Categorie', abteilungId } as AbteilungEntityCasl}>
-                <AddCategorieButton abteilungId={abteilungId}/>
+                <AddCategorieButton abteilungId={abteilungId} />
             </Can>
-           
-                {
-                    matLoading || catLoading || abteilungLoading ?
-                        <Spin />
-                        :
-                        <>
-                            <Search
-                                placeholder="nach Material suchen"
-                                allowClear
-                                enterButton="Suchen"
-                                size="large"
-                                onSearch={(query) => setQuery(query)}
-                            />
-                            <Radio.Group value={displayMode} onChange={(e) => setDisplayMode(e.target.value as 'table' | 'grid')}>
-                                <Radio.Button value='grid' >{<AppstoreOutlined />}</Radio.Button>
-                                <Radio.Button value='table'>{<MenuOutlined />}</Radio.Button>
-                            </Radio.Group>
 
-                            {
-                                displayMode === 'table' && <MaterialTable categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket}/>
-                            }
-                             {
-                                displayMode === 'grid' && <MaterialGrid categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket}/>
-                            }
-                        </>
-                }
+            {
+                matLoading || catLoading || abteilungLoading ?
+                    <Spin />
+                    :
+                    <>
+                        <Search
+                            placeholder="nach Material suchen"
+                            allowClear
+                            enterButton="Suchen"
+                            size="large"
+                            onSearch={(query) => setQuery(query)}
+                        />
+                        <Radio.Group value={displayMode} onChange={(e) => setDisplayMode(e.target.value as 'table' | 'grid')}>
+                            <Radio.Button value='grid' >{<AppstoreOutlined />}</Radio.Button>
+                            <Radio.Button value='table'>{<MenuOutlined />}</Radio.Button>
+                        </Radio.Group>
+
+                        {
+                            displayMode === 'table' && <MaterialTable categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket} />
+                        }
+                        {
+                            displayMode === 'grid' && <MaterialGrid categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket} />
+                        }
+                    </>
+            }
         </div>
     </div>
 }
