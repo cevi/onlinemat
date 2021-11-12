@@ -8,7 +8,7 @@ import { useLocation, useHistory, Route, Switch } from 'react-router';
 import { auth } from 'config/firebase/firebase';
 import { AppRoute } from 'routes';
 import { LoginOutlined, LogoutOutlined } from '@ant-design/icons';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuth0, withAuthenticationRequired } from '@auth0/auth0-react';
 import { useUser } from 'hooks/use-user';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -88,7 +88,7 @@ const NavigationMenu: React.FC = () => {
                 </div>
                 :
                 <Switch>
-                  {[HomeRoute, ...AppRoutes].map(appRoute => <Route key={appRoute.key} path={appRoute.key} exact={!!appRoute.exact} component={appRoute.view}></Route>)}
+                  {[HomeRoute, ...AppRoutes].map(appRoute => <Route key={appRoute.key} path={appRoute.key} exact={!!appRoute.exact} component={appRoute.private ? withAuthenticationRequired(appRoute.view) : appRoute.view}></Route>)}
                   <Route>
                     <Result
                       status='404'

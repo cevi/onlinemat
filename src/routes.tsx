@@ -5,7 +5,6 @@ import { LoginView } from 'views/login/login';
 import { ProfileView } from 'views/profile/profile';
 import { UsersView } from 'views/staff/users/UsersView';
 import { AbteilungenView } from 'views/abteilung/abteilungen';
-import { withAuthenticationRequired } from '@auth0/auth0-react';
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 import { AbteilungDetail } from 'components/abteilung/AbteilungDetails';
 
@@ -53,21 +52,23 @@ export const AppRoutes: AppRoute[] = [
         private: true,
         showInMenue: true,
         exact: true,
-        view: withAuthenticationRequired(AbteilungenView)
+        view: AbteilungenView
     },
     {
         key: '/abteilungen/:abteilungSlugOrId',
         displayName: 'Abteilungen Details',
         showInMenue: false,
+        private: true,
         exact: true,
-        view: withAuthenticationRequired(AbteilungDetail)
+        view: AbteilungDetail
     },
     {
         key: '/abteilungen/:abteilungSlugOrId/mat',
         displayName: 'Abteilungen Material',
         showInMenue: false,
+        private: true,
         exact: true,
-        view: withAuthenticationRequired(AbteilungMaterialView)
+        view: AbteilungMaterialView
     },
     {
         key: '/users',
@@ -78,7 +79,7 @@ export const AppRoutes: AppRoute[] = [
         staffOnly: true,
         showInMenue: true,
         exact: true,
-        view: withAuthenticationRequired(UsersView)
+        view: UsersView
     },
     {
         key: '/profile',
@@ -88,6 +89,6 @@ export const AppRoutes: AppRoute[] = [
         private: true,
         showInMenue: true,
         exact: true,
-        view: withAuthenticationRequired(ProfileView)
+        view: ProfileView
     }
 ]
