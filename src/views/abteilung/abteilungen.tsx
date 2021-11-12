@@ -9,21 +9,17 @@ import { abteilungenCollection } from 'config/firebase/collections';
 import { Abteilung } from 'types/abteilung.type';
 import { AbteilungCard } from 'components/abteilung/AbteilungCard';
 import { AddAbteilung } from 'components/abteilung/AddAbteilung';
-import { Switch, Route, useRouteMatch } from 'react-router';
-import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
-import { AbteilungDetail } from 'components/abteilung/AbteilungDetails';
 import { Can } from 'config/casl/casl';
 
 export const AbteilungenView = () => {
     const { isAuthenticated } = useAuth0();
-
-    const { path } = useRouteMatch();
 
     const [loading, setLoading] = useState(false);
 
     const [abteilungen, setAbteilungen] = useState<Abteilung[]>([]);
 
     useEffect(() => {
+        if(!isAuthenticated) return;
         setLoading(true);
         return firestore().collection(abteilungenCollection).onSnapshot(snap => {
             setLoading(false);

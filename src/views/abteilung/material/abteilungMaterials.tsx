@@ -44,6 +44,9 @@ export const AbteilungMaterialView = () => {
     //fetch abteilung
     useEffect(() => {
         const listener = async () => {
+
+            if(!isAuthenticated) return;
+            
             const abteilungId = await getAbteilungIdBySlugOrId(abteilungSlugOrId);
             setAbteilungId(abteilungId);
 
@@ -96,7 +99,7 @@ export const AbteilungMaterialView = () => {
 
         listener()
 
-    }, [isAuthenticated]);
+    }, [isAuthenticated, abteilungSlugOrId]);
 
 
     const addToBasket = (materialId: string) => {

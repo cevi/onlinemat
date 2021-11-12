@@ -112,6 +112,7 @@ export const MemberTable = (props: MemberTableProps) => {
 
     //fetch members
     useEffect(() => {
+        if(!isAuthenticated) return;
         setMembersLoading(true);
         return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMembersCollection).onSnapshot(snap => {
             setMembersLoading(false);

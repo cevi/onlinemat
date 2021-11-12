@@ -43,6 +43,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     //fetch abteilung
     useEffect(() => {
         const listener = async () => {
+            if(!isAuthenticated) return;
             const abteilungId = await getAbteilungIdBySlugOrId(abteilungSlugOrId);
             setAbteilungId(abteilungId);
             setAbteilungLoading(true);
@@ -69,7 +70,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
         listener();
 
-    }, [isAuthenticated]);
+    }, [isAuthenticated, abteilungSlugOrId]);
 
 
 

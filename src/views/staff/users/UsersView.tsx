@@ -31,6 +31,7 @@ export const UsersView = () => {
     //fetch users
     useEffect(() => {
 
+        if(!isAuthenticated) return;
         setUsersLoading(true);
         return firestore().collection(usersCollection).onSnapshot(snap => {
             setUsersLoading(false);

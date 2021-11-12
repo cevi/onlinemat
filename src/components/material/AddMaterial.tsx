@@ -52,6 +52,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
     //fetch categories
     useEffect(() => {
+        if(!isAuthenticated) return;
         setCatLoading(true);
         return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).onSnapshot(snap => {
             setCatLoading(false);
@@ -64,7 +65,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
             });
             setCategories(categoriesLoaded);
         });
-    }, [isAuthenticated]);
+    }, [isAuthenticated, abteilungId]);
 
     const addMaterial = async () => {
         try {
