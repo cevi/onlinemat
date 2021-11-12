@@ -5,6 +5,7 @@ export interface UserData {
     displayName: string
     photoURL: string
     given_name: string,
+    family_name: string,
     nickname: string,
     name: string,
     email_verified?: boolean

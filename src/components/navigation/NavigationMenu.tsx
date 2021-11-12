@@ -88,7 +88,7 @@ const NavigationMenu: React.FC = () => {
                 </div>
                 :
                 <Switch>
-                  {[HomeRoute, ...filteredRoutes].map(appRoute => <Route key={appRoute.key} path={appRoute.key} exact={appRoute.key === '/'} component={appRoute.view}></Route>)}
+                  {[HomeRoute, ...AppRoutes].map(appRoute => <Route key={appRoute.key} path={appRoute.key} exact={!!appRoute.exact} component={appRoute.view}></Route>)}
                   <Route>
                     <Result
                       status='404'

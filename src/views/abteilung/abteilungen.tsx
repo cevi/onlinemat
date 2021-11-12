@@ -43,36 +43,28 @@ export const AbteilungenView = () => {
 
     return <div className={classNames(appStyles['flex-grower'])}>
 
-        <Switch>
-            {/* <Route path={`${path}/new`} component={CreateClothingShop} /> */}
-            <Route path={`${path}/:abteilungSlugOrId/mat`} component={AbteilungMaterialView} />
-            <Route path={`${path}/:abteilungSlugOrId`} component={AbteilungDetail} />
-            <Route exact path={path}>
+        <PageHeader title='Abteilungen'></PageHeader>
 
-                <PageHeader title='Abteilungen'></PageHeader>
+        <div className={classNames(appStyles['flex-grower'])} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'stretch' }}>
+            <Row gutter={[16, 16]} className={classNames(styles['row'])}>
 
-                <div className={classNames(appStyles['flex-grower'])} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'stretch' }}>
-                    <Row gutter={[16, 16]} className={classNames(styles['row'])}>
-                        
-                        <Can I='create' a='Abteilung'>
-                            <Col key='addAbteilung' xs={24} md={24} lg={24} xxl={24}>
-                                <AddAbteilung />
+                <Can I='create' a='Abteilung'>
+                    <Col key='addAbteilung' xs={24} md={24} lg={24} xxl={24}>
+                        <AddAbteilung />
+                    </Col>
+                </Can>
+
+                {
+                    loading ?
+                        <Spin />
+                        :
+                        abteilungen.sort((a, b) => a.name.normalize().localeCompare(b.name.normalize())).map(ab => {
+                            return <Col key={ab.id} xs={24} md={12} lg={8} xxl={6}>
+                                <AbteilungCard abteilung={ab} />
                             </Col>
-                        </Can>
-                        
-                        {
-                            loading ?
-                                <Spin />
-                                :
-                                abteilungen.sort((a, b) => a.name.normalize().localeCompare(b.name.normalize())).map(ab => {
-                                    return <Col key={ab.id} xs={24} md={12} lg={8} xxl={6}>
-                                        <AbteilungCard abteilung={ab} />
-                                    </Col>
-                                })
-                        }
-                    </Row>
-                </div>
-            </Route>
-        </Switch>
+                        })
+                }
+            </Row>
+        </div>
     </div>
 }
