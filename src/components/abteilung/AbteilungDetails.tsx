@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import moduleStyles from './Abteilung.module.scss'
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
-import { firestore } from 'config/firebase/firebase';
+import { firestore, functions } from 'config/firebase/firebase';
 import { abteilungenCollection, abteilungenMembersCollection, usersCollection } from 'config/firebase/collections';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useHistory, useParams } from 'react-router';
@@ -38,6 +38,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const [abteilung, setAbteilung] = useState<Abteilung>();
 
     const [abteilungLoading, setAbteilungLoading] = useState(false);
+    const [updateLoading, setUpdateLoading] = useState(false);
 
     //fetch abteilung
     useEffect(() => {
@@ -74,14 +75,38 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
     const updateAbteilung = async () => {
         try {
-            if(!abteilungId) {
+            if (!abteilungId) {
                 message.error(`Unbekannte Abteilung: ${abteilungSlugOrId}`)
                 return;
             }
-            await firestore().collection(abteilungenCollection).doc(abteilungId).update(form.getFieldsValue() as Abteilung);
+            setUpdateLoading(true);
+            if (abteilung?.slug !== form.getFieldsValue().slug) {
+                await updateSlug();
+            }
+
+            await firestore().collection(abteilungenCollection).doc(abteilungId).update({
+                name: form.getFieldsValue().name,
+                ceviDBId: form.getFieldsValue().ceviDBId,
+                logoUrl: form.getFieldsValue().logoUrl
+            } as Abteilung);
             message.success(`Änderungen erfolgreich gespeichert`);
         } catch (ex) {
             message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+        }
+        setUpdateLoading(false);
+    }
+
+    const updateSlug = async () => {
+        try {
+            if (!abteilungId) {
+                message.error(`Unbekannte Abteilung: ${abteilungSlugOrId}`)
+                return;
+            }
+            const slug = form.getFieldsValue().slug;
+            await functions().httpsCallable('updateSlug')({ abteilungId, slug });
+        } catch (ex) {
+           console.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+           throw ex;
         }
     }
 
@@ -135,7 +160,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                 >
                                     <Input
                                         placeholder="Abteilungsname"
-                                        disabled={disabled}
+                                        disabled={disabled || updateLoading}
                                     />
                                 </Form.Item>
                             </Col>
@@ -168,7 +193,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                     <Input
                                         placeholder="Slug"
                                         onChange={(val) => form.setFieldsValue({ slug: slugify(val.currentTarget.value) })}
-                                        disabled={disabled}
+                                        disabled={disabled || updateLoading}
                                     />
                                 </Form.Item>
                             </Col>
@@ -182,7 +207,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                 >
                                     <Input
                                         placeholder="Cevi DB Id"
-                                        disabled={disabled}
+                                        disabled={disabled || updateLoading}
                                     />
                                 </Form.Item>
                             </Col>
@@ -198,14 +223,14 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                 >
                                     <Input
                                         placeholder="Cevi Logo Url"
-                                        disabled={disabled}
+                                        disabled={disabled || updateLoading}
                                     />
                                 </Form.Item>
                             </Col>
                             <Can I='update' this={abteilung}>
                                 <Col span={8}>
                                     <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                                        <Button type="primary" htmlType="submit">
+                                        <Button type="primary" htmlType="submit" disabled={updateLoading}>
                                             Speichern
                                         </Button>
                                     </Form.Item>
@@ -218,7 +243,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                         okText='Ja'
                                         cancelText='Nein'
                                     >
-                                        <Button type='ghost' danger icon={<DeleteOutlined />}>
+                                        <Button type='ghost' danger icon={<DeleteOutlined />} disabled={updateLoading}>
                                             Löschen
                                         </Button>
                                     </Popconfirm>
