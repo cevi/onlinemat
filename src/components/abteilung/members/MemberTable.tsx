@@ -8,6 +8,7 @@ import { UserData } from 'types/user.type';
 import { firestore } from 'config/firebase/firebase';
 import { abteilungenCollection, abteilungenMembersCollection, usersCollection } from 'config/firebase/collections';
 import { useAuth0 } from '@auth0/auth0-react';
+import { AddGroupButton } from '../group/AddGroup';
 
 
 
@@ -164,5 +165,5 @@ export const MemberTable = (props: MemberTableProps) => {
     }, [members])
 
 
-    return <MemberTableImpl loading={userDataLoading || membersLoading} abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/>
+    return <><AddGroupButton abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/><MemberTableImpl loading={userDataLoading || membersLoading} abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/></>
 }
