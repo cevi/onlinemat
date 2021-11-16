@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - material
 
 jobs:
   build:
@@ -15,4 +16,4 @@ jobs:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "onlinemat" #Must be unique in Heroku
           heroku_email: ${{secrets.HEROKU_EMAIL}}
-          buildpack: "https://github.com/mars/create-react-app-buildpack"
+          buildpack: "https://github.com/mars/create-react-app-buildpack.git"
