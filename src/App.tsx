@@ -1,32 +1,56 @@
 import React, { useEffect, useMemo } from 'react';
 import NavigationMenu from 'components/navigation/NavigationMenu';
 import { useAuth0 } from '@auth0/auth0-react';
-import { auth } from './config/firebase/firebase';
+import { auth, firestore } from './config/firebase/firebase';
 import { setUser } from 'config/redux/user/user';
 import { useDispatch } from 'react-redux';
+import { usersCollection } from 'config/firebase/collections';
+import { UserData } from 'types/user.type';
+import { message } from 'antd';
+import { ability } from 'config/casl/ability';
+import { updateAbility } from 'util/UserPermission';
 
-const App = ()=> {
+const App = () => {
 
-  const { user, isAuthenticated  } = useAuth0();
+  const { user, isAuthenticated } = useAuth0();
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     return auth().onAuthStateChanged(user => {
-      dispatch(setUser(user));
+      if (user) {
+        firestore().collection(usersCollection).doc(user.uid).onSnapshot(snap => {
+          const userLoaded = {
+            ...snap.data() as UserData,
+            id: snap.id
+          } as UserData;
+
+          updateAbility(ability, userLoaded);
+
+          dispatch(setUser(user, userLoaded));
+        }, (err) => {
+          message.error(`Es ist ein Fehler aufgetreten ${err}`)
+        });
+      } else {
+        dispatch(setUser(user, null));
+      }
+
+
     })
   }, [dispatch])
 
 
-  useMemo(()=> {
-    if(isAuthenticated && user && user['https://mat.cevi.tools/firebase_token']) {
-      auth().signInWithCustomToken(user['https://mat.cevi.tools/firebase_token'])
+  useMemo(() => {
+    if (isAuthenticated && user && user['https://mat.cevi.tools/firebase_token']) {
+      const token = user['https://mat.cevi.tools/firebase_token']
+      auth().signInWithCustomToken(token).catch(err => console.error('unable to login to firebase with token', err))
     }
+
   }, [user])
 
-  
 
-  return <NavigationMenu/>;
+
+  return <NavigationMenu />;
 }
 
 export default App;

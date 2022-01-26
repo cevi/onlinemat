@@ -19,3 +19,22 @@ The page will reload if you make edits.<br />
 You will also see any lint errors in the console.
 
 Happy Coding!
+
+
+### FAQ
+
+**The Application won't start**  
+Don't forget to create the `.env` file with all the keys and values in it.
+
+Keys:  
+```
+REACT_APP_FIREBASE_API_KEY=
+REACT_APP_FIREBASE_AUTH_DOMAIN=
+REACT_APP_FIREBASE_PROJECT_ID=
+REACT_APP_FIREBASE_STORAGE_BUCKET=
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=
+REACT_APP_FIREBASE_APP_ID=
+REACT_APP_SENTRY_DNS=
+REACT_APP_AUTH0_DOMAIN=
+REACT_APP_AUTH0_CLIENT_ID=
+```

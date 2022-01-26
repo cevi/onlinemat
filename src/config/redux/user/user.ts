@@ -1,11 +1,11 @@
-import { firestore } from 'config/firebase/firebase';
 import { Reducer, AnyAction } from 'redux';
 import { handleActions, createAction } from 'redux-actions';
 import { Dispatch } from 'react';
+import { UserData } from 'types/user.type';
 
 export interface AppUser {
     firebaseUser: firebase.default.User, 
-    admin: boolean
+    userData: UserData
 }
 
 export interface UserState {
@@ -28,21 +28,13 @@ export const UserReducer: Reducer<UserState, AnyAction> = handleActions<UserStat
     })
 }, defaultState) as Reducer<UserState, AnyAction>;
 
-export const setUser = (user: firebase.default.User | null) => {
+export const setUser = (user: firebase.default.User | null, userData: UserData | null) => {
     return async (dispatch: Dispatch<AnyAction>) => {
-        if(!user) {
+        if(!user || !userData) {
             dispatch(setUserInner(null));
             return;
         }
-        const uid = user.uid;
-        let isAdmin = false;
-        try {
-            const adminDoc = await firestore().collection('admins').doc(uid).get();
-            isAdmin = adminDoc.exists;
-        } catch(err) {
-            console.error('Failed to fetch user data', err);
-        }
 
-        dispatch(setUserInner({ firebaseUser: user, admin: isAdmin }))
+        dispatch(setUserInner({ firebaseUser: user, userData }))
     }
 }

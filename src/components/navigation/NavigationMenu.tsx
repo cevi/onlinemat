@@ -4,32 +4,35 @@ import appStyles from 'styles.module.scss';
 import classNames from 'classnames';
 import { Menu, Layout, Typography, Spin, Result, Button } from 'antd';
 import { AppRoutes, HomeRoute } from 'routes';
-import { useLocation, useHistory, Route, Switch } from 'react-router';
+import { useLocation, useNavigate, Route, Routes } from 'react-router';
 import { auth } from 'config/firebase/firebase';
 import { AppRoute } from 'routes';
-import { LogoutOutlined } from '@ant-design/icons';
-import { useAuth0 } from '@auth0/auth0-react';
+import { LoginOutlined, LogoutOutlined } from '@ant-design/icons';
+import { useAuth0, withAuthenticationRequired } from '@auth0/auth0-react';
+import { useUser } from 'hooks/use-user';
+import { NotFoundView } from './NotFound';
 
 const { Header, Content, Footer, Sider } = Layout;
 
 const NavigationMenu: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { pathname } = useLocation();
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
-  const { isAuthenticated, logout, isLoading  } = useAuth0();
+  const { isAuthenticated, isLoading, logout, loginWithRedirect } = useAuth0();
+  const userState = useUser();
 
-  //TODO: fix
-  const isAdmin = true;
+
+  const isStaff = userState.appUser?.userData.staff || false;
 
 
   const filteredRoutes = AppRoutes.filter((appRoute: AppRoute) => {
     // When the user is not signed in, return the public access
-    if(!isAuthenticated) return appRoute.public;
+    if (!isAuthenticated) return appRoute.public;
     // if the route is not available on login, do not make it available
-    if(!appRoute.private) return false;
+    if (!appRoute.private) return false;
     // if the route requires admin, only make it available if the user is admin
-    if(appRoute.adminOnly) return isAdmin;
+    if (appRoute.staffOnly) return isStaff;
 
     return appRoute.private;
   });
@@ -46,68 +49,66 @@ const NavigationMenu: React.FC = () => {
         collapsed={collapsed}
         onCollapse={setCollapsed}
         breakpoint='lg'
-        >
-        <Header className={classNames(styles['app-logo-container'])} onClick={() => push('/')}>
-          <Typography.Title ellipsis className={classNames(styles['app-logo'])}>{ collapsed ? <span>OM</span> : 'Onlinemat'}</Typography.Title>
+      >
+        <Header className={classNames(styles['app-logo-container'])} onClick={() => navigate('/')}>
+          <Typography.Title ellipsis className={classNames(styles['app-logo'])}>{collapsed ? <span>OM</span> : 'Onlinemat'}</Typography.Title>
         </Header>
         <Menu
           mode='inline'
           theme='dark'
           selectedKeys={[matchedKey]}
           selectable={false}
-          >
-            {
-              isLoading ?
-                <Menu.Item><div style={{justifyContent: 'center', display: 'flex'}}><Spin/></div></Menu.Item>
-                :
-                [HomeRoute, ...filteredRoutes].map(appRoute => {
-                  if(appRoute.showInMenue) {
-                    return <Menu.Item key={`${appRoute.key}`} onClick={() => { push(appRoute.key) }}>
-                  {appRoute.icon}
-                  <span>{appRoute.displayName}</span>
-                </Menu.Item>
-                  }
-                })
-            }
-            {
-              !!isAuthenticated && <Menu.Item onClick={async () => { await auth().signOut(); logout({returnTo: window.location.origin})}} key='logout' className={classNames(styles['logout'])}><LogoutOutlined /><span>Abmelden</span></Menu.Item>
-            }
+        >
+          {
+            isLoading ?
+              <Menu.Item key='menuLoader'><div style={{ justifyContent: 'center', display: 'flex' }}><Spin /></div></Menu.Item>
+              :
+              [HomeRoute, ...filteredRoutes].map(appRoute => {
+                if (appRoute.showInMenue) {
+                  return <Menu.Item key={`${appRoute.key}`} onClick={() => { navigate(appRoute.key) }}>
+                    {appRoute.icon}
+                    <span>{appRoute.displayName}</span>
+                  </Menu.Item>
+                }
+              })
+          }
+          {
+            !isAuthenticated && !isLoading && <Menu.Item onClick={() => { loginWithRedirect() }} key='login'><LoginOutlined /><span>Anmelden</span></Menu.Item>
+          }
+          {
+            !!isAuthenticated && !isLoading && <Menu.Item onClick={async () => { await auth().signOut(); logout({ returnTo: window.location.origin }) }} key='logout' className={classNames(styles['logout'])}><LogoutOutlined /><span>Abmelden</span></Menu.Item>
+          }
         </Menu>
       </Sider>
       <Layout>
-          <Content style={{ margin: '0 16px' }} className={classNames(appStyles['center-container-stretch'])}>
-            { 
-              isLoading ?
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  <Spin tip='Lade...'/>
-                </div>
-                :
-                <Switch>
-                  {[HomeRoute, ...filteredRoutes].map(appRoute => <Route key={appRoute.key} path={appRoute.key} exact={appRoute.key === '/'} component={appRoute.view}></Route>)}
-                  <Route>
-                    <Result
-                      status='404'
-                      title='Seite nicht gefunden'
-                      // subTitle='Du must angemeldet sein, um das Dashboard benutzen zu können.'
-                      extra={[
-                          <Button
-                              key='homepage'
-                              type='primary'
-                              onClick={() => push('/')}
-                          >Zurück zur Startseite</Button>
-                      ]}
-                    >
-                    </Result>
-                  </Route>
-                </Switch>
-            }
-          </Content>
-          <Footer style={{ textAlign: 'center' }}>
-                Designed by Amigo &amp; Orion | &copy; Cevi Tools {(new Date()).getFullYear()}
-            </Footer>
-        </Layout>
+        <Content style={{ margin: '0 16px' }} className={classNames(appStyles['center-container-stretch'])}>
+          {
+            isLoading ?
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Spin tip='Lade...' />
+              </div>
+              :
+              <Routes>
+                {[HomeRoute, ...AppRoutes].map(appRoute => <Route key={appRoute.key} path={appRoute.key} element={appRoute.private ? <ProtectedRoute component={appRoute.view} /> : appRoute.element}></Route>)}
+                <Route path="*" element={<NotFoundView />} />
+
+              </Routes>
+          }
+        </Content>
+        <Footer style={{ textAlign: 'center' }}>
+          Designed by Amigo &amp; Orion | &copy; Cevi Tools {(new Date()).getFullYear()}
+        </Footer>
+      </Layout>
     </Layout>
   );
 }
 
 export default NavigationMenu;
+
+export const ProtectedRoute = ({
+  component,
+  ...args
+}: React.PropsWithChildren<any>) => {
+  const Component = withAuthenticationRequired(component, args);
+  return <Component />;
+};

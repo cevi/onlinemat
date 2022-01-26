@@ -1,24 +1,30 @@
 import React from 'react';
-import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons'
+import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined, GlobalOutlined, SearchOutlined } from '@ant-design/icons'
 import { HomeView } from 'views/home/home';
 import { LoginView } from 'views/login/login';
 import { ProfileView } from 'views/profile/profile';
-import { AbteilungenView } from 'views/abteilungen/abteilungen';
+import { UsersView } from 'views/staff/users/UsersView';
+import { AbteilungenView } from 'views/abteilung/abteilungen';
+import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
+import { AbteilungDetail } from 'components/abteilung/AbteilungDetails';
+import { SearchView } from 'views/search/search';
 
 
 export interface AppRoute {
     key: string
     displayName: string
-    icon: JSX.Element
+    icon?: JSX.Element
     // is this route available when the user is *not* logged in
     public?: boolean
     // is this route available when the user *is* logged in
     private?: boolean
     // if this route is available when signed in, does it require the user to be admin?
-    adminOnly?: boolean
+    staffOnly?: boolean
     // include this route in the sidebar
     showInMenue: boolean
+    exact?: boolean
     view: React.FC
+    element: JSX.Element
 }
 
 export const HomeRoute: AppRoute = {
@@ -26,7 +32,9 @@ export const HomeRoute: AppRoute = {
     displayName: 'Home',
     icon: <HomeOutlined />,
     showInMenue: true,
-    view: HomeView
+    exact: true,
+    view: HomeView,
+    element: <HomeView/>
 }
 
 export const AppRoutes: AppRoute[] = [
@@ -35,18 +43,62 @@ export const AppRoutes: AppRoute[] = [
         displayName: 'Login',
         icon: <LoginOutlined />,
         public: true,
+        showInMenue: false,
+        exact: true,
+        view: LoginView,
+        element: <LoginView/>
+    },
+    {
+        key: '/suche',
+        displayName: 'Suchen',
+        icon: <SearchOutlined />,
+        public: false,
+        private: true,
         showInMenue: true,
-        view: LoginView
+        exact: true,
+        view: SearchView,
+        element: <SearchView/>
     },
     {
         key: '/abteilungen',
         displayName: 'Abteilungen',
+        icon: <GlobalOutlined />,
+        public: false,
+        private: true,
+        showInMenue: true,
+        exact: true,
+        view: AbteilungenView,
+        element: <AbteilungenView/>
+    },
+    {
+        key: '/abteilungen/:abteilungSlugOrId',
+        displayName: 'Abteilungen Details',
+        showInMenue: false,
+        private: true,
+        exact: true,
+        view: AbteilungDetail,
+        element: <AbteilungDetail/>
+    },
+    {
+        key: '/abteilungen/:abteilungSlugOrId/mat',
+        displayName: 'Abteilungen Material',
+        showInMenue: false,
+        private: true,
+        exact: true,
+        view: AbteilungMaterialView,
+        element: <AbteilungMaterialView/>
+    },
+    {
+        key: '/users',
+        displayName: 'Benutzer',
         icon: <TeamOutlined />,
         public: false,
         private: true,
-        adminOnly: true,
+        staffOnly: true,
         showInMenue: true,
-        view: AbteilungenView
+        exact: true,
+        view: UsersView,
+        element: <UsersView/>
     },
     {
         key: '/profile',
@@ -55,6 +107,8 @@ export const AppRoutes: AppRoute[] = [
         public: false,
         private: true,
         showInMenue: true,
-        view: ProfileView
+        exact: true,
+        view: ProfileView,
+        element: <ProfileView/>
     }
 ]
