@@ -9,6 +9,7 @@ import { PicturesWall } from 'components/pictures/PictureWall';
 import { Material } from 'types/material.types';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
+import { generateKeywords } from 'util/MaterialUtil';
 
 export interface AddMaterialProps {
     abteilungId: string
@@ -69,7 +70,10 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
     const addMaterial = async () => {
         try {
-            const response = await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).add(form.getFieldsValue() as Material)
+            const material = form.getFieldsValue() as Material;
+            material.keywords = generateKeywords(material.name)
+
+            const response = await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).add(material)
             if (response.id) {
                 message.success(`Material ${form.getFieldValue('name')} erfolgreich erstellt`);
                 form.resetFields();

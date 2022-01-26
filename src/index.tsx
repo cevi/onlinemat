@@ -2,7 +2,7 @@ import { createBrowserHistory } from 'history';
 import ReactDOM from 'react-dom';
 import 'antd/dist/antd.css'; 
 import * as serviceWorker from './serviceWorker';
-import { Router } from 'react-router-dom';
+import { BrowserRouter, Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { configureStore } from 'config/redux/store';
 import 'config/firebase/firebase';
@@ -34,7 +34,7 @@ Sentry.init({
   };
 
 ReactDOM.render(<Provider store={store}>
-    <Router history={history}>
+    <BrowserRouter >
         <Auth0Provider
             domain={process.env.REACT_APP_AUTH0_DOMAIN as string}
             clientId={process.env.REACT_APP_AUTH0_CLIENT_ID as string}
@@ -47,7 +47,7 @@ ReactDOM.render(<Provider store={store}>
             </AbilityContext.Provider>
             
         </Auth0Provider>
-    </Router>
+    </BrowserRouter>
 </Provider>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change

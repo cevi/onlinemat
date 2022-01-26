@@ -7,7 +7,7 @@ import { Abteilung, AbteilungMember } from 'types/abteilung.type';
 import { firestore, functions } from 'config/firebase/firebase';
 import { abteilungenCollection, abteilungenMembersCollection, usersCollection } from 'config/firebase/collections';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useHistory, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import ceviLogoImage from "assets/cevi_logo.png";
 import { DeleteOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
@@ -30,7 +30,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
     const { abteilungSlugOrId } = useParams<AbteilungDetailViewParams>();
     const { isAuthenticated } = useAuth0();
-    const { push } = useHistory();
+    const navigate = useNavigate();
     const [form] = Form.useForm<Abteilung>();
 
 
@@ -44,7 +44,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     useEffect(() => {
         const listener = async () => {
             if(!isAuthenticated) return;
-            const abteilungId = await getAbteilungIdBySlugOrId(abteilungSlugOrId);
+            const abteilungId = await getAbteilungIdBySlugOrId(abteilungSlugOrId || '');
             setAbteilungId(abteilungId);
             setAbteilungLoading(true);
             try {
@@ -115,7 +115,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
         try {
             await firestore().collection(abteilungenCollection).doc(ab.id).delete();
             message.info(`${ab.name} erfolgreich gelöscht`)
-            push('/')
+            navigate('/')
         } catch (ex) {
             message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
         }

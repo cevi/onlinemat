@@ -47,7 +47,7 @@ export const AbteilungMaterialView = () => {
 
             if(!isAuthenticated) return;
             
-            const abteilungId = await getAbteilungIdBySlugOrId(abteilungSlugOrId);
+            const abteilungId = await getAbteilungIdBySlugOrId(abteilungSlugOrId || '');
             setAbteilungId(abteilungId);
 
             //fetch abteilung

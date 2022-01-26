@@ -1,5 +1,5 @@
 import React from 'react';
-import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined, GlobalOutlined } from '@ant-design/icons'
+import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined, GlobalOutlined, SearchOutlined } from '@ant-design/icons'
 import { HomeView } from 'views/home/home';
 import { LoginView } from 'views/login/login';
 import { ProfileView } from 'views/profile/profile';
@@ -7,6 +7,7 @@ import { UsersView } from 'views/staff/users/UsersView';
 import { AbteilungenView } from 'views/abteilung/abteilungen';
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 import { AbteilungDetail } from 'components/abteilung/AbteilungDetails';
+import { SearchView } from 'views/search/search';
 
 
 export interface AppRoute {
@@ -23,6 +24,7 @@ export interface AppRoute {
     showInMenue: boolean
     exact?: boolean
     view: React.FC
+    element: JSX.Element
 }
 
 export const HomeRoute: AppRoute = {
@@ -31,7 +33,8 @@ export const HomeRoute: AppRoute = {
     icon: <HomeOutlined />,
     showInMenue: true,
     exact: true,
-    view: HomeView
+    view: HomeView,
+    element: <HomeView/>
 }
 
 export const AppRoutes: AppRoute[] = [
@@ -42,7 +45,19 @@ export const AppRoutes: AppRoute[] = [
         public: true,
         showInMenue: false,
         exact: true,
-        view: LoginView
+        view: LoginView,
+        element: <LoginView/>
+    },
+    {
+        key: '/suche',
+        displayName: 'Suchen',
+        icon: <SearchOutlined />,
+        public: false,
+        private: true,
+        showInMenue: true,
+        exact: true,
+        view: SearchView,
+        element: <SearchView/>
     },
     {
         key: '/abteilungen',
@@ -52,7 +67,8 @@ export const AppRoutes: AppRoute[] = [
         private: true,
         showInMenue: true,
         exact: true,
-        view: AbteilungenView
+        view: AbteilungenView,
+        element: <AbteilungenView/>
     },
     {
         key: '/abteilungen/:abteilungSlugOrId',
@@ -60,7 +76,8 @@ export const AppRoutes: AppRoute[] = [
         showInMenue: false,
         private: true,
         exact: true,
-        view: AbteilungDetail
+        view: AbteilungDetail,
+        element: <AbteilungDetail/>
     },
     {
         key: '/abteilungen/:abteilungSlugOrId/mat',
@@ -68,7 +85,8 @@ export const AppRoutes: AppRoute[] = [
         showInMenue: false,
         private: true,
         exact: true,
-        view: AbteilungMaterialView
+        view: AbteilungMaterialView,
+        element: <AbteilungMaterialView/>
     },
     {
         key: '/users',
@@ -79,7 +97,8 @@ export const AppRoutes: AppRoute[] = [
         staffOnly: true,
         showInMenue: true,
         exact: true,
-        view: UsersView
+        view: UsersView,
+        element: <UsersView/>
     },
     {
         key: '/profile',
@@ -89,6 +108,7 @@ export const AppRoutes: AppRoute[] = [
         private: true,
         showInMenue: true,
         exact: true,
-        view: ProfileView
+        view: ProfileView,
+        element: <ProfileView/>
     }
 ]

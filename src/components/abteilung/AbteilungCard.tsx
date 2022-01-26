@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Card, Image, Tag } from 'antd';
 import { Abteilung } from 'types/abteilung.type';
-import { useHistory, useRouteMatch } from 'react-router';
+import { useMatch, useNavigate } from 'react-router';
 import ceviLogoImage from "assets/cevi_logo.png";
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
@@ -21,8 +21,7 @@ export const AbteilungCard = (props: AbteilungCardProps) => {
 
     const user = useUser()
 
-    const { push } = useHistory();
-    const { url } = useRouteMatch();
+    const navigate = useNavigate();
 
     const userRole = user.appUser?.userData['roles'] ? user.appUser?.userData?.roles[abteilung.id] : ''
 
@@ -38,8 +37,8 @@ export const AbteilungCard = (props: AbteilungCardProps) => {
     >
         <div className={classNames(moduleStyles['cardActions'])}>
             <Can I='read' this={abteilung}>
-                <Button onClick={() => push(`${url}/${abteilung.slug || abteilung.id}`)}>Details</Button>
-                <Button onClick={() => push(`${url}/${abteilung.slug || abteilung.id}/mat`)}>Material</Button>
+                <Button onClick={() => navigate(`/abteilungen/${abteilung.slug || abteilung.id}`)}>Details</Button>
+                <Button onClick={() => navigate(`/abteilungen/${abteilung.slug || abteilung.id}/mat`)}>Material</Button>
             </Can>
             <Can not I='read' this={abteilung}>
                 { 

@@ -8,4 +8,5 @@ export interface Material {
     count: number
     consumables: boolean
     imageUrls?: string[]
+    keywords: string[]
 }
