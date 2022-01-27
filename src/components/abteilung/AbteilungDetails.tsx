@@ -16,6 +16,7 @@ import { UserData } from 'types/user.type';
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 import { AbteilungSettings } from './settings/AbteilungSettings';
 import { GroupTable } from './group/GroupTable';
+import { useSearchParams } from 'react-router-dom';
 
 
 export interface AbteilungDetailProps {
@@ -29,10 +30,17 @@ export const MembersContext = createContext<{ members: AbteilungMember[], loadin
 export const MembersUserDataContext = createContext<{ userData: { [uid: string]: UserData }, loading: boolean }>({ loading: false, userData: {} });
 
 
+export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups';
+
+
 export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
     const { abteilungSlugOrId } = useParams<AbteilungDetailViewParams>();
     const { isAuthenticated } = useAuth0();
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const initTab: AbteilungTab | null = searchParams.has('t') ? searchParams.get('t') as AbteilungTab | null : 'mat';
 
     const abteilungenContext = useContext(AbteilungenContext);
 
@@ -40,7 +48,17 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const abteilungLoading = abteilungenContext.loading;
 
     const [abteilung, setAbteilung] = useState<Abteilung | undefined>(undefined);
-    const [selectedMenu, setSelectedMenu] = useState<'mat' | 'settings' | 'members' | 'groups'>('mat');
+    const [selectedMenu, setSelectedMenu] = useState<AbteilungTab>(initTab !== null ? initTab : 'mat');
+    
+
+    const [members, setMembers] = useState<AbteilungMember[]>([]);
+    const [userData, setUserData] = useState<{ [uid: string]: UserData }>({});
+
+    const [membersLoading, setMembersLoading] = useState(false);
+    const [userDataLoading, setUserDataLoading] = useState(false);
+
+    const canUpdate = ability.can('update', 'Abteilung');
+
 
 
 
@@ -61,13 +79,19 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
         }
     }, [abteilungen])
 
-    const [members, setMembers] = useState<AbteilungMember[]>([]);
-    const [userData, setUserData] = useState<{ [uid: string]: UserData }>({});
+    //update get parameter
+    useMemo(() => {
+        const params = new URLSearchParams()
+        
+        if (selectedMenu !== 'mat') {
+            params.append('t', selectedMenu)
+        } else {
+            params.delete('t')
+        }
+        setSearchParams(params);
+    }, [selectedMenu])
 
-    const [membersLoading, setMembersLoading] = useState(false);
-    const [userDataLoading, setUserDataLoading] = useState(false);
-
-    const canUpdate = ability.can('update', 'Abteilung');
+    
 
     //fetch members if user has access
     useEffect(() => {
