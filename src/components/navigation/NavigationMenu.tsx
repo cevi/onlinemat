@@ -31,7 +31,7 @@ const NavigationMenu: React.FC = () => {
 
   //fetch all abteilungen
   useEffect(() => {
-    if(!isAuthenticated) return;
+    if(!isAuthenticated || !userState.appUser?.firebaseUser) return;
     setLoading(true);
     return firestore().collection(abteilungenCollection).onSnapshot(snap => {
         setLoading(false);
@@ -46,7 +46,7 @@ const NavigationMenu: React.FC = () => {
     }, (err) => {
         message.error(`Es ist ein Fehler aufgetreten ${err}`)
     });
-}, [isAuthenticated]);
+}, [isAuthenticated, userState]);
 
 
   const isStaff = userState.appUser?.userData.staff || false;

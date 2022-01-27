@@ -8,7 +8,6 @@ import { Abteilung, AbteilungMember, AbteilungMemberUserData } from 'types/abtei
 import { Group } from 'types/group.types';
 
 export interface AddGroupProps {
-    abteilungId: string
     abteilung: Abteilung
     members: AbteilungMemberUserData[]
     onSuccess?: () => void
@@ -16,7 +15,7 @@ export interface AddGroupProps {
 
 export const AddGroup = (props: AddGroupProps) => {
 
-    const { abteilungId, abteilung, members, onSuccess } = props;
+    const { abteilung, members, onSuccess } = props;
 
     const [form] = Form.useForm<Group>();
 
@@ -34,7 +33,7 @@ export const AddGroup = (props: AddGroupProps) => {
 
             } while(!!groups.find(gr => gr.id === generatedId))
 
-            await firestore().collection(abteilungenCollection).doc(abteilungId).update({
+            await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
                 groups: [...groups, {
                     ...form.getFieldsValue(),
                     id: generatedId
@@ -131,7 +130,7 @@ export const AddGroup = (props: AddGroupProps) => {
 
 export const AddGroupButton = (props: AddGroupProps) => {
 
-    const { abteilungId, abteilung, members } = props;
+    const { abteilung, members } = props;
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -149,7 +148,7 @@ export const AddGroupButton = (props: AddGroupProps) => {
                 </Button>,
             ]}
         >
-            <AddGroup abteilungId={abteilungId} abteilung={abteilung} members={members} onSuccess={() => { setIsModalVisible(false) }} />
+            <AddGroup abteilung={abteilung} members={members} onSuccess={() => { setIsModalVisible(false) }} />
         </Modal>
     </>
 
