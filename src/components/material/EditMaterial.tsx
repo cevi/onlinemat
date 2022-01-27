@@ -78,8 +78,6 @@ export const EditMaterial = (props: EditMaterialProps) => {
 
             await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).doc(materialId).update(material);
             message.success(`Material ${form.getFieldValue('name')} erfolgreich bearbeitet`);
-            form.resetFields();
-            setRenderMatImages([])
             if (onSuccess) {
                 onSuccess()
             } else {
