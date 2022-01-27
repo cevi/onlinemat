@@ -33,14 +33,14 @@ export const AddAbteilung = (props: AddAbteilungProps) => {
     }
 
     return <>
-        <Button type="primary" onClick={()=>{setIsModalVisible(!isModalVisible)}}>
+        <Button type='primary' onClick={()=>{setIsModalVisible(!isModalVisible)}}>
             Abteilung hinzufügen
       </Button>
-        <Modal title="Abteilung erstellen" visible={isModalVisible} onOk={addAbteilungToDB} onCancel={()=>{ setIsModalVisible(false) }}>
+        <Modal title='Abteilung erstellen' visible={isModalVisible} onOk={addAbteilungToDB} onCancel={()=>{ setIsModalVisible(false) }}>
             <Input
                 value={abteilungsName}
                 onChange={(e)=> setAbteilungsName(e.currentTarget.value)}
-                placeholder="Name" />
+                placeholder='Name' />
         </Modal>
     </>
 }

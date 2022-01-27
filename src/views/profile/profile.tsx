@@ -24,7 +24,7 @@ export const ProfileView = () => {
     return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])}>
         <PageHeader title='Profile'></PageHeader>
         {
-            userState.loading && <Spin size="large" />
+            userState.loading && <Spin size='large' />
         }
         {
             (!!user && isAuthenticated) && <div className={classNames(appStyles['flex-grower'], appStyles['center-container'])}>

@@ -1,7 +1,7 @@
-import { Result, Tag } from "antd";
-import { useUser } from "hooks/use-user";
-import { Abteilung } from "types/abteilung.type";
-import { JoinAbteilungButton } from "./join/JoinAbteilung";
+import { Result, Tag } from 'antd';
+import { useUser } from 'hooks/use-user';
+import { Abteilung } from 'types/abteilung.type';
+import { JoinAbteilungButton } from './join/JoinAbteilung';
 
 export interface NoAccessToAbteilungProps {
     abteilung: Abteilung

@@ -1,5 +1,5 @@
-import { abteilungenCollection } from "config/firebase/collections"
-import { firestore } from "config/firebase/firebase"
+import { abteilungenCollection } from 'config/firebase/collections'
+import { firestore } from 'config/firebase/firebase'
 
 
 //check if doc exits by slug, then return id

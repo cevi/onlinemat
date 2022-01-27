@@ -66,10 +66,10 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                     :
                     <>
                         <Search
-                            placeholder="nach Material suchen"
+                            placeholder='nach Material suchen'
                             allowClear
-                            enterButton="Suchen"
-                            size="large"
+                            enterButton='Suchen'
+                            size='large'
                             onSearch={(query) => setQuery(query)}
                         />
                         <Radio.Group value={displayMode} onChange={(e) => setDisplayMode(e.target.value as 'table' | 'grid')}>

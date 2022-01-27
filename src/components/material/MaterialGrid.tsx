@@ -2,8 +2,8 @@ import { Button, Card, Carousel, Col, Image, Row } from 'antd';
 import Meta from 'antd/lib/card/Meta';
 import React, { useRef } from 'react';
 import { Categorie } from 'types/categorie.types';
-import { Material } from "types/material.types";
-import ceviLogoImage from "assets/cevi_logo.png";
+import { Material } from 'types/material.types';
+import ceviLogoImage from 'assets/cevi_logo.png';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 

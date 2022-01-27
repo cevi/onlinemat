@@ -2,7 +2,7 @@ import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { Table, Switch } from 'antd';
 import React from 'react';
 import { Categorie } from 'types/categorie.types';
-import { Material } from "types/material.types";
+import { Material } from 'types/material.types';
 import { UserData } from 'types/user.type';
 
 

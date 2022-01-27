@@ -59,10 +59,10 @@ export const UsersView = () => {
             </Row>
 
             <Search
-                placeholder="nach Benutzern suchen"
+                placeholder='nach Benutzern suchen'
                 allowClear
-                enterButton="Suchen"
-                size="large"
+                enterButton='Suchen'
+                size='large'
                 onSearch={(query: string) => setQuery(query)}
             />
             <UserTable loading={usersLoading} users={query ? users.filter(user => user.displayName.toLowerCase().includes(query.toLowerCase()) || user.email.toLowerCase().includes(query.toLowerCase())) : users} makeStaff={promoteDemoteStaff} />

@@ -62,20 +62,20 @@ export const EditGroup = (props: EditGroupProps) => {
         >
 
             <Form.Item
-                label="Name"
-                name="name"
+                label='Name'
+                name='name'
                 rules={[
                     { required: true },
                     { type: 'string', min: 1 },
                 ]}
             >
                 <Input
-                    placeholder="Name"
+                    placeholder='Name'
                 />
             </Form.Item>
             <Form.Item
-                label="Type"
-                name="type"
+                label='Type'
+                name='type'
                 rules={[
                     { required: true },
                 ]}
@@ -121,7 +121,7 @@ export const EditGroup = (props: EditGroupProps) => {
                 />
             </Form.Item>
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                <Button type="primary" htmlType="submit">
+                <Button type='primary' htmlType='submit'>
                     Gruppe/Anlass hinzufügen
                 </Button>
             </Form.Item>
@@ -136,13 +136,13 @@ export const EditGroupButton = (props: EditGroupProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
-        <Button type="primary" onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
+        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
         <Modal
-            title="Gruppe/Anlass bearbeiten"
+            title='Gruppe/Anlass bearbeiten'
             visible={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
-                <Button key="back" onClick={() => { setIsModalVisible(false) }}>
+                <Button key='back' onClick={() => { setIsModalVisible(false) }}>
                     Abbrechen
                 </Button>,
             ]}

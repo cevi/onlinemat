@@ -1,5 +1,5 @@
-import { Group } from "./group.types";
-import { UserData } from "./user.type";
+import { Group } from './group.types';
+import { UserData } from './user.type';
 
 export interface Abteilung {
     __caslSubjectType__ : 'Abteilung'
@@ -21,5 +21,5 @@ export interface AbteilungMember {
     banned?: boolean
 }
 
-export interface AbteilungMemberUserData extends Omit<AbteilungMember, "__caslSubjectType__">, Omit<UserData, "__caslSubjectType__"> {
+export interface AbteilungMemberUserData extends Omit<AbteilungMember, '__caslSubjectType__'>, Omit<UserData, '__caslSubjectType__'> {
 }

@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { Button, Col, Form, Image, Input, message, Popconfirm, Row } from 'antd';
-import ceviLogoImage from "assets/cevi_logo.png";
+import ceviLogoImage from 'assets/cevi_logo.png';
 import { useNavigate } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
 import { useState } from 'react';
@@ -82,33 +82,33 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
     <div style={{ flex: 1 }}>
         <Form
             form={form}
-            layout="vertical"
+            layout='vertical'
             onFinish={updateAbteilung}
             onFinishFailed={() => { }}
-            autoComplete="off"
+            autoComplete='off'
             validateMessages={validateMessages}
             initialValues={abteilung}
         >
             <Row gutter={[16, 24]}>
                 <Col span={8}>
                     <Form.Item
-                        label="Abteilungsname"
-                        name="name"
+                        label='Abteilungsname'
+                        name='name'
                         rules={[
                             { required: true },
                             { type: 'string', min: 6 },
                         ]}
                     >
                         <Input
-                            placeholder="Abteilungsname"
+                            placeholder='Abteilungsname'
                             disabled={disabled || updateLoading}
                         />
                     </Form.Item>
                 </Col>
                 <Col span={8}>
                     <Form.Item
-                        label="Slug"
-                        name="slug"
+                        label='Slug'
+                        name='slug'
                         tooltip={'Url lesbarer Name'}
                         rules={[
                             { required: true },
@@ -132,7 +132,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
                     >
                         <Input
-                            placeholder="Slug"
+                            placeholder='Slug'
                             onChange={(val) => form.setFieldsValue({ slug: slugify(val.currentTarget.value) })}
                             disabled={disabled || updateLoading}
                         />
@@ -140,22 +140,22 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                 </Col>
                 <Col span={8}>
                     <Form.Item
-                        label="Cevi DB Abteilungs ID"
-                        name="ceviDBId"
+                        label='Cevi DB Abteilungs ID'
+                        name='ceviDBId'
                         rules={[
                             { required: false }
                         ]}
                     >
                         <Input
-                            placeholder="Cevi DB Id"
+                            placeholder='Cevi DB Id'
                             disabled={disabled || updateLoading}
                         />
                     </Form.Item>
                 </Col>
                 <Col span={8}>
                     <Form.Item
-                        label="Cevi Logo Url"
-                        name="logoUrl"
+                        label='Cevi Logo Url'
+                        name='logoUrl'
                         rules={[
                             { required: false },
                             { type: 'url', warningOnly: true },
@@ -163,21 +163,21 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                         ]}
                     >
                         <Input
-                            placeholder="Cevi Logo Url"
+                            placeholder='Cevi Logo Url'
                             disabled={disabled || updateLoading}
                         />
                     </Form.Item>
                 </Col>
                 <Col span={8}>
                     <Form.Item
-                        label="Email"
-                        name="email"
+                        label='Email'
+                        name='email'
                         rules={[
                             { type: 'email' },
                         ]}
                     >
                         <Input
-                            placeholder="Email"
+                            placeholder='Email'
                             disabled={disabled || updateLoading}
                         />
                     </Form.Item>
@@ -185,7 +185,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                 <Can I='update' this={abteilung}>
                     <Col span={8}>
                         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                            <Button type="primary" htmlType="submit" disabled={updateLoading}>
+                            <Button type='primary' htmlType='submit' disabled={updateLoading}>
                                 Speichern
                             </Button>
                         </Form.Item>

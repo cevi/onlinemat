@@ -28,7 +28,7 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
 
         if (record.banned && !!record.banned) {
             return <div key={`unban_div_${record.id}`} className={classNames(moduleStyles['actions'])}>
-                <Button key={`unban_${record.id}`} type="primary" onClick={() => unBanMember(abteilungId, record.userId)}>Benutzer entsperren</Button>
+                <Button key={`unban_${record.id}`} type='primary' onClick={() => unBanMember(abteilungId, record.userId)}>Benutzer entsperren</Button>
             </div>
         }
 
@@ -36,10 +36,10 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
 
             //show approve / deny / ban
             return <div key={`member_action_div_${record.id}`} className={classNames(moduleStyles['actions'])}>
-                <Button key={`approve_${record.id}`} type="primary" onClick={() => approveMemberRequest(abteilungId, record.userId)}>{`als ${roles.find(r => r.key === record.role)?.name || record.role} Annehmen`}</Button>
-                <Button key={`deny_${record.id}`} type="dashed" danger onClick={() => denyMemberRequest(abteilungId, record.userId)}>Ablehnen</Button>
-                <Tooltip key={`ban_tooltip_${record.id}`} title="Die Anfrage wird abgelehnt und der Benutzer kann in Zukunft keinen neuen Antrag stellen">
-                    <Button key={`ban_${record.id}`} type="primary" danger onClick={() => banMember(abteilungId, record.userId)}>Sperren</Button>
+                <Button key={`approve_${record.id}`} type='primary' onClick={() => approveMemberRequest(abteilungId, record.userId)}>{`als ${roles.find(r => r.key === record.role)?.name || record.role} Annehmen`}</Button>
+                <Button key={`deny_${record.id}`} type='dashed' danger onClick={() => denyMemberRequest(abteilungId, record.userId)}>Ablehnen</Button>
+                <Tooltip key={`ban_tooltip_${record.id}`} title='Die Anfrage wird abgelehnt und der Benutzer kann in Zukunft keinen neuen Antrag stellen'>
+                    <Button key={`ban_${record.id}`} type='primary' danger onClick={() => banMember(abteilungId, record.userId)}>Sperren</Button>
                 </Tooltip>
 
             </div>
@@ -51,7 +51,7 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
                     roles.map(role => <Option key={`${record.userId}_role_${role.key}`} value={role.key}>{role.name}</Option>)
                 }
             </Select>
-            <Button key={`remove_action_${record.id}`} type="dashed" danger onClick={() => removeMember(abteilungId, record.userId)}>Entfernen</Button>
+            <Button key={`remove_action_${record.id}`} type='dashed' danger onClick={() => removeMember(abteilungId, record.userId)}>Entfernen</Button>
         </div>
 
     }

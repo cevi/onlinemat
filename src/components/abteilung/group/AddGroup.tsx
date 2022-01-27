@@ -28,7 +28,7 @@ export const AddGroup = (props: AddGroupProps) => {
         try {
             let generatedId = '';
             do {
-                //this is just a basic "random" time based id. It's just used to make the group unique
+                //this is just a basic 'random' time based id. It's just used to make the group unique
                 generatedId = (new Date()).getTime().toString(36) + Math.random().toString(36).slice(6);
 
             } while(!!groups.find(gr => gr.id === generatedId))
@@ -62,20 +62,20 @@ export const AddGroup = (props: AddGroupProps) => {
         >
 
             <Form.Item
-                label="Name"
-                name="name"
+                label='Name'
+                name='name'
                 rules={[
                     { required: true },
                     { type: 'string', min: 1 },
                 ]}
             >
                 <Input
-                    placeholder="Name"
+                    placeholder='Name'
                 />
             </Form.Item>
             <Form.Item
-                label="Type"
-                name="type"
+                label='Type'
+                name='type'
                 rules={[
                     { required: true },
                 ]}
@@ -120,7 +120,7 @@ export const AddGroup = (props: AddGroupProps) => {
                 />
             </Form.Item>
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                <Button type="primary" htmlType="submit">
+                <Button type='primary' htmlType='submit'>
                     Gruppe/Anlass hinzufügen
                 </Button>
             </Form.Item>
@@ -135,15 +135,15 @@ export const AddGroupButton = (props: AddGroupProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
-        <Button type="primary" onClick={() => { setIsModalVisible(!isModalVisible) }}>
+        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }}>
             Gruppe hinzufügen
         </Button>
         <Modal
-            title="Gruppe/Anlass hinzufügen"
+            title='Gruppe/Anlass hinzufügen'
             visible={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
-                <Button key="back" onClick={() => { setIsModalVisible(false) }}>
+                <Button key='back' onClick={() => { setIsModalVisible(false) }}>
                     Abbrechen
                 </Button>,
             ]}

@@ -1,7 +1,7 @@
 import { message } from 'antd';
 import { abteilungenCollection, abteilungenMembersCollection } from 'config/firebase/collections';
 import { firestore } from 'config/firebase/firebase';
-import { AbteilungMember } from "types/abteilung.type"
+import { AbteilungMember } from 'types/abteilung.type'
 
 
 export const changeRoleOfMember = async (abteilungId: string, userId: string, role: AbteilungMember['role'] ) => {

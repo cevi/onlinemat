@@ -9,8 +9,8 @@ import 'config/firebase/firebase';
 import 'moment/locale/de-ch';
 import * as Sentry from '@sentry/react';
 import App from 'App';
-import { AppState, Auth0Provider } from "@auth0/auth0-react";
-import { Integrations } from "@sentry/tracing";
+import { AppState, Auth0Provider } from '@auth0/auth0-react';
+import { Integrations } from '@sentry/tracing';
 import { AbilityContext } from 'config/casl/casl';
 import { ability } from 'config/casl/ability';
 

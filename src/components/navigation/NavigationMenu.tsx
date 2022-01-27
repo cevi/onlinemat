@@ -119,7 +119,7 @@ const NavigationMenu: React.FC = () => {
                 :
                 <Routes>
                   {[HomeRoute, ...AppRoutes].map(appRoute => <Route key={appRoute.key} path={appRoute.key} element={appRoute.private ? <ProtectedRoute component={appRoute.view} /> : appRoute.element}></Route>)}
-                  <Route path="*" element={<NotFoundView />} />
+                  <Route path='*' element={<NotFoundView />} />
 
                 </Routes>
             }
