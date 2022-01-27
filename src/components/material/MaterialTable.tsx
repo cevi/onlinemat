@@ -1,9 +1,8 @@
 import { ShoppingCartOutlined } from '@ant-design/icons';
 import { Button, Table } from 'antd';
 import { Can } from 'config/casl/casl';
-import React from 'react';
 import { Categorie } from 'types/categorie.types';
-import { Material } from "types/material.types";
+import { Material } from 'types/material.types';
 import { EditMaterialButton } from './EditMaterial';
 
 
@@ -45,7 +44,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             }),
             onFilter: (value: any, record: Material) => filterCategorie(value, record),
             render: (text: string, record: Material) => (
-                <p key={`${record.id}_category`}>{displayCategorieNames(categorie, record.categoryIds || [])}</p>
+                <p key={`${record.id}_category`}>{displayCategorieNames(categorie, record.categorieIds || [])}</p>
             ),
         },
         {
@@ -75,7 +74,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             key: 'basket',
             render: (text: string, record: Material) => (
                 <>
-                    <Button type="primary" icon={<ShoppingCartOutlined />} onClick={()=> { addToBasket(record.id) }}/>
+                    <Button type='primary' icon={<ShoppingCartOutlined />} onClick={()=> { addToBasket(record.id) }}/>
                     <Can I='update' this={record}>
                         <EditMaterialButton material={record} materialId={record.id} abteilungId={abteilungId}/>
                     </Can>
@@ -93,8 +92,8 @@ export const MaterialTable = (props: MaterialTablelProps) => {
 export const filterCategorie = (value: any, record: Material): boolean => {
     let result: boolean = false;
 
-    if(record.categoryIds) {
-        record.categoryIds.forEach(catId => {
+    if(record.categorieIds) {
+        record.categorieIds.forEach(catId => {
             if(catId.indexOf(value as string) === 0) {
                 result = true;
             }

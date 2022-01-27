@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Select, Button, Tooltip, message } from 'antd';
-import { AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
+import { useContext } from 'react';
+import { Table, Select, Button, Tooltip } from 'antd';
+import { Abteilung, AbteilungMemberUserData } from 'types/abteilung.type';
 import { approveMemberRequest, banMember, changeRoleOfMember, denyMemberRequest, removeMember, unBanMember } from 'util/MemberUtil';
 import classNames from 'classnames';
 import moduleStyles from './MemberTable.module.scss'
-import { UserData } from 'types/user.type';
-import { firestore } from 'config/firebase/firebase';
-import { abteilungenCollection, abteilungenMembersCollection, usersCollection } from 'config/firebase/collections';
-import { useAuth0 } from '@auth0/auth0-react';
 import { AddGroupButton } from '../group/AddGroup';
+import { MembersContext, MembersUserDataContext } from '../AbteilungDetails';
 
 
 
@@ -30,31 +27,31 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
     const renderActions = (record: AbteilungMemberUserData) => {
 
         if (record.banned && !!record.banned) {
-            return <div className={classNames(moduleStyles['actions'])}>
-                <Button type="primary" onClick={() => unBanMember(abteilungId, record.userId)}>Benutzer entsperren</Button>
+            return <div key={`unban_div_${record.id}`} className={classNames(moduleStyles['actions'])}>
+                <Button key={`unban_${record.id}`} type='primary' onClick={() => unBanMember(abteilungId, record.userId)}>Benutzer entsperren</Button>
             </div>
         }
 
         if (!record.approved || !!!record.approved) {
 
             //show approve / deny / ban
-            return <div className={classNames(moduleStyles['actions'])}>
-                <Button type="primary" onClick={() => approveMemberRequest(abteilungId, record.userId)}>{`als ${roles.find(r => r.key === record.role)?.name || record.role} Annehmen`}</Button>
-                <Button type="dashed" danger onClick={() => denyMemberRequest(abteilungId, record.userId)}>Ablehnen</Button>
-                <Tooltip title="Die Anfrage wird abgelehnt und der Benutzer kann in Zukunft keinen neuen Antrag stellen">
-                    <Button type="primary" danger onClick={() => banMember(abteilungId, record.userId)}>Sperren</Button>
+            return <div key={`member_action_div_${record.id}`} className={classNames(moduleStyles['actions'])}>
+                <Button key={`approve_${record.id}`} type='primary' onClick={() => approveMemberRequest(abteilungId, record.userId)}>{`als ${roles.find(r => r.key === record.role)?.name || record.role} Annehmen`}</Button>
+                <Button key={`deny_${record.id}`} type='dashed' danger onClick={() => denyMemberRequest(abteilungId, record.userId)}>Ablehnen</Button>
+                <Tooltip key={`ban_tooltip_${record.id}`} title='Die Anfrage wird abgelehnt und der Benutzer kann in Zukunft keinen neuen Antrag stellen'>
+                    <Button key={`ban_${record.id}`} type='primary' danger onClick={() => banMember(abteilungId, record.userId)}>Sperren</Button>
                 </Tooltip>
 
             </div>
         }
 
-        return <div className={classNames(moduleStyles['actions'])}>
+        return <div key={`role_action_div_${record.id}`} className={classNames(moduleStyles['actions'])}>
             <Select key={`${record.userId}_roleSelection`} value={record.role} style={{ width: 120 }} onChange={(role) => changeRoleOfMember(abteilungId, record.userId, role)}>
                 {
                     roles.map(role => <Option key={`${record.userId}_role_${role.key}`} value={role.key}>{role.name}</Option>)
                 }
             </Select>
-            <Button type="dashed" danger onClick={() => removeMember(abteilungId, record.userId)}>Entfernen</Button>
+            <Button key={`remove_action_${record.id}`} type='dashed' danger onClick={() => removeMember(abteilungId, record.userId)}>Entfernen</Button>
         </div>
 
     }
@@ -66,7 +63,7 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
             key: 'displayName',
             sorter: (a: AbteilungMemberUserData, b: AbteilungMemberUserData) => a.displayName.normalize().localeCompare(b.displayName.normalize()),
             render: (text: string, record: AbteilungMemberUserData) => (
-                <p>{record.displayName}</p>
+                <p key={`name_${record.id}`}>{record.displayName}</p>
             )
         },
         {
@@ -75,7 +72,7 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
             key: 'email',
             sorter: (a: AbteilungMemberUserData, b: AbteilungMemberUserData) => a.email.normalize().localeCompare(b.email.normalize()),
             render: (text: string, record: AbteilungMemberUserData) => (
-                <p>{record.email}</p>
+                <p key={`name_${record.email}`}>{record.email}</p>
             )
         },
         {
@@ -90,7 +87,7 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
     ];
 
 
-    return <Table loading={loading} columns={columns} dataSource={members.sort((a: AbteilungMemberUserData, b: AbteilungMemberUserData) => ((a.approved || false) === (b.approved || false)) ? 0 : (a.approved || false) ? 1 : -1)} />;
+    return <Table key='member_table' loading={loading} columns={columns} dataSource={members.sort((a: AbteilungMemberUserData, b: AbteilungMemberUserData) => ((a.approved || false) === (b.approved || false)) ? 0 : (a.approved || false) ? 1 : -1)} />;
 
 }
 
@@ -101,69 +98,20 @@ export interface MemberTableProps {
 export const MemberTable = (props: MemberTableProps) => {
 
     const { abteilungId } = props;
-    const { isAuthenticated } = useAuth0();
-
-
-    const [members, setMembers] = useState<AbteilungMember[]>([]);
-    const [userData, setUserData] = useState<{ [uid: string]: UserData }>({});
-
-    const [membersLoading, setMembersLoading] = useState(false);
-    const [userDataLoading, setuserDataLoading] = useState(false);
-
 
     //fetch members
-    useEffect(() => {
-        if(!isAuthenticated) return;
-        setMembersLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMembersCollection).onSnapshot(snap => {
-            setMembersLoading(false);
-            const membersLoaded = snap.docs.flatMap(doc => {
+    const membersContext = useContext(MembersContext);
 
-                return {
-                    ...doc.data(),
-                    __caslSubjectType__: 'AbteilungMember',
-                    userId: doc.id
-                } as AbteilungMember;
-            });
-            setMembers(membersLoaded);
-        }, (err) => {
-            message.error(`Es ist ein Fehler aufgetreten ${err}`)
-        });
-    }, [isAuthenticated]);
+    const members = membersContext.members;
+    const membersLoading = membersContext.loading;
 
-    useEffect(() => {
-        const loadUser = async () => {
-            setuserDataLoading(true)
-            const promises: Promise<UserData>[] = [];
-            const localUserData = userData; 
-            members.forEach(member => {
-                const uid = member.userId;
-                if (!userData[uid]) {
-                    //fetch full user data
-                    const userDoc = firestore().collection(usersCollection).doc(uid).get().then((doc) => {
-                        return {
-                            ...doc.data(),
-                            __caslSubjectType__: 'UserData',
-                            id: doc.id
-                        } as UserData
-                    });
-                    promises.push(userDoc);
-                }
-            })
+    //fetch userData
+    const membersUserDataContext = useContext(MembersUserDataContext);
 
-            const values = await Promise.all(promises);
-
-            values.forEach(val => {
-                localUserData[val.id] = val;
-            })
-            await setUserData(localUserData)
-            setuserDataLoading(false)
-        }
-
-        loadUser();
-
-    }, [members])
+    const userData = membersUserDataContext.userData;
+    const userDataLoading = membersUserDataContext.loading;
 
 
-    return <><AddGroupButton abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/><MemberTableImpl loading={userDataLoading || membersLoading} abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/></>
+
+    return <MemberTableImpl loading={userDataLoading || membersLoading} abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/>
 }

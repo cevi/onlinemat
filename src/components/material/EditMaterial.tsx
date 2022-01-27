@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Button, Input, message, Switch, InputNumber, Select, Spin, Form } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
 import { firestore } from 'config/firebase/firebase';
@@ -10,6 +10,7 @@ import { Material } from 'types/material.types';
 import { EditOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
 import { generateKeywords } from 'util/MaterialUtil';
+import { CategorysContext } from 'components/abteilung/AbteilungDetails';
 
 export interface EditMaterialProps {
     abteilungId: string
@@ -30,9 +31,11 @@ export const EditMaterial = (props: EditMaterialProps) => {
     const { TextArea } = Input;
     const { Option } = Select;
 
-    const [catLoading, setCatLoading] = useState(false);
+    //fetch categories
+    const categoriesContext = useContext(CategorysContext);
 
-    const [categories, setCategories] = useState<Categorie[]>([])
+    const categories = categoriesContext.categories;
+    const catLoading = categoriesContext.loading;
 
     const [renderMatImages, setRenderMatImages] = useState(material.imageUrls || []);
 
@@ -54,22 +57,7 @@ export const EditMaterial = (props: EditMaterialProps) => {
         },
     };
 
-    //fetch categories
-    useEffect(() => {
-        if (!isAuthenticated) return;
-        setCatLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).onSnapshot(snap => {
-            setCatLoading(false);
-            const categoriesLoaded = snap.docs.flatMap(doc => {
-                return {
-                    ...doc.data(),
-                    __caslSubjectType__: 'Categorie',
-                    id: doc.id
-                } as Categorie;
-            });
-            setCategories(categoriesLoaded);
-        });
-    }, [isAuthenticated, abteilungId]);
+    
 
     const editMaterial = async () => {
         try {
@@ -78,8 +66,6 @@ export const EditMaterial = (props: EditMaterialProps) => {
 
             await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).doc(materialId).update(material);
             message.success(`Material ${form.getFieldValue('name')} erfolgreich bearbeitet`);
-            form.resetFields();
-            setRenderMatImages([])
             if (onSuccess) {
                 onSuccess()
             } else {
@@ -107,32 +93,32 @@ export const EditMaterial = (props: EditMaterialProps) => {
                     validateMessages={validateMessages}
                 >
                     <Form.Item
-                        label="Name"
-                        name="name"
+                        label='Name'
+                        name='name'
                         rules={[
                             { required: true },
                             { type: 'string', min: 1 },
                         ]}
                     >
                         <Input
-                            placeholder="Materialname"
+                            placeholder='Materialname'
                         />
                     </Form.Item>
                     <Form.Item
-                        label="Bemerkung"
-                        name="comment"
+                        label='Bemerkung'
+                        name='comment'
                         rules={[
                             { required: false },
                         ]}
                     >
                         <TextArea
-                            placeholder="Bemerkung"
+                            placeholder='Bemerkung'
                             rows={4}
                         />
                     </Form.Item>
                     <Form.Item
-                        label="Anzahl"
-                        name="count"
+                        label='Anzahl'
+                        name='count'
                         rules={[
                             { required: true },
                         ]}
@@ -140,8 +126,8 @@ export const EditMaterial = (props: EditMaterialProps) => {
                         <InputNumber min={1} />
                     </Form.Item>
                     <Form.Item
-                        label="Gewicht in Kg"
-                        name="weightInKg"
+                        label='Gewicht in Kg'
+                        name='weightInKg'
                         rules={[
                             { required: false },
                         ]}
@@ -149,8 +135,8 @@ export const EditMaterial = (props: EditMaterialProps) => {
                         <InputNumber />
                     </Form.Item>
                     <Form.Item
-                        label="Ist Verbrauchsmaterial"
-                        name="consumables"
+                        label='Ist Verbrauchsmaterial'
+                        name='consumables'
                         rules={[
                             { required: true },
 
@@ -159,17 +145,17 @@ export const EditMaterial = (props: EditMaterialProps) => {
                         <Switch />
                     </Form.Item>
                     <Form.Item
-                        label="Kategorien"
-                        name="categorieIds"
+                        label='Kategorien'
+                        name='categorieIds'
                         rules={[
                             { required: false },
                         ]}
                     >
                         <Select
-                            mode="multiple"
+                            mode='multiple'
                             allowClear
                             style={{ width: '100%' }}
-                            placeholder="Kategorien"
+                            placeholder='Kategorien'
                         >
                             {
                                 categories.map(cat => <Option key={cat.id} value={cat.id}>{cat.name}</Option>)
@@ -177,7 +163,7 @@ export const EditMaterial = (props: EditMaterialProps) => {
                         </Select>
                     </Form.Item>
                     <Form.List
-                        name="imageUrls"
+                        name='imageUrls'
                         rules={[
                             {
                                 validator: async (_, names) => {
@@ -208,17 +194,17 @@ export const EditMaterial = (props: EditMaterialProps) => {
                                             ]}
                                             noStyle
                                         >
-                                            <Input placeholder="Material Bild Url" style={{ width: '90%' }} />
+                                            <Input placeholder='Material Bild Url' style={{ width: '90%' }} />
                                         </Form.Item>
                                         <MinusCircleOutlined
-                                            className="dynamic-delete-button"
+                                            className='dynamic-delete-button'
                                             onClick={() => remove(field.name)}
                                         />
                                     </Form.Item>
                                 ))}
                                 <Form.Item>
                                     <Button
-                                        type="dashed"
+                                        type='dashed'
                                         onClick={() => add()}
                                         style={{ width: '100%' }}
                                         icon={<PlusOutlined />}
@@ -233,7 +219,7 @@ export const EditMaterial = (props: EditMaterialProps) => {
                     <PicturesWall showRemove={false} imageUrls={renderMatImages} />
 
                     <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <Button type="primary" htmlType="submit">
+                        <Button type='primary' htmlType='submit'>
                             Änderungen speichern
                         </Button>
                     </Form.Item>
@@ -252,13 +238,13 @@ export const EditMaterialButton = (props: EditMaterialProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
-        <Button type="primary" onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />}/>
+        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />}/>
         <Modal
-            title="Material bearbeiten"
+            title='Material bearbeiten'
             visible={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
-                <Button key="back" onClick={() => { setIsModalVisible(false) }}>
+                <Button key='back' onClick={() => { setIsModalVisible(false) }}>
                     Abbrechen
                 </Button>,
             ]}

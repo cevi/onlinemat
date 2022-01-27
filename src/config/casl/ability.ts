@@ -1,10 +1,10 @@
-import { Ability, AbilityClass, InferSubjects } from "@casl/ability";
+import { Ability, AbilityClass, InferSubjects } from '@casl/ability';
 
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
-import { Categorie } from "types/categorie.types";
-import { Group } from "types/group.types";
+import { Categorie } from 'types/categorie.types';
+import { Group } from 'types/group.types';
 import { Material } from 'types/material.types';
-import { Order } from "types/order.types";
+import { Order } from 'types/order.types';
 import { UserData } from 'types/user.type';
 
 export type Actions = 'create' | 'read' | 'update' | 'delete';

@@ -6,40 +6,39 @@ import { abteilungenCategoryCollection, abteilungenCollection } from 'config/fir
 import { validateMessages } from 'util/FormValdationMessages';
 import { Abteilung, AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
 import { Group } from 'types/group.types';
+import { EditOutlined } from '@ant-design/icons';
 
-export interface AddGroupProps {
+export interface EditGroupProps {
     abteilung: Abteilung
+    group: Group
     members: AbteilungMemberUserData[]
     onSuccess?: () => void
 }
 
-export const AddGroup = (props: AddGroupProps) => {
+export const EditGroup = (props: EditGroupProps) => {
 
-    const { abteilung, members, onSuccess } = props;
+    const { abteilung, group, members, onSuccess } = props;
 
     const [form] = Form.useForm<Group>();
 
     const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-    const [targetKeys, setTargetKeys] = useState<string[]>([]);
+    const [targetKeys, setTargetKeys] = useState<string[]>(group.members || []);
 
     const groups = abteilung.groups || [];
 
-    const addGroup = async () => {
+    const editGroup = async () => {
         try {
-            let generatedId = '';
-            do {
-                //this is just a basic 'random' time based id. It's just used to make the group unique
-                generatedId = (new Date()).getTime().toString(36) + Math.random().toString(36).slice(6);
 
-            } while(!!groups.find(gr => gr.id === generatedId))
+            let filterGroups = groups.filter(g => g.id !== group.id);
+
 
             await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
-                groups: [...groups, {
+                groups: [...filterGroups, {
                     ...form.getFieldsValue(),
-                    id: generatedId
+                    id: group.id
                 }]
             })
-            message.success(`${form.getFieldValue('type') === 'group' ? 'Gruppe' : 'Anlass'} ${form.getFieldValue('name')} erfolgreich erstellt`);
+            message.success(`${form.getFieldValue('type') === 'group' ? 'Gruppe' : 'Anlass'} ${form.getFieldValue('name')} erfolgreich bearbeitet`);
             setSelectedKeys([])
             setTargetKeys([])
             form.resetFields();
@@ -57,8 +56,9 @@ export const AddGroup = (props: AddGroupProps) => {
     return <>
         <Form
             form={form}
+            initialValues={group}
             validateMessages={validateMessages}
-            onFinish={addGroup}
+            onFinish={editGroup}
         >
 
             <Form.Item
@@ -92,19 +92,20 @@ export const AddGroup = (props: AddGroupProps) => {
                     { required: true },
                     ({ getFieldValue }) => ({
                         validator(_, value) {
-                          if ((getFieldValue('members') as string[]).length >= 1) {
-                            return Promise.resolve();
-                          }
-                          return Promise.reject(new Error('Du must mindestens 1 Mitglied auswählen'));
+                            if ((getFieldValue('members') as string[]).length >= 1) {
+                                return Promise.resolve();
+                            }
+                            return Promise.reject(new Error('Du must mindestens 1 Mitglied auswählen'));
                         },
-                      }),
+                    }),
                 ]}
             >
                 <Transfer
                     dataSource={members.map(m => {
-                        return {...m, key: m.id}})
+                        return { ...m, key: m.id }
+                    })
                     }
-                    
+
                     showSearch
                     targetKeys={targetKeys}
                     selectedKeys={selectedKeys}
@@ -128,18 +129,16 @@ export const AddGroup = (props: AddGroupProps) => {
     </>
 }
 
-export const AddGroupButton = (props: AddGroupProps) => {
+export const EditGroupButton = (props: EditGroupProps) => {
 
-    const { abteilung, members } = props;
+    const { abteilung, group, members } = props;
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
-        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }}>
-            Gruppe hinzufügen
-        </Button>
+        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
         <Modal
-            title='Gruppe/Anlass hinzufügen'
+            title='Gruppe/Anlass bearbeiten'
             visible={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
@@ -148,8 +147,25 @@ export const AddGroupButton = (props: AddGroupProps) => {
                 </Button>,
             ]}
         >
-            <AddGroup abteilung={abteilung} members={members} onSuccess={() => { setIsModalVisible(false) }} />
+            <EditGroup abteilung={abteilung} members={members} group={group} onSuccess={() => { setIsModalVisible(false) }} />
         </Modal>
     </>
+
+}
+
+
+export const deleteGroup = async (abteilung: Abteilung, group: Group) => {
+    try {
+
+        let filterGroups = abteilung.groups.filter(g => g.id !== group.id);
+
+
+        await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
+            groups: [...filterGroups]
+        })
+        message.success(`${group.type === 'group' ? 'Gruppe' : 'Anlass'} ${group.name} erfolgreich gelöscht`);
+    } catch (ex) {
+        message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+    }
 
 }

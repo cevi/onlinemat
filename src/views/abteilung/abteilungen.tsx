@@ -1,40 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import { useContext } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { Col, message, PageHeader, Row, Spin } from 'antd';
-import { useAuth0 } from '@auth0/auth0-react';
+import { Col, PageHeader, Row, Spin } from 'antd';
 import styles from './abteilungen.module.scss';
-import { firestore } from 'config/firebase/firebase';
-import { abteilungenCollection } from 'config/firebase/collections';
-import { Abteilung } from 'types/abteilung.type';
 import { AbteilungCard } from 'components/abteilung/AbteilungCard';
 import { AddAbteilung } from 'components/abteilung/AddAbteilung';
 import { Can } from 'config/casl/casl';
+import { AbteilungenContext } from 'components/navigation/NavigationMenu';
+
+
 
 export const AbteilungenView = () => {
-    const { isAuthenticated } = useAuth0();
 
-    const [loading, setLoading] = useState(false);
+    const abteilungenContext = useContext(AbteilungenContext);
 
-    const [abteilungen, setAbteilungen] = useState<Abteilung[]>([]);
-
-    useEffect(() => {
-        if(!isAuthenticated) return;
-        setLoading(true);
-        return firestore().collection(abteilungenCollection).onSnapshot(snap => {
-            setLoading(false);
-            const abteilungenLoaded = snap.docs.flatMap(doc => {
-                return {
-                    ...doc.data(),
-                    __caslSubjectType__: 'Abteilung',
-                    id: doc.id
-                } as Abteilung;
-            });
-            setAbteilungen(abteilungenLoaded);
-        }, (err) => {
-            message.error(`Es ist ein Fehler aufgetreten ${err}`)
-        });
-    }, [isAuthenticated]);
+    const abteilungen = abteilungenContext.abteilungen;
+    const loading = abteilungenContext.loading;
 
 
     return <div className={classNames(appStyles['flex-grower'])}>

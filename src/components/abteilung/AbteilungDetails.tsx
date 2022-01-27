@@ -1,21 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Col, Image, Input, PageHeader, Row, Spin, Form, Button, message, Popconfirm } from 'antd';
+import { useState, useContext, useMemo, useEffect, createContext } from 'react';
+import { PageHeader, Spin, message, Menu } from 'antd';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import moduleStyles from './Abteilung.module.scss'
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
-import { firestore, functions } from 'config/firebase/firebase';
-import { abteilungenCollection, abteilungenMembersCollection, usersCollection } from 'config/firebase/collections';
-import { useAuth0 } from '@auth0/auth0-react';
-import { useNavigate, useParams } from 'react-router';
-import ceviLogoImage from "assets/cevi_logo.png";
-import { DeleteOutlined } from '@ant-design/icons';
-import { validateMessages } from 'util/FormValdationMessages';
+import { firestore } from 'config/firebase/firebase';
+import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection, abteilungenMembersCollection, usersCollection } from 'config/firebase/collections';
+import { useParams } from 'react-router';
+import { ContainerOutlined, SettingOutlined, TagsOutlined, TeamOutlined } from '@ant-design/icons';
 import { MemberTable } from './members/MemberTable';
-import { Can } from 'config/casl/casl';
 import { ability } from 'config/casl/ability';
-import { slugify } from 'util/FormUtil';
-import { getAbteilungIdBySlugOrId } from 'util/AbteilungUtil';
+import { AbteilungenContext } from 'components/navigation/NavigationMenu';
+import { useAuth0 } from '@auth0/auth0-react';
+import { UserData } from 'types/user.type';
+import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
+import { AbteilungSettings } from './settings/AbteilungSettings';
+import { GroupTable } from './group/GroupTable';
+import { useSearchParams } from 'react-router-dom';
+import { NoAccessToAbteilung } from './AbteilungNoAcceess';
+import { Categorie } from 'types/categorie.types';
+import { Material } from 'types/material.types';
 
 
 export interface AbteilungDetailProps {
@@ -25,243 +28,228 @@ export type AbteilungDetailViewParams = {
     abteilungSlugOrId: string;
 };
 
+export const MembersContext = createContext<{ members: AbteilungMember[], loading: boolean }>({ loading: false, members: [] });
+export const MembersUserDataContext = createContext<{ userData: { [uid: string]: UserData }, loading: boolean }>({ loading: false, userData: {} });
+export const CategorysContext = createContext<{ categories: Categorie[], loading: boolean }>({ loading: false, categories: [] });
+export const MaterialsContext = createContext<{ materials: Material[], loading: boolean }>({ loading: false, materials: [] });
+
+
+export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups';
+
 
 export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
     const { abteilungSlugOrId } = useParams<AbteilungDetailViewParams>();
     const { isAuthenticated } = useAuth0();
-    const navigate = useNavigate();
-    const [form] = Form.useForm<Abteilung>();
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const initTab: AbteilungTab | null = searchParams.has('t') ? searchParams.get('t') as AbteilungTab | null : 'mat';
+
+    const abteilungenContext = useContext(AbteilungenContext);
+
+    const abteilungen = abteilungenContext.abteilungen;
+    const abteilungLoading = abteilungenContext.loading;
+
+    const [abteilung, setAbteilung] = useState<Abteilung | undefined>(undefined);
+    const [selectedMenu, setSelectedMenu] = useState<AbteilungTab>(initTab !== null ? initTab : 'mat');
 
 
-    const [abteilungId, setAbteilungId] = useState<string | undefined>(undefined);
-    const [abteilung, setAbteilung] = useState<Abteilung>();
+    const [members, setMembers] = useState<AbteilungMember[]>([]);
+    const [userData, setUserData] = useState<{ [uid: string]: UserData }>({});
 
-    const [abteilungLoading, setAbteilungLoading] = useState(false);
-    const [updateLoading, setUpdateLoading] = useState(false);
+    const [membersLoading, setMembersLoading] = useState(false);
+    const [userDataLoading, setUserDataLoading] = useState(false);
 
-    //fetch abteilung
+    const [catLoading, setCatLoading] = useState(false);
+    const [categories, setCategories] = useState<Categorie[]>([])
+
+    const [matLoading, setMatLoading] = useState(false);
+    const [materials, setMaterials] = useState<Material[]>([]);
+
+    const canUpdate = ability.can('update', 'Abteilung');
+    const canRead = ability.can('read', 'Abteilung');
+
+
+    useMemo(() => {
+        //fetch abteilung
+        if (!abteilungLoading && abteilungen.length > 0) {
+            if (abteilungSlugOrId !== undefined) {
+                const result = abteilungen.find(abt => abt.id === abteilungSlugOrId || abt.slug === abteilungSlugOrId);
+                if (result) {
+                    setAbteilung(result);
+                } else {
+                    message.error(`Unbekannte Abteilung ${abteilungSlugOrId}`)
+                }
+
+            } else {
+                message.error(`Unbekannte Abteilung ${abteilungSlugOrId}`)
+            }
+        }
+    }, [abteilungen])
+
+    //update get parameter
+    useMemo(() => {
+        const params = new URLSearchParams()
+
+        if (selectedMenu !== 'mat') {
+            params.append('t', selectedMenu)
+        } else {
+            params.delete('t')
+        }
+        setSearchParams(params);
+    }, [selectedMenu])
+
+
+
+    //fetch members if user has access
     useEffect(() => {
-        const listener = async () => {
-            if(!isAuthenticated) return;
-            const abteilungId = await getAbteilungIdBySlugOrId(abteilungSlugOrId || '');
-            setAbteilungId(abteilungId);
-            setAbteilungLoading(true);
-            try {
-                return firestore().collection(abteilungenCollection).doc(abteilungId).onSnapshot(snap => {
-                    setAbteilungLoading(false);
-                    const abteilungLoaded = {
-                        ...snap.data(),
-                        __caslSubjectType__: 'Abteilung',
-                        id: snap.id
-                    } as Abteilung;
-                    setAbteilung(abteilungLoaded);
-                    form.setFieldsValue({
-                        name: abteilungLoaded.name,
-                        slug: abteilungLoaded.slug,
-                        ceviDBId: abteilungLoaded.ceviDBId || '',
-                        logoUrl: abteilungLoaded.logoUrl || ''
-                    })
-                });
-            } catch (ex) {
-                message.error(`Es ist ein Fehler aufgetreten ${ex}`)
-            }
+        if (!isAuthenticated || !abteilung || !canUpdate) return;
+        setMembersLoading(true);
+        return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenMembersCollection).onSnapshot(snap => {
+            setMembersLoading(false);
+            const membersLoaded = snap.docs.flatMap(doc => {
+
+                return {
+                    ...doc.data(),
+                    __caslSubjectType__: 'AbteilungMember',
+                    userId: doc.id
+                } as AbteilungMember;
+            });
+            setMembers(membersLoaded);
+        }, (err) => {
+            message.error(`Es ist ein Fehler aufgetreten ${err}`)
+        });
+    }, [isAuthenticated]);
+
+    //fetch user data from members if user has access
+    useEffect(() => {
+        if (!isAuthenticated || !abteilung || !canUpdate) return;
+        const loadUser = async () => {
+            setUserDataLoading(true)
+            const promises: Promise<UserData>[] = [];
+            const localUserData = userData;
+            members.forEach(member => {
+                const uid = member.userId;
+                if (!userData[uid]) {
+                    //fetch full user data
+                    const userDoc = firestore().collection(usersCollection).doc(uid).get().then((doc) => {
+                        return {
+                            ...doc.data(),
+                            __caslSubjectType__: 'UserData',
+                            id: doc.id
+                        } as UserData
+                    });
+                    promises.push(userDoc);
+                }
+            })
+
+            const values = await Promise.all(promises);
+
+            values.forEach(val => {
+                localUserData[val.id] = val;
+            })
+            await setUserData(localUserData)
+            setUserDataLoading(false)
         }
 
-        listener();
+        loadUser();
 
-    }, [isAuthenticated, abteilungSlugOrId]);
+    }, [members])
+
+    //fetch categories
+    useEffect(() => {
+        if (!isAuthenticated || !abteilung || !canRead) return;
+        setCatLoading(true);
+        return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenCategoryCollection).onSnapshot(snap => {
+            setCatLoading(false);
+            const categoriesLoaded = snap.docs.flatMap(doc => {
+                return {
+                    ...doc.data(),
+                    __caslSubjectType__: 'Categorie',
+                    id: doc.id
+                } as Categorie;
+            });
+            setCategories(categoriesLoaded);
+        });
+    }, [isAuthenticated]);
+
+    //fetch material
+    useEffect(() => {
+        if (!isAuthenticated || !abteilung || !canRead) return;
+        setMatLoading(true);
+        firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenMaterialsCollection).onSnapshot(snap => {
+            setMatLoading(false);
+            const materialLoaded = snap.docs.flatMap(doc => {
+                return {
+                    ...doc.data(),
+                    __caslSubjectType__: 'Material',
+                    id: doc.id
+                } as Material;
+            });
+            setMaterials(materialLoaded);
+        }, (err) => {
+            message.error(`Es ist ein Fehler aufgetreten ${err}`)
+        });
+    }, [isAuthenticated]);
 
 
 
-    const updateAbteilung = async () => {
-        try {
-            if (!abteilungId) {
-                message.error(`Unbekannte Abteilung: ${abteilungSlugOrId}`)
-                return;
-            }
-            setUpdateLoading(true);
-            if (abteilung?.slug !== form.getFieldsValue().slug) {
-                await updateSlug();
-            }
+    const navigation = () => {
+        if (!abteilung) return;
 
-            await firestore().collection(abteilungenCollection).doc(abteilungId).update({
-                name: form.getFieldsValue().name,
-                ceviDBId: form.getFieldsValue().ceviDBId,
-                logoUrl: form.getFieldsValue().logoUrl
-            } as Abteilung);
-            message.success(`Änderungen erfolgreich gespeichert`);
-        } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+        if (ability.cannot('read', abteilung)) {
+            return <NoAccessToAbteilung abteilung={abteilung} />
         }
-        setUpdateLoading(false);
+
+        switch (selectedMenu) {
+            case 'mat':
+                return <AbteilungMaterialView abteilung={abteilung} />
+            case 'members':
+                return <MemberTable abteilungId={abteilung.id} />
+            case 'groups':
+                return <GroupTable abteilung={abteilung} />
+            case 'settings':
+                return <AbteilungSettings abteilung={abteilung} />
+        }
     }
-
-    const updateSlug = async () => {
-        try {
-            if (!abteilungId) {
-                message.error(`Unbekannte Abteilung: ${abteilungSlugOrId}`)
-                return;
-            }
-            const slug = form.getFieldsValue().slug;
-            await functions().httpsCallable('updateSlug')({ abteilungId, slug });
-        } catch (ex) {
-           console.error(`Es ist ein Fehler aufgetreten: ${ex}`)
-           throw ex;
-        }
-    }
-
-    const delteAbteilung = async (ab: Abteilung) => {
-        try {
-            await firestore().collection(abteilungenCollection).doc(ab.id).delete();
-            message.info(`${ab.name} erfolgreich gelöscht`)
-            navigate('/')
-        } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
-        }
-    }
-
-    const disabled = ability.cannot('update', 'Abteilung');
 
 
     if (abteilungLoading || !abteilung) return <Spin />
 
     return <div className={classNames(appStyles['flex-grower'])}>
-        <PageHeader title={`Abteilung ${abteilung?.name}`}>
-            <Row>
-                <div className={classNames(moduleStyles['ceviLogoWrapper'])}>
-                    <Image
-                        width={200}
-                        src={abteilung?.logoUrl && abteilung.logoUrl !== '' ? abteilung.logoUrl : `${ceviLogoImage}`}
-                        preview={false}
-                    />
-                </div>
-                <div style={{ flex: 1 }}>
-                    <Form
-                        form={form}
-                        layout="vertical"
-                        onFinish={updateAbteilung}
-                        onFinishFailed={() => { }}
-                        autoComplete="off"
-                        validateMessages={validateMessages}
-                        initialValues={{
-                            ceviDBId: '',
-                            logoUrl: ''
-                        }}
-                    >
-                        <Row gutter={[16, 24]}>
-                            <Col span={8}>
-                                <Form.Item
-                                    label="Abteilungsname"
-                                    name="name"
-                                    rules={[
-                                        { required: true },
-                                        { type: 'string', min: 6 },
-                                    ]}
-                                >
-                                    <Input
-                                        placeholder="Abteilungsname"
-                                        disabled={disabled || updateLoading}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={8}>
-                                <Form.Item
-                                    label="Slug"
-                                    name="slug"
-                                    tooltip={'Url lesbarer Name'}
-                                    rules={[
-                                        { required: true },
-                                        { type: 'string', min: 4 },
-                                        {
-                                            validator: (rule: any, value: string, cb: (msg?: string) => void) => {
-                                                //check for whitespaces
-                                                if (value.includes(' ')) {
-                                                    return cb('Der Slug darf keine Leerzeichen haben')
-                                                }
-                                                //Check if contains upper case
-                                                if (value.toLowerCase() !== value) {
-                                                    return cb('Der Slug muss klein geschrieben werden')
-                                                }
+        <MembersContext.Provider value={{ members, loading: membersLoading }}>
+            <MembersUserDataContext.Provider value={{ userData, loading: userDataLoading }}>
+                <CategorysContext.Provider value={{ categories, loading: catLoading }}>
+                    <MaterialsContext.Provider value={{ materials, loading: matLoading }}>
+                        <PageHeader title={`Abteilung ${abteilung?.name}`}>
+                            <Menu onClick={(e) => { setSelectedMenu(e.key as any) }} selectedKeys={[selectedMenu]} mode='horizontal'>
+                                <Menu.Item key='mat' icon={<ContainerOutlined />}>
+                                    Material
+                                </Menu.Item>
+                                {canUpdate && <Menu.Item key='members' icon={<TeamOutlined />}>
+                                    Mitglieder
+                                </Menu.Item>
+                                }
+                                {canUpdate && <Menu.Item key='groups' icon={<TagsOutlined />}>
+                                    Gruppen
+                                </Menu.Item>
+                                }
+                                {canUpdate && <Menu.Item key='settings' icon={<SettingOutlined />}>
+                                    Einstellungen
+                                </Menu.Item>
+                                }
 
-                                                //OK
-                                                return cb();
-                                            }
-                                        }
-                                    ]}
+                            </Menu>
+                            {
+                                navigation()
+                            }
 
-                                >
-                                    <Input
-                                        placeholder="Slug"
-                                        onChange={(val) => form.setFieldsValue({ slug: slugify(val.currentTarget.value) })}
-                                        disabled={disabled || updateLoading}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={8}>
-                                <Form.Item
-                                    label="Cevi DB Abteilungs ID"
-                                    name="ceviDBId"
-                                    rules={[
-                                        { required: false }
-                                    ]}
-                                >
-                                    <Input
-                                        placeholder="Cevi DB Id"
-                                        disabled={disabled || updateLoading}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={8}>
-                                <Form.Item
-                                    label="Cevi Logo Url"
-                                    name="logoUrl"
-                                    rules={[
-                                        { required: false },
-                                        { type: 'url', warningOnly: true },
-                                        { type: 'string', min: 6 },
-                                    ]}
-                                >
-                                    <Input
-                                        placeholder="Cevi Logo Url"
-                                        disabled={disabled || updateLoading}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Can I='update' this={abteilung}>
-                                <Col span={8}>
-                                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                                        <Button type="primary" htmlType="submit" disabled={updateLoading}>
-                                            Speichern
-                                        </Button>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Popconfirm
-                                        title='Möchtest du diese Abteilung wirklich löschen?'
-                                        onConfirm={() => delteAbteilung(abteilung)}
-                                        onCancel={() => { }}
-                                        okText='Ja'
-                                        cancelText='Nein'
-                                    >
-                                        <Button type='ghost' danger icon={<DeleteOutlined />} disabled={updateLoading}>
-                                            Löschen
-                                        </Button>
-                                    </Popconfirm>
-                                </Col>
-                            </Can>
-                        </Row>
-                    </Form>
-                </div>
-            </Row>
-            <Can I='update' this={abteilung}>
-                <Row>
-                    <Col span={24}>
-                        <MemberTable abteilungId={abteilung.id} />
-                    </Col>
-                </Row>
-            </Can>
-        </PageHeader>
+                        </PageHeader>
+                    </MaterialsContext.Provider>
+                </CategorysContext.Provider>
+            </MembersUserDataContext.Provider>
+        </MembersContext.Provider>
     </div>
 
 }

@@ -43,19 +43,19 @@ export const AddCategorie = (props: AddCategorieProps) => {
             >
 
                 <Form.Item
-                    label="Name"
-                    name="name"
+                    label='Name'
+                    name='name'
                     rules={[
                         { required: true },
                         { type: 'string', min: 1 },
                     ]}
                 >
                     <Input
-                        placeholder="Kategoriename"
+                        placeholder='Kategoriename'
                     />
                 </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <Button type="primary" htmlType="submit">
+                        <Button type='primary' htmlType='submit'>
                             Kategorie hinzufügen
                         </Button>
                     </Form.Item>
@@ -70,15 +70,15 @@ export const AddCategorieButton = (props: AddCategorieProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
-        <Button type="primary" onClick={() => { setIsModalVisible(!isModalVisible) }}>
+        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }}>
             Kategorie hinzufügen
         </Button>
         <Modal 
-            title="Kategorie hinzufügen" 
+            title='Kategorie hinzufügen' 
             visible={isModalVisible} 
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
-                <Button key="back" onClick={() => { setIsModalVisible(false) }}>
+                <Button key='back' onClick={() => { setIsModalVisible(false) }}>
                   Abbrechen
                 </Button>,
               ]}

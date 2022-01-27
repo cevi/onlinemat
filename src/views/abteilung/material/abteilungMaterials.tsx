@@ -1,127 +1,63 @@
-import React, { useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { PageHeader, Spin, Input, Radio, message } from 'antd';
-import { useAuth0 } from '@auth0/auth0-react';
-import { firestore } from 'config/firebase/firebase';
-import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
-import { Material } from 'types/material.types';
-import { useParams } from 'react-router';
+import { Spin, Input, Radio } from 'antd';
 import { AddMaterialButton } from 'components/material/AddMaterial';
 import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
 import { AddCategorieButton } from 'components/categorie/AddCategorie';
-import { Categorie } from 'types/categorie.types';
 import { Abteilung } from 'types/abteilung.type';
 import { MaterialTable } from 'components/material/MaterialTable';
 import { MaterialGrid } from 'components/material/MaterialGrid';
 import { Can } from 'config/casl/casl';
 import { AbteilungEntityCasl } from 'config/casl/ability';
-import { getAbteilungIdBySlugOrId } from 'util/AbteilungUtil';
+import { CategorysContext, MaterialsContext } from 'components/abteilung/AbteilungDetails';
 
-export type AbteilungMaterialViewParams = {
-    abteilungSlugOrId: string;
+export type AbteilungMaterialViewProps = {
+    abteilung: Abteilung;
 };
 
-export const AbteilungMaterialView = () => {
-    const { user, isAuthenticated } = useAuth0();
+export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
+    const { abteilung } = props;
 
     const { Search } = Input;
 
-    const { abteilungSlugOrId } = useParams<AbteilungMaterialViewParams>();
-    const [abteilungId, setAbteilungId] = useState<string | undefined>(undefined);
-    const [abteilung, setAbteilung] = useState<Abteilung>();
 
     const [abteilungLoading, setAbteilungLoading] = useState(false);
-    const [matLoading, setMatLoading] = useState(false);
-    const [catLoading, setCatLoading] = useState(false);
-
-    const [material, setMaterial] = useState<Material[]>([]);
-    const [categorie, setCategorie] = useState<Categorie[]>([])
+  
 
     const [query, setQuery] = useState<string | undefined>(undefined);
     const [displayMode, setDisplayMode] = useState<'table' | 'grid'>('table');
 
-    //fetch abteilung
-    useEffect(() => {
-        const listener = async () => {
+    //fetch categories
+    const categoriesContext = useContext(CategorysContext);
 
-            if(!isAuthenticated) return;
-            
-            const abteilungId = await getAbteilungIdBySlugOrId(abteilungSlugOrId || '');
-            setAbteilungId(abteilungId);
+    const categories = categoriesContext.categories;
+    const catLoading = categoriesContext.loading;
 
-            //fetch abteilung
-            setAbteilungLoading(true);
-            firestore().collection(abteilungenCollection).doc(abteilungId).onSnapshot(snap => {
-                setAbteilungLoading(false);
-                const abteilungLoaded = {
-                    ...snap.data() as Abteilung,
-                    id: snap.id
-                } as Abteilung;
-                setAbteilung(abteilungLoaded);
-            }, (err) => {
-                message.error(`Es ist ein Fehler aufgetreten ${err}`)
-            });
+    //fetch materials
+    const materialsContext = useContext(MaterialsContext);
 
-            //fetch material
-            setMatLoading(true);
-            firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).onSnapshot(snap => {
-                setMatLoading(false);
-                const materialLoaded = snap.docs.flatMap(doc => {
-                    return {
-                        ...doc.data(),
-                        __caslSubjectType__: 'Material',
-                        id: doc.id
-                    } as Material;
-                });
-                setMaterial(materialLoaded);
-            }, (err) => {
-                message.error(`Es ist ein Fehler aufgetreten ${err}`)
-            });
-
-            //fetch categories
-            setCatLoading(true);
-            return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).onSnapshot(snap => {
-                setCatLoading(false);
-                const categoriesLoaded = snap.docs.flatMap(doc => {
-                    return {
-                        ...doc.data(),
-                        __caslSubjectType__: 'Categorie',
-                        id: doc.id
-                    } as Categorie;
-                });
-                setCategorie(categoriesLoaded);
-            }, (err) => {
-                message.error(`Es ist ein Fehler aufgetreten ${err}`)
-            });
-
-        }
-
-        listener()
-
-    }, [isAuthenticated, abteilungSlugOrId]);
+    const materials = materialsContext.materials;
+    const matLoading = materialsContext.loading;
 
 
     const addToBasket = (materialId: string) => {
 
     }
 
-    if(!abteilungId) {
+    if(!abteilung) {
         return <Spin/>
     }
 
     return <div className={classNames(appStyles['flex-grower'])}>
-        <PageHeader title={`Abteilung ${abteilung?.name}`}></PageHeader>
-
-
 
         <div className={classNames(appStyles['flex-grower'])}>
-            <Can I={'create'} this={{ __caslSubjectType__: 'Material', abteilungId } as AbteilungEntityCasl}>
-                <AddMaterialButton abteilungId={abteilungId} />
+            <Can I={'create'} this={{ __caslSubjectType__: 'Material', abteilungId: abteilung.id } as AbteilungEntityCasl}>
+                <AddMaterialButton abteilungId={abteilung.id} />
             </Can>
 
-            <Can I={'create'} this={{ __caslSubjectType__: 'Categorie', abteilungId } as AbteilungEntityCasl}>
-                <AddCategorieButton abteilungId={abteilungId} />
+            <Can I={'create'} this={{ __caslSubjectType__: 'Categorie', abteilungId: abteilung.id } as AbteilungEntityCasl}>
+                <AddCategorieButton abteilungId={abteilung.id} />
             </Can>
 
             {
@@ -130,10 +66,10 @@ export const AbteilungMaterialView = () => {
                     :
                     <>
                         <Search
-                            placeholder="nach Material suchen"
+                            placeholder='nach Material suchen'
                             allowClear
-                            enterButton="Suchen"
-                            size="large"
+                            enterButton='Suchen'
+                            size='large'
                             onSearch={(query) => setQuery(query)}
                         />
                         <Radio.Group value={displayMode} onChange={(e) => setDisplayMode(e.target.value as 'table' | 'grid')}>
@@ -142,10 +78,10 @@ export const AbteilungMaterialView = () => {
                         </Radio.Group>
 
                         {
-                            displayMode === 'table' && <MaterialTable abteilungId={abteilungId} categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket} />
+                            displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToBasket={addToBasket} />
                         }
                         {
-                            displayMode === 'grid' && <MaterialGrid categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket} />
+                            displayMode === 'grid' && <MaterialGrid categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToBasket={addToBasket} />
                         }
                     </>
             }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Button, Input, message, Switch, InputNumber, Select, Spin, Form } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
 import { firestore } from 'config/firebase/firebase';
@@ -10,6 +10,7 @@ import { Material } from 'types/material.types';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
 import { generateKeywords } from 'util/MaterialUtil';
+import { CategorysContext } from 'components/abteilung/AbteilungDetails';
 
 export interface AddMaterialProps {
     abteilungId: string
@@ -26,10 +27,6 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
     const { TextArea } = Input;
     const { Option } = Select;
-
-    const [catLoading, setCatLoading] = useState(false);
-
-    const [categories, setCategories] = useState<Categorie[]>([])
 
     const [renderMatImages, setRenderMatImages] = useState([]);
 
@@ -52,21 +49,10 @@ export const AddMaterial = (props: AddMaterialProps) => {
     };
 
     //fetch categories
-    useEffect(() => {
-        if(!isAuthenticated) return;
-        setCatLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).onSnapshot(snap => {
-            setCatLoading(false);
-            const categoriesLoaded = snap.docs.flatMap(doc => {
-                return {
-                    ...doc.data(),
-                    __caslSubjectType__: 'Categorie',
-                    id: doc.id
-                } as Categorie;
-            });
-            setCategories(categoriesLoaded);
-        });
-    }, [isAuthenticated, abteilungId]);
+    const categoriesContext = useContext(CategorysContext);
+
+    const categories = categoriesContext.categories;
+    const catLoading = categoriesContext.loading;
 
     const addMaterial = async () => {
         try {
@@ -106,32 +92,32 @@ export const AddMaterial = (props: AddMaterialProps) => {
                     validateMessages={validateMessages}
                 >
                     <Form.Item
-                        label="Name"
-                        name="name"
+                        label='Name'
+                        name='name'
                         rules={[
                             { required: true },
                             { type: 'string', min: 1 },
                         ]}
                     >
                         <Input
-                            placeholder="Materialname"
+                            placeholder='Materialname'
                         />
                     </Form.Item>
                     <Form.Item
-                        label="Bemerkung"
-                        name="comment"
+                        label='Bemerkung'
+                        name='comment'
                         rules={[
                             { required: false },
                         ]}
                     >
                         <TextArea
-                            placeholder="Bemerkung"
+                            placeholder='Bemerkung'
                             rows={4}
                         />
                     </Form.Item>
                     <Form.Item
-                        label="Anzahl"
-                        name="count"
+                        label='Anzahl'
+                        name='count'
                         rules={[
                             { required: true },
                         ]}
@@ -139,8 +125,8 @@ export const AddMaterial = (props: AddMaterialProps) => {
                         <InputNumber min={1} />
                     </Form.Item>
                     <Form.Item
-                        label="Gewicht in Kg"
-                        name="weightInKg"
+                        label='Gewicht in Kg'
+                        name='weightInKg'
                         rules={[
                             { required: false },
                         ]}
@@ -148,8 +134,8 @@ export const AddMaterial = (props: AddMaterialProps) => {
                         <InputNumber />
                     </Form.Item>
                     <Form.Item
-                        label="Ist Verbrauchsmaterial"
-                        name="consumables"
+                        label='Ist Verbrauchsmaterial'
+                        name='consumables'
                         rules={[
                             { required: true },
 
@@ -158,17 +144,17 @@ export const AddMaterial = (props: AddMaterialProps) => {
                         <Switch />
                     </Form.Item>
                     <Form.Item
-                        label="Kategorien"
-                        name="categorieIds"
+                        label='Kategorien'
+                        name='categorieIds'
                         rules={[
                             { required: false },
                         ]}
                     >
                         <Select
-                            mode="multiple"
+                            mode='multiple'
                             allowClear
                             style={{ width: '100%' }}
-                            placeholder="Kategorien"
+                            placeholder='Kategorien'
                         >
                             {
                                 categories.map(cat => <Option key={cat.id} value={cat.id}>{cat.name}</Option>)
@@ -176,7 +162,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
                         </Select>
                     </Form.Item>
                     <Form.List
-                        name="imageUrls"
+                        name='imageUrls'
                         rules={[
                             {
                                 validator: async (_, names) => {
@@ -207,17 +193,17 @@ export const AddMaterial = (props: AddMaterialProps) => {
                                             ]}
                                             noStyle
                                         >
-                                            <Input placeholder="Material Bild Url" style={{ width: '90%' }} />
+                                            <Input placeholder='Material Bild Url' style={{ width: '90%' }} />
                                         </Form.Item>
                                         <MinusCircleOutlined
-                                            className="dynamic-delete-button"
+                                            className='dynamic-delete-button'
                                             onClick={() => remove(field.name)}
                                         />
                                     </Form.Item>
                                 ))}
                                 <Form.Item>
                                     <Button
-                                        type="dashed"
+                                        type='dashed'
                                         onClick={() => add()}
                                         style={{ width: '100%' }}
                                         icon={<PlusOutlined />}
@@ -232,7 +218,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
                     <PicturesWall showRemove={false} imageUrls={renderMatImages} />
 
                     <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <Button type="primary" htmlType="submit">
+                        <Button type='primary' htmlType='submit'>
                             Material hinzufügen
                         </Button>
                     </Form.Item>
@@ -251,15 +237,15 @@ export const AddMaterialButton = (props: AddMaterialProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
-        <Button type="primary" onClick={() => { setIsModalVisible(!isModalVisible) }}>
+        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }}>
             Material hinzufügen
         </Button>
         <Modal 
-            title="Material hinzufügen" 
+            title='Material hinzufügen' 
             visible={isModalVisible} 
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
-                <Button key="back" onClick={() => { setIsModalVisible(false) }}>
+                <Button key='back' onClick={() => { setIsModalVisible(false) }}>
                   Abbrechen
                 </Button>,
               ]}

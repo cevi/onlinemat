@@ -49,8 +49,8 @@ export const JoinAbteilung = (props: JoinAbteilungProps) => {
             >
 
                 <Form.Item
-                    label="Rolle"
-                    name="role"
+                    label='Rolle'
+                    name='role'
                     rules={[
                         { required: true }
                     ]}
@@ -62,7 +62,7 @@ export const JoinAbteilung = (props: JoinAbteilungProps) => {
                     </Select>
                 </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                    <Button type="primary" htmlType="submit" disabled={loading}>
+                    <Button type='primary' htmlType='submit' disabled={loading}>
                         Beitritt anfragen
                     </Button>
                 </Form.Item>
@@ -82,7 +82,7 @@ export const JoinAbteilungButton = (props: JoinAbteilungProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
-        <Button type="primary" onClick={() => { setIsModalVisible(!isModalVisible) }}>
+        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }}>
             Beitreten
         </Button>
         <Modal 
@@ -90,7 +90,7 @@ export const JoinAbteilungButton = (props: JoinAbteilungProps) => {
             visible={isModalVisible} 
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
-                <Button key="back" onClick={() => { setIsModalVisible(false) }}>
+                <Button key='back' onClick={() => { setIsModalVisible(false) }}>
                   Abbrechen
                 </Button>,
               ]}
