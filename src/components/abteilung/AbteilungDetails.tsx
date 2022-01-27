@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
 import { firestore } from 'config/firebase/firebase';
-import { abteilungenCollection, abteilungenMembersCollection, usersCollection } from 'config/firebase/collections';
+import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection, abteilungenMembersCollection, usersCollection } from 'config/firebase/collections';
 import { useParams } from 'react-router';
 import { ContainerOutlined, SettingOutlined, TagsOutlined, TeamOutlined } from '@ant-design/icons';
 import { MemberTable } from './members/MemberTable';
@@ -20,6 +20,8 @@ import { useSearchParams } from 'react-router-dom';
 import { useUser } from 'hooks/use-user';
 import { JoinAbteilungButton } from './join/JoinAbteilung';
 import { NoAccessToAbteilung } from './AbteilungNoAcceess';
+import { Categorie } from 'types/categorie.types';
+import { Material } from 'types/material.types';
 
 
 export interface AbteilungDetailProps {
@@ -31,6 +33,8 @@ export type AbteilungDetailViewParams = {
 
 export const MembersContext = createContext<{ members: AbteilungMember[], loading: boolean }>({ loading: false, members: [] });
 export const MembersUserDataContext = createContext<{ userData: { [uid: string]: UserData }, loading: boolean }>({ loading: false, userData: {} });
+export const CategorysContext = createContext<{ categories: Categorie[], loading: boolean }>({ loading: false, categories: [] });
+export const MaterialsContext = createContext<{ materials: Material[], loading: boolean }>({ loading: false, materials: [] });
 
 
 export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups';
@@ -52,7 +56,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
     const [abteilung, setAbteilung] = useState<Abteilung | undefined>(undefined);
     const [selectedMenu, setSelectedMenu] = useState<AbteilungTab>(initTab !== null ? initTab : 'mat');
-    
+
 
     const [members, setMembers] = useState<AbteilungMember[]>([]);
     const [userData, setUserData] = useState<{ [uid: string]: UserData }>({});
@@ -60,9 +64,14 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const [membersLoading, setMembersLoading] = useState(false);
     const [userDataLoading, setUserDataLoading] = useState(false);
 
+    const [catLoading, setCatLoading] = useState(false);
+    const [categories, setCategories] = useState<Categorie[]>([])
+
+    const [matLoading, setMatLoading] = useState(false);
+    const [materials, setMaterials] = useState<Material[]>([]);
+
     const canUpdate = ability.can('update', 'Abteilung');
-
-
+    const canRead = ability.can('read', 'Abteilung');
 
 
     useMemo(() => {
@@ -85,7 +94,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     //update get parameter
     useMemo(() => {
         const params = new URLSearchParams()
-        
+
         if (selectedMenu !== 'mat') {
             params.append('t', selectedMenu)
         } else {
@@ -94,7 +103,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
         setSearchParams(params);
     }, [selectedMenu])
 
-    
+
 
     //fetch members if user has access
     useEffect(() => {
@@ -151,13 +160,49 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
     }, [members])
 
+    //fetch categories
+    useEffect(() => {
+        if (!isAuthenticated || !abteilung || !canRead) return;
+        setCatLoading(true);
+        return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenCategoryCollection).onSnapshot(snap => {
+            setCatLoading(false);
+            const categoriesLoaded = snap.docs.flatMap(doc => {
+                return {
+                    ...doc.data(),
+                    __caslSubjectType__: 'Categorie',
+                    id: doc.id
+                } as Categorie;
+            });
+            setCategories(categoriesLoaded);
+        });
+    }, [isAuthenticated]);
+
+    //fetch material
+    useEffect(() => {
+        if (!isAuthenticated || !abteilung || !canRead) return;
+        setMatLoading(true);
+        firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenMaterialsCollection).onSnapshot(snap => {
+            setMatLoading(false);
+            const materialLoaded = snap.docs.flatMap(doc => {
+                return {
+                    ...doc.data(),
+                    __caslSubjectType__: 'Material',
+                    id: doc.id
+                } as Material;
+            });
+            setMaterials(materialLoaded);
+        }, (err) => {
+            message.error(`Es ist ein Fehler aufgetreten ${err}`)
+        });
+    }, [isAuthenticated]);
+
 
 
     const navigation = () => {
         if (!abteilung) return;
 
-        if(ability.cannot('read', abteilung)) {
-            return <NoAccessToAbteilung abteilung={abteilung}/>
+        if (ability.cannot('read', abteilung)) {
+            return <NoAccessToAbteilung abteilung={abteilung} />
         }
 
         switch (selectedMenu) {
@@ -166,7 +211,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             case 'members':
                 return <MemberTable abteilungId={abteilung.id} />
             case 'groups':
-                return <GroupTable abteilung={abteilung}/>
+                return <GroupTable abteilung={abteilung} />
             case 'settings':
                 return <AbteilungSettings abteilung={abteilung} />
         }
@@ -178,30 +223,34 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     return <div className={classNames(appStyles['flex-grower'])}>
         <MembersContext.Provider value={{ members, loading: membersLoading }}>
             <MembersUserDataContext.Provider value={{ userData, loading: userDataLoading }}>
-                <PageHeader title={`Abteilung ${abteilung?.name}`}>
-                    <Menu onClick={(e) => { setSelectedMenu(e.key as any) }} selectedKeys={[selectedMenu]} mode='horizontal'>
-                        <Menu.Item key='mat' icon={<ContainerOutlined />}>
-                            Material
-                        </Menu.Item>
-                        {canUpdate && <Menu.Item key='members' icon={<TeamOutlined />}>
-                            Mitglieder
-                        </Menu.Item>
-                        }
-                        {canUpdate && <Menu.Item key='groups' icon={<TagsOutlined />}>
-                            Gruppen
-                        </Menu.Item>
-                        }
-                        {canUpdate && <Menu.Item key='settings' icon={<SettingOutlined />}>
-                            Einstellungen
-                        </Menu.Item>
-                        }
+                <CategorysContext.Provider value={{ categories, loading: catLoading }}>
+                    <MaterialsContext.Provider value={{ materials, loading: matLoading }}>
+                        <PageHeader title={`Abteilung ${abteilung?.name}`}>
+                            <Menu onClick={(e) => { setSelectedMenu(e.key as any) }} selectedKeys={[selectedMenu]} mode='horizontal'>
+                                <Menu.Item key='mat' icon={<ContainerOutlined />}>
+                                    Material
+                                </Menu.Item>
+                                {canUpdate && <Menu.Item key='members' icon={<TeamOutlined />}>
+                                    Mitglieder
+                                </Menu.Item>
+                                }
+                                {canUpdate && <Menu.Item key='groups' icon={<TagsOutlined />}>
+                                    Gruppen
+                                </Menu.Item>
+                                }
+                                {canUpdate && <Menu.Item key='settings' icon={<SettingOutlined />}>
+                                    Einstellungen
+                                </Menu.Item>
+                                }
 
-                    </Menu>
-                    {
-                        navigation()
-                    }
+                            </Menu>
+                            {
+                                navigation()
+                            }
 
-                </PageHeader>
+                        </PageHeader>
+                    </MaterialsContext.Provider>
+                </CategorysContext.Provider>
             </MembersUserDataContext.Provider>
         </MembersContext.Provider>
     </div>

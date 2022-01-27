@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Button, Input, message, Switch, InputNumber, Select, Spin, Form } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
 import { firestore } from 'config/firebase/firebase';
@@ -10,6 +10,7 @@ import { Material } from 'types/material.types';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
 import { generateKeywords } from 'util/MaterialUtil';
+import { CategorysContext } from 'components/abteilung/AbteilungDetails';
 
 export interface AddMaterialProps {
     abteilungId: string
@@ -26,10 +27,6 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
     const { TextArea } = Input;
     const { Option } = Select;
-
-    const [catLoading, setCatLoading] = useState(false);
-
-    const [categories, setCategories] = useState<Categorie[]>([])
 
     const [renderMatImages, setRenderMatImages] = useState([]);
 
@@ -52,21 +49,10 @@ export const AddMaterial = (props: AddMaterialProps) => {
     };
 
     //fetch categories
-    useEffect(() => {
-        if(!isAuthenticated) return;
-        setCatLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).onSnapshot(snap => {
-            setCatLoading(false);
-            const categoriesLoaded = snap.docs.flatMap(doc => {
-                return {
-                    ...doc.data(),
-                    __caslSubjectType__: 'Categorie',
-                    id: doc.id
-                } as Categorie;
-            });
-            setCategories(categoriesLoaded);
-        });
-    }, [isAuthenticated, abteilungId]);
+    const categoriesContext = useContext(CategorysContext);
+
+    const categories = categoriesContext.categories;
+    const catLoading = categoriesContext.loading;
 
     const addMaterial = async () => {
         try {

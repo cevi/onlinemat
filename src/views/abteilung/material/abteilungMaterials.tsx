@@ -1,22 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { PageHeader, Spin, Input, Radio, message } from 'antd';
-import { useAuth0 } from '@auth0/auth0-react';
-import { firestore } from 'config/firebase/firebase';
-import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
-import { Material } from 'types/material.types';
-import { useParams } from 'react-router';
+import { Spin, Input, Radio } from 'antd';
 import { AddMaterialButton } from 'components/material/AddMaterial';
 import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
 import { AddCategorieButton } from 'components/categorie/AddCategorie';
-import { Categorie } from 'types/categorie.types';
 import { Abteilung } from 'types/abteilung.type';
 import { MaterialTable } from 'components/material/MaterialTable';
 import { MaterialGrid } from 'components/material/MaterialGrid';
 import { Can } from 'config/casl/casl';
 import { AbteilungEntityCasl } from 'config/casl/ability';
-import { getAbteilungIdBySlugOrId } from 'util/AbteilungUtil';
+import { CategorysContext, MaterialsContext } from 'components/abteilung/AbteilungDetails';
 
 export type AbteilungMaterialViewProps = {
     abteilung: Abteilung;
@@ -24,64 +18,28 @@ export type AbteilungMaterialViewProps = {
 
 export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     const { abteilung } = props;
-    const { user, isAuthenticated } = useAuth0();
 
     const { Search } = Input;
 
 
     const [abteilungLoading, setAbteilungLoading] = useState(false);
-    const [matLoading, setMatLoading] = useState(false);
-    const [catLoading, setCatLoading] = useState(false);
-
-    const [material, setMaterial] = useState<Material[]>([]);
-    const [categorie, setCategorie] = useState<Categorie[]>([])
+  
 
     const [query, setQuery] = useState<string | undefined>(undefined);
     const [displayMode, setDisplayMode] = useState<'table' | 'grid'>('table');
 
+    //fetch categories
+    const categoriesContext = useContext(CategorysContext);
 
-    useEffect(() => {
-        const listener = async () => {
+    const categories = categoriesContext.categories;
+    const catLoading = categoriesContext.loading;
 
-            if(!isAuthenticated) return;
+    //fetch materials
+    const materialsContext = useContext(MaterialsContext);
 
-            //fetch material
-            setMatLoading(true);
-            firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenMaterialsCollection).onSnapshot(snap => {
-                setMatLoading(false);
-                const materialLoaded = snap.docs.flatMap(doc => {
-                    return {
-                        ...doc.data(),
-                        __caslSubjectType__: 'Material',
-                        id: doc.id
-                    } as Material;
-                });
-                setMaterial(materialLoaded);
-            }, (err) => {
-                message.error(`Es ist ein Fehler aufgetreten ${err}`)
-            });
+    const materials = materialsContext.materials;
+    const matLoading = materialsContext.loading;
 
-            //fetch categories
-            setCatLoading(true);
-            return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenCategoryCollection).onSnapshot(snap => {
-                setCatLoading(false);
-                const categoriesLoaded = snap.docs.flatMap(doc => {
-                    return {
-                        ...doc.data(),
-                        __caslSubjectType__: 'Categorie',
-                        id: doc.id
-                    } as Categorie;
-                });
-                setCategorie(categoriesLoaded);
-            }, (err) => {
-                message.error(`Es ist ein Fehler aufgetreten ${err}`)
-            });
-
-        }
-
-        listener()
-
-    }, [isAuthenticated, abteilung]);
 
     const addToBasket = (materialId: string) => {
 
@@ -120,10 +78,10 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                         </Radio.Group>
 
                         {
-                            displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket} />
+                            displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToBasket={addToBasket} />
                         }
                         {
-                            displayMode === 'grid' && <MaterialGrid categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket} />
+                            displayMode === 'grid' && <MaterialGrid categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToBasket={addToBasket} />
                         }
                     </>
             }
