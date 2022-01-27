@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Select, Button, Tooltip, message } from 'antd';
-import { AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
+import { Abteilung, AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
 import { approveMemberRequest, banMember, changeRoleOfMember, denyMemberRequest, removeMember, unBanMember } from 'util/MemberUtil';
 import classNames from 'classnames';
 import moduleStyles from './MemberTable.module.scss'
@@ -96,11 +96,12 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
 
 export interface MemberTableProps {
     abteilungId: string
+    abteilung: Abteilung
 }
 
 export const MemberTable = (props: MemberTableProps) => {
 
-    const { abteilungId } = props;
+    const { abteilungId, abteilung } = props;
     const { isAuthenticated } = useAuth0();
 
 
@@ -165,5 +166,5 @@ export const MemberTable = (props: MemberTableProps) => {
     }, [members])
 
 
-    return <><AddGroupButton abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/><MemberTableImpl loading={userDataLoading || membersLoading} abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/></>
+    return <><AddGroupButton abteilungId={abteilungId} abteilung={abteilung} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/><MemberTableImpl loading={userDataLoading || membersLoading} abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/></>
 }

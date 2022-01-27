@@ -1,3 +1,4 @@
+import { Group } from "./group.types";
 import { UserData } from "./user.type";
 
 export interface Abteilung {
@@ -7,6 +8,7 @@ export interface Abteilung {
     slug: string
     ceviDBId?: string
     logoUrl?: string
+    groups: Group[]
 }
 
 

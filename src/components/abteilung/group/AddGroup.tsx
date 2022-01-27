@@ -4,33 +4,38 @@ import Modal from 'antd/lib/modal/Modal';
 import { firestore } from 'config/firebase/firebase';
 import { abteilungenCategoryCollection, abteilungenCollection } from 'config/firebase/collections';
 import { validateMessages } from 'util/FormValdationMessages';
-import { AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
+import { Abteilung, AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
 import { Group } from 'types/group.types';
 
 export interface AddGroupProps {
     abteilungId: string
+    abteilung: Abteilung
     members: AbteilungMemberUserData[]
     onSuccess?: () => void
 }
 
 export const AddGroup = (props: AddGroupProps) => {
 
-    const { abteilungId, members, onSuccess } = props;
+    const { abteilungId, abteilung, members, onSuccess } = props;
 
     const [form] = Form.useForm<Group>();
 
-    const [addMembers, setAddMembers] = useState<string[]>([]);
+    const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+    const [targetKeys, setTargetKeys] = useState<string[]>([]);
 
+    const groups = abteilung.groups || [];
 
     const addGroup = async () => {
         try {
-            const response = await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).add(form.getFieldsValue() as Group)
-            if (response.id) {
-                message.success(`${form.getFieldValue('type')} ${form.getFieldValue('name')} erfolgreich erstellt`);
-                form.resetFields();
-                if (onSuccess) {
-                    onSuccess()
-                }
+            await firestore().collection(abteilungenCollection).doc(abteilungId).update({
+                groups: [...groups, form.getFieldsValue()]
+            })
+            message.success(`${form.getFieldValue('type') === 'group' ? 'Gruppe' : 'Anlass'} ${form.getFieldValue('name')} erfolgreich erstellt`);
+            setSelectedKeys([])
+            setTargetKeys([])
+            form.resetFields();
+            if (onSuccess) {
+                onSuccess()
             } else {
                 message.error('Es ist leider ein Fehler aufgetreten')
             }
@@ -72,17 +77,36 @@ export const AddGroup = (props: AddGroupProps) => {
                 </Radio.Group>
             </Form.Item>
             <Form.Item
-
+                label='Mitglieder'
+                name='members'
+                rules={[
+                    { required: true },
+                    ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          if ((getFieldValue('members') as string[]).length >= 1) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(new Error('Du must mindestens 1 Mitglied auswählen'));
+                        },
+                      }),
+                ]}
             >
                 <Transfer
-                    dataSource={members}
+                    dataSource={members.map(m => {
+                        return {...m, key: m.id}})
+                    }
+                    
                     showSearch
-                    targetKeys={addMembers}
-                    onChange={(e) => setAddMembers(e)}
-                    onSearch={(dir, value) => {
-                        console.log('search:', dir, value);
+                    targetKeys={targetKeys}
+                    selectedKeys={selectedKeys}
+                    onChange={(nextTargetKeys, direction, moveKeys) => {
+                        setTargetKeys(nextTargetKeys);
+                        form.setFieldsValue({ members: nextTargetKeys });
                     }}
-                    filterOption={(inputValue, option) => option.name.indexOf(inputValue) > -1}
+                    onSelectChange={(sourceSelectedKeys, targetSelectedKeys) => {
+                        setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys])
+                    }}
+                    filterOption={(inputValue, option) => option.name.toLowerCase().indexOf(inputValue.toLowerCase()) > -1}
                     render={item => item.displayName}
                 />
             </Form.Item>
@@ -97,7 +121,7 @@ export const AddGroup = (props: AddGroupProps) => {
 
 export const AddGroupButton = (props: AddGroupProps) => {
 
-    const { abteilungId, members } = props;
+    const { abteilungId, abteilung, members } = props;
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -115,7 +139,7 @@ export const AddGroupButton = (props: AddGroupProps) => {
                 </Button>,
             ]}
         >
-            <AddGroup abteilungId={abteilungId} members={members} onSuccess={() => { setIsModalVisible(false) }} />
+            <AddGroup abteilungId={abteilungId} abteilung={abteilung} members={members} onSuccess={() => { setIsModalVisible(false) }} />
         </Modal>
     </>
 

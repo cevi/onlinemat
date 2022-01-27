@@ -257,7 +257,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             <Can I='update' this={abteilung}>
                 <Row>
                     <Col span={24}>
-                        <MemberTable abteilungId={abteilung.id} />
+                        <MemberTable abteilungId={abteilung.id} abteilung={abteilung}/>
                     </Col>
                 </Row>
             </Can>
