@@ -1,6 +1,6 @@
-import { Card, Carousel, Col, Image, Row } from 'antd';
+import { Button, Card, Carousel, Col, Image, Row } from 'antd';
 import Meta from 'antd/lib/card/Meta';
-import React from 'react';
+import React, { useRef } from 'react';
 import { Categorie } from 'types/categorie.types';
 import { Material } from "types/material.types";
 import ceviLogoImage from "assets/cevi_logo.png";
@@ -21,13 +21,13 @@ export const MaterialGrid = (props: MaterialGridProps) => {
     const { material, categorie, addToBasket } = props;
 
     return <>
-        
+
         <Row gutter={[24, 24]}>
             {
                 material.map(mat => <MaterialCard material={mat} />)
             }
         </Row>
-    
+
     </>
 
 }
@@ -41,7 +41,7 @@ export const MaterialCard = (props: MaterialCardProps) => {
     const { material } = props;
 
     const createImageCarousel = () => {
-        if(!material.imageUrls || material.imageUrls.length <= 0) {
+        if (!material.imageUrls || material.imageUrls.length <= 0) {
             return <Image
                 height={100}
                 width='auto'
@@ -60,15 +60,17 @@ export const MaterialCard = (props: MaterialCardProps) => {
         <Card
             hoverable
             cover={<div className={classNames(appStyles['cardLogoWrapper'])}>
-                <Carousel>
-                    {
-                        createImageCarousel()
-                    }
-                </Carousel>
+                <Image.PreviewGroup>
+                    <Carousel infinite={false}>
+                        {
+                            createImageCarousel()
+                        }
+                    </Carousel>
+                </Image.PreviewGroup>
             </div>
-        }
+            }
         >
-            <Meta title={material.name} description={material.comment}  />
+            <Meta title={material.name} description={material.comment} />
         </Card>
     </Col>
 }
