@@ -162,7 +162,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
         switch (selectedMenu) {
             case 'mat':
-                return <AbteilungMaterialView />
+                return <AbteilungMaterialView abteilung={abteilung} />
             case 'members':
                 return <MemberTable abteilungId={abteilung.id} />
             case 'groups':

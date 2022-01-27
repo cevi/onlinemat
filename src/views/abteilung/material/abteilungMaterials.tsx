@@ -18,18 +18,16 @@ import { Can } from 'config/casl/casl';
 import { AbteilungEntityCasl } from 'config/casl/ability';
 import { getAbteilungIdBySlugOrId } from 'util/AbteilungUtil';
 
-export type AbteilungMaterialViewParams = {
-    abteilungSlugOrId: string;
+export type AbteilungMaterialViewProps = {
+    abteilung: Abteilung;
 };
 
-export const AbteilungMaterialView = () => {
+export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
+    const { abteilung } = props;
     const { user, isAuthenticated } = useAuth0();
 
     const { Search } = Input;
 
-    const { abteilungSlugOrId } = useParams<AbteilungMaterialViewParams>();
-    const [abteilungId, setAbteilungId] = useState<string | undefined>(undefined);
-    const [abteilung, setAbteilung] = useState<Abteilung>();
 
     const [abteilungLoading, setAbteilungLoading] = useState(false);
     const [matLoading, setMatLoading] = useState(false);
@@ -41,31 +39,15 @@ export const AbteilungMaterialView = () => {
     const [query, setQuery] = useState<string | undefined>(undefined);
     const [displayMode, setDisplayMode] = useState<'table' | 'grid'>('table');
 
-    //fetch abteilung
+
     useEffect(() => {
         const listener = async () => {
 
             if(!isAuthenticated) return;
-            
-            const abteilungId = await getAbteilungIdBySlugOrId(abteilungSlugOrId || '');
-            setAbteilungId(abteilungId);
-
-            //fetch abteilung
-            setAbteilungLoading(true);
-            firestore().collection(abteilungenCollection).doc(abteilungId).onSnapshot(snap => {
-                setAbteilungLoading(false);
-                const abteilungLoaded = {
-                    ...snap.data() as Abteilung,
-                    id: snap.id
-                } as Abteilung;
-                setAbteilung(abteilungLoaded);
-            }, (err) => {
-                message.error(`Es ist ein Fehler aufgetreten ${err}`)
-            });
 
             //fetch material
             setMatLoading(true);
-            firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).onSnapshot(snap => {
+            firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenMaterialsCollection).onSnapshot(snap => {
                 setMatLoading(false);
                 const materialLoaded = snap.docs.flatMap(doc => {
                     return {
@@ -81,7 +63,7 @@ export const AbteilungMaterialView = () => {
 
             //fetch categories
             setCatLoading(true);
-            return firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).onSnapshot(snap => {
+            return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenCategoryCollection).onSnapshot(snap => {
                 setCatLoading(false);
                 const categoriesLoaded = snap.docs.flatMap(doc => {
                     return {
@@ -99,26 +81,25 @@ export const AbteilungMaterialView = () => {
 
         listener()
 
-    }, [isAuthenticated, abteilungSlugOrId]);
-
+    }, [isAuthenticated, abteilung]);
 
     const addToBasket = (materialId: string) => {
 
     }
 
-    if(!abteilungId) {
+    if(!abteilung) {
         return <Spin/>
     }
 
     return <div className={classNames(appStyles['flex-grower'])}>
 
         <div className={classNames(appStyles['flex-grower'])}>
-            <Can I={'create'} this={{ __caslSubjectType__: 'Material', abteilungId } as AbteilungEntityCasl}>
-                <AddMaterialButton abteilungId={abteilungId} />
+            <Can I={'create'} this={{ __caslSubjectType__: 'Material', abteilungId: abteilung.id } as AbteilungEntityCasl}>
+                <AddMaterialButton abteilungId={abteilung.id} />
             </Can>
 
-            <Can I={'create'} this={{ __caslSubjectType__: 'Categorie', abteilungId } as AbteilungEntityCasl}>
-                <AddCategorieButton abteilungId={abteilungId} />
+            <Can I={'create'} this={{ __caslSubjectType__: 'Categorie', abteilungId: abteilung.id } as AbteilungEntityCasl}>
+                <AddCategorieButton abteilungId={abteilung.id} />
             </Can>
 
             {
@@ -139,7 +120,7 @@ export const AbteilungMaterialView = () => {
                         </Radio.Group>
 
                         {
-                            displayMode === 'table' && <MaterialTable abteilungId={abteilungId} categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket} />
+                            displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket} />
                         }
                         {
                             displayMode === 'grid' && <MaterialGrid categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket} />
