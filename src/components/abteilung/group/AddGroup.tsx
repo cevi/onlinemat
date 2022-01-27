@@ -4,8 +4,8 @@ import Modal from 'antd/lib/modal/Modal';
 import { firestore } from 'config/firebase/firebase';
 import { abteilungenCategoryCollection, abteilungenCollection } from 'config/firebase/collections';
 import { validateMessages } from 'util/FormValdationMessages';
-import { Categorie } from 'types/categorie.types';
 import { AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
+import { Group } from 'types/group.types';
 
 export interface AddGroupProps {
     abteilungId: string
@@ -17,14 +17,14 @@ export const AddGroup = (props: AddGroupProps) => {
 
     const { abteilungId, members, onSuccess } = props;
 
-    const [form] = Form.useForm<Categorie>();
+    const [form] = Form.useForm<Group>();
 
     const [addMembers, setAddMembers] = useState<string[]>([]);
 
 
-    const addCategorie = async () => {
+    const addGroup = async () => {
         try {
-            const response = await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).add(form.getFieldsValue() as Categorie)
+            const response = await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).add(form.getFieldsValue() as Group)
             if (response.id) {
                 message.success(`${form.getFieldValue('type')} ${form.getFieldValue('name')} erfolgreich erstellt`);
                 form.resetFields();
@@ -44,7 +44,7 @@ export const AddGroup = (props: AddGroupProps) => {
         <Form
             form={form}
             validateMessages={validateMessages}
-            onFinish={addCategorie}
+            onFinish={addGroup}
         >
 
             <Form.Item
@@ -56,7 +56,7 @@ export const AddGroup = (props: AddGroupProps) => {
                 ]}
             >
                 <Input
-                    placeholder="Kategoriename"
+                    placeholder="Name"
                 />
             </Form.Item>
             <Form.Item
@@ -106,7 +106,7 @@ export const AddGroupButton = (props: AddGroupProps) => {
             Gruppe hinzufügen
         </Button>
         <Modal
-            title="Kategorie hinzufügen"
+            title="Gruppe/Anlass hinzufügen"
             visible={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[

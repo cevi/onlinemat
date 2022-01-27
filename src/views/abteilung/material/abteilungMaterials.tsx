@@ -142,7 +142,7 @@ export const AbteilungMaterialView = () => {
                         </Radio.Group>
 
                         {
-                            displayMode === 'table' && <MaterialTable categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket} />
+                            displayMode === 'table' && <MaterialTable abteilungId={abteilungId} categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket} />
                         }
                         {
                             displayMode === 'grid' && <MaterialGrid categorie={categorie} material={query ? material.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : material} addToBasket={addToBasket} />

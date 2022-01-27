@@ -33,8 +33,10 @@ Sentry.init({
     history.replace(appState?.returnTo || window.location.pathname);
   };
 
+  //TODO: replace <BrowserRouter> with <HistoryRouter> as soon as it's stable
 ReactDOM.render(<Provider store={store}>
-    <BrowserRouter >
+    
+    <BrowserRouter>
         <Auth0Provider
             domain={process.env.REACT_APP_AUTH0_DOMAIN as string}
             clientId={process.env.REACT_APP_AUTH0_CLIENT_ID as string}
