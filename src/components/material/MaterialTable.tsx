@@ -1,12 +1,15 @@
 import { ShoppingCartOutlined } from '@ant-design/icons';
 import { Button, Table } from 'antd';
+import { Can } from 'config/casl/casl';
 import React from 'react';
 import { Categorie } from 'types/categorie.types';
 import { Material } from "types/material.types";
+import { EditMaterialButton } from './EditMaterial';
 
 
 
 export interface MaterialTablelProps {
+    abteilungId: string
     material: Material[]
     categorie: Categorie[]
     addToBasket: (matId: string) => void
@@ -15,7 +18,7 @@ export interface MaterialTablelProps {
 
 export const MaterialTable = (props: MaterialTablelProps) => {
 
-    const { material, categorie, addToBasket } = props;
+    const { abteilungId, material, categorie, addToBasket } = props;
 
     const columns = [
         {
@@ -71,7 +74,12 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             title: 'Warenkorb',
             key: 'basket',
             render: (text: string, record: Material) => (
-                <Button type="primary" icon={<ShoppingCartOutlined />} onClick={()=> { addToBasket(record.id) }}/>
+                <>
+                    <Button type="primary" icon={<ShoppingCartOutlined />} onClick={()=> { addToBasket(record.id) }}/>
+                    <Can I='update' this={record}>
+                        <EditMaterialButton material={record} materialId={record.id} abteilungId={abteilungId}/>
+                    </Can>
+                </>
             )
         }
       ];
