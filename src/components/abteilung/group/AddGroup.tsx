@@ -27,8 +27,18 @@ export const AddGroup = (props: AddGroupProps) => {
 
     const addGroup = async () => {
         try {
+            let generatedId = '';
+            do {
+                //this is just a basic "random" time based id. It's just used to make the group unique
+                generatedId = (new Date()).getTime().toString(36) + Math.random().toString(36).slice(6);
+
+            } while(!!groups.find(gr => gr.id === generatedId))
+
             await firestore().collection(abteilungenCollection).doc(abteilungId).update({
-                groups: [...groups, form.getFieldsValue()]
+                groups: [...groups, {
+                    ...form.getFieldsValue(),
+                    id: generatedId
+                }]
             })
             message.success(`${form.getFieldValue('type') === 'group' ? 'Gruppe' : 'Anlass'} ${form.getFieldValue('name')} erfolgreich erstellt`);
             setSelectedKeys([])
