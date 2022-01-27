@@ -1,5 +1,5 @@
 import { useState, useContext, useMemo, useEffect, createContext } from 'react';
-import { Col, PageHeader, Row, Spin, message, Menu, Result, Tag } from 'antd';
+import { PageHeader, Spin, message, Menu } from 'antd';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
@@ -8,7 +8,6 @@ import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMateri
 import { useParams } from 'react-router';
 import { ContainerOutlined, SettingOutlined, TagsOutlined, TeamOutlined } from '@ant-design/icons';
 import { MemberTable } from './members/MemberTable';
-import { Can } from 'config/casl/casl';
 import { ability } from 'config/casl/ability';
 import { AbteilungenContext } from 'components/navigation/NavigationMenu';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -17,8 +16,6 @@ import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMateria
 import { AbteilungSettings } from './settings/AbteilungSettings';
 import { GroupTable } from './group/GroupTable';
 import { useSearchParams } from 'react-router-dom';
-import { useUser } from 'hooks/use-user';
-import { JoinAbteilungButton } from './join/JoinAbteilung';
 import { NoAccessToAbteilung } from './AbteilungNoAcceess';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
