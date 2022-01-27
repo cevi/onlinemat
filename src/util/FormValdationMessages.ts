@@ -21,7 +21,7 @@ export const validateMessages = {
         integer: typeTemplate,
         float: typeTemplate,
         regexp: typeTemplate,
-        email: typeTemplate,
+        email: "Das ist keine gültige Emailadresse",
         url: typeTemplate,
         hex: typeTemplate,
     },

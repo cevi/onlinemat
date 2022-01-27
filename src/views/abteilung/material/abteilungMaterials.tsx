@@ -111,9 +111,6 @@ export const AbteilungMaterialView = () => {
     }
 
     return <div className={classNames(appStyles['flex-grower'])}>
-        <PageHeader title={`Abteilung ${abteilung?.name}`}></PageHeader>
-
-
 
         <div className={classNames(appStyles['flex-grower'])}>
             <Can I={'create'} this={{ __caslSubjectType__: 'Material', abteilungId } as AbteilungEntityCasl}>

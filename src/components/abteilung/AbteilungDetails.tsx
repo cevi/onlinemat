@@ -1,5 +1,5 @@
 import { useState, useContext, useMemo, useEffect, createContext } from 'react';
-import { Col, PageHeader, Row, Spin, message, Menu } from 'antd';
+import { Col, PageHeader, Row, Spin, message, Menu, Result, Tag } from 'antd';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
@@ -17,6 +17,9 @@ import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMateria
 import { AbteilungSettings } from './settings/AbteilungSettings';
 import { GroupTable } from './group/GroupTable';
 import { useSearchParams } from 'react-router-dom';
+import { useUser } from 'hooks/use-user';
+import { JoinAbteilungButton } from './join/JoinAbteilung';
+import { NoAccessToAbteilung } from './AbteilungNoAcceess';
 
 
 export interface AbteilungDetailProps {
@@ -152,6 +155,11 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
     const navigation = () => {
         if (!abteilung) return;
+
+        if(ability.cannot('read', abteilung)) {
+            return <NoAccessToAbteilung abteilung={abteilung}/>
+        }
+
         switch (selectedMenu) {
             case 'mat':
                 return <AbteilungMaterialView />

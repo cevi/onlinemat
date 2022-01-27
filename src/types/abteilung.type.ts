@@ -9,6 +9,7 @@ export interface Abteilung {
     ceviDBId?: string
     logoUrl?: string
     groups: Group[]
+    email?: string
 }
 
 

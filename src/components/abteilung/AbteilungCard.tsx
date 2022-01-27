@@ -37,11 +37,10 @@ export const AbteilungCard = (props: AbteilungCardProps) => {
         <div className={classNames(moduleStyles['cardActions'])}>
             <Can I='read' this={abteilung}>
                 <Button onClick={() => navigate(`/abteilungen/${abteilung.slug || abteilung.id}`)}>Details</Button>
-                <Button onClick={() => navigate(`/abteilungen/${abteilung.slug || abteilung.id}/mat`)}>Material</Button>
             </Can>
             <Can not I='read' this={abteilung}>
                 { 
-                    userRole !== 'pending' ? <JoinAbteilungButton abteilungId={abteilung.id} abteilungName={abteilung.name} /> : <Tag color="geekblue">Angefragt</Tag>
+                    userRole !== 'pending' ? <JoinAbteilungButton abteilungId={abteilung.id} abteilungName={abteilung.name} /> : <Tag color='geekblue'>Angefragt</Tag>
                 }
             </Can>
         </div>

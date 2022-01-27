@@ -38,8 +38,9 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
             await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
                 name: form.getFieldsValue().name,
-                ceviDBId: form.getFieldsValue().ceviDBId,
-                logoUrl: form.getFieldsValue().logoUrl
+                ceviDBId: form.getFieldsValue().ceviDBId || null,
+                logoUrl: form.getFieldsValue().logoUrl || null,
+                email: form.getFieldsValue().email || null
             } as Abteilung);
             message.success(`Änderungen erfolgreich gespeichert`);
         } catch (ex) {
@@ -163,6 +164,20 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                     >
                         <Input
                             placeholder="Cevi Logo Url"
+                            disabled={disabled || updateLoading}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col span={8}>
+                    <Form.Item
+                        label="Email"
+                        name="email"
+                        rules={[
+                            { type: 'email' },
+                        ]}
+                    >
+                        <Input
+                            placeholder="Email"
                             disabled={disabled || updateLoading}
                         />
                     </Form.Item>
