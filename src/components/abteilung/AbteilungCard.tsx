@@ -1,7 +1,6 @@
-import React from 'react';
 import { Button, Card, Image, Tag } from 'antd';
 import { Abteilung } from 'types/abteilung.type';
-import { useMatch, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import ceviLogoImage from "assets/cevi_logo.png";
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
