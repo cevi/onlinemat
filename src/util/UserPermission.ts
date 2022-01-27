@@ -86,6 +86,7 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
           break;
 
         case 'member':
+
           break;
 
         case 'guest':
@@ -95,10 +96,10 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
       //default member rights
 
       //Abteilung
-      if(role !== 'pending') {
+      if (role !== 'pending') {
         can('read', 'Abteilung', { id: abteilungId });
       }
-      
+
 
       //order
       can('create', 'Order', { abteilungId: abteilungId });

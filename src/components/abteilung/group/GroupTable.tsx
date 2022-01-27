@@ -1,10 +1,13 @@
 import { useContext } from 'react';
-import { Table, Select, Button, Tooltip } from 'antd';
+import { Table, Select, Button, Tooltip, Popconfirm } from 'antd';
 import { Abteilung, AbteilungMemberUserData } from 'types/abteilung.type';
 import { approveMemberRequest, banMember, changeRoleOfMember, denyMemberRequest, removeMember, unBanMember } from 'util/MemberUtil';
 import { AddGroupButton } from '../group/AddGroup';
 import { MembersContext, MembersUserDataContext } from '../AbteilungDetails';
 import { Group } from 'types/group.types';
+import { Can } from 'config/casl/casl';
+import { deleteGroup, EditGroupButton } from './EditGroup';
+import { DeleteOutlined } from '@ant-design/icons';
 
 
 
@@ -48,6 +51,28 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
                     return member ? member.displayName : 'Unbekannt'
                 }).join(', ')}</p>
             )
+        },
+        {
+            title: 'Aktionen',
+            key: 'actions',
+            dataIndex: 'id',
+            render: (text: string, record: Group) => (
+                <>
+                    <Can I='update' this={abteilung}>
+                        <EditGroupButton group={record} members={members} abteilung={abteilung} />
+                        <Popconfirm
+                            title='Möchtest du diese Gruppe wirklich löschen?'
+                            onConfirm={() => deleteGroup(abteilung, record)}
+                            onCancel={() => { }}
+                            okText='Ja'
+                            cancelText='Nein'
+                        >
+                            <Button type='ghost' danger icon={<DeleteOutlined />} disabled={loading}>
+                            </Button>
+                        </Popconfirm>
+                    </Can>
+                </>
+            )
         }
     ];
 
@@ -77,7 +102,7 @@ export const GroupTable = (props: GroupTableProps) => {
     const userDataLoading = membersUserDataContext.loading;
 
 
-    const membersMerged = members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}));
+    const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: 'Loading...' }) }));
 
-    return <><AddGroupButton abteilung={abteilung} members={membersMerged}/><GroupTableImpl loading={userDataLoading || membersLoading} abteilung={abteilung} members={membersMerged}/></>
+    return <><AddGroupButton abteilung={abteilung} members={membersMerged} /><GroupTableImpl loading={userDataLoading || membersLoading} abteilung={abteilung} members={membersMerged} /></>
 }
