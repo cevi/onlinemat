@@ -11,13 +11,13 @@ export interface MaterialTablelProps {
     abteilungId: string
     material: Material[]
     categorie: Categorie[]
-    addToBasket: (matId: string) => void
+    addToCart: (mat: Material) => void
 }
 
 
 export const MaterialTable = (props: MaterialTablelProps) => {
 
-    const { abteilungId, material, categorie, addToBasket } = props;
+    const { abteilungId, material, categorie, addToCart } = props;
 
     const columns = [
         {
@@ -74,7 +74,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             key: 'basket',
             render: (text: string, record: Material) => (
                 <>
-                    <Button type='primary' icon={<ShoppingCartOutlined />} onClick={()=> { addToBasket(record.id) }}/>
+                    <Button type='primary' icon={<ShoppingCartOutlined />} onClick={()=> { addToCart(record) }}/>
                     <Can I='update' this={record}>
                         <EditMaterialButton material={record} materialId={record.id} abteilungId={abteilungId}/>
                     </Can>

@@ -82,26 +82,15 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
 
 export interface GroupTableProps {
     abteilung: Abteilung
+    loading: boolean
+    members: AbteilungMemberUserData[]
 }
 
 export const GroupTable = (props: GroupTableProps) => {
 
-    const { abteilung } = props;
+    const { abteilung, members, loading } = props;
 
-    //fetch members
-    const membersContext = useContext(MembersContext);
+    
 
-    const members = membersContext.members;
-    const membersLoading = membersContext.loading;
-
-    //fetch userData
-    const membersUserDataContext = useContext(MembersUserDataContext);
-
-    const userData = membersUserDataContext.userData;
-    const userDataLoading = membersUserDataContext.loading;
-
-
-    const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: 'Loading...' }) }));
-
-    return <><AddGroupButton abteilung={abteilung} members={membersMerged} /><GroupTableImpl loading={userDataLoading || membersLoading} abteilung={abteilung} members={membersMerged} /></>
+    return <GroupTableImpl loading={loading} abteilung={abteilung} members={members} />
 }

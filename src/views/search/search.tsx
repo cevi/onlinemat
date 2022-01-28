@@ -120,7 +120,7 @@ export const SearchView = () => {
                 {
                     material.map(mat => {
                         const abteilung = abteilungen.filter(ab => ab.id === mat.abteilungId).length > 0 ? abteilungen.filter(ab => ab.id === mat.abteilungId)[0] : undefined;
-                        return <p key={mat.id}>{`${mat.name} `}<a href={abteilung && abteilung.slug ? `/abteilungen/${abteilung.slug}` : '/abteilungen'}>{abteilung && abteilung.name ? abteilung.name : 'Unbekannte Abteilung'}</a></p>
+                        return <p key={mat.id}>{`${mat.name} `}<a href={abteilung ? `/abteilungen/${abteilung.slug || abteilung.id}` : '/abteilungen'}>{abteilung && abteilung.name ? abteilung.name : 'Unbekannte Abteilung'}</a></p>
                     })
                 }
             </div>

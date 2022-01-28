@@ -1,5 +1,5 @@
 import { useState, useContext, useMemo, useEffect, createContext } from 'react';
-import { PageHeader, Spin, message, Menu } from 'antd';
+import { PageHeader, Spin, message, Menu, Row, Col } from 'antd';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
@@ -15,14 +15,15 @@ import { UserData } from 'types/user.type';
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 import { AbteilungSettings } from './settings/AbteilungSettings';
 import { GroupTable } from './group/GroupTable';
-import { useSearchParams } from 'react-router-dom';
 import { NoAccessToAbteilung } from './AbteilungNoAcceess';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
-import { CartTable } from './cart/CartTable';
 import { CartItem } from 'types/cart.types';
 import { cookieToCart, getCartCount, getCartName } from 'util/CartUtil';
 import { useCookies } from 'react-cookie';
+import { Cart } from './cart/Cart';
+import { Group } from './group/Group';
+import { Member } from './members/Member';
 
 
 export interface AbteilungDetailProps {
@@ -50,7 +51,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const navigate = useNavigate();
     const { state } = useLocation();
 
-    const initTab: AbteilungTab = tab as AbteilungTab|| 'mat';
+    const initTab: AbteilungTab = tab as AbteilungTab || 'mat';
 
     const abteilungenContext = useContext(AbteilungenContext);
 
@@ -73,7 +74,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const [matLoading, setMatLoading] = useState(false);
     const [materials, setMaterials] = useState<Material[]>([]);
 
-    
+
     const [cookies] = useCookies();
 
     const [cartItems, setCartItems] = useState<CartItem[]>(state as CartItem[] || []);
@@ -87,12 +88,12 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     }
 
     //fetch cart from cookie, if there
-    useEffect(()=> {
-        if(!abteilung || !cartItems || cartItems.length >= 1) return;
+    useEffect(() => {
+        if (!abteilung || !cartItems || cartItems.length >= 1) return;
 
         const cookieName = getCartName(abteilung.id);
         const cookieRaw = cookies[cookieName];
-        if(!cookieRaw) return;
+        if (!cookieRaw) return;
         const cookieCart = cookieToCart(cookieRaw, abteilung.id)
         setCartItems(cookieCart)
     }, [])
@@ -117,7 +118,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
     //update url
     useMemo(() => {
-        if(!abteilung) return;
+        if (!abteilung) return;
         navigate(`/abteilungen/${abteilung.slug || abteilung.id}/${selectedMenu}`, {
             state: cartItems
         })
@@ -226,15 +227,15 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
         switch (selectedMenu) {
             case 'mat':
-                return <AbteilungMaterialView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart}/>
+                return <AbteilungMaterialView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
             case 'members':
-                return <MemberTable abteilungId={abteilung.id} />
+                return <Member abteilungId={abteilung.id} />
             case 'groups':
-                return <GroupTable abteilung={abteilung} />
+                return <Group abteilung={abteilung} />
             case 'settings':
                 return <AbteilungSettings abteilung={abteilung} />
             case 'cart':
-                return <CartTable abteilung={abteilung} cartItems={cartItems} changeCart={changeCart}/>
+                return <Cart abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
         }
     }
 
@@ -247,38 +248,44 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                 <CategorysContext.Provider value={{ categories, loading: catLoading }}>
                     <MaterialsContext.Provider value={{ materials, loading: matLoading }}>
                         {/* <CartContext.Provider value={cart}> */}
-                            <PageHeader title={`Abteilung ${abteilung?.name}`}>
-                                <Menu onClick={(e) => { setSelectedMenu(e.key as AbteilungTab) }} selectedKeys={[selectedMenu]} mode='horizontal'>
-                                    <Menu.Item key='mat' icon={<ContainerOutlined />}>
-                                        Material
-                                    </Menu.Item>
-                                    {canUpdate && <Menu.Item key='members' icon={<TeamOutlined />}>
-                                        Mitglieder
-                                    </Menu.Item>
-                                    }
-                                    {canUpdate && <Menu.Item key='groups' icon={<TagsOutlined />}>
-                                        Gruppen
-                                    </Menu.Item>
-                                    }
-                                    {canUpdate && <Menu.Item key='settings' icon={<SettingOutlined />}>
-                                        Einstellungen
-                                    </Menu.Item>
-                                    }
-                                    {
-                                        // right menu
-                                    }
-                                    <Menu.Item key='cart' icon={<ShoppingCartOutlined />} style={{ marginLeft: 'auto' }}>
-                                        {
-                                            getCartCount(cartItems)
-                                        }
-                                    </Menu.Item>
-
-                                </Menu>
-                                {
-                                    navigation()
+                        <PageHeader title={`Abteilung ${abteilung?.name}`}>
+                            <Menu onClick={(e) => { setSelectedMenu(e.key as AbteilungTab) }} selectedKeys={[selectedMenu]} mode='horizontal'>
+                                <Menu.Item key='mat' icon={<ContainerOutlined />}>
+                                    Material
+                                </Menu.Item>
+                                {canUpdate && <Menu.Item key='members' icon={<TeamOutlined />}>
+                                    Mitglieder
+                                </Menu.Item>
                                 }
+                                {canUpdate && <Menu.Item key='groups' icon={<TagsOutlined />}>
+                                    Gruppen
+                                </Menu.Item>
+                                }
+                                {canUpdate && <Menu.Item key='settings' icon={<SettingOutlined />}>
+                                    Einstellungen
+                                </Menu.Item>
+                                }
+                                {
+                                    // right menu
+                                }
+                                <Menu.Item key='cart' icon={<ShoppingCartOutlined />} style={{ marginLeft: 'auto' }}>
+                                    {
+                                        getCartCount(cartItems)
+                                    }
+                                </Menu.Item>
 
-                            </PageHeader>
+                            </Menu>
+                            <Row gutter={[16, 24]}>
+                                <Col span={24}></Col>
+                                <Col span={24}>
+                                    {
+                                        navigation()
+                                    }
+                                </Col>
+                            </Row>
+
+
+                        </PageHeader>
                         {/* </CartContext.Provider> */}
                     </MaterialsContext.Provider>
                 </CategorysContext.Provider>

@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { Spin, Input, Radio } from 'antd';
+import { Spin, Input, Radio, message, Row, Col } from 'antd';
 import { AddMaterialButton } from 'components/material/AddMaterial';
 import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
 import { AddCategorieButton } from 'components/categorie/AddCategorie';
@@ -14,6 +14,8 @@ import { CategorysContext, MaterialsContext } from 'components/abteilung/Abteilu
 import { useCookies } from 'react-cookie';
 import { CartItem } from 'types/cart.types';
 import { cookieToCart, getCartName } from 'util/CartUtil';
+import moment from 'moment';
+import { Material } from 'types/material.types';
 
 export type AbteilungMaterialViewProps = {
     abteilung: Abteilung;
@@ -47,59 +49,69 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     const matLoading = materialsContext.loading;
 
 
-    const addItemToCart = (materialId: string) => {
-        const cookieRaw = cookies[cookieName];
-       
+    const addItemToCart = (material: Material) => {
+
         let localCart = cartItems;
-        if(!localCart) {
-            localCart = []
-        }
 
         //check if already added
-        const itemAdded = localCart.find(item => item.matId === materialId);
+        const itemAdded = localCart.find(item => item.matId === material.id);
 
-        if(itemAdded) {
-            localCart = [...localCart.filter(item => item.matId !== materialId), {
+        if (itemAdded) {
+            //check if max count is already exeeded
+            const amount = itemAdded.count >= material.count ? material.count : (itemAdded.count + 1);
+            if (amount === material.count) {
+                message.info(`Die maximale Stückzahl von ${material.name} befindet sich bereits in deinem Warenkorb.`)
+            }
+            localCart = [...localCart.filter(item => item.matId !== material.id), {
                 __caslSubjectType__: 'CartItem',
-                count: (itemAdded.count + 1),
-                matId: materialId
+                count: amount,
+                matId: material.id
             }]
         } else {
             localCart = [...localCart, {
                 __caslSubjectType__: 'CartItem',
                 count: 1,
-                matId: materialId
+                matId: material.id
             }]
         }
 
+        const expires = moment();
+        expires.add(24, 'hours');
+
         setCookie(cookieName, localCart, {
             path: '/',
+            expires: expires.toDate()
         });
 
         changeCart(localCart)
     }
 
 
-    if(!abteilung) {
-        return <Spin/>
+    if (!abteilung) {
+        return <Spin />
     }
 
-    return <div className={classNames(appStyles['flex-grower'])}>
+    return <Row gutter={[16, 16]}>
 
-        <div className={classNames(appStyles['flex-grower'])}>
+        <Col span={4}>
             <Can I={'create'} this={{ __caslSubjectType__: 'Material', abteilungId: abteilung.id } as AbteilungEntityCasl}>
                 <AddMaterialButton abteilungId={abteilung.id} />
             </Can>
-
+        </Col>
+        <Col span={4}>
             <Can I={'create'} this={{ __caslSubjectType__: 'Categorie', abteilungId: abteilung.id } as AbteilungEntityCasl}>
                 <AddCategorieButton abteilungId={abteilung.id} />
             </Can>
+        </Col>
 
-            {
-                matLoading || catLoading ?
-                    <Spin />
-                    :
-                    <>
+
+
+        {
+            matLoading || catLoading ?
+                <Spin />
+                :
+                <>
+                    <Col span={24}>
                         <Search
                             placeholder='nach Material suchen'
                             allowClear
@@ -107,19 +119,26 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                             size='large'
                             onSearch={(query) => setQuery(query)}
                         />
+                    </Col>
+                    <Col span={24}>
                         <Radio.Group value={displayMode} onChange={(e) => setDisplayMode(e.target.value as 'table' | 'grid')}>
                             <Radio.Button value='grid' >{<AppstoreOutlined />}</Radio.Button>
                             <Radio.Button value='table'>{<MenuOutlined />}</Radio.Button>
                         </Radio.Group>
+                    </Col>
+                    <Col span={24}>
+                        {
+                            displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToCart={addItemToCart} />
+                        }
+                        {
+                            displayMode === 'grid' && <MaterialGrid categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToCart={addItemToCart} />
+                        }
+                    </Col>
 
-                        {
-                            displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToBasket={addItemToCart} />
-                        }
-                        {
-                            displayMode === 'grid' && <MaterialGrid categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToBasket={addItemToCart} />
-                        }
-                    </>
-            }
-        </div>
-    </div>
+
+
+
+                </>
+        }
+    </Row >
 }
