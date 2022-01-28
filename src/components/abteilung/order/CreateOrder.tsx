@@ -1,11 +1,9 @@
-import { Button, Col, DatePicker, Form, Input, message, Row, Select, Spin } from 'antd';
-import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
-import { firestore, functions } from 'config/firebase/firebase';
+import { Button, Col, DatePicker, Form, Input, Row, Select, Spin } from 'antd';
 import { useUser } from 'hooks/use-user';
 import moment, { Moment } from 'moment';
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Abteilung } from 'types/abteilung.type';
-import { CartItem, DetailedCartItem } from 'types/cart.types';
+import { DetailedCartItem } from 'types/cart.types';
 import { Group } from 'types/group.types';
 import { Order } from 'types/order.types';
 import { validateMessages } from 'util/FormValdationMessages';
@@ -13,11 +11,20 @@ import { validateMessages } from 'util/FormValdationMessages';
 export interface CreateOrderProps {
     abteilung: Abteilung
     items: DetailedCartItem[]
+    createOrder: (orderToCreate: any) => Promise<string | undefined>
 }
 
-export const CreateOrder = (props: CreateOrderProps) => {
+export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
+    useImperativeHandle(
+        ref,
+        () => ({
+            submitOrder() {
+                prepareOrderCreation();
+            }
+        }),
+    )
 
-    const { abteilung, items } = props;
+    const { abteilung, items, createOrder } = props;
 
     const [form] = Form.useForm<Order>();
     const userState = useUser();
@@ -40,7 +47,7 @@ export const CreateOrder = (props: CreateOrderProps) => {
 
     const [orderLoading, setOrderLoading] = useState<boolean>(false);
 
-    useEffect(()=> {
+    useEffect(() => {
         form.setFieldsValue({ groupId: selectedGroup })
     }, [selectedGroup])
 
@@ -61,19 +68,19 @@ export const CreateOrder = (props: CreateOrderProps) => {
 
     }, [userState])
 
-    useEffect(()=> {
+    useEffect(() => {
         //set default group
         form.setFieldsValue({
             groupId: defaultGroup(userGroups)
         })
     }, [userGroups])
 
-    useEffect(()=> {
-        if(form.getFieldValue('startDate') !== startDate) {
-            form.setFieldsValue({startDate: startDate})
+    useEffect(() => {
+        if (form.getFieldValue('startDate') !== startDate) {
+            form.setFieldsValue({ startDate: startDate })
         }
-        if(form.getFieldValue('endDate') !== endDate) {
-            form.setFieldsValue({endDate: endDate})
+        if (form.getFieldValue('endDate') !== endDate) {
+            form.setFieldsValue({ endDate: endDate })
         }
 
         //TODO: check availabilty
@@ -83,9 +90,9 @@ export const CreateOrder = (props: CreateOrderProps) => {
     const defaultGroup = (groups: Group[]) => {
         let group = customGroupId;
 
-        if(groups.filter(g => g.type === 'group').length > 0) {
+        if (groups.filter(g => g.type === 'group').length > 0) {
             group = groups.filter(g => g.type === 'group')[0].id;
-        } else if(groups.filter(g => g.type === 'event').length > 0) {
+        } else if (groups.filter(g => g.type === 'event').length > 0) {
             group = groups.filter(g => g.type === 'event')[0].id;
         }
 
@@ -93,55 +100,44 @@ export const CreateOrder = (props: CreateOrderProps) => {
     }
 
 
+    const prepareOrderCreation = async () => {
+        if (!startDate || !endDate) return;
 
-    const createOrder = async () => {
-        try {
-            setOrderLoading(true)
-            if(!startDate || !endDate) return;
+        //TODO: if available create order
 
-            console.log('startDate', startDate.second(0).toDate())
-            console.log('endDate', endDate.second(0).toDate())
+        const formValues = form.getFieldsValue();
 
-            //TODO: if available create order
+        const orderItems = items.map(i => {
+            return {
+                count: i.count,
+                matId: i.matId
+            }
+        })
 
-            const formValues = form.getFieldsValue();
+        const orderToCreate = {
+            startDate: startDate.second(0).toISOString(),
+            endDate: endDate.second(0).toISOString(),
+            items: orderItems,
+            comment: formValues.comment,
+            customGroupName: formValues.customGroupName,
+            groupId: formValues.groupId,
+        };
 
-            const orderItems = items.map(i => {
-                return {
-                    count: i.count,
-                    matId: i.matId
-                }
-            })
+        const orderId = await createOrder(orderToCreate)
 
-            const orderToCreate = {
-                startDate: startDate.second(0).toISOString(),
-                endDate: endDate.second(0).toISOString(),
-                items: orderItems,
-                comment: formValues.comment,
-                customGroupName: formValues.customGroupName,
-                groupId: formValues.groupId,
-            };
-
-            const result = await functions().httpsCallable('createOrder')({ abteilungId: abteilung.id, order: orderToCreate });
-            const orderId = result.data;
-            console.log('orderId', orderId)
-            message.success(`Bestellung erfolgreich erstellt`);
+        if(orderId) {
             form.resetFields();
-            
-        } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
         }
-        setOrderLoading(false)
     }
 
-    if(!userState) return <Spin/>
+    if (!userState) return <Spin />
 
     return <Row>
         <Col span={12}>
             <Form
                 form={form}
                 validateMessages={validateMessages}
-                onFinish={createOrder}
+                onFinish={prepareOrderCreation}
             >
                 <Row gutter={[16, 16]}>
                     <Col span={24}>
@@ -155,10 +151,10 @@ export const CreateOrder = (props: CreateOrderProps) => {
                                 value={[startDate, endDate]}
                                 minuteStep={10}
                                 onCalendarChange={(values) => {
-                                    if(!values) return;
-                                    if(values.length <= 1) return;
-                                    if(values[0] === null) return;
-                                    if(values[1] === null) return;
+                                    if (!values) return;
+                                    if (values.length <= 1) return;
+                                    if (values[0] === null) return;
+                                    if (values[1] === null) return;
                                     setStartDate(values[0]);
                                     setEndDate(values[1]);
                                 }}
@@ -177,7 +173,7 @@ export const CreateOrder = (props: CreateOrderProps) => {
                                 { required: true },
                             ]}
                         >
-                            <Select 
+                            <Select
                                 showSearch
                                 onChange={(val) => setSelectedGroup(val)}
                             >
@@ -225,14 +221,6 @@ export const CreateOrder = (props: CreateOrderProps) => {
                             <TextArea rows={4} />
                         </Form.Item>
                     </Col>
-                    <Col span={18}>
-                        <Button type='default' htmlType='submit' disabled={orderLoading}>Bestellung abschliessen</Button>
-                    </Col>
-                    <Col span={18}>
-                        {
-                            orderLoading && <Spin/>
-                        }
-                    </Col>
                 </Row>
             </Form>
         </Col>
@@ -251,4 +239,4 @@ export const CreateOrder = (props: CreateOrderProps) => {
 
     </Row>
 
-}
+})
