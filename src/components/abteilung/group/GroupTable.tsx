@@ -1,9 +1,5 @@
-import { useContext } from 'react';
-import { Table, Select, Button, Tooltip, Popconfirm } from 'antd';
+import { Table, Button, Popconfirm } from 'antd';
 import { Abteilung, AbteilungMemberUserData } from 'types/abteilung.type';
-import { approveMemberRequest, banMember, changeRoleOfMember, denyMemberRequest, removeMember, unBanMember } from 'util/MemberUtil';
-import { AddGroupButton } from '../group/AddGroup';
-import { MembersContext, MembersUserDataContext } from '../AbteilungDetails';
 import { Group } from 'types/group.types';
 import { Can } from 'config/casl/casl';
 import { deleteGroup, EditGroupButton } from './EditGroup';

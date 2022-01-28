@@ -1,5 +1,5 @@
 import { DeleteOutlined } from '@ant-design/icons';
-import { Button, Col, Popconfirm, Result, Row } from 'antd';
+import { Button, Col, Popconfirm, Result, Row, Steps } from 'antd';
 import moment from 'moment';
 import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router';
@@ -10,6 +10,7 @@ import { CartTable } from './CartTable';
 import Search from 'antd/lib/input/Search';
 import { useContext, useEffect, useState } from 'react';
 import { MaterialsContext } from '../AbteilungDetails';
+import { CreateOrder } from '../order/CreateOrder';
 
 export interface CartProps {
     abteilung: Abteilung
@@ -20,6 +21,8 @@ export interface CartProps {
 export const Cart = (props: CartProps) => {
 
     const { abteilung, cartItems, changeCart } = props;
+
+    const { Step } = Steps;
 
     const cookieName = getCartName(abteilung.id);
 
@@ -35,6 +38,7 @@ export const Cart = (props: CartProps) => {
 
     const [cartItemsMerged, setCartItemsMerged] = useState<DetailedCartItem[]>([]);
 
+    const [currentStep, setCurrentStep] = useState<number>(0);
     const [query, setQuery] = useState<string | undefined>(undefined);
 
     const changeCartAndCookie = (items: CartItem[]) => {
@@ -48,6 +52,17 @@ export const Cart = (props: CartProps) => {
         });
 
         changeCart(items)
+    }
+
+    const ProgressBar = () => {
+        return <><Steps current={currentStep}>
+            <Step title='Material' description='Material auswählen' />
+            <Step title='Bestellen' description='Bestellung aufgeben' />
+            <Step title='Abschliessen' description='Bestellung abschliessen' />
+        </Steps>
+        { currentStep !== 0 && <Button type='primary' onClick={() => setCurrentStep(0)}>Zurück</Button> }
+        <Button type='primary' style={{ float: 'right' }} onClick={() => setCurrentStep(currentStep + 1)}>Weiter</Button>
+        </>
     }
 
     useEffect(() => {
@@ -80,6 +95,15 @@ export const Cart = (props: CartProps) => {
         />
     }
 
+    if (currentStep === 1) return <Row gutter={[16, 16]}>
+        <Col span={24}>
+            <CreateOrder abteilung={abteilung} items={cartItemsMerged} />
+        </Col>
+        <Col span={24}>
+            <ProgressBar/>
+        </Col>
+    </Row>
+
     return <Row gutter={[16, 16]}>
         <Col span={24}>
             <Search
@@ -90,6 +114,7 @@ export const Cart = (props: CartProps) => {
                 onSearch={(query) => setQuery(query)}
             />
         </Col>
+
         <Col span={24}>
             <CartTable abteilung={abteilung} cartItems={query ? cartItemsMerged.filter(item => item.name.toLowerCase().includes(query.toLowerCase())) : cartItemsMerged} changeCart={changeCartAndCookie} />
         </Col>
@@ -103,8 +128,9 @@ export const Cart = (props: CartProps) => {
             >
                 <Button type='ghost' danger icon={<DeleteOutlined />}>Warenkorb löschen</Button>
             </Popconfirm>
-
-            <Button type='primary' style={{ float: 'right' }}>Zur Bestellung</Button>
+        </Col>
+        <Col span={24}>
+            <ProgressBar/>
         </Col>
 
     </Row>
