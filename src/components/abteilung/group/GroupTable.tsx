@@ -67,8 +67,7 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
                             okText='Ja'
                             cancelText='Nein'
                         >
-                            <Button type='ghost' danger icon={<DeleteOutlined />} disabled={loading}>
-                            </Button>
+                            <Button type='ghost' danger icon={<DeleteOutlined />} disabled={loading}/>
                         </Popconfirm>
                     </Can>
                 </>

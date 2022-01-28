@@ -234,7 +234,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             case 'settings':
                 return <AbteilungSettings abteilung={abteilung} />
             case 'cart':
-                return <CartTable abteilung={abteilung} cartItems={cartItems} />
+                return <CartTable abteilung={abteilung} cartItems={cartItems} changeCart={changeCart}/>
         }
     }
 
