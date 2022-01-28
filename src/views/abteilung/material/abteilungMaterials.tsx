@@ -11,19 +11,25 @@ import { MaterialGrid } from 'components/material/MaterialGrid';
 import { Can } from 'config/casl/casl';
 import { AbteilungEntityCasl } from 'config/casl/ability';
 import { CategorysContext, MaterialsContext } from 'components/abteilung/AbteilungDetails';
+import { useCookies } from 'react-cookie';
+import { CartItem } from 'types/cart.types';
+import { cookieToCart, getCartName } from 'util/CartUtil';
 
 export type AbteilungMaterialViewProps = {
     abteilung: Abteilung;
+    cartItems: CartItem[]
+    changeCart: (cart: CartItem[]) => void
 };
 
 export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
-    const { abteilung } = props;
+    const { abteilung, cartItems, changeCart } = props;
 
     const { Search } = Input;
 
+    const cookieName = getCartName(abteilung.id);
 
-    const [abteilungLoading, setAbteilungLoading] = useState(false);
-  
+    const [cookies, setCookie] = useCookies([cookieName]);
+
 
     const [query, setQuery] = useState<string | undefined>(undefined);
     const [displayMode, setDisplayMode] = useState<'table' | 'grid'>('table');
@@ -41,9 +47,38 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     const matLoading = materialsContext.loading;
 
 
-    const addToBasket = (materialId: string) => {
+    const addItemToCart = (materialId: string) => {
+        const cookieRaw = cookies[cookieName];
+       
+        let localCart = cartItems;
+        if(!localCart) {
+            localCart = []
+        }
 
+        //check if already added
+        const itemAdded = localCart.find(item => item.matId === materialId);
+
+        if(itemAdded) {
+            localCart = [...localCart.filter(item => item.matId !== materialId), {
+                __caslSubjectType__: 'CartItem',
+                count: (itemAdded.count + 1),
+                matId: materialId
+            }]
+        } else {
+            localCart = [...localCart, {
+                __caslSubjectType__: 'CartItem',
+                count: 1,
+                matId: materialId
+            }]
+        }
+
+        setCookie(cookieName, localCart, {
+            path: '/',
+        });
+
+        changeCart(localCart)
     }
+
 
     if(!abteilung) {
         return <Spin/>
@@ -61,7 +96,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
             </Can>
 
             {
-                matLoading || catLoading || abteilungLoading ?
+                matLoading || catLoading ?
                     <Spin />
                     :
                     <>
@@ -78,10 +113,10 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                         </Radio.Group>
 
                         {
-                            displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToBasket={addToBasket} />
+                            displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToBasket={addItemToCart} />
                         }
                         {
-                            displayMode === 'grid' && <MaterialGrid categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToBasket={addToBasket} />
+                            displayMode === 'grid' && <MaterialGrid categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToBasket={addItemToCart} />
                         }
                     </>
             }
