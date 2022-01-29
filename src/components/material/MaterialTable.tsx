@@ -1,8 +1,9 @@
-import { ShoppingCartOutlined } from '@ant-design/icons';
-import { Button, Table } from 'antd';
+import { DeleteOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { Button, Popconfirm, Space, Table } from 'antd';
 import { Can } from 'config/casl/casl';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
+import { deleteMaterial } from 'util/MaterialUtil';
 import { EditMaterialButton } from './EditMaterial';
 
 
@@ -36,9 +37,9 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             title: 'Kategorie',
             dataIndex: 'categoryIds',
             key: 'categoryIds',
-            filters: categorie.map(cat => { 
-                return { 
-                    text: cat.name, 
+            filters: categorie.map(cat => {
+                return {
+                    text: cat.name,
                     value: cat.id
                 }
             }),
@@ -52,13 +53,13 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             key: 'weightInKg',
             dataIndex: 'weightInKg',
             sorter: (a: Material, b: Material) => {
-                if(a.weightInKg && b.weightInKg) {
-                    return a.weightInKg - b.weightInKg ;
+                if (a.weightInKg && b.weightInKg) {
+                    return a.weightInKg - b.weightInKg;
                 }
                 return 0;
             },
             render: (text: string, record: Material) => (
-                <p key={`${record.id}_weightInKg`}>{ record.weightInKg ? `${record.weightInKg} Kg` : 'Unbekannt' }</p>
+                <p key={`${record.id}_weightInKg`}>{record.weightInKg ? `${record.weightInKg} Kg` : 'Unbekannt'}</p>
             ),
         },
         {
@@ -73,18 +74,29 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             title: 'Warenkorb',
             key: 'basket',
             render: (text: string, record: Material) => (
-                <>
-                    <Button type='primary' icon={<ShoppingCartOutlined />} onClick={()=> { addToCart(record) }}/>
+                <div style={{display: 'flex', justifyContent: 'space-evenly'}}>
+                    <Button type='primary' icon={<ShoppingCartOutlined />} onClick={() => { addToCart(record) }} />
                     <Can I='update' this={record}>
-                        <EditMaterialButton material={record} materialId={record.id} abteilungId={abteilungId}/>
+                        <EditMaterialButton material={record} materialId={record.id} abteilungId={abteilungId} />
                     </Can>
-                </>
+                    <Can I='delete' this={record}>
+                        <Popconfirm
+                            title={`Möchtest du ${record.name} wirklich löschen?`}
+                            onConfirm={() => deleteMaterial(abteilungId, record)}
+                            onCancel={() => { }}
+                            okText='Ja'
+                            cancelText='Nein'
+                        >
+                            <Button type='ghost' danger icon={<DeleteOutlined />} />
+                        </Popconfirm>
+                    </Can>
+                </div>
             )
         }
-      ];
+    ];
 
 
-      return <Table columns={columns} dataSource={material} />;
+    return <Table columns={columns} dataSource={material} />;
 
 
 }
@@ -92,9 +104,9 @@ export const MaterialTable = (props: MaterialTablelProps) => {
 export const filterCategorie = (value: any, record: Material): boolean => {
     let result: boolean = false;
 
-    if(record.categorieIds) {
+    if (record.categorieIds) {
         record.categorieIds.forEach(catId => {
-            if(catId.indexOf(value as string) === 0) {
+            if (catId.indexOf(value as string) === 0) {
                 result = true;
             }
         })
@@ -107,10 +119,10 @@ export const displayCategorieNames = (categorie: Categorie[], catIds: string[]) 
     let result: string[] = [];
     catIds.forEach(categoryId => {
         const cat = categorie.find(cat => cat.id === categoryId);
-        if(cat) {
+        if (cat) {
             result.push(cat.name);
         }
     })
-    
+
     return result.join();
 }
