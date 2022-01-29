@@ -30,7 +30,7 @@ export const Member = (props: MemberProps) => {
 
     useEffect(()=> {
         setMemberMerged(members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: 'Loading...' }) })))
-    }, [userData, members])
+    }, [userData, members, membersLoading, userDataLoading])
 
 
     return <Row gutter={[16, 16]}>
