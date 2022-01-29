@@ -68,7 +68,7 @@ export const Cart = (props: CartProps) => {
             return orderId;
         } catch (ex) {
             message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
-            setOrderError(`${ex}`)
+            setOrderError(`Es ist ein Fehler aufgetreten ${ex}`)
         }
         setOrderLoading(false)
 
