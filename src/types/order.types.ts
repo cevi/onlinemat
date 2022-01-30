@@ -10,6 +10,7 @@ export interface Order {
     items: CartItem[]
     orderer: string
     creationTime: Moment
+    status: 'created' | 'delivered' | 'completed'
     comment?: string
     groupId?: string
     customGroupName?: string

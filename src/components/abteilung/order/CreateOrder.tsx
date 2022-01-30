@@ -137,7 +137,6 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
             <Form
                 form={form}
                 validateMessages={validateMessages}
-                onFinish={prepareOrderCreation}
             >
                 <Row gutter={[16, 16]}>
                     <Col span={24}>
