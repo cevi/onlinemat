@@ -11,7 +11,7 @@ import { validateMessages } from 'util/FormValdationMessages';
 export interface CreateOrderProps {
     abteilung: Abteilung
     items: DetailedCartItem[]
-    createOrder: (orderToCreate: any) => Promise<string | undefined>
+    createOrder: (orderToCreate: any) => Promise<{orderId: string | undefined, collisions: { [matId: string]: number } | undefined}>
 }
 
 export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
@@ -45,7 +45,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
     const [startDate, setStartDate] = useState<Moment>(defaultStartDate);
     const [endDate, setEndDate] = useState<Moment>(deafultEndDate);
 
-    const [orderLoading, setOrderLoading] = useState<boolean>(false);
+    const [collisions, setCollisions] = useState<{ [matId: string]: number } | undefined>(undefined)
 
     useEffect(() => {
         form.setFieldsValue({ groupId: selectedGroup })
@@ -123,9 +123,13 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
             groupId: formValues.groupId,
         };
 
-        const orderId = await createOrder(orderToCreate)
+        const response = await createOrder(orderToCreate)
 
-        if(orderId) {
+        if(response.collisions) {
+            setCollisions(response.collisions)
+        }
+
+        if(response.orderId && !response.collisions) {
             form.resetFields();
         }
     }
@@ -228,7 +232,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                 <Col span={24}>
                     {
                         items.map(item => {
-                            return <p key={`item_${item.matId}`}>{`${item.count} x ${item.name}`}</p>
+                            return <p key={`item_${item.matId}`}>{`${item.count} x ${item.name} `}<span style={{color: 'red'}}>{collisions && item.matId in collisions ? `Nur noch ${collisions[item.matId]} verfügbar` : ''}</span></p>
                         })
                     }
                 </Col>

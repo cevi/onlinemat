@@ -51,28 +51,41 @@ export const Cart = (props: CartProps) => {
 
     const createOrderRef = useRef();
 
-    const createOrder = async (orderToCreate: any) => {
+    const createOrder = async (orderToCreate: any): Promise<{orderId: string | undefined, collisions: { [matId: string]: number } | undefined}> => {
         try {
             setOrderError(undefined)
             setOrderLoading(true)
             
             const result = await functions().httpsCallable('createOrder')({ abteilungId: abteilung.id, order: orderToCreate });
-            const orderId = result.data.id;
-            setCreatedOrderId(orderId)
-            setCurrentStep(currentStep + 1)
-            changeCartAndCookie([])
-            message.success(`Bestellung erfolgreich erstellt`);
-            
+            const orderId: string | undefined = result.data.id;
+            const collisions: { [matId: string]: number } | undefined = result.data.collisions;
+            if(orderId) {
+                setCreatedOrderId(orderId)
+                setCurrentStep(currentStep + 1)
+                changeCartAndCookie([])
+                message.success(`Bestellung erfolgreich erstellt`);
+            }
+
+            if(collisions) {
+                message.error(`Leider ist nicht alles Material verfügbar.`);
+            }
+
             setOrderLoading(false)
 
-            return orderId;
+            return {
+                orderId,
+                collisions
+            };
         } catch (ex) {
             message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
             setOrderError(`Es ist ein Fehler aufgetreten ${ex}`)
         }
         setOrderLoading(false)
 
-        return undefined
+        return {
+            orderId: undefined,
+            collisions: undefined
+        }
     }
 
     const changeCartAndCookie = (items: CartItem[]) => {
