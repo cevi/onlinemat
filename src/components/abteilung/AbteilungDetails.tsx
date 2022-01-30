@@ -23,6 +23,7 @@ import { Cart } from './cart/Cart';
 import { Group } from './group/Group';
 import { Member } from './members/Member';
 import { Orders } from './order/Orders';
+import { OrderView } from './order/OrderView';
 
 
 export interface AbteilungDetailProps {
@@ -40,7 +41,7 @@ export const MaterialsContext = createContext<{ materials: Material[], loading: 
 //export const CartContext = createContext<Cart | undefined>(undefined);
 
 
-export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart' | 'orders';
+export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart' | 'orders' | 'order';
 
 
 export const AbteilungDetail = (props: AbteilungDetailProps) => {
@@ -237,6 +238,8 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                 return <Cart abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
             case 'orders':
                 return <Orders abteilung={abteilung}/>
+            case 'order':
+                return <OrderView abteilung={abteilung}/>
         }
     }
 

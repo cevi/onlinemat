@@ -89,7 +89,7 @@ export const AppRoutes: AppRoute[] = [
         element: <AbteilungDetail/>
     },
     {
-        key: '/abteilungen/:abteilungSlugOrId/order/:orderId',
+        key: '/abteilungen/:abteilungSlugOrId/:tab/:orderId',
         displayName: 'Abteilungen Details',
         showInMenue: false,
         private: true,

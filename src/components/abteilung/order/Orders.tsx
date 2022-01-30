@@ -74,7 +74,8 @@ export const Orders = (props: OrdersProps) => {
                     __caslSubjectType__: 'Order',
                     id: doc.id,
                     startDate: moment(doc.data().startDate.toDate()),
-                    endDate: moment(doc.data().endDate.toDate())
+                    endDate: moment(doc.data().endDate.toDate()),
+                    creationTime: moment(doc.data().creationTime.toDate())
                 } as Order;
             });
             setOrders(ordersLoaded);

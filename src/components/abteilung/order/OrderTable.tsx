@@ -5,6 +5,7 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { Order } from 'types/order.types';
 import { dateFormatWithTime } from 'util/MaterialUtil';
 import { getStatusColor, getStatusName } from 'util/OrderUtil';
+import { useNavigate } from 'react-router';
 
 
 
@@ -18,6 +19,8 @@ export interface OrderImplTableProps {
 export const OrderTableImpl = (props: OrderImplTableProps) => {
 
     const { abteilung, orders, loading, members } = props;
+
+    const navigate = useNavigate();
 
 
     const columns = [
@@ -76,6 +79,14 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
             sorter: (a: Order, b: Order) => a.endDate.valueOf() - b.endDate.valueOf(),
             render: (text: string, record: Order) => (
                 <p key={`endDate_${record.id}`}>{record.endDate.format(dateFormatWithTime)}</p>
+            )
+        },
+        {
+            title: 'Aktion',
+            dataIndex: 'id',
+            key: 'id',
+            render: (text: string, record: Order) => (
+                <Button onClick={() => { navigate(`/abteilungen/${abteilung.slug || abteilung.id}/order/${record.id}`)}}>Öffnen</Button>
             )
         }
     ];

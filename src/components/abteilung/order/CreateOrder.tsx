@@ -1,4 +1,4 @@
-import { Col, DatePicker, Form, Input, Row, Select, Spin } from 'antd';
+import { Avatar, Col, DatePicker, Form, Input, List, Row, Select, Spin } from 'antd';
 import { useUser } from 'hooks/use-user';
 import moment, { Moment } from 'moment';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
@@ -12,7 +12,7 @@ import { dateFormatWithTime } from 'util/MaterialUtil';
 export interface CreateOrderProps {
     abteilung: Abteilung
     items: DetailedCartItem[]
-    createOrder: (orderToCreate: any) => Promise<{orderId: string | undefined, collisions: { [matId: string]: number } | undefined}>
+    createOrder: (orderToCreate: any) => Promise<{ orderId: string | undefined, collisions: { [matId: string]: number } | undefined }>
 }
 
 export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
@@ -124,11 +124,11 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
 
         const response = await createOrder(orderToCreate)
 
-        if(response.collisions) {
+        if (response.collisions) {
             setCollisions(response.collisions)
         }
 
-        if(response.orderId && !response.collisions) {
+        if (response.orderId && !response.collisions) {
             form.resetFields();
         }
     }
@@ -229,11 +229,26 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
         <Col span={12}>
             <Row gutter={[16, 16]}>
                 <Col span={24}>
-                    {
-                        items.map(item => {
-                            return <p key={`item_${item.matId}`}>{`${item.count} x ${item.name} `}<span style={{color: 'red'}}>{collisions && item.matId in collisions ? `Nur noch ${collisions[item.matId]} verfügbar` : ''}</span></p>
-                        })
-                    }
+                    <List
+                        itemLayout='horizontal'
+                        header={<div>Material</div>}
+                        dataSource={items}
+                        renderItem={item => (
+                            <List.Item>
+                                <List.Item.Meta
+                                    /*avatar={<Avatar src='https://joeschmoe.io/api/v1/random' />}*/
+                                    title={
+                                        <>
+                                            {`${item.count} x `}<a href='https://ant.design'>{item.name}</a>
+                                        </>
+                                    }
+                                    description={
+                                        <span style={{ color: 'red' }}>{collisions && item.matId in collisions ? `Nur noch ${collisions[item.matId]} verfügbar` : ''}</span>
+                                    }
+                                />
+                            </List.Item>
+                        )}
+                    />
                 </Col>
             </Row>
 
