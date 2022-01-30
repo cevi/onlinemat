@@ -103,8 +103,6 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
     const prepareOrderCreation = async () => {
         if (!startDate || !endDate) return;
 
-        //TODO: if available create order
-
         const formValues = form.getFieldsValue();
 
         const orderItems = items.map(i => {
