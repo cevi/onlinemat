@@ -28,6 +28,26 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
             )
         },
         {
+            title: 'Gruppe',
+            dataIndex: 'groupId',
+            key: 'groupId',
+            sorter: (a: Order, b: Order) => ((a.groupId || a.customGroupName) || '').normalize().localeCompare(((a.groupId || a.customGroupName) || '').normalize()),
+            render: (text: string, record: Order) => {
+                let name = 'Unbekannt';
+                if(record.groupId) {
+                    const group = abteilung.groups.find(g => g.id === record.groupId);
+                    if(group) {
+                        name = group.name;
+                    }
+                } else if(record.customGroupName) {
+                    name = record.customGroupName
+                }
+
+                
+                return <p key={`group_${record.id}`}>{name}</p>
+            }
+        },
+        {
             title: 'Besteller',
             dataIndex: 'orderer',
             key: 'orderer',
