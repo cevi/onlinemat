@@ -1,4 +1,4 @@
-import { Button, Col, DatePicker, Form, Input, Row, Select, Spin } from 'antd';
+import { Col, DatePicker, Form, Input, Row, Select, Spin } from 'antd';
 import { useUser } from 'hooks/use-user';
 import moment, { Moment } from 'moment';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
@@ -7,6 +7,7 @@ import { DetailedCartItem } from 'types/cart.types';
 import { Group } from 'types/group.types';
 import { Order } from 'types/order.types';
 import { validateMessages } from 'util/FormValdationMessages';
+import { dateFormatWithTime } from 'util/MaterialUtil';
 
 export interface CreateOrderProps {
     abteilung: Abteilung
@@ -118,7 +119,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
             items: orderItems,
             comment: formValues.comment,
             customGroupName: formValues.customGroupName,
-            groupId: formValues.groupId,
+            groupId: formValues.groupId === 'custom' ? undefined : formValues.groupId,
         };
 
         const response = await createOrder(orderToCreate)
@@ -159,7 +160,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                                     setStartDate(values[0]);
                                     setEndDate(values[1]);
                                 }}
-                                format='DD.MM.YYYY HH:mm'
+                                format={dateFormatWithTime}
                                 showTime={{
                                     format: 'HH:mm'
                                 }}

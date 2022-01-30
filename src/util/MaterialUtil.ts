@@ -3,6 +3,9 @@ import { abteilungenCollection, abteilungenMaterialsCollection } from "config/fi
 import { firestore } from "config/firebase/firebase";
 import { Material } from "types/material.types";
 
+export const dateFormat = 'DD.MM.YYYY';
+export const dateFormatWithTime = 'DD.MM.YYYY HH:mm';
+
 export const generateKeywords = (text: string) => {
     text = text.toLowerCase();
     const keywords = [];
