@@ -12,13 +12,13 @@ import appStyles from 'styles.module.scss';
 export interface MaterialGridProps {
     material: Material[]
     categorie: Categorie[]
-    addToBasket: (matId: string) => void
+    addToCart: (mat: Material) => void
 }
 
 
 export const MaterialGrid = (props: MaterialGridProps) => {
 
-    const { material, categorie, addToBasket } = props;
+    const { material, categorie, addToCart } = props;
 
     return <>
 

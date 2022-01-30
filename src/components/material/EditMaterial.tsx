@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, forwardRef, useImperativeHandle, useRef } from 'react';
 import { Button, Input, message, Switch, InputNumber, Select, Spin, Form } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
 import { firestore } from 'config/firebase/firebase';
@@ -19,11 +19,17 @@ export interface EditMaterialProps {
     onSuccess?: () => void
 }
 
-export const EditMaterial = (props: EditMaterialProps) => {
+export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
+    useImperativeHandle(
+        ref,
+        () => ({
+            saveEditMaterial() {
+                editMaterial();
+            }
+        }),
+    )
 
     const { abteilungId, materialId, material, onSuccess } = props;
-
-    const { isAuthenticated } = useAuth0();
 
     const [form] = Form.useForm<Material>();
 
@@ -57,7 +63,7 @@ export const EditMaterial = (props: EditMaterialProps) => {
         },
     };
 
-    
+
 
     const editMaterial = async () => {
         try {
@@ -89,7 +95,6 @@ export const EditMaterial = (props: EditMaterialProps) => {
                             setRenderMatImages(form.getFieldValue('imageUrls'))
                         }
                     }}
-                    onFinish={editMaterial}
                     validateMessages={validateMessages}
                 >
                     <Form.Item
@@ -218,27 +223,23 @@ export const EditMaterial = (props: EditMaterialProps) => {
 
                     <PicturesWall showRemove={false} imageUrls={renderMatImages} />
 
-                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <Button type='primary' htmlType='submit'>
-                            Änderungen speichern
-                        </Button>
-                    </Form.Item>
-
                 </Form>
 
             </>
         }
     </>
-}
+})
 
 export const EditMaterialButton = (props: EditMaterialProps) => {
 
     const { abteilungId, materialId, material } = props;
 
+    const editMaterialRef = useRef();
+
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
-        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />}/>
+        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
         <Modal
             title='Material bearbeiten'
             visible={isModalVisible}
@@ -247,9 +248,16 @@ export const EditMaterialButton = (props: EditMaterialProps) => {
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>
                     Abbrechen
                 </Button>,
+                <Button key='save'  type='primary' onClick={() => { 
+                    if(!editMaterialRef || !editMaterialRef.current) return;
+                    //TODO: typescript
+                    (editMaterialRef.current as any).saveEditMaterial() }}
+                >
+                    Änderungen speichern
+                </Button>
             ]}
         >
-            <EditMaterial abteilungId={abteilungId} materialId={materialId} material={material} onSuccess={() => { setIsModalVisible(false) }} />
+            <EditMaterial ref={editMaterialRef} abteilungId={abteilungId} materialId={materialId} material={material} onSuccess={() => { setIsModalVisible(false) }} />
         </Modal>
     </>
 

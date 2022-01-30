@@ -93,25 +93,13 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
 
 export interface MemberTableProps {
     abteilungId: string
+    members: AbteilungMemberUserData[]
+    loading: boolean
 }
 
 export const MemberTable = (props: MemberTableProps) => {
 
-    const { abteilungId } = props;
+    const { abteilungId, loading, members } = props;
 
-    //fetch members
-    const membersContext = useContext(MembersContext);
-
-    const members = membersContext.members;
-    const membersLoading = membersContext.loading;
-
-    //fetch userData
-    const membersUserDataContext = useContext(MembersUserDataContext);
-
-    const userData = membersUserDataContext.userData;
-    const userDataLoading = membersUserDataContext.loading;
-
-
-
-    return <MemberTableImpl loading={userDataLoading || membersLoading} abteilungId={abteilungId} members={members.map(member => ({...member, ...(userData[member.userId] || { displayName: 'Loading...' })}))}/>
+    return <MemberTableImpl loading={loading} abteilungId={abteilungId} members={members}/>
 }

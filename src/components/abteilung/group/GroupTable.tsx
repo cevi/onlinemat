@@ -1,9 +1,5 @@
-import { useContext } from 'react';
-import { Table, Select, Button, Tooltip, Popconfirm } from 'antd';
+import { Table, Button, Popconfirm } from 'antd';
 import { Abteilung, AbteilungMemberUserData } from 'types/abteilung.type';
-import { approveMemberRequest, banMember, changeRoleOfMember, denyMemberRequest, removeMember, unBanMember } from 'util/MemberUtil';
-import { AddGroupButton } from '../group/AddGroup';
-import { MembersContext, MembersUserDataContext } from '../AbteilungDetails';
 import { Group } from 'types/group.types';
 import { Can } from 'config/casl/casl';
 import { deleteGroup, EditGroupButton } from './EditGroup';
@@ -38,7 +34,7 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
             key: 'type',
             sorter: (a: Group, b: Group) => a.type.normalize().localeCompare(b.type.normalize()),
             render: (text: string, record: Group) => (
-                <p key={`name_${record.type}`}>{record.type === 'group' ? 'Gruppe' : 'Anlass'}</p>
+                <p key={`type_${record.id}`}>{record.type === 'group' ? 'Gruppe' : 'Anlass'}</p>
             )
         },
         {
@@ -67,8 +63,7 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
                             okText='Ja'
                             cancelText='Nein'
                         >
-                            <Button type='ghost' danger icon={<DeleteOutlined />} disabled={loading}>
-                            </Button>
+                            <Button type='ghost' danger icon={<DeleteOutlined />} disabled={loading}/>
                         </Popconfirm>
                     </Can>
                 </>
@@ -83,26 +78,15 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
 
 export interface GroupTableProps {
     abteilung: Abteilung
+    loading: boolean
+    members: AbteilungMemberUserData[]
 }
 
 export const GroupTable = (props: GroupTableProps) => {
 
-    const { abteilung } = props;
+    const { abteilung, members, loading } = props;
 
-    //fetch members
-    const membersContext = useContext(MembersContext);
+    
 
-    const members = membersContext.members;
-    const membersLoading = membersContext.loading;
-
-    //fetch userData
-    const membersUserDataContext = useContext(MembersUserDataContext);
-
-    const userData = membersUserDataContext.userData;
-    const userDataLoading = membersUserDataContext.loading;
-
-
-    const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: 'Loading...' }) }));
-
-    return <><AddGroupButton abteilung={abteilung} members={membersMerged} /><GroupTableImpl loading={userDataLoading || membersLoading} abteilung={abteilung} members={membersMerged} /></>
+    return <GroupTableImpl loading={loading} abteilung={abteilung} members={members} />
 }

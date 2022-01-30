@@ -1,24 +1,28 @@
 import { useState, useContext, useMemo, useEffect, createContext } from 'react';
-import { PageHeader, Spin, message, Menu } from 'antd';
+import { PageHeader, Spin, message, Menu, Row, Col } from 'antd';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
 import { firestore } from 'config/firebase/firebase';
 import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection, abteilungenMembersCollection, usersCollection } from 'config/firebase/collections';
-import { useParams } from 'react-router';
-import { ContainerOutlined, SettingOutlined, TagsOutlined, TeamOutlined } from '@ant-design/icons';
-import { MemberTable } from './members/MemberTable';
+import { useLocation, useNavigate, useParams } from 'react-router';
+import { ContainerOutlined, SettingOutlined, ShoppingCartOutlined, TagsOutlined, TeamOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { ability } from 'config/casl/ability';
 import { AbteilungenContext } from 'components/navigation/NavigationMenu';
 import { useAuth0 } from '@auth0/auth0-react';
 import { UserData } from 'types/user.type';
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 import { AbteilungSettings } from './settings/AbteilungSettings';
-import { GroupTable } from './group/GroupTable';
-import { useSearchParams } from 'react-router-dom';
 import { NoAccessToAbteilung } from './AbteilungNoAcceess';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
+import { CartItem } from 'types/cart.types';
+import { cookieToCart, getCartCount, getCartName } from 'util/CartUtil';
+import { useCookies } from 'react-cookie';
+import { Cart } from './cart/Cart';
+import { Group } from './group/Group';
+import { Member } from './members/Member';
+import { Orders } from './order/Orders';
 
 
 export interface AbteilungDetailProps {
@@ -26,25 +30,27 @@ export interface AbteilungDetailProps {
 
 export type AbteilungDetailViewParams = {
     abteilungSlugOrId: string;
+    tab: string
 };
 
 export const MembersContext = createContext<{ members: AbteilungMember[], loading: boolean }>({ loading: false, members: [] });
 export const MembersUserDataContext = createContext<{ userData: { [uid: string]: UserData }, loading: boolean }>({ loading: false, userData: {} });
 export const CategorysContext = createContext<{ categories: Categorie[], loading: boolean }>({ loading: false, categories: [] });
 export const MaterialsContext = createContext<{ materials: Material[], loading: boolean }>({ loading: false, materials: [] });
+//export const CartContext = createContext<Cart | undefined>(undefined);
 
 
-export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups';
+export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart' | 'orders';
 
 
 export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
-    const { abteilungSlugOrId } = useParams<AbteilungDetailViewParams>();
+    const { abteilungSlugOrId, tab } = useParams<AbteilungDetailViewParams>();
     const { isAuthenticated } = useAuth0();
+    const navigate = useNavigate();
+    const { state } = useLocation();
 
-    const [searchParams, setSearchParams] = useSearchParams();
-
-    const initTab: AbteilungTab | null = searchParams.has('t') ? searchParams.get('t') as AbteilungTab | null : 'mat';
+    const initTab: AbteilungTab = tab as AbteilungTab || 'mat';
 
     const abteilungenContext = useContext(AbteilungenContext);
 
@@ -52,7 +58,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const abteilungLoading = abteilungenContext.loading;
 
     const [abteilung, setAbteilung] = useState<Abteilung | undefined>(undefined);
-    const [selectedMenu, setSelectedMenu] = useState<AbteilungTab>(initTab !== null ? initTab : 'mat');
+    const [selectedMenu, setSelectedMenu] = useState<AbteilungTab>(initTab);
 
 
     const [members, setMembers] = useState<AbteilungMember[]>([]);
@@ -67,8 +73,29 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const [matLoading, setMatLoading] = useState(false);
     const [materials, setMaterials] = useState<Material[]>([]);
 
+
+    const [cookies] = useCookies();
+
+    const [cartItems, setCartItems] = useState<CartItem[]>(state as CartItem[] || []);
+
     const canUpdate = ability.can('update', 'Abteilung');
     const canRead = ability.can('read', 'Abteilung');
+
+    //force rerender if cart changed
+    const changeCart = (cartToChange: CartItem[]) => {
+        setCartItems(cartToChange)
+    }
+
+    //fetch cart from cookie, if there
+    useEffect(() => {
+        if (!abteilung || !cartItems || cartItems.length >= 1) return;
+
+        const cookieName = getCartName(abteilung.id);
+        const cookieRaw = cookies[cookieName];
+        if (!cookieRaw) return;
+        const cookieCart = cookieToCart(cookieRaw, abteilung.id)
+        setCartItems(cookieCart)
+    }, [])
 
 
     useMemo(() => {
@@ -88,18 +115,13 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
         }
     }, [abteilungen])
 
-    //update get parameter
+    //update url
     useMemo(() => {
-        const params = new URLSearchParams()
-
-        if (selectedMenu !== 'mat') {
-            params.append('t', selectedMenu)
-        } else {
-            params.delete('t')
-        }
-        setSearchParams(params);
+        if (!abteilung) return;
+        navigate(`/abteilungen/${abteilung.slug || abteilung.id}/${selectedMenu}`, {
+            state: cartItems
+        })
     }, [selectedMenu])
-
 
 
     //fetch members if user has access
@@ -204,13 +226,17 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
 
         switch (selectedMenu) {
             case 'mat':
-                return <AbteilungMaterialView abteilung={abteilung} />
+                return <AbteilungMaterialView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
             case 'members':
-                return <MemberTable abteilungId={abteilung.id} />
+                return <Member abteilungId={abteilung.id} />
             case 'groups':
-                return <GroupTable abteilung={abteilung} />
+                return <Group abteilung={abteilung} />
             case 'settings':
                 return <AbteilungSettings abteilung={abteilung} />
+            case 'cart':
+                return <Cart abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
+            case 'orders':
+                return <Orders abteilung={abteilung}/>
         }
     }
 
@@ -222,10 +248,14 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             <MembersUserDataContext.Provider value={{ userData, loading: userDataLoading }}>
                 <CategorysContext.Provider value={{ categories, loading: catLoading }}>
                     <MaterialsContext.Provider value={{ materials, loading: matLoading }}>
+                        {/* <CartContext.Provider value={cart}> */}
                         <PageHeader title={`Abteilung ${abteilung?.name}`}>
-                            <Menu onClick={(e) => { setSelectedMenu(e.key as any) }} selectedKeys={[selectedMenu]} mode='horizontal'>
+                            <Menu onClick={(e) => { setSelectedMenu(e.key as AbteilungTab) }} selectedKeys={[selectedMenu]} mode='horizontal'>
                                 <Menu.Item key='mat' icon={<ContainerOutlined />}>
                                     Material
+                                </Menu.Item>
+                                <Menu.Item key='orders' icon={<UnorderedListOutlined />}>
+                                    Bestellungen
                                 </Menu.Item>
                                 {canUpdate && <Menu.Item key='members' icon={<TeamOutlined />}>
                                     Mitglieder
@@ -239,13 +269,28 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                     Einstellungen
                                 </Menu.Item>
                                 }
+                                {
+                                    // right menu
+                                }
+                                <Menu.Item key='cart' icon={<ShoppingCartOutlined />} style={{ marginLeft: 'auto' }}>
+                                    {
+                                        getCartCount(cartItems)
+                                    }
+                                </Menu.Item>
 
                             </Menu>
-                            {
-                                navigation()
-                            }
+                            <Row gutter={[16, 24]}>
+                                <Col span={24}></Col>
+                                <Col span={24}>
+                                    {
+                                        navigation()
+                                    }
+                                </Col>
+                            </Row>
+
 
                         </PageHeader>
+                        {/* </CartContext.Provider> */}
                     </MaterialsContext.Provider>
                 </CategorysContext.Provider>
             </MembersUserDataContext.Provider>
