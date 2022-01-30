@@ -6,7 +6,7 @@ import { Abteilung, AbteilungMember } from 'types/abteilung.type';
 import { firestore } from 'config/firebase/firebase';
 import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection, abteilungenMembersCollection, usersCollection } from 'config/firebase/collections';
 import { useLocation, useNavigate, useParams } from 'react-router';
-import { ContainerOutlined, SettingOutlined, ShoppingCartOutlined, TagsOutlined, TeamOutlined } from '@ant-design/icons';
+import { ContainerOutlined, SettingOutlined, ShoppingCartOutlined, TagsOutlined, TeamOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { ability } from 'config/casl/ability';
 import { AbteilungenContext } from 'components/navigation/NavigationMenu';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -22,6 +22,7 @@ import { useCookies } from 'react-cookie';
 import { Cart } from './cart/Cart';
 import { Group } from './group/Group';
 import { Member } from './members/Member';
+import { Orders } from './order/Orders';
 
 
 export interface AbteilungDetailProps {
@@ -39,7 +40,7 @@ export const MaterialsContext = createContext<{ materials: Material[], loading: 
 //export const CartContext = createContext<Cart | undefined>(undefined);
 
 
-export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart';
+export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart' | 'orders';
 
 
 export const AbteilungDetail = (props: AbteilungDetailProps) => {
@@ -234,6 +235,8 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                 return <AbteilungSettings abteilung={abteilung} />
             case 'cart':
                 return <Cart abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
+            case 'orders':
+                return <Orders abteilung={abteilung}/>
         }
     }
 
@@ -250,6 +253,9 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                             <Menu onClick={(e) => { setSelectedMenu(e.key as AbteilungTab) }} selectedKeys={[selectedMenu]} mode='horizontal'>
                                 <Menu.Item key='mat' icon={<ContainerOutlined />}>
                                     Material
+                                </Menu.Item>
+                                <Menu.Item key='orders' icon={<UnorderedListOutlined />}>
+                                    Bestellungen
                                 </Menu.Item>
                                 {canUpdate && <Menu.Item key='members' icon={<TeamOutlined />}>
                                     Mitglieder

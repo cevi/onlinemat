@@ -34,7 +34,7 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
             key: 'type',
             sorter: (a: Group, b: Group) => a.type.normalize().localeCompare(b.type.normalize()),
             render: (text: string, record: Group) => (
-                <p key={`type_${record.type}`}>{record.type === 'group' ? 'Gruppe' : 'Anlass'}</p>
+                <p key={`type_${record.id}`}>{record.type === 'group' ? 'Gruppe' : 'Anlass'}</p>
             )
         },
         {
