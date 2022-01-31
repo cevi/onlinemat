@@ -9,5 +9,6 @@ export interface CartItem {
 export interface DetailedCartItem extends Omit<CartItem, '__caslSubjectType__'> {
     __caslSubjectType__ : 'DetailedCartItem'
     name: string
+    imageUrls?: string[]
     maxCount: number
 }

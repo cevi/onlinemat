@@ -8,6 +8,7 @@ import { Group } from 'types/group.types';
 import { Order } from 'types/order.types';
 import { validateMessages } from 'util/FormValdationMessages';
 import { dateFormatWithTime } from 'util/MaterialUtil';
+import { OrderItems } from './OrderItems';
 
 export interface CreateOrderProps {
     abteilung: Abteilung
@@ -229,26 +230,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
         <Col span={12}>
             <Row gutter={[16, 16]}>
                 <Col span={24}>
-                    <List
-                        itemLayout='horizontal'
-                        header={<div>Material</div>}
-                        dataSource={items}
-                        renderItem={item => (
-                            <List.Item>
-                                <List.Item.Meta
-                                    /*avatar={<Avatar src='https://joeschmoe.io/api/v1/random' />}*/
-                                    title={
-                                        <>
-                                            {`${item.count} x `}<a href='https://ant.design'>{item.name}</a>
-                                        </>
-                                    }
-                                    description={
-                                        <span style={{ color: 'red' }}>{collisions && item.matId in collisions ? `Nur noch ${collisions[item.matId]} verfügbar` : ''}</span>
-                                    }
-                                />
-                            </List.Item>
-                        )}
-                    />
+                    <OrderItems items={items} collisions={collisions}/>
                 </Col>
             </Row>
 

@@ -51,6 +51,23 @@ export const Cart = (props: CartProps) => {
 
     const createOrderRef = useRef();
 
+    useEffect(() => {
+        const localItemsMerged: DetailedCartItem[] = [];
+        cartItems.forEach(item => {
+            const mat = materials.find(m => m.id === item.matId);
+            const maxCount = mat ? (!!mat.consumables ? 1 : mat.count) : 1
+            const mergedItem: DetailedCartItem = {
+                ...item,
+                name: mat && mat.name || 'Loading...',
+                maxCount,
+                imageUrls: mat && mat.imageUrls || [],
+                __caslSubjectType__: 'DetailedCartItem'
+            }
+            localItemsMerged.push(mergedItem);
+        })
+        setCartItemsMerged(localItemsMerged);
+    }, [cartItems, materials])
+
     const createOrder = async (orderToCreate: any): Promise<{orderId: string | undefined, collisions: { [matId: string]: number } | undefined}> => {
         try {
             setOrderError(undefined)
@@ -101,6 +118,7 @@ export const Cart = (props: CartProps) => {
         changeCart(items)
     }
 
+
     const ProgressBar = () => {
         const minStep = 0;
         const maxStep = 2;
@@ -118,22 +136,6 @@ export const Cart = (props: CartProps) => {
             }}>Bestellen</Button>}
         </>
     }
-
-    useEffect(() => {
-        const localItemsMerged: DetailedCartItem[] = [];
-        cartItems.forEach(item => {
-            const mat = materials.find(m => m.id === item.matId);
-            const maxCount = mat ? (!!mat.consumables ? 1 : mat.count) : 1
-            const mergedItem: DetailedCartItem = {
-                ...item,
-                name: mat && mat.name || 'Loading...',
-                maxCount,
-                __caslSubjectType__: 'DetailedCartItem'
-            }
-            localItemsMerged.push(mergedItem);
-        })
-        setCartItemsMerged(localItemsMerged);
-    }, [cartItems, materials])
 
 
     if (currentStep === 0) return <Row gutter={[16, 16]}>

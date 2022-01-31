@@ -8,6 +8,7 @@ import moment from "moment";
 import { useContext, useEffect, useState } from "react";
 import { Abteilung, AbteilungMember } from "types/abteilung.type";
 import { Order } from "types/order.types";
+import { getGroupName } from "util/AbteilungUtil";
 import { dateFormatWithTime } from "util/MaterialUtil";
 import { getStatusName } from "util/OrderUtil";
 import { MembersContext, MembersUserDataContext } from "../AbteilungDetails";
@@ -45,7 +46,7 @@ export const Orders = (props: OrdersProps) => {
 
     const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: 'Loading...' }) }));
 
-    //fetch orders based on rolee
+    //fetch orders based on role
     useEffect(() => {
         if (!isAuthenticated || !abteilung || !user.appUser || !user.appUser.userData) return;
         const roles = user.appUser.userData.roles || {};
@@ -97,8 +98,7 @@ export const Orders = (props: OrdersProps) => {
             const user = membersMerged.find(u => u.id === o.orderer);
             const userName = user ? user.displayName :  'Unbekannt';
 
-            const group = abteilung.groups.find(g => g.id === o.groupId);
-            const groupName = group ? group.name : 'Unbekannt';
+            const groupName = getGroupName(o.groupId, abteilung);
 
             const status = getStatusName(o.status);
 

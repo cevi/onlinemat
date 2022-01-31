@@ -1,6 +1,7 @@
 
 
-export const getStatusName = (status: string): string => {
+export const getStatusName = (status: string | undefined): string => {
+    if(!status) return 'Lade...';
 
     switch(status) {
         case 'created':
@@ -14,7 +15,8 @@ export const getStatusName = (status: string): string => {
     return 'Unbekannt';
 }
 
-export const getStatusColor = (status: string): string | undefined => {
+export const getStatusColor = (status: string | undefined): string | undefined => {
+    if(!status) return undefined;
     switch(status) {
         case 'created':
             return 'cyan';

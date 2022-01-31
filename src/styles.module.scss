@@ -34,3 +34,9 @@ $box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.15); // major shadow for layers
     text-align: center;
     padding: 3%;
 }
+
+//overide the tail of timeline to make it visible
+[class*='ant-timeline-item-tail'] {
+    border-color: #B5B2B0;
+   
+}
