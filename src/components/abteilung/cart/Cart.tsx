@@ -11,7 +11,6 @@ import Search from 'antd/lib/input/Search';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { MaterialsContext } from '../AbteilungDetails';
 import { CreateOrder } from '../order/CreateOrder';
-import { Order } from 'types/order.types';
 import { functions } from 'config/firebase/firebase';
 
 export interface CartProps {

@@ -15,12 +15,12 @@ export interface Order {
     comment?: string
     groupId?: string
     customGroupName?: string
+    matchefComment?: string
 }
 
 export interface OrderHistory {
-    __caslSubjectType__ : 'OrderHistory'
-    color: string
-    icon: 'time' | undefined
-    timestamp: Moment
+    color: string | null
+    timestamp: Date
     text: string
+    type: 'creation' | 'matchefComment' | 'startDate' | 'endDate' | 'delivered' | null
 }

@@ -13,7 +13,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { UserData } from 'types/user.type';
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 import { AbteilungSettings } from './settings/AbteilungSettings';
-import { NoAccessToAbteilung } from './AbteilungNoAcceess';
+import { NoAccessToAbteilung } from './AbteilungNoAccess';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
 import { CartItem } from 'types/cart.types';
