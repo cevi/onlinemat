@@ -23,3 +23,15 @@ export const deleteMaterial = async (abteilungId: string, mat: Material) => {
         message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
     }
 }
+
+export const editMaterial = async (abteilungId: string, material: Material) => {
+    try {
+        material.keywords = generateKeywords(material.name)
+
+        await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).doc(material.id).update(material);
+        message.success(`Material ${material.name} erfolgreich bearbeitet`);
+    } catch (ex) {
+        message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+    }
+
+}

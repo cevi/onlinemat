@@ -1,12 +1,13 @@
 import { message } from "antd";
-import { abteilungenCollection, abteilungenOrdersCollection } from "config/firebase/collections";
+import { abteilungenCollection, abteilungenMaterialsCollection, abteilungenOrdersCollection } from "config/firebase/collections";
 import { firestore } from "config/firebase/firebase";
 import { useUser } from "hooks/use-user";
 import moment from "moment";
+import { DamagedMaterial, Material } from "types/material.types";
 import { Order } from "types/order.types";
 
 
-export const getStatusName = (status: string | undefined): string => {
+export const getStatusName = (status: Order['status'] | undefined): string => {
     if(!status) return 'Lade...';
 
     switch(status) {
@@ -16,12 +17,14 @@ export const getStatusName = (status: string | undefined): string => {
             return 'Ausgegeben';
         case 'completed':
             return 'Abgeschlossen';
+        case 'completed-damaged':
+            return 'Abgeschlossen Verlust/Schaden';
     }
 
     return 'Unbekannt';
 }
 
-export const getStatusColor = (status: string | undefined): string | undefined => {
+export const getStatusColor = (status: Order['status'] | undefined): string | undefined => {
     if(!status) return undefined;
     switch(status) {
         case 'created':
@@ -30,6 +33,8 @@ export const getStatusColor = (status: string | undefined): string | undefined =
             return 'blue';
         case 'completed':
             return 'green';
+        case 'completed-damaged':
+            return 'volcano';
     }
 
     return undefined
@@ -54,6 +59,112 @@ export const deliverOrder = async (abteilungId: string, order: Order, userName: 
             history: orderHistory,
         } as Order)
         message.success('Bestellung erfolgreich ausgegeben.')
+        return true;
+    } catch(ex) {
+        message.error(`Es ist ein Fehler aufgetreten ${ex}`)
+    }
+    return false;
+
+}
+
+export const completeOrder = async (abteilungId: string, order: Order, userName: string): Promise<boolean> => {
+    try {
+        
+        const orderRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenOrdersCollection).doc(order.id);
+
+        const orderHistory = order.history || [];
+
+        orderHistory.push({
+            timestamp: moment().toDate(),
+            text: `${userName} hat die Bestellung abgeschlossen.`,
+            color: 'green',
+            type: 'completed'
+        })
+
+        await orderRef.update({
+            status: 'completed',
+            history: orderHistory,
+        } as Order)
+        message.success('Bestellung erfolgreich abgeschlossen.')
+        return true;
+    } catch(ex) {
+        message.error(`Es ist ein Fehler aufgetreten ${ex}`)
+    }
+    return false;
+
+}
+
+export const resetOrder = async (abteilungId: string, order: Order, userName: string): Promise<boolean> => {
+    try {
+        
+        const orderRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenOrdersCollection).doc(order.id);
+
+        const orderHistory = order.history || [];
+
+        orderHistory.push({
+            timestamp: moment().toDate(),
+            text: `${userName} hat die Bestellung zurückgesetzt.`,
+            color: 'gray',
+            type: 'reset'
+        })
+
+        await orderRef.update({
+            status: 'created',
+            history: orderHistory,
+        } as Order)
+        message.success('Bestellung erfolgreich zurückgesetzt.')
+        return true;
+    } catch(ex) {
+        message.error(`Es ist ein Fehler aufgetreten ${ex}`)
+    }
+    return false;
+
+}
+
+export const completeLostOrder = async (abteilungId: string, order: Order, userName: string, damagedMaterial: DamagedMaterial[], materials: Material[]): Promise<boolean> => {
+    try {
+
+        //updateMaterial
+        const promises = damagedMaterial.map(material => {
+            const matRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).doc(material.id);
+            const currentMat = materials.find(m => m.id === material.id);
+            if(!currentMat) return new Promise<void>((resolve,reject)=> reject('Konnte kein Promise zurückgeben'));
+            let toUpdate = undefined;
+            if(material.type === 'damaged') {
+                toUpdate = {
+                    damaged: (currentMat.damaged || 0) + material.count
+                } as Material
+            }
+            if(material.type === 'lost') {
+                toUpdate = {
+                    lost: (currentMat.lost || 0) + material.count
+                } as Material
+            }
+            if(!toUpdate) return new Promise<void>((resolve,reject)=> reject('Konnte kein Promise zurückgeben'));
+            return matRef.update(toUpdate)
+
+        })
+
+        //update mat
+        await Promise.all(promises);
+
+        //save order
+        const orderRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenOrdersCollection).doc(order.id);
+
+        const orderHistory = order.history || [];
+
+        orderHistory.push({
+            timestamp: moment().toDate(),
+            text: `${userName} hat die Bestellung teilweise abgeschlossen.`,
+            color: 'red',
+            type: 'completed-damaged'
+        })
+
+        await orderRef.update({
+            status: 'completed-damaged',
+            history: orderHistory,
+        } as Order)
+        message.success('Bestellung erfolgreich mit Verlust/Schaden abgeschlossen.')
         return true;
     } catch(ex) {
         message.error(`Es ist ein Fehler aufgetreten ${ex}`)

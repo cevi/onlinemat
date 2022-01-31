@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Button, Col, Comment, Form, message, Row, Spin, Tag, Timeline, Tooltip } from 'antd';
+import { Button, Col, Comment, Form, message, Popconfirm, Row, Spin, Tag, Timeline, Tooltip } from 'antd';
 import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
 import { firestore } from 'config/firebase/firebase';
 import moment from 'moment';
@@ -12,12 +12,15 @@ import { OrderItems } from './OrderItems';
 import { DetailedCartItem } from 'types/cart.types';
 import { MaterialsContext, MembersContext, MembersUserDataContext } from '../AbteilungDetails';
 import { getGroupName } from 'util/AbteilungUtil';
-import { addCommentOrder, deliverOrder, getStatusColor, getStatusName } from 'util/OrderUtil';
+import { addCommentOrder, completeOrder, deliverOrder, getStatusColor, getStatusName, resetOrder } from 'util/OrderUtil';
 import TextArea from 'antd/lib/input/TextArea';
 import { ability } from 'config/casl/ability';
 import { OrderNotFound } from './OrderNotFound';
 import { useUser } from 'hooks/use-user';
-import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
+import Modal from 'antd/lib/modal/Modal';
+import { OrderItemsDamaged } from './OrderItemsDamaged';
+import { DamagedMaterialModal } from './DamagedMaterialModal';
 
 export interface OrderProps {
     abteilung: Abteilung
@@ -67,6 +70,9 @@ export const OrderView = (props: OrderProps) => {
 
     const [detailedHistory, setDetailedHistory] = useState<OrderHistory[]>([]);
     const [matChefComment, setMatchefComment] = useState<string | undefined>(undefined);
+
+    const [damagedMaterial, setDamagedMaterial] = useState<DetailedCartItem[]>([]);
+    const [showDamageModal, setShowDamageModal] = useState<boolean>(false);
 
     //fetch order
     useEffect(() => {
@@ -130,12 +136,16 @@ export const OrderView = (props: OrderProps) => {
 
         switch (icon) {
             case 'creation':
+            case 'completed':
                 return <CheckCircleOutlined style={{ fontSize: '16px' }} color={colorToSet} />
             case 'startDate':
             case 'endDate':
                 return <ClockCircleOutlined style={{ fontSize: '16px' }} color={colorToSet} />
             case 'matchefComment':
-                return <ExclamationCircleOutlined style={{ fontSize: '16px' }} color={colorToSet}/>
+            case 'completed-damaged':
+                return <ExclamationCircleOutlined style={{ fontSize: '16px' }} color={colorToSet} />
+            case 'reset':
+                return <UndoOutlined style={{ fontSize: '16px' }} color={colorToSet} />
         }
     }
 
@@ -167,9 +177,76 @@ export const OrderView = (props: OrderProps) => {
     }
 
     const getMatchefInfo = (): OrderHistory | undefined => {
-        if(!order) return;
+        if (!order) return;
         const comment = order.history.sort((a: OrderHistory, b: OrderHistory) => b.timestamp.valueOf() - a.timestamp.valueOf()).find(h => h.type === 'matchefComment');
         return comment;
+    }
+
+    const MaterialAction = () => {
+        if (!order) return <></>;
+        if (order.status === 'created') {
+            return <Tooltip placement='bottom' title='Bestätige das das Material bereit liegt.'>
+                <Button
+                    type='primary'
+                    style={{ display: 'block', marginLeft: 'auto', marginRight: 0 }}
+                    onClick={() => deliverOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
+                >
+                    Ausgeben
+                </Button>
+            </Tooltip>;
+        }
+
+        //No mat was damged / lost
+        if (order.status === 'delivered' && damagedMaterial.length <= 0) {
+            return <Tooltip placement='bottom' title='Bestätige das das Material vollständig zurückgegeben wurde.'>
+                <Button
+                    type='primary'
+                    style={{ display: 'block', marginLeft: 'auto', marginRight: 0 }}
+                    onClick={() => completeOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
+                >
+                    Abschliessen
+                </Button>
+            </Tooltip>;
+        }
+
+        //Some mat is damaged /lost
+        if (order.status === 'delivered') {
+            return <Tooltip placement='bottom' title='Bestätige das das Material teilweise beschädigt/unvollständig zurückgegeben wurde.'>
+                <Button
+                    type='ghost'
+                    danger
+                    style={{ display: 'block', marginLeft: 'auto', marginRight: 0 }}
+                    onClick={() => setShowDamageModal(!showDamageModal)}
+                >
+                    Teilweise Abschliessen
+                </Button>
+            </Tooltip>;
+        }
+
+        if (order.status === 'completed') {
+            return <Tooltip placement='bottom' title='Der Status der Bestellung wird auf "erstellt" zurückgesetzt.'>
+                <Popconfirm
+                    title='Der Status der Bestellung wird auf "erstellt" zurückgesetzt.'
+                    onConfirm={() => resetOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
+                    onCancel={() => { }}
+                    okText='Ja'
+                    cancelText='Nein'
+                >
+                    <Button
+                        type='ghost'
+                        danger
+                        icon={<UndoOutlined />}
+                        style={{ display: 'block', marginLeft: 'auto', marginRight: 0 }}
+                    >
+                        Zurücksetzen
+                    </Button>
+                </Popconfirm>
+
+            </Tooltip>;
+        }
+
+
+        return <></>
     }
 
     if (orderLoading || matLoading) return <Spin />;
@@ -177,7 +254,7 @@ export const OrderView = (props: OrderProps) => {
     if (!order) return <OrderNotFound abteilung={abteilung} orderId={orderId} />
 
     return <Row gutter={[16, 16]}>
-        <Col span={6}>
+        <Col span={7}>
             <Row gutter={[16, 16]}>
                 <Col span={24}>
                     <h1>{`${getGroupName(order?.groupId, abteilung, order?.customGroupName)} ${order?.startDate.format(dateFormat)}`}{order?.startDate.format(dateFormat) !== order?.endDate.format(dateFormat) && ` - ${order?.endDate.format(dateFormat)}`}</h1>
@@ -189,26 +266,42 @@ export const OrderView = (props: OrderProps) => {
                     <p><b>{'Status '}</b><Tag color={getStatusColor(order?.status)}>{getStatusName(order?.status)}</Tag></p>
                 </Col>
                 <Col span={24}>
-                    <Timeline mode='left' >
-                        {
-                            detailedHistory.map(orderHistory => {
-                                return <Timeline.Item
-                                    label={moment(orderHistory.timestamp).format(dateFormatWithTime)}
-                                    color={orderHistory.color || undefined}
-                                    dot={getDotIcon(orderHistory.type, orderHistory.color)}
-                                >
-                                    {orderHistory.text}
-                                </Timeline.Item>
-                            })
-                        }
-                    </Timeline>
+                    <div
+                        id='scrollableDiv'
+                        style={{
+                            height: 500,
+                            overflow: 'auto',
+                            padding: '10px 16px 0 0',
+                        }}
+                    >
+                        <Timeline mode='left' >
+                            {
+                                detailedHistory.map(orderHistory => {
+                                    return <Timeline.Item
+                                        label={moment(orderHistory.timestamp).format(dateFormatWithTime)}
+                                        color={orderHistory.color || undefined}
+                                        dot={getDotIcon(orderHistory.type, orderHistory.color)}
+                                    >
+                                        {orderHistory.text}
+                                    </Timeline.Item>
+                                })
+                            }
+                        </Timeline>
+                    </div>
                 </Col>
             </Row>
         </Col>
-        <Col offset={2} span={16}>
+        <Col offset={1} span={16}>
             <Row gutter={[16, 16]}>
                 <Col span={24}>
-                    <OrderItems items={cartItemsMerged} />
+                    <OrderItems items={cartItemsMerged} showCheckBoxes={ability.can('deliver', {
+                        ...order,
+                        abteilungId: abteilung.id
+                    }) && order.status === 'delivered'}
+
+                        damagedMaterial={damagedMaterial}
+                        setDamagedMaterial={setDamagedMaterial}
+                    />
                 </Col>
                 <Col span={24}>
                     {order?.comment && <Comment
@@ -218,14 +311,14 @@ export const OrderView = (props: OrderProps) => {
                         content={order?.comment}
                         datetime={order?.creationTime.format(dateFormatWithTime)}
                     />}
-                    
+
 
                     {
                         //Comment option for admin / matchef
                         ability.can('deliver', {
                             ...order,
                             abteilungId: abteilung.id
-                        }) ? <>
+                        }) && order.status !== 'completed' && order.status !== 'completed-damaged' ? <>
                             <Form.Item label='Bemerkung'>
                                 <TextArea
                                     value={matChefComment}
@@ -240,16 +333,16 @@ export const OrderView = (props: OrderProps) => {
                                     Bemerkung speichern
                                 </Button>
                             </Form.Item>
-                            
+
                         </>
-                        :
+                            :
                             order?.matchefComment && <Comment
-                               actions={undefined}
-                               author={getMatchefInfo()?.text.split('hat')[0] || 'Matchef'}
-                               avatar={undefined}
-                               content={order?.matchefComment}
-                               datetime={moment(getMatchefInfo()?.timestamp).format(dateFormatWithTime)}
-                           />
+                                actions={undefined}
+                                author={getMatchefInfo()?.text.split('hat')[0] || 'Matchef'}
+                                avatar={undefined}
+                                content={order?.matchefComment}
+                                datetime={moment(getMatchefInfo()?.timestamp).format(dateFormatWithTime)}
+                            />
                     }
                 </Col>
                 <Col span={24}>
@@ -257,17 +350,10 @@ export const OrderView = (props: OrderProps) => {
                         ability.can('deliver', {
                             ...order,
                             abteilungId: abteilung.id
-                        }) && order.status === 'created' && <Tooltip title='Bestätige das das Material bereit liegt.'>
-                            <Button
-                                type='primary'
-                                style={{ display: 'block', marginLeft: 'auto', marginRight: 0 }}
-                                onClick={() => deliverOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
-                            >
-                                Ausgeben
-                            </Button>
-                        </Tooltip>
+                        }) && <MaterialAction />
                     }
                 </Col>
+               <DamagedMaterialModal abteilung={abteilung} order={order} damagedMaterial={damagedMaterial} showDamageModal={showDamageModal} setShowDamageModal={setShowDamageModal}/>
             </Row>
         </Col>
     </Row>

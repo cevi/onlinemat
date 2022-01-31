@@ -10,7 +10,7 @@ export interface Order {
     items: CartItem[]
     orderer: string
     creationTime: Moment
-    status: 'created' | 'delivered' | 'completed'
+    status: 'created' | 'delivered' | 'completed' | 'completed-damaged'
     history: OrderHistory[]
     comment?: string
     groupId?: string
@@ -22,5 +22,5 @@ export interface OrderHistory {
     color: string | null
     timestamp: Date
     text: string
-    type: 'creation' | 'matchefComment' | 'startDate' | 'endDate' | 'delivered' | null
+    type: 'creation' | 'matchefComment' | 'startDate' | 'endDate' | 'delivered' | 'completed' | 'reset' | 'completed-damaged' | null
 }

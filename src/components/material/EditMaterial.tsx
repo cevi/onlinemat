@@ -9,7 +9,7 @@ import { PicturesWall } from 'components/pictures/PictureWall';
 import { Material } from 'types/material.types';
 import { EditOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
-import { generateKeywords } from 'util/MaterialUtil';
+import { editMaterial, generateKeywords } from 'util/MaterialUtil';
 import { CategorysContext } from 'components/abteilung/AbteilungDetails';
 
 export interface EditMaterialProps {
@@ -24,7 +24,7 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
         ref,
         () => ({
             saveEditMaterial() {
-                editMaterial();
+                preparteEditMaterial();
             }
         }),
     )
@@ -65,13 +65,12 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
 
 
 
-    const editMaterial = async () => {
+    const preparteEditMaterial = async () => {
         try {
             const material = form.getFieldsValue() as Material;
-            material.keywords = generateKeywords(material.name)
+            material.id = materialId;
 
-            await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).doc(materialId).update(material);
-            message.success(`Material ${form.getFieldValue('name')} erfolgreich bearbeitet`);
+            await editMaterial(abteilungId, material);
             if (onSuccess) {
                 onSuccess()
             } else {
