@@ -45,6 +45,7 @@ const NavigationMenu: React.FC = () => {
         setAbteilungen(abteilungenLoaded);
     }, (err) => {
         message.error(`Es ist ein Fehler aufgetreten ${err}`)
+        console.error('Es ist ein Fehler aufgetreten', err)
     });
 }, [isAuthenticated, userState]);
 

@@ -82,6 +82,7 @@ export const Orders = (props: OrdersProps) => {
             setOrders(ordersLoaded);
         }, (err) => {
             message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            console.error('Es ist ein Fehler aufgetreten', err)
         });
     }, [isAuthenticated]);
 

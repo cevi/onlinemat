@@ -82,7 +82,6 @@ export const OrderView = (props: OrderProps) => {
         setOrderLoading(true);
         const ordersRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection).doc(orderId);
 
-
         return ordersRef.onSnapshot(snap => {
             setOrderLoading(false);
             if (!snap.exists) return;
@@ -103,6 +102,7 @@ export const OrderView = (props: OrderProps) => {
             setOrder(orderLoaded);
         }, (err) => {
             message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            console.error('Es ist ein Fehler aufgetreten', err)
         });
     }, [isAuthenticated]);
 
