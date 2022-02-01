@@ -12,13 +12,14 @@ import { OrderItems } from './OrderItems';
 import { DetailedCartItem } from 'types/cart.types';
 import { MaterialsContext, MembersContext, MembersUserDataContext } from '../AbteilungDetails';
 import { getGroupName } from 'util/AbteilungUtil';
-import { addCommentOrder, completeOrder, deliverOrder, getStatusColor, getStatusName, resetLostOrder, resetOrder } from 'util/OrderUtil';
+import { addCommentOrder, completeOrder, deleteOrder, deliverOrder, getStatusColor, getStatusName, resetLostOrder, resetOrder } from 'util/OrderUtil';
 import TextArea from 'antd/lib/input/TextArea';
 import { ability } from 'config/casl/ability';
 import { OrderNotFound } from './OrderNotFound';
 import { useUser } from 'hooks/use-user';
-import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, ClockCircleOutlined, DeleteOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
 import { DamagedMaterialModal } from './DamagedMaterialModal';
+import { Can } from 'config/casl/casl';
 
 export interface OrderProps {
     abteilung: Abteilung
@@ -186,7 +187,6 @@ export const OrderView = (props: OrderProps) => {
             return <Tooltip placement='bottom' title='Bestätige das das Material bereit liegt.'>
                 <Button
                     type='primary'
-                    style={{ display: 'block', marginLeft: 'auto', marginRight: 0 }}
                     onClick={() => deliverOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
                 >
                     Ausgeben
@@ -199,7 +199,6 @@ export const OrderView = (props: OrderProps) => {
             return <Tooltip placement='bottom' title='Bestätige das das Material vollständig zurückgegeben wurde.'>
                 <Button
                     type='primary'
-                    style={{ display: 'block', marginLeft: 'auto', marginRight: 0 }}
                     onClick={() => completeOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
                 >
                     Abschliessen
@@ -213,7 +212,6 @@ export const OrderView = (props: OrderProps) => {
                 <Button
                     type='ghost'
                     danger
-                    style={{ display: 'block', marginLeft: 'auto', marginRight: 0 }}
                     onClick={() => setShowDamageModal(!showDamageModal)}
                 >
                     Teilweise Abschliessen
@@ -345,14 +343,34 @@ export const OrderView = (props: OrderProps) => {
                     }
                 </Col>
                 <Col span={24}>
-                    {
-                        ability.can('deliver', {
+                    <div style={{display: 'flex', justifyContent: 'right'}}>
+                        <Can I='delete' this={{
                             ...order,
                             abteilungId: abteilung.id
-                        }) && <MaterialAction />
-                    }
+                        }}
+                        >
+                            <Popconfirm
+                                title='Möchtest du die Bestellung wirklich löschen?'
+                                onConfirm={() => deleteOrder(order)}
+                                onCancel={() => { }}
+                                okText='Ja'
+                                cancelText='Nein'
+                                disabled={order.status === 'delivered'}
+                            >
+                                <Button type='ghost' danger icon={<DeleteOutlined />} disabled={order.status === 'delivered'}>Löschen</Button>
+                            </Popconfirm>
+                        </Can>
+                        <div style={{marginLeft: '1%', marginRight: '1%'}}></div>
+                        <Can I='deliver' this={{
+                            ...order,
+                            abteilungId: abteilung.id
+                        }}
+                        >
+                            <MaterialAction />
+                        </Can>
+                    </div>
                 </Col>
-               <DamagedMaterialModal abteilung={abteilung} order={order} damagedMaterial={damagedMaterial} showDamageModal={showDamageModal} setShowDamageModal={setShowDamageModal}/>
+                <DamagedMaterialModal abteilung={abteilung} order={order} damagedMaterial={damagedMaterial} showDamageModal={showDamageModal} setShowDamageModal={setShowDamageModal} />
             </Row>
         </Col>
     </Row>

@@ -266,3 +266,20 @@ export const addCommentOrder = async (abteilungId: string, order: Order, comment
     return false;
 
 }
+
+export const deleteOrder = async (order: Order): Promise<boolean> => {
+    try {
+        if(order.status === 'delivered') {
+            message.error(`Bestellung kann nicht gelöscht werden, wenn sie ${getStatusName(order)} ist.`)
+            return false;
+        }
+        //check user role
+
+
+        
+
+    } catch(ex) {
+        message.error(`Es ist ein Fehler aufgetreten ${ex}`)
+    }
+    return false;
+}

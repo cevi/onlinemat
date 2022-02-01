@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { Button, Col, Form, Image, Input, message, Popconfirm, Row } from 'antd';
-import ceviLogoImage from 'assets/cevi_logo.png';
+import ceviLogoImage from 'assets/onlinemat_logo.png';
 import { useNavigate } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
 import { useState } from 'react';
