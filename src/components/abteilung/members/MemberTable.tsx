@@ -87,7 +87,7 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
     ];
 
 
-    return <Table key='member_table' loading={loading} columns={columns} dataSource={members.sort((a: AbteilungMemberUserData, b: AbteilungMemberUserData) => ((a.approved || false) === (b.approved || false)) ? 0 : (a.approved || false) ? 1 : -1)} />;
+    return <Table rowKey='userId' loading={loading} columns={columns} dataSource={members.sort((a: AbteilungMemberUserData, b: AbteilungMemberUserData) => ((a.approved || false) === (b.approved || false)) ? 0 : (a.approved || false) ? 1 : -1)} />;
 
 }
 

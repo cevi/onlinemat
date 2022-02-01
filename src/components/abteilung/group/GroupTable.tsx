@@ -72,7 +72,7 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
     ];
 
 
-    return <Table key='group_table' loading={loading} columns={columns} dataSource={abteilung.groups.sort((a: Group, b: Group) => a.name.normalize().localeCompare(b.name.normalize()))} />;
+    return <Table rowKey='id' loading={loading} columns={columns} dataSource={abteilung.groups.sort((a: Group, b: Group) => a.name.normalize().localeCompare(b.name.normalize()))} />;
 
 }
 

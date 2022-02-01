@@ -99,7 +99,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
     ];
 
 
-    return <Table columns={columns} dataSource={material} />;
+    return <Table rowKey='id' columns={columns} dataSource={material}/>;
 
 
 }

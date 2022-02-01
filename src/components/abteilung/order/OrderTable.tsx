@@ -92,7 +92,7 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
     ];
 
 
-    return <Table key='orders_table' loading={loading} columns={columns} dataSource={orders.sort((a: Order, b: Order) => a.startDate.valueOf() - b.startDate.valueOf())} />;
+    return <Table rowKey='id' loading={loading} columns={columns} dataSource={orders.sort((a: Order, b: Order) => a.startDate.valueOf() - b.startDate.valueOf())} />;
 
 }
 

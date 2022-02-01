@@ -17,9 +17,12 @@ const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    let unsubscribe: () => void;
     return auth().onAuthStateChanged(user => {
-      if (user) {
-        firestore().collection(usersCollection).doc(user.uid).onSnapshot(snap => {
+      
+      if (user && user !== null) {
+        const userRef = firestore().collection(usersCollection).doc(user.uid);
+         unsubscribe = userRef.onSnapshot(snap => {
           const userLoaded = {
             ...snap.data() as UserData,
             id: snap.id
@@ -30,8 +33,12 @@ const App = () => {
           dispatch(setUser(user, userLoaded));
         }, (err) => {
           message.error(`Es ist ein Fehler aufgetreten ${err}`)
+          console.error('Es ist ein Fehler aufgetreten', err)
         });
       } else {
+        if(unsubscribe) {
+          unsubscribe();
+        }
         dispatch(setUser(user, null));
       }
 

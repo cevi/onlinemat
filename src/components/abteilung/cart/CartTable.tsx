@@ -43,7 +43,7 @@ export const CartTableImpl = (props: GroupImplTableProps) => {
         {
             title: 'Aktionen',
             key: 'actions',
-            dataIndex: 'id',
+            dataIndex: 'matId',
             render: (text: string, record: DetailedCartItem) => (
                 <Button type='ghost' danger icon={<DeleteOutlined />} onClick={()=> changeCart(removeFromCart(cartItems, record))}/>
             )
@@ -51,7 +51,7 @@ export const CartTableImpl = (props: GroupImplTableProps) => {
     ];
 
 
-    return <Table key='cart_table' columns={columns} dataSource={cartItems.sort((a: DetailedCartItem, b: DetailedCartItem) => a.matId.normalize().localeCompare(b.matId.normalize()))} />;
+    return <Table rowKey='matId' columns={columns} dataSource={cartItems.sort((a: DetailedCartItem, b: DetailedCartItem) => a.matId.normalize().localeCompare(b.matId.normalize()))} />;
 
 }
 

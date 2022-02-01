@@ -48,7 +48,7 @@ export const UserTable = (props: UserTableProps) => {
       ];
 
 
-      return <Table columns={columns} dataSource={users} loading={loading} />;
+      return <Table rowKey='id' columns={columns} dataSource={users} loading={loading} />;
 
 
 }
