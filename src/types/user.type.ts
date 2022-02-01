@@ -11,5 +11,7 @@ export interface UserData {
     email_verified?: boolean
     user_metadata?: any
     staff?: boolean;
-    roles: { [abteilungId: string]: string }
+    roles: { [abteilungId: string]: role }
 }
+
+export type role = 'pending' | 'guest' | 'member' | 'matchef' | 'admin';

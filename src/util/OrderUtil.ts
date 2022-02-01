@@ -1,8 +1,10 @@
 import { message } from "antd";
 import { abteilungenCollection, abteilungenMaterialsCollection, abteilungenOrdersCollection } from "config/firebase/collections";
 import { firestore } from "config/firebase/firebase";
+import { UserState } from "config/redux/user/user";
 import { useUser } from "hooks/use-user";
 import moment from "moment";
+import { Abteilung } from "types/abteilung.type";
 import { DamagedMaterial, DamagedMaterialDetails, Material } from "types/material.types";
 import { Order } from "types/order.types";
 
@@ -16,7 +18,7 @@ export const getStatusName = (order: Order | undefined): string => {
         case 'delivered':
             return 'Ausgegeben';
         case 'completed':
-            if((order.damagedMaterial || []).length > 0) {
+            if ((order.damagedMaterial || []).length > 0) {
                 return 'Abgeschlossen Verlust/Schaden';
             }
             return 'Abgeschlossen';
@@ -33,7 +35,7 @@ export const getStatusColor = (order: Order | undefined): string | undefined => 
         case 'delivered':
             return 'blue';
         case 'completed':
-            if((order.damagedMaterial || []).length > 0) {
+            if ((order.damagedMaterial || []).length > 0) {
                 return 'volcano';
             }
             return 'green';
@@ -126,32 +128,9 @@ export const resetOrder = async (abteilungId: string, order: Order, userName: st
 
 export const resetLostOrder = async (abteilungId: string, order: Order, userName: string, materials: Material[]): Promise<boolean> => {
     try {
+        //updateMaterial
         if (order.damagedMaterial) {
-            //updateMaterial
-            const promises = order.damagedMaterial.map(material => {
-                const matRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).doc(material.id);
-                const currentMat = materials.find(m => m.id === material.id);
-                if (!currentMat) return new Promise<void>((resolve, reject) => reject('Konnte kein Promise zurückgeben'));
-                let toUpdate = undefined;
-                if (material.type === 'damaged') {
-                    const val = (currentMat.damaged || 0) - material.count;
-                    toUpdate = {
-                        damaged: val <= 0 ? 0 : val
-                    } as Material
-                }
-                if (material.type === 'lost') {
-                    const val = (currentMat.lost || 0) - material.count
-                    toUpdate = {
-                        lost: val <= 0 ? 0 : val
-                    } as Material
-                }
-                if (!toUpdate) return new Promise<void>((resolve, reject) => reject('Konnte kein Promise zurückgeben'));
-                return matRef.update(toUpdate)
-
-            })
-
-            //update mat
-            await Promise.all(promises);
+            await updateMaterialLostDamage(abteilungId, order.damagedMaterial, materials, 'unset');
         }
 
         const slimOrder = {
@@ -169,29 +148,8 @@ export const resetLostOrder = async (abteilungId: string, order: Order, userName
 export const completeLostOrder = async (abteilungId: string, order: Order, userName: string, damagedMaterial: (DamagedMaterialDetails | DamagedMaterial)[], materials: Material[]): Promise<boolean> => {
     try {
 
-        //updateMaterial
-        const promises = damagedMaterial.map(material => {
-            const matRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).doc(material.id);
-            const currentMat = materials.find(m => m.id === material.id);
-            if (!currentMat) return new Promise<void>((resolve, reject) => reject('Konnte kein Promise zurückgeben'));
-            let toUpdate = undefined;
-            if (material.type === 'damaged') {
-                toUpdate = {
-                    damaged: (currentMat.damaged || 0) + material.count
-                } as Material
-            }
-            if (material.type === 'lost') {
-                toUpdate = {
-                    lost: (currentMat.lost || 0) + material.count
-                } as Material
-            }
-            if (!toUpdate) return new Promise<void>((resolve, reject) => reject('Konnte kein Promise zurückgeben'));
-            return matRef.update(toUpdate)
-
-        })
-
-        //update mat
-        await Promise.all(promises);
+        //update mat lost /damaged
+        await updateMaterialLostDamage(abteilungId, damagedMaterial, materials, 'set');
 
         //save order
         const orderRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenOrdersCollection).doc(order.id);
@@ -267,19 +225,81 @@ export const addCommentOrder = async (abteilungId: string, order: Order, comment
 
 }
 
-export const deleteOrder = async (order: Order): Promise<boolean> => {
+export const deleteOrder = async (abteilung: Abteilung, order: Order, materials: Material[], user: UserState): Promise<boolean> => {
     try {
-        if(order.status === 'delivered') {
+        if (order.status === 'delivered') {
             message.error(`Bestellung kann nicht gelöscht werden, wenn sie ${getStatusName(order)} ist.`)
             return false;
         }
         //check user role
+        if (!user || !user.appUser || !user.appUser.userData) return false;
+        const roles = user.appUser.userData.roles || {};
+        const isStaff = user.appUser.userData.staff ? user.appUser.userData.staff : false
+        if (!(abteilung.id in roles) && !isStaff) {
+            message.error(`Du hast keine Berchtigungen für diese Bestellung.`)
+            return false;
+        }
+        const role = roles[abteilung.id];
+        if (order.status === 'completed') {
+            if (role !== 'admin' && role !== 'matchef' && !isStaff) {
+                message.error(`Du kannst eine abgeschlossene Bestellung nicht löschen.`)
+                return false;
+            }
+        }
 
+        //change mat back
+        if (order.damagedMaterial) {
+            await updateMaterialLostDamage(abteilung.id, order.damagedMaterial, materials, 'unset');
+        }
 
-        
+        //delete order
+        const orderRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection).doc(order.id);
+        await orderRef.delete();
+        return true;
 
-    } catch(ex) {
+    } catch (ex) {
         message.error(`Es ist ein Fehler aufgetreten ${ex}`)
     }
     return false;
+}
+
+export const updateMaterialLostDamage = async (abteilungId: string, damagedMaterial: DamagedMaterial[], materials: Material[], operator: 'set' | 'unset'): Promise<boolean> => {
+    try {
+        //updateMaterial
+        const promises = damagedMaterial.map(material => {
+            const matRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).doc(material.id);
+            const currentMat = materials.find(m => m.id === material.id);
+            if (!currentMat) return new Promise<void>((resolve, reject) => reject('Konnte kein Promise zurückgeben'));
+            let toUpdate = undefined;
+            if (material.type === 'damaged') {
+                let val = (currentMat.damaged || 0) - material.count;
+                if (operator === 'set') {
+                    val = (currentMat.damaged || 0) + material.count;
+                }
+                toUpdate = {
+                    damaged: val <= 0 ? 0 : val
+                } as Material
+            }
+            if (material.type === 'lost') {
+                let val = (currentMat.lost || 0) - material.count;
+                if (operator === 'set') {
+                    val = (currentMat.lost || 0) + material.count;
+                }
+                toUpdate = {
+                    lost: val <= 0 ? 0 : val
+                } as Material
+            }
+            if (!toUpdate) return new Promise<void>((resolve, reject) => reject('Konnte kein Promise zurückgeben'));
+            return matRef.update(toUpdate)
+
+        })
+
+        //update mat
+        await Promise.all(promises);
+        return true;
+    } catch (ex) {
+        message.error(`Es ist ein Fehler aufgetreten ${ex}`)
+        return false;
+    }
+
 }

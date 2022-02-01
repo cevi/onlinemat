@@ -4,7 +4,7 @@ import { abteilungenCollection, abteilungenOrdersCollection } from 'config/fireb
 import { firestore } from 'config/firebase/firebase';
 import moment from 'moment';
 import { useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { Navigate, useNavigate, useParams } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
 import { Order, OrderHistory } from 'types/order.types';
 import { dateFormat, dateFormatWithTime, getAvailableMatCount } from 'util/MaterialUtil';
@@ -39,6 +39,7 @@ export const OrderView = (props: OrderProps) => {
     const { isAuthenticated } = useAuth0();
 
     const user = useUser();
+    const navigate = useNavigate();
 
     const [order, setOrder] = useState<Order | undefined>(undefined);
     const [orderLoading, setOrderLoading] = useState(false);
@@ -64,6 +65,8 @@ export const OrderView = (props: OrderProps) => {
 
 
     const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: 'Loading...' }) }));
+
+    const abteilungOrdersLink = `/abteilungen/${abteilung.slug || abteilung.id}/orders`;
 
     const orderer = membersMerged.find(m => m.id === order?.orderer);
 
@@ -223,7 +226,10 @@ export const OrderView = (props: OrderProps) => {
             return <Tooltip placement='bottom' title='Der Status der Bestellung wird auf "erstellt" zurückgesetzt.'>
                 <Popconfirm
                     title='Der Status der Bestellung wird auf "erstellt" zurückgesetzt.'
-                    onConfirm={() => resetLostOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName, materials)}
+                    onConfirm={async () => {
+                        await resetLostOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName, materials)
+                        setDamagedMaterial([])
+                    }}
                     onCancel={() => { }}
                     okText='Ja'
                     cancelText='Nein'
@@ -232,7 +238,6 @@ export const OrderView = (props: OrderProps) => {
                         type='ghost'
                         danger
                         icon={<UndoOutlined />}
-                        style={{ display: 'block', marginLeft: 'auto', marginRight: 0 }}
                     >
                         Zurücksetzen
                     </Button>
@@ -351,7 +356,10 @@ export const OrderView = (props: OrderProps) => {
                         >
                             <Popconfirm
                                 title='Möchtest du die Bestellung wirklich löschen?'
-                                onConfirm={() => deleteOrder(order)}
+                                onConfirm={async () => {
+                                    await deleteOrder(abteilung, order, materials, user)
+                                    navigate(abteilungOrdersLink)
+                                }}
                                 onCancel={() => { }}
                                 okText='Ja'
                                 cancelText='Nein'
