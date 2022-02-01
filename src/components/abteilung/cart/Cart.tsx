@@ -127,9 +127,9 @@ export const Cart = (props: CartProps) => {
             <Step title='Bestellen' description={orderError ? orderError : 'Bestellung aufgeben'} icon={orderLoading ? <LoadingOutlined /> : undefined} status={orderError ? 'error' : undefined}/>
             <Step title='Abschliessen' description='Bestellung abschliessen' status={currentStep === maxStep ? 'finish' : undefined}/>
         </Steps>
-            {currentStep > minStep && currentStep < maxStep  && <Button disabled={orderLoading} type='primary' onClick={() => setCurrentStep(0)}>Zurück</Button>}
+            {currentStep > minStep && currentStep < maxStep  && <Button disabled={orderLoading} onClick={() => setCurrentStep(0)}>Zurück</Button>}
             {currentStep < maxStep - 1 && <Button disabled={orderLoading} type='primary' style={{ float: 'right' }} onClick={() => setCurrentStep(currentStep + 1)}>Weiter</Button>}
-            {currentStep === maxStep - 1 && <Button disabled={orderLoading} type='primary' style={{ float: 'right' }} onClick={() => {
+            {currentStep === maxStep - 1 && <Button disabled={orderLoading || cartItemsMerged.length <= 0} type='primary' style={{ float: 'right' }} onClick={() => {
                 if(!createOrderRef || !createOrderRef.current) return;
                 //TODO: typescript
                 (createOrderRef.current as any).submitOrder()
@@ -171,7 +171,7 @@ export const Cart = (props: CartProps) => {
 
     if (currentStep === 1) return <Row gutter={[16, 16]}>
         <Col span={24}>
-            <CreateOrder ref={createOrderRef} abteilung={abteilung} items={cartItemsMerged} createOrder={createOrder}/>
+            <CreateOrder ref={createOrderRef} abteilung={abteilung} initItems={cartItemsMerged} changeCart={changeCartAndCookie} createOrder={createOrder}/>
         </Col>
         <Col span={24}>
             <ProgressBar />

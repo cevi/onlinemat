@@ -14,7 +14,7 @@ export const OrderItemsDamaged = (props: OrderItemsProps) => {
     return <div
         id='scrollableDiv'
         style={{
-            height: 400,
+            maxHeight: 400,
             overflow: 'auto',
             padding: '0 16px',
         }}

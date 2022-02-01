@@ -1,4 +1,4 @@
-import { Avatar, List, Tooltip } from 'antd'
+import { Avatar, Button, List, Tooltip } from 'antd'
 import Checkbox from 'antd/lib/checkbox/Checkbox';
 import { DetailedCartItem } from 'types/cart.types'
 import { DamagedMaterial } from 'types/material.types';
@@ -10,16 +10,17 @@ export interface OrderItemsProps {
     damagedMaterialsCheckboxes?: DetailedCartItem[]
     damagedMaterials?: DamagedMaterial[]
     setDamagedMaterialCheckboxes?: (damagedMaterial: DetailedCartItem[]) => void
+    updateOrderItemsByAvail?: () => void
 }
 
 export const OrderItems = (props: OrderItemsProps) => {
 
-    const { items, collisions, showCheckBoxes, damagedMaterialsCheckboxes, damagedMaterials, setDamagedMaterialCheckboxes } = props;
+    const { items, collisions, showCheckBoxes, damagedMaterialsCheckboxes, damagedMaterials, setDamagedMaterialCheckboxes, updateOrderItemsByAvail } = props;
 
-    return <div
+    return <><div
         id='scrollableDiv'
         style={{
-            height: 400,
+            maxHeight: 400,
             overflow: 'auto',
             padding: '0 16px',
         }}
@@ -52,4 +53,14 @@ export const OrderItems = (props: OrderItemsProps) => {
                 }}
         />
     </div>
+    {
+        collisions && updateOrderItemsByAvail &&   <Button
+                            type='primary'
+                            style={{ display: 'block', marginLeft: 'auto', marginRight: 0 }}
+                            onClick={() => updateOrderItemsByAvail()}
+                        >
+                            Anpassen
+                        </Button>
+    }
+    </>
 }

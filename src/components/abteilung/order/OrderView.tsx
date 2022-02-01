@@ -270,7 +270,7 @@ export const OrderView = (props: OrderProps) => {
                     <div
                         id='scrollableDiv'
                         style={{
-                            height: 500,
+                            maxHeight: 500,
                             overflow: 'auto',
                             padding: '10px 16px 0 0',
                         }}

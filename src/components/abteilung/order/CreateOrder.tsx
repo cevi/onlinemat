@@ -1,9 +1,9 @@
-import { Avatar, Col, DatePicker, Form, Input, List, Row, Select, Spin } from 'antd';
+import { Avatar, Col, DatePicker, Form, Input, List, message, Row, Select, Spin } from 'antd';
 import { useUser } from 'hooks/use-user';
 import moment, { Moment } from 'moment';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Abteilung } from 'types/abteilung.type';
-import { DetailedCartItem } from 'types/cart.types';
+import { CartItem, DetailedCartItem } from 'types/cart.types';
 import { Group } from 'types/group.types';
 import { Order } from 'types/order.types';
 import { validateMessages } from 'util/FormValdationMessages';
@@ -12,8 +12,9 @@ import { OrderItems } from './OrderItems';
 
 export interface CreateOrderProps {
     abteilung: Abteilung
-    items: DetailedCartItem[]
+    initItems: DetailedCartItem[]
     createOrder: (orderToCreate: any) => Promise<{ orderId: string | undefined, collisions: { [matId: string]: number } | undefined }>
+    changeCart: (items: CartItem[]) => void
 }
 
 export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
@@ -26,7 +27,9 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
         }),
     )
 
-    const { abteilung, items, createOrder } = props;
+    const { abteilung, initItems, createOrder, changeCart } = props;
+
+    const [items, setItems] = useState<DetailedCartItem[]>(initItems);
 
     const [form] = Form.useForm<Order>();
     const userState = useUser();
@@ -105,6 +108,11 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
     const prepareOrderCreation = async () => {
         if (!startDate || !endDate) return;
 
+        if (items.length <= 0) {
+            message.error('Dein Warenkorb ist leer');
+            return;
+        }
+
         const formValues = form.getFieldsValue();
 
         const orderItems = items.map(i => {
@@ -132,6 +140,37 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
         if (response.orderId && !response.collisions) {
             form.resetFields();
         }
+    }
+
+    const updateOrderItemsByAvail = () => {
+        let newDetailedItems = items;
+        const newItems: CartItem[] = [];
+        items.forEach(i => {
+
+            if (i.matId in (collisions || {})) {
+                const avail = (collisions as any)[i.matId] as number;
+                if (avail <= 0) {
+                    newDetailedItems = [...newDetailedItems.filter(newItem => newItem.matId !== i.matId)];
+                } else {
+                    const newItem = newDetailedItems.find(newItem => newItem.matId === i.matId);
+                    if (!newItem) return;
+                    newItem.count = avail;
+                    newItem.maxCount = avail;
+                    newDetailedItems = [...newDetailedItems.filter(newItem => newItem.matId !== i.matId), newItem];
+                }
+            }
+        })
+        setItems(newDetailedItems);
+        setCollisions(undefined);
+        newDetailedItems.forEach(i => {
+            newItems.push({
+                __caslSubjectType__: 'CartItem',
+                count: i.count,
+                matId: i.matId,
+
+            })
+        });
+        changeCart(newItems)
     }
 
     if (!userState) return <Spin />
@@ -230,7 +269,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
         <Col span={12}>
             <Row gutter={[16, 16]}>
                 <Col span={24}>
-                    <OrderItems items={items} collisions={collisions}/>
+                    <OrderItems items={items.sort((a: DetailedCartItem, b: DetailedCartItem) => a.name.localeCompare(b.name))} collisions={collisions} updateOrderItemsByAvail={updateOrderItemsByAvail} />
                 </Col>
             </Row>
 
