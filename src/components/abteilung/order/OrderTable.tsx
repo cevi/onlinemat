@@ -30,7 +30,7 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
             key: 'status',
             sorter: (a: Order, b: Order) => a.status.normalize().localeCompare(b.status.normalize()),
             render: (text: string, record: Order) => {
-                return <p key={`status_${record.id}`}><Tag color={getStatusColor(record.status)}>{getStatusName(record.status)}</Tag></p>
+                return <p key={`status_${record.id}`}><Tag color={getStatusColor(record)}>{getStatusName(record)}</Tag></p>
             }
         },
         {

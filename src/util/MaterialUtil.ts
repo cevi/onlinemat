@@ -35,3 +35,44 @@ export const editMaterial = async (abteilungId: string, material: Material) => {
     }
 
 }
+
+export const getAvailableMatCount = (mat: Material | undefined): number => {
+    if(!mat) return 0;
+    let maxCount = 0;
+    if(!!mat.consumables) {
+        //max is 1 - lost/damaged
+        maxCount = 1 - ((mat.damaged || 0) + (mat.lost || 0))
+    } else {
+        maxCount = mat.count - ((mat.damaged || 0) + (mat.lost || 0))
+    }
+
+    return maxCount;
+}
+
+export const getAvailableMatString = (mat: Material | undefined): number | string => {
+    if(!mat) return 0;
+    let maxCount = 0;
+    if(!!mat.consumables) {
+        //max is 1 - lost/damaged
+        maxCount = 1 - ((mat.damaged || 0) + (mat.lost || 0))
+        if(maxCount === 1) {
+            return 'unbegrenzt';
+        }
+    } else {
+        maxCount = mat.count - ((mat.damaged || 0) + (mat.lost || 0))
+    }
+       
+    return maxCount;
+}
+
+export const getAvailableMatCountToEdit = (mat: Material | undefined): {damged: number, lost: number} => {
+    if(!mat) return {
+        damged: 0,
+        lost: 0
+    };
+
+    return {
+        damged: mat.count - (mat.lost || 0),
+        lost: mat.count - (mat.damaged || 0)
+    }
+}

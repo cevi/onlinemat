@@ -9,7 +9,7 @@ import { PicturesWall } from 'components/pictures/PictureWall';
 import { Material } from 'types/material.types';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
-import { generateKeywords } from 'util/MaterialUtil';
+import { generateKeywords, getAvailableMatCount, getAvailableMatCountToEdit } from 'util/MaterialUtil';
 import { CategorysContext } from 'components/abteilung/AbteilungDetails';
 
 export interface AddMaterialProps {
@@ -29,6 +29,8 @@ export const AddMaterial = (props: AddMaterialProps) => {
     const { Option } = Select;
 
     const [renderMatImages, setRenderMatImages] = useState([]);
+    const [maxCount, setMaxCount] = useState<{damged: number, lost: number}>({damged: 0, lost: 0});
+    const [availCount, setAvailCount] = useState<number>(0);
 
     const formItemLayout = {
         labelCol: {
@@ -82,11 +84,15 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
                 <Form
                     form={form}
-                    initialValues={{ consumables: false, categorieIds: [], comment: '', weightInKg: null, imageUrls: [] }}
+                    initialValues={{ consumables: false, categorieIds: [], comment: '', count: 1, lost: 0, damaged: 0,  weightInKg: null, imageUrls: [] }}
                     onValuesChange={() => {
                         if (renderMatImages !== form.getFieldValue('imageUrls')) {
                             setRenderMatImages(form.getFieldValue('imageUrls'))
                         }
+
+                        const tempMat = form.getFieldsValue() as Material;
+                        setMaxCount(getAvailableMatCountToEdit(tempMat))
+                        setAvailCount(getAvailableMatCount(tempMat))
                     }}
                     onFinish={addMaterial}
                     validateMessages={validateMessages}
@@ -123,6 +129,29 @@ export const AddMaterial = (props: AddMaterialProps) => {
                         ]}
                     >
                         <InputNumber min={1} />
+                    </Form.Item>
+                    <Form.Item
+                        label='Verloren'
+                        name='lost'
+                        rules={[
+                            { required: true },
+                        ]}
+                    >
+                        <InputNumber min={0} max={maxCount.lost}/>
+                    </Form.Item>
+                    <Form.Item
+                        label='Beschädigt'
+                        name='damaged'
+                        rules={[
+                            { required: true },
+                        ]}
+                    >
+                        <InputNumber min={0} max={maxCount.damged}/>
+                    </Form.Item>
+                    <Form.Item>
+                        {
+                            `Verfügbar: ${availCount}`
+                        }
                     </Form.Item>
                     <Form.Item
                         label='Gewicht in Kg'

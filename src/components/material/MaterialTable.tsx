@@ -3,7 +3,7 @@ import { Button, Popconfirm, Space, Table } from 'antd';
 import { Can } from 'config/casl/casl';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
-import { deleteMaterial } from 'util/MaterialUtil';
+import { deleteMaterial, getAvailableMatString } from 'util/MaterialUtil';
 import { EditMaterialButton } from './EditMaterial';
 
 
@@ -32,6 +32,9 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             dataIndex: 'comment',
             key: 'comment',
             sorter: (a: Material, b: Material) => a.comment.normalize().localeCompare(b.comment.normalize()),
+            render: (text: string, record: Material) => (
+                <p key={`${record.id}_comment`}>{record.comment || '-'}</p>
+            ),
         },
         {
             title: 'Kategorie',
@@ -59,14 +62,14 @@ export const MaterialTable = (props: MaterialTablelProps) => {
                 return 0;
             },
             render: (text: string, record: Material) => (
-                <p key={`${record.id}_weightInKg`}>{record.weightInKg ? `${record.weightInKg} Kg` : 'Unbekannt'}</p>
+                <p key={`${record.id}_weightInKg`}>{record.weightInKg ? `${record.weightInKg} Kg` : '-'}</p>
             ),
         },
         {
-            title: 'Anzahl',
+            title: 'Verfügbar',
             key: 'count',
             render: (text: string, record: Material) => (
-                <p key={`${record.id}_count`}>{record.consumables ? 'Unbegrenzt' : record.count}</p>
+                <p key={`${record.id}_count`}>{getAvailableMatString(record) + (!!record.consumables ? '/unbegrenzt' : `/${record.count}`)}</p>
             ),
             sorter: (a: Material, b: Material) => a.count - b.count
         },
@@ -115,7 +118,8 @@ export const filterCategorie = (value: any, record: Material): boolean => {
     return result;
 }
 
-export const displayCategorieNames = (categorie: Categorie[], catIds: string[]) => {
+export const displayCategorieNames = (categorie: Categorie[], catIds: string[]): string => {
+    if(catIds.length <= 0) return '-';
     let result: string[] = [];
     catIds.forEach(categoryId => {
         const cat = categorie.find(cat => cat.id === categoryId);

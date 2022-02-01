@@ -7,7 +7,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
 import { Order, OrderHistory } from 'types/order.types';
-import { dateFormat, dateFormatWithTime } from 'util/MaterialUtil';
+import { dateFormat, dateFormatWithTime, getAvailableMatCount } from 'util/MaterialUtil';
 import { OrderItems } from './OrderItems';
 import { DetailedCartItem } from 'types/cart.types';
 import { MaterialsContext, MembersContext, MembersUserDataContext } from '../AbteilungDetails';
@@ -106,7 +106,7 @@ export const OrderView = (props: OrderProps) => {
         const localItemsMerged: DetailedCartItem[] = [];
         order?.items.forEach(item => {
             const mat = materials.find(m => m.id === item.matId);
-            const maxCount = mat ? (!!mat.consumables ? 1 : mat.count) : 1
+            const maxCount = getAvailableMatCount(mat);
             const mergedItem: DetailedCartItem = {
                 ...item,
                 name: mat && mat.name || 'Loading...',
@@ -261,7 +261,7 @@ export const OrderView = (props: OrderProps) => {
                     <p><b>Besteller:</b>{` ${orderer ? orderer.displayName : order?.orderer}`}</p>
                     <p><b>Von:</b>{` ${order?.startDate.format(dateFormatWithTime)}`}</p>
                     <p><b>Bis:</b>{` ${order?.endDate.format(dateFormatWithTime)}`}</p>
-                    <p><b>{'Status '}</b><Tag color={getStatusColor(order?.status)}>{getStatusName(order?.status)}</Tag></p>
+                    <p><b>{'Status '}</b><Tag color={getStatusColor(order)}>{getStatusName(order)}</Tag></p>
                 </Col>
                 <Col span={24}>
                     <div
@@ -317,7 +317,7 @@ export const OrderView = (props: OrderProps) => {
                         ability.can('deliver', {
                             ...order,
                             abteilungId: abteilung.id
-                        }) && order.status !== 'completed' && order.status !== 'completed-damaged' ? <>
+                        }) && order.status !== 'completed' ? <>
                             <Form.Item label='Bemerkung'>
                                 <TextArea
                                     value={matChefComment}

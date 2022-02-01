@@ -7,34 +7,36 @@ import { DamagedMaterial, DamagedMaterialDetails, Material } from "types/materia
 import { Order } from "types/order.types";
 
 
-export const getStatusName = (status: Order['status'] | undefined): string => {
-    if (!status) return 'Lade...';
+export const getStatusName = (order: Order | undefined): string => {
+    if (!order) return 'Lade...';
 
-    switch (status) {
+    switch (order.status) {
         case 'created':
             return 'Erstellt';
         case 'delivered':
             return 'Ausgegeben';
         case 'completed':
+            if((order.damagedMaterial || []).length > 0) {
+                return 'Abgeschlossen Verlust/Schaden';
+            }
             return 'Abgeschlossen';
-        case 'completed-damaged':
-            return 'Abgeschlossen Verlust/Schaden';
     }
 
     return 'Unbekannt';
 }
 
-export const getStatusColor = (status: Order['status'] | undefined): string | undefined => {
-    if (!status) return undefined;
-    switch (status) {
+export const getStatusColor = (order: Order | undefined): string | undefined => {
+    if (!order) return undefined;
+    switch (order.status) {
         case 'created':
             return 'cyan';
         case 'delivered':
             return 'blue';
         case 'completed':
+            if((order.damagedMaterial || []).length > 0) {
+                return 'volcano';
+            }
             return 'green';
-        case 'completed-damaged':
-            return 'volcano';
     }
 
     return undefined
@@ -212,7 +214,7 @@ export const completeLostOrder = async (abteilungId: string, order: Order, userN
         })
 
         await orderRef.update({
-            status: 'completed-damaged',
+            status: 'completed',
             history: orderHistory,
             damagedMaterial: slimDamagedMaterial
         } as Order)

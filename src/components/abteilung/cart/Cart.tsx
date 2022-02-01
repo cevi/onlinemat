@@ -12,6 +12,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { MaterialsContext } from '../AbteilungDetails';
 import { CreateOrder } from '../order/CreateOrder';
 import { functions } from 'config/firebase/firebase';
+import { getAvailableMatCount } from 'util/MaterialUtil';
 
 export interface CartProps {
     abteilung: Abteilung
@@ -54,7 +55,7 @@ export const Cart = (props: CartProps) => {
         const localItemsMerged: DetailedCartItem[] = [];
         cartItems.forEach(item => {
             const mat = materials.find(m => m.id === item.matId);
-            const maxCount = mat ? (!!mat.consumables ? 1 : mat.count) : 1
+            const maxCount = getAvailableMatCount(mat);
             const mergedItem: DetailedCartItem = {
                 ...item,
                 name: mat && mat.name || 'Loading...',

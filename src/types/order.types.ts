@@ -11,7 +11,7 @@ export interface Order {
     items: CartItem[]
     orderer: string
     creationTime: Moment
-    status: 'created' | 'delivered' | 'completed' | 'completed-damaged'
+    status: 'created' | 'delivered' | 'completed'
     history: OrderHistory[]
     comment?: string
     groupId?: string

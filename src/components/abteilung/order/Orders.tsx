@@ -100,7 +100,7 @@ export const Orders = (props: OrdersProps) => {
 
             const groupName = getGroupName(o.groupId, abteilung);
 
-            const status = getStatusName(o.status);
+            const status = getStatusName(o);
 
             return userName.toLowerCase().includes(lowerQuery) 
             || o.customGroupName?.toLowerCase().includes(lowerQuery) 
