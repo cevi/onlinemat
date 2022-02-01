@@ -3,7 +3,7 @@ import { useUser } from "hooks/use-user";
 import { useContext, useEffect, useState } from "react";
 import { Abteilung } from "types/abteilung.type";
 import { DetailedCartItem } from "types/cart.types";
-import { DamagedMaterial } from "types/material.types";
+import { DamagedMaterial, DamagedMaterialDetails } from "types/material.types";
 import { Order } from "types/order.types";
 import { completeLostOrder } from "util/OrderUtil";
 import { MaterialsContext } from "../AbteilungDetails";
@@ -21,7 +21,7 @@ export const DamagedMaterialModal = (props: DamagedMaterialModalProps) => {
 
     const { abteilung, order, damagedMaterial, showDamageModal, setShowDamageModal } = props;
 
-    const [damagedMaterialDetails, setDamagedMaterialDetails] = useState<DamagedMaterial[]>([]);
+    const [damagedMaterialDetails, setDamagedMaterialDetails] = useState<DamagedMaterialDetails[]>([]);
 
     const user = useUser();
 
@@ -39,12 +39,12 @@ export const DamagedMaterialModal = (props: DamagedMaterialModalProps) => {
                 type: 'damaged',
                 name: mat.name,
                 imageUrls: mat.imageUrls
-            } as DamagedMaterial
+            } as DamagedMaterialDetails
         }))
     }, [damagedMaterial])
 
 
-    const updateDamagedMaterial = (mat: DamagedMaterial) => {
+    const updateDamagedMaterial = (mat: DamagedMaterialDetails) => {
         const filtered = damagedMaterialDetails.filter(d => d.id !== mat.id)
         filtered.push(mat)
         setDamagedMaterialDetails(filtered)
@@ -70,7 +70,7 @@ export const DamagedMaterialModal = (props: DamagedMaterialModalProps) => {
             </Button>
         ]}
     >
-        <OrderItemsDamaged items={damagedMaterialDetails.sort((a: DamagedMaterial, b: DamagedMaterial) => a.name.localeCompare(b.name))} updateDamagedMaterial={updateDamagedMaterial} />
+        <OrderItemsDamaged items={damagedMaterialDetails.sort((a: DamagedMaterialDetails, b: DamagedMaterialDetails) => a.name.localeCompare(b.name))} updateDamagedMaterial={updateDamagedMaterial} />
     </Modal>
 
 }

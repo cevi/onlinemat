@@ -12,14 +12,12 @@ import { OrderItems } from './OrderItems';
 import { DetailedCartItem } from 'types/cart.types';
 import { MaterialsContext, MembersContext, MembersUserDataContext } from '../AbteilungDetails';
 import { getGroupName } from 'util/AbteilungUtil';
-import { addCommentOrder, completeOrder, deliverOrder, getStatusColor, getStatusName, resetOrder } from 'util/OrderUtil';
+import { addCommentOrder, completeOrder, deliverOrder, getStatusColor, getStatusName, resetLostOrder, resetOrder } from 'util/OrderUtil';
 import TextArea from 'antd/lib/input/TextArea';
 import { ability } from 'config/casl/ability';
 import { OrderNotFound } from './OrderNotFound';
 import { useUser } from 'hooks/use-user';
 import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
-import Modal from 'antd/lib/modal/Modal';
-import { OrderItemsDamaged } from './OrderItemsDamaged';
 import { DamagedMaterialModal } from './DamagedMaterialModal';
 
 export interface OrderProps {
@@ -137,12 +135,12 @@ export const OrderView = (props: OrderProps) => {
         switch (icon) {
             case 'creation':
             case 'completed':
+            case 'completed-damaged':
                 return <CheckCircleOutlined style={{ fontSize: '16px' }} color={colorToSet} />
             case 'startDate':
             case 'endDate':
                 return <ClockCircleOutlined style={{ fontSize: '16px' }} color={colorToSet} />
             case 'matchefComment':
-            case 'completed-damaged':
                 return <ExclamationCircleOutlined style={{ fontSize: '16px' }} color={colorToSet} />
             case 'reset':
                 return <UndoOutlined style={{ fontSize: '16px' }} color={colorToSet} />
@@ -223,11 +221,11 @@ export const OrderView = (props: OrderProps) => {
             </Tooltip>;
         }
 
-        if (order.status === 'completed') {
+        if (order.status === 'completed' || order.status === 'completed-damaged') {
             return <Tooltip placement='bottom' title='Der Status der Bestellung wird auf "erstellt" zurückgesetzt.'>
                 <Popconfirm
                     title='Der Status der Bestellung wird auf "erstellt" zurückgesetzt.'
-                    onConfirm={() => resetOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
+                    onConfirm={() => resetLostOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName, materials)}
                     onCancel={() => { }}
                     okText='Ja'
                     cancelText='Nein'
@@ -299,8 +297,9 @@ export const OrderView = (props: OrderProps) => {
                         abteilungId: abteilung.id
                     }) && order.status === 'delivered'}
 
-                        damagedMaterial={damagedMaterial}
-                        setDamagedMaterial={setDamagedMaterial}
+                        damagedMaterials={order.damagedMaterial || undefined}
+                        damagedMaterialsCheckboxes={damagedMaterial}
+                        setDamagedMaterialCheckboxes={setDamagedMaterial}
                     />
                 </Col>
                 <Col span={24}>

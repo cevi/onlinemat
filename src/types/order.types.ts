@@ -1,5 +1,6 @@
 import { Moment } from "moment";
 import { CartItem } from "./cart.types";
+import { DamagedMaterial } from "./material.types";
 
 
 export interface Order {
@@ -16,6 +17,7 @@ export interface Order {
     groupId?: string
     customGroupName?: string
     matchefComment?: string
+    damagedMaterial?: DamagedMaterial[] | null
 }
 
 export interface OrderHistory {

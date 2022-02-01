@@ -1,9 +1,9 @@
 import { Avatar, Form, InputNumber, List, Radio, Tooltip } from 'antd'
-import { DamagedMaterial } from 'types/material.types';
+import { DamagedMaterial, DamagedMaterialDetails } from 'types/material.types';
 
 export interface OrderItemsProps {
-    items: DamagedMaterial[]
-    updateDamagedMaterial: (mat: DamagedMaterial) => void
+    items: DamagedMaterialDetails[]
+    updateDamagedMaterial: (mat: DamagedMaterialDetails) => void
 }
 
 export const OrderItemsDamaged = (props: OrderItemsProps) => {
