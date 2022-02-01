@@ -13,7 +13,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { UserData } from 'types/user.type';
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 import { AbteilungSettings } from './settings/AbteilungSettings';
-import { NoAccessToAbteilung } from './AbteilungNoAcceess';
+import { NoAccessToAbteilung } from './AbteilungNoAccess';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
 import { CartItem } from 'types/cart.types';
@@ -23,6 +23,7 @@ import { Cart } from './cart/Cart';
 import { Group } from './group/Group';
 import { Member } from './members/Member';
 import { Orders } from './order/Orders';
+import { OrderView } from './order/OrderView';
 
 
 export interface AbteilungDetailProps {
@@ -40,7 +41,7 @@ export const MaterialsContext = createContext<{ materials: Material[], loading: 
 //export const CartContext = createContext<Cart | undefined>(undefined);
 
 
-export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart' | 'orders';
+export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart' | 'orders' | 'order';
 
 
 export const AbteilungDetail = (props: AbteilungDetailProps) => {
@@ -215,6 +216,19 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
         });
     }, [isAuthenticated]);
 
+    //set Page title
+    useEffect(() => {
+        if(!abteilung) return;
+        document.title = `Onlinemat | ${abteilung.name}`
+
+    }, [abteilung])
+
+    //unset the title on umount
+    useEffect(() => {
+        return () => {
+            document.title = 'Onlinemat';
+          };
+    }, [])
 
 
     const navigation = () => {
@@ -237,6 +251,8 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                 return <Cart abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
             case 'orders':
                 return <Orders abteilung={abteilung}/>
+            case 'order':
+                return <OrderView abteilung={abteilung}/>
         }
     }
 

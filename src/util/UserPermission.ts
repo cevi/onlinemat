@@ -44,6 +44,7 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
     can('read', 'Order');
     can('update', 'Order');
     can('delete', 'Order');
+    can('deliver', 'Order');
 
   } else {
     //add roles based on abteilung
@@ -70,6 +71,13 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
           can('update', 'Categorie', { abteilungId: abteilungId });
           can('delete', 'Categorie', { abteilungId: abteilungId });
 
+          //Order
+          can('create', 'Order', { abteilungId: abteilungId });
+          can('read', 'Order', { abteilungId: abteilungId });
+          can('update', 'Order', { abteilungId: abteilungId });
+          can('delete', 'Order', { abteilungId: abteilungId });
+          can('deliver', 'Order', { abteilungId: abteilungId });
+
           break;
 
         case 'matchef':
@@ -83,6 +91,14 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
           can('create', 'Categorie', { abteilungId: abteilungId });
           can('update', 'Categorie', { abteilungId: abteilungId });
           can('delete', 'Categorie', { abteilungId: abteilungId });
+
+          //Order
+          can('create', 'Order', { abteilungId: abteilungId });
+          can('read', 'Order', { abteilungId: abteilungId });
+          can('update', 'Order', { abteilungId: abteilungId });
+          can('delete', 'Order', { abteilungId: abteilungId });
+          can('deliver', 'Order', { abteilungId: abteilungId });
+          
           break;
 
         case 'member':

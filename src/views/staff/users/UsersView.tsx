@@ -45,6 +45,7 @@ export const UsersView = () => {
             setUsers(usersLoaded);
         }, (err) => {
             message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            console.error('Es ist ein Fehler aufgetreten', err)
         });
     }, [isAuthenticated]);
 

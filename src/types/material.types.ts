@@ -9,4 +9,17 @@ export interface Material {
     consumables: boolean
     imageUrls?: string[]
     keywords: string[]
+    damaged?: number
+    lost?: number
+}
+
+export interface DamagedMaterial {
+    id: string
+    type: 'damaged' | 'lost'
+    count: number
+}
+
+export interface DamagedMaterialDetails extends DamagedMaterial{
+    name: string
+    imageUrls?: string[]
 }

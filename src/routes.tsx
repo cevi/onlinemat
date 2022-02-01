@@ -89,6 +89,15 @@ export const AppRoutes: AppRoute[] = [
         element: <AbteilungDetail/>
     },
     {
+        key: '/abteilungen/:abteilungSlugOrId/:tab/:orderId',
+        displayName: 'Abteilungen Details',
+        showInMenue: false,
+        private: true,
+        exact: true,
+        view: AbteilungDetail,
+        element: <AbteilungDetail/>
+    },
+    {
         key: '/users',
         displayName: 'Benutzer',
         icon: <TeamOutlined />,

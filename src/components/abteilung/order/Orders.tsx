@@ -1,11 +1,17 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { Col, message, Row } from "antd";
+import Search from "antd/lib/input/Search";
 import { abteilungenCollection, abteilungenOrdersCollection } from "config/firebase/collections";
 import { firestore } from "config/firebase/firebase";
 import { useUser } from "hooks/use-user";
-import { useEffect, useState } from "react";
+import moment from "moment";
+import { useContext, useEffect, useState } from "react";
 import { Abteilung, AbteilungMember } from "types/abteilung.type";
 import { Order } from "types/order.types";
+import { getGroupName } from "util/AbteilungUtil";
+import { dateFormatWithTime } from "util/MaterialUtil";
+import { getStatusName } from "util/OrderUtil";
+import { MembersContext, MembersUserDataContext } from "../AbteilungDetails";
 import { OrderTable } from "./OrderTable";
 
 export interface OrdersProps {
@@ -22,7 +28,25 @@ export const Orders = (props: OrdersProps) => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [ordersLoading, setOrdersLoading] = useState(false);
 
-    //fetch orders based on rolee
+    const [query, setQuery] = useState<string | undefined>(undefined);
+    const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+
+    //fetch members
+    const membersContext = useContext(MembersContext);
+
+    const members = membersContext.members;
+    const membersLoading = membersContext.loading;
+
+    //fetch userData
+    const membersUserDataContext = useContext(MembersUserDataContext);
+
+    const userData = membersUserDataContext.userData;
+    const userDataLoading = membersUserDataContext.loading;
+
+
+    const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: 'Loading...' }) }));
+
+    //fetch orders based on role
     useEffect(() => {
         if (!isAuthenticated || !abteilung || !user.appUser || !user.appUser.userData) return;
         const roles = user.appUser.userData.roles || {};
@@ -35,12 +59,12 @@ export const Orders = (props: OrdersProps) => {
         //TODO: add support for groups
 
         //check if user can see all orders
-        if(userRole !== 'admin' && userRole !== 'matchef' && !isStaff) {
+        if (userRole !== 'admin' && userRole !== 'matchef' && !isStaff) {
             ordersRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection).where('orderer', '==', user.appUser.userData.id)
         } else {
             ordersRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection);
         }
-       
+
 
         return ordersRef.onSnapshot(snap => {
             setOrdersLoading(false);
@@ -49,7 +73,10 @@ export const Orders = (props: OrdersProps) => {
                 return {
                     ...doc.data() as Order,
                     __caslSubjectType__: 'Order',
-                    id: doc.id
+                    id: doc.id,
+                    startDate: moment(doc.data().startDate.toDate()),
+                    endDate: moment(doc.data().endDate.toDate()),
+                    creationTime: moment(doc.data().creationTime.toDate())
                 } as Order;
             });
             setOrders(ordersLoaded);
@@ -58,11 +85,48 @@ export const Orders = (props: OrdersProps) => {
         });
     }, [isAuthenticated]);
 
+    useEffect(() => {
+        if(ordersLoading || membersLoading || userDataLoading) return;
+
+        if(!query) {
+            setFilteredOrders(orders);
+            return;
+        }
+
+        const filtered = orders.filter(o => {
+            const lowerQuery = query.toLowerCase();
+            const user = membersMerged.find(u => u.id === o.orderer);
+            const userName = user ? user.displayName :  'Unbekannt';
+
+            const groupName = getGroupName(o.groupId, abteilung);
+
+            const status = getStatusName(o);
+
+            return userName.toLowerCase().includes(lowerQuery) 
+            || o.customGroupName?.toLowerCase().includes(lowerQuery) 
+            || groupName.toLowerCase().includes(lowerQuery) 
+            || status.toLowerCase().includes(lowerQuery) 
+            || o.startDate.format(dateFormatWithTime).toLowerCase().includes(lowerQuery)
+            || o.endDate.format(dateFormatWithTime).toLowerCase().includes(lowerQuery)
+        });
+
+        setFilteredOrders(filtered)
+
+    }, [query])
+
+
     return <Row gutter={[16, 16]}>
-            <Col span={24}>
-            </Col>
-            <Col span={24}>
-                <OrderTable abteilung={abteilung} orders={orders} loading={ordersLoading} />
-            </Col>
+        <Col span={24}>
+            <Search
+                placeholder='nach Bestellung suchen'
+                allowClear
+                enterButton='Suchen'
+                size='large'
+                onSearch={(query) => setQuery(query)}
+            />
+        </Col>
+        <Col span={24}>
+            <OrderTable abteilung={abteilung} orders={query ? filteredOrders : orders} loading={ordersLoading || userDataLoading || membersLoading} members={membersMerged} />
+        </Col>
     </Row>
 }

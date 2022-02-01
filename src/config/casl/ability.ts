@@ -7,7 +7,7 @@ import { Material } from 'types/material.types';
 import { Order } from 'types/order.types';
 import { UserData } from 'types/user.type';
 
-export type Actions = 'create' | 'read' | 'update' | 'delete';
+export type Actions = 'create' | 'read' | 'update' | 'delete' | 'deliver';
 
 
 export type Subjects =  InferSubjects<Abteilung 

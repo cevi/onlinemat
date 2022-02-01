@@ -1,7 +1,7 @@
 import { Button, Card, Image, Tag } from 'antd';
 import { Abteilung } from 'types/abteilung.type';
 import { useNavigate } from 'react-router';
-import ceviLogoImage from 'assets/cevi_logo.png';
+import ceviLogoImage from 'assets/onlinemat_logo.png';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import moduleStyles from './Abteilung.module.scss';

@@ -9,8 +9,9 @@ import { PicturesWall } from 'components/pictures/PictureWall';
 import { Material } from 'types/material.types';
 import { EditOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
-import { generateKeywords } from 'util/MaterialUtil';
+import { editMaterial, generateKeywords, getAvailableMatCount, getAvailableMatCountToEdit } from 'util/MaterialUtil';
 import { CategorysContext } from 'components/abteilung/AbteilungDetails';
+import { max } from 'moment';
 
 export interface EditMaterialProps {
     abteilungId: string
@@ -24,7 +25,7 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
         ref,
         () => ({
             saveEditMaterial() {
-                editMaterial();
+                preparteEditMaterial();
             }
         }),
     )
@@ -44,6 +45,9 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
     const catLoading = categoriesContext.loading;
 
     const [renderMatImages, setRenderMatImages] = useState(material.imageUrls || []);
+
+    const [maxCount, setMaxCount] = useState<{damged: number, lost: number}>(getAvailableMatCountToEdit(material));
+    const [availCount, setAvailCount] = useState<number>(getAvailableMatCount(material));
 
     const formItemLayout = {
         labelCol: {
@@ -65,13 +69,18 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
 
 
 
-    const editMaterial = async () => {
+    const preparteEditMaterial = async () => {
+        try {
+            await form.validateFields();
+        } catch(validation) {
+            //form is not valid
+            return;
+        }
         try {
             const material = form.getFieldsValue() as Material;
-            material.keywords = generateKeywords(material.name)
+            material.id = materialId;
 
-            await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).doc(materialId).update(material);
-            message.success(`Material ${form.getFieldValue('name')} erfolgreich bearbeitet`);
+            await editMaterial(abteilungId, material);
             if (onSuccess) {
                 onSuccess()
             } else {
@@ -94,6 +103,12 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
                         if (renderMatImages !== form.getFieldValue('imageUrls')) {
                             setRenderMatImages(form.getFieldValue('imageUrls'))
                         }
+                        const tempMat = form.getFieldsValue() as Material;
+                        setMaxCount(getAvailableMatCountToEdit(tempMat))
+                        setAvailCount(getAvailableMatCount(tempMat))
+
+                        form.validateFields()
+
                     }}
                     validateMessages={validateMessages}
                 >
@@ -126,9 +141,35 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
                         name='count'
                         rules={[
                             { required: true },
+                            { type: 'number', min: 1 },
                         ]}
                     >
-                        <InputNumber min={1} />
+                        <InputNumber min={1}/>
+                    </Form.Item>
+                    <Form.Item
+                        label='Verloren'
+                        name='lost'
+                        rules={[
+                            { required: true },
+                            { type: 'number', min: 0, max: maxCount.lost }
+                        ]}
+                    >
+                        <InputNumber min={0} max={maxCount.lost}/>
+                    </Form.Item>
+                    <Form.Item
+                        label='Beschädigt'
+                        name='damaged'
+                        rules={[
+                            { required: true },
+                            { type: 'number', min: 0, max: maxCount.damged }
+                        ]}
+                    >
+                        <InputNumber min={0} max={maxCount.damged}/>
+                    </Form.Item>
+                    <Form.Item>
+                        {
+                            `Verfügbar: ${availCount}`
+                        }
                     </Form.Item>
                     <Form.Item
                         label='Gewicht in Kg'

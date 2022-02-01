@@ -16,6 +16,7 @@ import { CartItem } from 'types/cart.types';
 import { cookieToCart, getCartName } from 'util/CartUtil';
 import moment from 'moment';
 import { Material } from 'types/material.types';
+import { getAvailableMatCount } from 'util/MaterialUtil';
 
 export type AbteilungMaterialViewProps = {
     abteilung: Abteilung;
@@ -55,11 +56,13 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
 
         //check if already added
         const itemAdded = localCart.find(item => item.matId === material.id);
+        const maxCount = getAvailableMatCount(material);
 
         if (itemAdded) {
             //check if max count is already exeeded
-            const amount = itemAdded.count >= material.count ? material.count : (itemAdded.count + 1);
-            if (amount === material.count) {
+            
+            const amount = itemAdded.count >= maxCount ? maxCount : (itemAdded.count + 1);
+            if (amount >= maxCount) {
                 message.info(`Die maximale Stückzahl von ${material.name} befindet sich bereits in deinem Warenkorb.`)
             }
             localCart = [...localCart.filter(item => item.matId !== material.id), {
@@ -67,12 +70,14 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                 count: amount,
                 matId: material.id
             }]
-        } else {
+        } else if(maxCount > 0) {
             localCart = [...localCart, {
                 __caslSubjectType__: 'CartItem',
                 count: 1,
                 matId: material.id
             }]
+        } else {
+            message.warning(`${material.name} ist zur Zeit leider nicht verfügbar.`)
         }
 
         const expires = moment();

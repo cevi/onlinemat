@@ -11,8 +11,8 @@ import Search from 'antd/lib/input/Search';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { MaterialsContext } from '../AbteilungDetails';
 import { CreateOrder } from '../order/CreateOrder';
-import { Order } from 'types/order.types';
 import { functions } from 'config/firebase/firebase';
+import { getAvailableMatCount } from 'util/MaterialUtil';
 
 export interface CartProps {
     abteilung: Abteilung
@@ -50,6 +50,23 @@ export const Cart = (props: CartProps) => {
     const [orderError, setOrderError] = useState<string | undefined>(undefined);
 
     const createOrderRef = useRef();
+
+    useEffect(() => {
+        const localItemsMerged: DetailedCartItem[] = [];
+        cartItems.forEach(item => {
+            const mat = materials.find(m => m.id === item.matId);
+            const maxCount = getAvailableMatCount(mat);
+            const mergedItem: DetailedCartItem = {
+                ...item,
+                name: mat && mat.name || 'Loading...',
+                maxCount,
+                imageUrls: mat && mat.imageUrls || [],
+                __caslSubjectType__: 'DetailedCartItem'
+            }
+            localItemsMerged.push(mergedItem);
+        })
+        setCartItemsMerged(localItemsMerged);
+    }, [cartItems, materials])
 
     const createOrder = async (orderToCreate: any): Promise<{orderId: string | undefined, collisions: { [matId: string]: number } | undefined}> => {
         try {
@@ -101,6 +118,7 @@ export const Cart = (props: CartProps) => {
         changeCart(items)
     }
 
+
     const ProgressBar = () => {
         const minStep = 0;
         const maxStep = 2;
@@ -109,31 +127,15 @@ export const Cart = (props: CartProps) => {
             <Step title='Bestellen' description={orderError ? orderError : 'Bestellung aufgeben'} icon={orderLoading ? <LoadingOutlined /> : undefined} status={orderError ? 'error' : undefined}/>
             <Step title='Abschliessen' description='Bestellung abschliessen' status={currentStep === maxStep ? 'finish' : undefined}/>
         </Steps>
-            {currentStep > minStep && currentStep < maxStep  && <Button disabled={orderLoading} type='primary' onClick={() => setCurrentStep(0)}>Zurück</Button>}
+            {currentStep > minStep && currentStep < maxStep  && <Button disabled={orderLoading} onClick={() => setCurrentStep(0)}>Zurück</Button>}
             {currentStep < maxStep - 1 && <Button disabled={orderLoading} type='primary' style={{ float: 'right' }} onClick={() => setCurrentStep(currentStep + 1)}>Weiter</Button>}
-            {currentStep === maxStep - 1 && <Button disabled={orderLoading} type='primary' style={{ float: 'right' }} onClick={() => {
+            {currentStep === maxStep - 1 && <Button disabled={orderLoading || cartItemsMerged.length <= 0} type='primary' style={{ float: 'right' }} onClick={() => {
                 if(!createOrderRef || !createOrderRef.current) return;
                 //TODO: typescript
                 (createOrderRef.current as any).submitOrder()
             }}>Bestellen</Button>}
         </>
     }
-
-    useEffect(() => {
-        const localItemsMerged: DetailedCartItem[] = [];
-        cartItems.forEach(item => {
-            const mat = materials.find(m => m.id === item.matId);
-            const maxCount = mat ? (!!mat.consumables ? 1 : mat.count) : 1
-            const mergedItem: DetailedCartItem = {
-                ...item,
-                name: mat && mat.name || 'Loading...',
-                maxCount,
-                __caslSubjectType__: 'DetailedCartItem'
-            }
-            localItemsMerged.push(mergedItem);
-        })
-        setCartItemsMerged(localItemsMerged);
-    }, [cartItems, materials])
 
 
     if (currentStep === 0) return <Row gutter={[16, 16]}>
@@ -169,7 +171,7 @@ export const Cart = (props: CartProps) => {
 
     if (currentStep === 1) return <Row gutter={[16, 16]}>
         <Col span={24}>
-            <CreateOrder ref={createOrderRef} abteilung={abteilung} items={cartItemsMerged} createOrder={createOrder}/>
+            <CreateOrder ref={createOrderRef} abteilung={abteilung} initItems={cartItemsMerged} changeCart={changeCartAndCookie} createOrder={createOrder}/>
         </Col>
         <Col span={24}>
             <ProgressBar />

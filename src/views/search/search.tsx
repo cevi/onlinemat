@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { Col, message, PageHeader, Result, Spin, Statistic, Typography } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
-import ceviLogoImage from 'assets/cevi_logo.png';
+import ceviLogoImage from 'assets/onlinemat_logo.png';
 import Search from 'antd/lib/input/Search';
 import { useEffect, useMemo, useState } from 'react';
 import { firestore, } from 'config/firebase/firebase';
