@@ -51,6 +51,7 @@ export const SearchView = () => {
             setAbteilungen(abteilungenLoaded);
         }, (err) => {
             message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            console.error('Es ist ein Fehler aufgetreten', err)
         });
     }, [isAuthenticated]);
 
@@ -74,6 +75,7 @@ export const SearchView = () => {
             } catch (err) {
                 setLoading(false);
                 message.error(`Es ist ein Fehler aufgetreten ${err}`)
+                console.error('Es ist ein Fehler aufgetreten', err)
             }
 
         }

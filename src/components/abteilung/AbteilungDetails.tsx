@@ -142,6 +142,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             setMembers(membersLoaded);
         }, (err) => {
             message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            console.error('Es ist ein Fehler aufgetreten', err)
         });
     }, [isAuthenticated]);
 
@@ -194,6 +195,9 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                 } as Categorie;
             });
             setCategories(categoriesLoaded);
+        }, (err) => {
+            message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            console.error('Es ist ein Fehler aufgetreten', err)
         });
     }, [isAuthenticated]);
 
@@ -201,7 +205,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     useEffect(() => {
         if (!isAuthenticated || !abteilung || !canRead) return;
         setMatLoading(true);
-        firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenMaterialsCollection).onSnapshot(snap => {
+        return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenMaterialsCollection).onSnapshot(snap => {
             setMatLoading(false);
             const materialLoaded = snap.docs.flatMap(doc => {
                 return {
@@ -213,6 +217,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             setMaterials(materialLoaded);
         }, (err) => {
             message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            console.error('Es ist ein Fehler aufgetreten', err)
         });
     }, [isAuthenticated]);
 
