@@ -11,6 +11,7 @@ import { EditOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/ico
 import { validateMessages } from 'util/FormValdationMessages';
 import { editMaterial, generateKeywords, getAvailableMatCount, getAvailableMatCountToEdit } from 'util/MaterialUtil';
 import { CategorysContext } from 'components/abteilung/AbteilungDetails';
+import { max } from 'moment';
 
 export interface EditMaterialProps {
     abteilungId: string
@@ -70,6 +71,12 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
 
     const preparteEditMaterial = async () => {
         try {
+            await form.validateFields();
+        } catch(validation) {
+            //form is not valid
+            return;
+        }
+        try {
             const material = form.getFieldsValue() as Material;
             material.id = materialId;
 
@@ -99,6 +106,9 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
                         const tempMat = form.getFieldsValue() as Material;
                         setMaxCount(getAvailableMatCountToEdit(tempMat))
                         setAvailCount(getAvailableMatCount(tempMat))
+
+                        form.validateFields()
+
                     }}
                     validateMessages={validateMessages}
                 >
@@ -131,6 +141,7 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
                         name='count'
                         rules={[
                             { required: true },
+                            { type: 'number', min: 1 },
                         ]}
                     >
                         <InputNumber min={1}/>
@@ -140,6 +151,7 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
                         name='lost'
                         rules={[
                             { required: true },
+                            { type: 'number', min: 0, max: maxCount.lost }
                         ]}
                     >
                         <InputNumber min={0} max={maxCount.lost}/>
@@ -149,6 +161,7 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
                         name='damaged'
                         rules={[
                             { required: true },
+                            { type: 'number', min: 0, max: maxCount.damged }
                         ]}
                     >
                         <InputNumber min={0} max={maxCount.damged}/>

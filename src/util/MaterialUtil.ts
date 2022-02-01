@@ -71,8 +71,18 @@ export const getAvailableMatCountToEdit = (mat: Material | undefined): {damged: 
         lost: 0
     };
 
+    let maxDamged = mat.count - (mat.lost || 0);
+    let maxLost =  mat.count - (mat.damaged || 0);
+
+    if(maxDamged < 0) {
+        maxDamged = 0;
+    }
+    if(maxLost < 0) {
+        maxLost = 0;
+    }
+
     return {
-        damged: mat.count - (mat.lost || 0),
-        lost: mat.count - (mat.damaged || 0)
+        damged: maxDamged,
+        lost: maxLost
     }
 }

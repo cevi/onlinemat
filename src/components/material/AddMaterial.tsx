@@ -58,6 +58,12 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
     const addMaterial = async () => {
         try {
+            await form.validateFields();
+        } catch(validation) {
+            //form is not valid
+            return;
+        }
+        try {
             const material = form.getFieldsValue() as Material;
             material.keywords = generateKeywords(material.name)
 
@@ -84,13 +90,13 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
                 <Form
                     form={form}
-                    initialValues={{ consumables: false, categorieIds: [], comment: '', count: 1, lost: 0, damaged: 0,  weightInKg: null, imageUrls: [] }}
+                    initialValues={{ consumables: false, categorieIds: [], comment: '', lost: 0, damaged: 0,  weightInKg: null, imageUrls: [] }}
                     onValuesChange={() => {
                         if (renderMatImages !== form.getFieldValue('imageUrls')) {
                             setRenderMatImages(form.getFieldValue('imageUrls'))
                         }
 
-                        const tempMat = form.getFieldsValue() as Material;
+                        let tempMat = form.getFieldsValue();
                         setMaxCount(getAvailableMatCountToEdit(tempMat))
                         setAvailCount(getAvailableMatCount(tempMat))
                     }}

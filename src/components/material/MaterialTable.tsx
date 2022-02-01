@@ -3,7 +3,7 @@ import { Button, Popconfirm, Space, Table } from 'antd';
 import { Can } from 'config/casl/casl';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
-import { deleteMaterial, getAvailableMatString } from 'util/MaterialUtil';
+import { deleteMaterial, getAvailableMatCount, getAvailableMatString } from 'util/MaterialUtil';
 import { EditMaterialButton } from './EditMaterial';
 
 
@@ -69,7 +69,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             title: 'Verfügbar',
             key: 'count',
             render: (text: string, record: Material) => (
-                <p key={`${record.id}_count`}>{getAvailableMatString(record) + (!!record.consumables ? '/unbegrenzt' : `/${record.count}`)}</p>
+                <p key={`${record.id}_count`}>{getAvailableMatString(record) + (!!record.consumables ? getAvailableMatCount(record) <= 0 ? '/unbegrenzt' : '' : `/${record.count}`)}</p>
             ),
             sorter: (a: Material, b: Material) => a.count - b.count
         },
