@@ -1,8 +1,8 @@
-name: Deploy branch
+name: Deploy master
 
 on:
   push:
-    branches-ignore:
+    branches:
       - master
 
 jobs:
@@ -13,9 +13,8 @@ jobs:
       - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "onlinemat-${GITHUB_REF#refs/heads/}" #Must be unique in Heroku
+          heroku_app_name: "onlinemat" #Must be unique in Heroku
           heroku_email: ${{secrets.HEROKU_EMAIL}}
-          branch: ${GITHUB_REF#refs/heads/}
           buildpack: "https://github.com/mars/create-react-app-buildpack.git"
         env:
           REACT_APP_FIREBASE_API_KEY: ${{secrets.REACT_APP_FIREBASE_API_KEY}}
@@ -24,6 +23,6 @@ jobs:
           REACT_APP_FIREBASE_STORAGE_BUCKET: ${{secrets.REACT_APP_FIREBASE_STORAGE_BUCKET}}
           REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${{secrets.REACT_APP_FIREBASE_MESSAGING_SENDER_ID}}
           REACT_APP_FIREBASE_APP_ID: ${{secrets.REACT_APP_FIREBASE_APP_ID}}
-          REACT_APP_SENTRY_DNS: ${{secrets.REACT_APP_SENTRY_DNS_DEV}}
+          REACT_APP_SENTRY_DNS: ${{secrets.REACT_APP_SENTRY_DNS}}
           REACT_APP_AUTH0_DOMAIN: ${{secrets.REACT_APP_AUTH0_DOMAIN}}
           REACT_APP_AUTH0_CLIENT_ID: ${{secrets.REACT_APP_AUTH0_CLIENT_ID}}
