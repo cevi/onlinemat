@@ -2,8 +2,8 @@ name: Add Sentry
 
 on:
   push:
-    branches:
-      - master
+    tags:        
+      - v**
 
 jobs:
   build:
@@ -16,3 +16,5 @@ jobs:
         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
         SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+      with:
+        version: ${GITHUB_REF##*/}
