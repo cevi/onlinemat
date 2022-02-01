@@ -216,6 +216,19 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
         });
     }, [isAuthenticated]);
 
+    //set Page title
+    useEffect(() => {
+        if(!abteilung) return;
+        document.title = `Onlinemat | ${abteilung.name}`
+
+    }, [abteilung])
+
+    //unset the title on umount
+    useEffect(() => {
+        return () => {
+            document.title = 'Onlinemat';
+          };
+    }, [])
 
 
     const navigation = () => {
