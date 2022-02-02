@@ -17,4 +17,4 @@ jobs:
         SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
         SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
       with:
-        version: "${GITHUB_REF#refs/tags/}"
+        version: 'v0.0.1'
