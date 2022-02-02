@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { PageHeader, Spin, Card, message } from 'antd';
+import { PageHeader, Spin, Card, message, Button } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
 import Meta from 'antd/lib/card/Meta';
 import Avatar from 'antd/lib/avatar/avatar';
@@ -50,6 +50,11 @@ export const ProfileView = () => {
                     <p>Firebase User ID: {(userState.appUser && userState.appUser.firebaseUser.uid) || '-'}</p>
                     <p>Staff: {userState.appUser?.userData?.staff ? 'Ja' : 'Nein'}</p>
                 </Card>
+                {
+                    userState.appUser?.userData?.staff && <Button danger type='primary' onClick={() => {
+                        throw Error('forced error')
+                    }}>Crash</Button>
+                }
             </div>
         }
     </div>

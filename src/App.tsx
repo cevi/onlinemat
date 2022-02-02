@@ -20,10 +20,10 @@ const App = () => {
   useEffect(() => {
     let unsubscribe: () => void;
     return auth().onAuthStateChanged(user => {
-      
+
       if (user && user !== null) {
         const userRef = firestore().collection(usersCollection).doc(user.uid);
-         unsubscribe = userRef.onSnapshot(snap => {
+        unsubscribe = userRef.onSnapshot(snap => {
           const userLoaded = {
             ...snap.data() as UserData,
             id: snap.id
@@ -32,14 +32,18 @@ const App = () => {
           updateAbility(ability, userLoaded);
 
           dispatch(setUser(user, userLoaded));
-          //set sentry user
-          Sentry.setUser({ id: user.uid });
+          //set sentry user as base64 (otherwise it's getting masked by sentry)
+          // create a buffer
+          const buff = Buffer.from(user.uid, 'utf-8');
+          // decode buffer as Base64
+          const base64 = buff.toString('base64');
+          Sentry.setUser({ id: base64 });
         }, (err) => {
           message.error(`Es ist ein Fehler aufgetreten ${err}`)
           console.error('Es ist ein Fehler aufgetreten', err)
         });
       } else {
-        if(unsubscribe) {
+        if (unsubscribe) {
           unsubscribe();
         }
         dispatch(setUser(user, null));
