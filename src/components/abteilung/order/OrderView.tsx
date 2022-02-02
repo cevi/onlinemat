@@ -357,8 +357,11 @@ export const OrderView = (props: OrderProps) => {
                             <Popconfirm
                                 title='Möchtest du die Bestellung wirklich löschen?'
                                 onConfirm={async () => {
-                                    await deleteOrder(abteilung, order, materials, user)
-                                    navigate(abteilungOrdersLink)
+                                    const res = await deleteOrder(abteilung, order, materials, user)
+                                    if(!!res) {
+                                        navigate(abteilungOrdersLink)
+                                    }
+                                   
                                 }}
                                 onCancel={() => { }}
                                 okText='Ja'

@@ -9,6 +9,7 @@ import { useContext, useEffect, useState } from "react";
 import { Abteilung, AbteilungMember } from "types/abteilung.type";
 import { Order } from "types/order.types";
 import { getGroupName } from "util/AbteilungUtil";
+import { groupObjToList } from "util/GroupUtil";
 import { dateFormatWithTime } from "util/MaterialUtil";
 import { getStatusName } from "util/OrderUtil";
 import { MembersContext, MembersUserDataContext } from "../AbteilungDetails";
@@ -25,6 +26,8 @@ export const Orders = (props: OrdersProps) => {
     const { isAuthenticated } = useAuth0();
     const user = useUser()
 
+    const [ordersByRole, setOrdersByRole] = useState<Order[]>([]);
+    const [ordersByOrderer, setOrdersByOrderer] = useState<Order[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
     const [ordersLoading, setOrdersLoading] = useState(false);
 
@@ -51,20 +54,18 @@ export const Orders = (props: OrdersProps) => {
         if (!isAuthenticated || !abteilung || !user.appUser || !user.appUser.userData) return;
         const roles = user.appUser.userData.roles || {};
 
+        const uid = user.appUser.userData.id;
         const userRole = roles[abteilung.id] as (AbteilungMember['role'] | 'pending');
         const isStaff = user.appUser.userData.staff ? user.appUser.userData.staff : false
         setOrdersLoading(true);
         let ordersRef;
 
-        //TODO: add support for groups
-
         //check if user can see all orders
         if (userRole !== 'admin' && userRole !== 'matchef' && !isStaff) {
-            ordersRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection).where('orderer', '==', user.appUser.userData.id)
+            ordersRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection).where('orderer', '==', uid)
         } else {
             ordersRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection);
         }
-
 
         return ordersRef.onSnapshot(snap => {
             setOrdersLoading(false);
@@ -79,7 +80,48 @@ export const Orders = (props: OrdersProps) => {
                     creationTime: moment(doc.data().creationTime.toDate())
                 } as Order;
             });
-            setOrders(ordersLoaded);
+            setOrdersByRole(ordersLoaded);
+        }, (err) => {
+            message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            console.error('Es ist ein Fehler aufgetreten', err)
+        });
+    }, [isAuthenticated]);
+
+    //fetch orders based on uid
+    useEffect(() => {
+        if (!isAuthenticated || !abteilung || !user.appUser || !user.appUser.userData) return;
+        const roles = user.appUser.userData.roles || {};
+
+        const uid = user.appUser.userData.id;
+        const userRole = roles[abteilung.id] as (AbteilungMember['role'] | 'pending');
+        const isStaff = user.appUser.userData.staff ? user.appUser.userData.staff : false
+        const userGroups = groupObjToList(abteilung.groups).filter(group => group.members.includes(uid)).map(group => group.id);
+        setOrdersLoading(true);
+        let ordersRef;
+
+        //TODO: add support for groups
+
+        //check if user can see all orders
+        if (userRole !== 'admin' && userRole !== 'matchef' && !isStaff) {
+            ordersRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection).where('groupId', 'in', userGroups)
+        }
+
+        if(!ordersRef) return;
+
+        return ordersRef.onSnapshot(snap => {
+            setOrdersLoading(false);
+            const ordersLoaded = snap.docs.flatMap(doc => {
+
+                return {
+                    ...doc.data() as Order,
+                    __caslSubjectType__: 'Order',
+                    id: doc.id,
+                    startDate: moment(doc.data().startDate.toDate()),
+                    endDate: moment(doc.data().endDate.toDate()),
+                    creationTime: moment(doc.data().creationTime.toDate())
+                } as Order;
+            });
+            setOrdersByOrderer(ordersLoaded);
         }, (err) => {
             message.error(`Es ist ein Fehler aufgetreten ${err}`)
             console.error('Es ist ein Fehler aufgetreten', err)
@@ -87,9 +129,9 @@ export const Orders = (props: OrdersProps) => {
     }, [isAuthenticated]);
 
     useEffect(() => {
-        if(ordersLoading || membersLoading || userDataLoading) return;
+        if (ordersLoading || membersLoading || userDataLoading) return;
 
-        if(!query) {
+        if (!query) {
             setFilteredOrders(orders);
             return;
         }
@@ -97,23 +139,33 @@ export const Orders = (props: OrdersProps) => {
         const filtered = orders.filter(o => {
             const lowerQuery = query.toLowerCase();
             const user = membersMerged.find(u => u.id === o.orderer);
-            const userName = user ? user.displayName :  'Unbekannt';
+            const userName = user ? user.displayName : 'Unbekannt';
 
             const groupName = getGroupName(o.groupId, abteilung);
 
             const status = getStatusName(o);
 
-            return userName.toLowerCase().includes(lowerQuery) 
-            || o.customGroupName?.toLowerCase().includes(lowerQuery) 
-            || groupName.toLowerCase().includes(lowerQuery) 
-            || status.toLowerCase().includes(lowerQuery) 
-            || o.startDate.format(dateFormatWithTime).toLowerCase().includes(lowerQuery)
-            || o.endDate.format(dateFormatWithTime).toLowerCase().includes(lowerQuery)
+            return userName.toLowerCase().includes(lowerQuery)
+                || o.customGroupName?.toLowerCase().includes(lowerQuery)
+                || groupName.toLowerCase().includes(lowerQuery)
+                || status.toLowerCase().includes(lowerQuery)
+                || o.startDate.format(dateFormatWithTime).toLowerCase().includes(lowerQuery)
+                || o.endDate.format(dateFormatWithTime).toLowerCase().includes(lowerQuery)
         });
 
         setFilteredOrders(filtered)
 
     }, [query])
+
+    useEffect(()=> {
+        const list: Order[] = [...ordersByOrderer];
+        ordersByRole.forEach(o => {
+            if(!list.find(m => m.id === o.id)) {
+                list.push(o)
+            }
+        })
+        setOrders(list)
+    }, [ordersByOrderer, ordersByRole])
 
 
     return <Row gutter={[16, 16]}>

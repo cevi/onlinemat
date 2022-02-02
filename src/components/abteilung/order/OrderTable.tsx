@@ -41,7 +41,7 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
             render: (text: string, record: Order) => {
                 let name = 'Unbekannt';
                 if(record.groupId) {
-                    const group = abteilung.groups.find(g => g.id === record.groupId);
+                    const group = abteilung.groups[record.groupId];
                     if(group) {
                         name = group.name;
                     }

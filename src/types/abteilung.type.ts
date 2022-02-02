@@ -8,7 +8,7 @@ export interface Abteilung {
     slug: string
     ceviDBId?: string
     logoUrl?: string
-    groups: Group[]
+    groups: { [id: string]: Group }
     email?: string
 }
 

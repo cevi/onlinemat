@@ -4,6 +4,7 @@ import { Group } from 'types/group.types';
 import { Can } from 'config/casl/casl';
 import { deleteGroup, EditGroupButton } from './EditGroup';
 import { DeleteOutlined } from '@ant-design/icons';
+import { groupObjToList } from 'util/GroupUtil';
 
 
 
@@ -72,7 +73,7 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
     ];
 
 
-    return <Table rowKey='id' loading={loading} columns={columns} dataSource={abteilung.groups.sort((a: Group, b: Group) => a.name.normalize().localeCompare(b.name.normalize()))} />;
+    return <Table rowKey='id' loading={loading} columns={columns} dataSource={groupObjToList(abteilung.groups).sort((a: Group, b: Group) => a.name.normalize().localeCompare(b.name.normalize()))} />;
 
 }
 
