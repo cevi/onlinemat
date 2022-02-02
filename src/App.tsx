@@ -9,6 +9,7 @@ import { UserData } from 'types/user.type';
 import { message } from 'antd';
 import { ability } from 'config/casl/ability';
 import { updateAbility } from 'util/UserPermission';
+import * as Sentry from '@sentry/browser';
 
 const App = () => {
 
@@ -31,6 +32,8 @@ const App = () => {
           updateAbility(ability, userLoaded);
 
           dispatch(setUser(user, userLoaded));
+          //set sentry user
+          Sentry.setUser({ id: user.uid });
         }, (err) => {
           message.error(`Es ist ein Fehler aufgetreten ${err}`)
           console.error('Es ist ein Fehler aufgetreten', err)
@@ -40,6 +43,8 @@ const App = () => {
           unsubscribe();
         }
         dispatch(setUser(user, null));
+        //unset sentry user
+        Sentry.configureScope(scope => scope.setUser(null));
       }
 
 
