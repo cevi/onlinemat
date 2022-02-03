@@ -13,6 +13,7 @@ import { useUser } from 'hooks/use-user';
 import { NotFoundView } from './NotFound';
 import { Abteilung } from 'types/abteilung.type';
 import { abteilungenCollection } from 'config/firebase/collections';
+import { setGroupDates } from 'util/GroupUtil';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -38,6 +39,7 @@ const NavigationMenu: React.FC = () => {
         const abteilungenLoaded = snap.docs.flatMap(doc => {
             return {
                 ...doc.data(),
+                groups: setGroupDates(doc.data().groups),
                 __caslSubjectType__: 'Abteilung',
                 id: doc.id
             } as Abteilung;

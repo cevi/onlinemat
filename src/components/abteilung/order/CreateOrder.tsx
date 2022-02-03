@@ -63,14 +63,14 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
         const list = groupObjToList(abteilung.groups);
 
         if (isStaff) {
-            setUserGroups(list)
+            setUserGroups(list.sort((a: Group, b: Group) => a.name.localeCompare(b.name)))
             return;
         }
 
         const uid = userState.appUser && userState.appUser.firebaseUser.uid || undefined;
         if (!uid) return;
 
-        const groupsFromUser = list.filter(group => group.members.filter(memberId => memberId === uid).length > 0)
+        const groupsFromUser = list.filter(group => group.members.filter(memberId => memberId === uid).length > 0).sort((a: Group, b: Group) => a.name.localeCompare(b.name))
         setUserGroups(groupsFromUser)
 
     }, [userState])

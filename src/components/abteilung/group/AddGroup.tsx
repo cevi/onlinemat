@@ -6,6 +6,7 @@ import { abteilungenCategoryCollection, abteilungenCollection } from 'config/fir
 import { validateMessages } from 'util/FormValdationMessages';
 import { Abteilung, AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
 import { Group } from 'types/group.types';
+import moment from 'moment';
 
 export interface AddGroupProps {
     abteilung: Abteilung
@@ -35,7 +36,8 @@ export const AddGroup = (props: AddGroupProps) => {
 
             const groupToAdd = groups;
             groupToAdd[generatedId] = {
-                ...form.getFieldsValue()
+                ...form.getFieldsValue(),
+                createdAt: moment().toDate()
             }
 
             await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
@@ -61,6 +63,9 @@ export const AddGroup = (props: AddGroupProps) => {
             form={form}
             validateMessages={validateMessages}
             onFinish={addGroup}
+            initialValues={{
+                type: 'group'
+            }}
         >
 
             <Form.Item

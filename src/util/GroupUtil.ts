@@ -13,3 +13,13 @@ export const groupObjToList = (groups: Abteilung['groups']): Group[] => {
     })
     return list;
 }
+
+export const setGroupDates = (groups: Abteilung['groups']) => {
+    if(!groups || groups === null) return groups;
+    Object.keys(groups).forEach(key => {
+        const dateRaw = groups[key].createdAt as any;
+        groups[key].createdAt = dateRaw.toDate();
+    })
+
+    return groups
+}

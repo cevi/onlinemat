@@ -32,7 +32,8 @@ export const EditGroup = (props: EditGroupProps) => {
             const filterGroups = groups;
 
             filterGroups[group.id] =  {
-                ...form.getFieldsValue()
+                ...form.getFieldsValue(),
+                createdAt: group.createdAt
             }
 
 

@@ -5,6 +5,8 @@ import { Can } from 'config/casl/casl';
 import { deleteGroup, EditGroupButton } from './EditGroup';
 import { DeleteOutlined } from '@ant-design/icons';
 import { groupObjToList } from 'util/GroupUtil';
+import { dateFormat } from 'util/MaterialUtil';
+import moment from 'moment';
 
 
 
@@ -36,6 +38,15 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
             sorter: (a: Group, b: Group) => a.type.normalize().localeCompare(b.type.normalize()),
             render: (text: string, record: Group) => (
                 <p key={`type_${record.id}`}>{record.type === 'group' ? 'Gruppe' : 'Anlass'}</p>
+            )
+        },
+        {
+            title: 'Erstellt',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            sorter: (a: Group, b: Group) => a.createdAt.valueOf() - b.createdAt.valueOf(),
+            render: (text: string, record: Group) => (
+                <p key={`createdAt_${record.id}`}>{moment(record.createdAt).format(dateFormat)}</p>
             )
         },
         {
