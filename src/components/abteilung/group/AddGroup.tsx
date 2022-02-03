@@ -6,6 +6,7 @@ import { abteilungenCategoryCollection, abteilungenCollection } from 'config/fir
 import { validateMessages } from 'util/FormValdationMessages';
 import { Abteilung, AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
 import { Group } from 'types/group.types';
+import moment from 'moment';
 
 export interface AddGroupProps {
     abteilung: Abteilung
@@ -22,7 +23,7 @@ export const AddGroup = (props: AddGroupProps) => {
     const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
     const [targetKeys, setTargetKeys] = useState<string[]>([]);
 
-    const groups = abteilung.groups || [];
+    const groups = abteilung.groups || {};
 
     const addGroup = async () => {
         try {
@@ -31,13 +32,16 @@ export const AddGroup = (props: AddGroupProps) => {
                 //this is just a basic 'random' time based id. It's just used to make the group unique
                 generatedId = (new Date()).getTime().toString(36) + Math.random().toString(36).slice(6);
 
-            } while(!!groups.find(gr => gr.id === generatedId))
+            } while(!!groups[generatedId])
+
+            const groupToAdd = groups;
+            groupToAdd[generatedId] = {
+                ...form.getFieldsValue(),
+                createdAt: moment().toDate()
+            }
 
             await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
-                groups: [...groups, {
-                    ...form.getFieldsValue(),
-                    id: generatedId
-                }]
+                groups: groupToAdd
             })
             message.success(`${form.getFieldValue('type') === 'group' ? 'Gruppe' : 'Anlass'} ${form.getFieldValue('name')} erfolgreich erstellt`);
             setSelectedKeys([])
@@ -59,6 +63,9 @@ export const AddGroup = (props: AddGroupProps) => {
             form={form}
             validateMessages={validateMessages}
             onFinish={addGroup}
+            initialValues={{
+                type: 'group'
+            }}
         >
 
             <Form.Item

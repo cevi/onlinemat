@@ -7,6 +7,7 @@ import { CartItem, DetailedCartItem } from 'types/cart.types';
 import { Group } from 'types/group.types';
 import { Order } from 'types/order.types';
 import { validateMessages } from 'util/FormValdationMessages';
+import { groupObjToList } from 'util/GroupUtil';
 import { dateFormatWithTime } from 'util/MaterialUtil';
 import { OrderItems } from './OrderItems';
 
@@ -59,16 +60,17 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
 
     useEffect(() => {
         const isStaff = userState.appUser?.userData.staff || false;
+        const list = groupObjToList(abteilung.groups);
 
         if (isStaff) {
-            setUserGroups(abteilung.groups)
+            setUserGroups(list.sort((a: Group, b: Group) => a.name.localeCompare(b.name)))
             return;
         }
 
         const uid = userState.appUser && userState.appUser.firebaseUser.uid || undefined;
         if (!uid) return;
 
-        const groupsFromUser = abteilung.groups.filter(group => group.members.filter(memberId => memberId === uid).length > 0)
+        const groupsFromUser = list.filter(group => group.members.filter(memberId => memberId === uid).length > 0).sort((a: Group, b: Group) => a.name.localeCompare(b.name))
         setUserGroups(groupsFromUser)
 
     }, [userState])

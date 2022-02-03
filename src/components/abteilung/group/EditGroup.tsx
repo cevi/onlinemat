@@ -29,14 +29,16 @@ export const EditGroup = (props: EditGroupProps) => {
     const editGroup = async () => {
         try {
 
-            let filterGroups = groups.filter(g => g.id !== group.id);
+            const filterGroups = groups;
+
+            filterGroups[group.id] =  {
+                ...form.getFieldsValue(),
+                createdAt: group.createdAt
+            }
 
 
             await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
-                groups: [...filterGroups, {
-                    ...form.getFieldsValue(),
-                    id: group.id
-                }]
+                groups: filterGroups
             })
             message.success(`${form.getFieldValue('type') === 'group' ? 'Gruppe' : 'Anlass'} ${form.getFieldValue('name')} erfolgreich bearbeitet`);
             setSelectedKeys([])
@@ -157,11 +159,11 @@ export const EditGroupButton = (props: EditGroupProps) => {
 export const deleteGroup = async (abteilung: Abteilung, group: Group) => {
     try {
 
-        let filterGroups = abteilung.groups.filter(g => g.id !== group.id);
+        const { [group.id]: unused, ...filterGroups } = abteilung.groups
 
 
         await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
-            groups: [...filterGroups]
+            groups: filterGroups
         })
         message.success(`${group.type === 'group' ? 'Gruppe' : 'Anlass'} ${group.name} erfolgreich gelöscht`);
     } catch (ex) {

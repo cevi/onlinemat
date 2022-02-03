@@ -98,10 +98,13 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
           can('update', 'Order', { abteilungId: abteilungId });
           can('delete', 'Order', { abteilungId: abteilungId });
           can('deliver', 'Order', { abteilungId: abteilungId });
-          
+
           break;
 
         case 'member':
+
+          //Order
+          can('delete', 'Order', { abteilungId: abteilungId });
 
           break;
 

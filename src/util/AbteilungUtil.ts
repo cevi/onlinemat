@@ -16,7 +16,8 @@ export const getAbteilungIdBySlugOrId = async (abteilungSlugOrId: string) => {
 }
 
 export const getGroupName = (groupId: string | undefined, abteilung: Abteilung, defaultValue?: string) => {
-    const group = abteilung.groups.find(g => g.id === groupId);
+    if(!groupId) return 'Unbekannt';
+    const group = abteilung.groups[groupId];
     const groupName = group ? group.name : defaultValue ? defaultValue : 'Unbekannt';
     return groupName;
 }

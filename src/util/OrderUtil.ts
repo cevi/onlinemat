@@ -235,11 +235,19 @@ export const deleteOrder = async (abteilung: Abteilung, order: Order, materials:
         if (!user || !user.appUser || !user.appUser.userData) return false;
         const roles = user.appUser.userData.roles || {};
         const isStaff = user.appUser.userData.staff ? user.appUser.userData.staff : false
+        
         if (!(abteilung.id in roles) && !isStaff) {
             message.error(`Du hast keine Berchtigungen für diese Bestellung.`)
             return false;
         }
+
         const role = roles[abteilung.id];
+
+        if(role !== 'admin' && role !== 'matchef' && !isStaff && order.orderer !== user.appUser.userData.id) {
+            message.error(`Nur der Ersteller kann die Bestellung löschen.`)
+            return false;
+        }
+
         if (order.status === 'completed') {
             if (role !== 'admin' && role !== 'matchef' && !isStaff) {
                 message.error(`Du kannst eine abgeschlossene Bestellung nicht löschen.`)
@@ -255,6 +263,7 @@ export const deleteOrder = async (abteilung: Abteilung, order: Order, materials:
         //delete order
         const orderRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection).doc(order.id);
         await orderRef.delete();
+        message.success(`Die Bestellung wurde erfolgreich gelöscht.`)
         return true;
 
     } catch (ex) {
