@@ -65,7 +65,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
             indexes[key] = excelData.headers.findIndex(h => h === key)
         })
 
-        const newCategories: Categorie[] = [];
+        const newCategories: string[] = [];
 
         for( const dataArray of excelData.data) {
             const matName: string = dataArray[indexes[name]] as string;
@@ -97,7 +97,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
             //if cat is set loop throug and assign category id
 
             for(const catName of matCategorieNames) {
-                const placeholderName = `placeholder_${catName}`;
+                const placeholderName = '' + catName;
                 //check if cat already exists
                 const existingCat = categories.find(cat => cat.name.toLowerCase() === catName.toLowerCase());
                 if (existingCat) {
@@ -106,19 +106,15 @@ export const ExcelImport = (props: ExcelImportProps) => {
                     continue;
                 }
                 //check if cat is getting generated
-                const newCat = newCategories.find(cat => cat.name.toLowerCase() === catName.toLowerCase());
+                const newCat = newCategories.find(cat => cat.toLowerCase() === catName.toLowerCase());
                 if (newCat) {
-                    console.log('new existing', newCat.id)
+                    console.log('new existing', newCat)
                     materialCategorieIds.push(placeholderName);
                     continue;
                 }
 
                 //generate new cat
-                newCategories.push({
-                    name: catName,
-                    id: placeholderName,
-                    __caslSubjectType__: 'Categorie'
-                })
+                newCategories.push(catName)
 
                 materialCategorieIds.push(placeholderName);
                 console.log('generate', placeholderName)
@@ -148,12 +144,12 @@ export const ExcelImport = (props: ExcelImportProps) => {
         console.log('material', material)
 
         //create categories
-        const promieses = newCategories.map(cat => {
-            return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenCategoryCollection).add({ name: cat.name } as Categorie).then(doc => {
+        const promieses = newCategories.map(catName => {
+            return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenCategoryCollection).add({ name: catName } as Categorie).then(doc => {
 
                 return {
                     id: doc.id,
-                    name: cat.name
+                    name: catName
                 } as Categorie
             })
         })
@@ -162,19 +158,16 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         //assign new catId to matCategorieIds
         const materials = material.map(mat => {
+            const catIdsToSet: string[] = [];
             if (mat.categorieIds && mat.categorieIds.length > 0) {
-                const catIdsToSet = mat.categorieIds.filter(c => !c.includes('placeholder'))
-                //check if placeholder exists
-                const placeholder = mat.categorieIds.filter(c => c.includes('placeholder'))
-                if (placeholder.length > 0) {
-                    placeholder.forEach(p => {
-                        //console.log('check p', p)
-                        const foundCat = allCategories.find(cat => cat.id === `placeholder_${p}`)
+                    mat.categorieIds.forEach(catPlaceholder => {
+                        const foundCat = allCategories.find(cat => cat.name === catPlaceholder)
                         if (foundCat) {
                             catIdsToSet.push(foundCat.id)
+                        } else {
+                            catIdsToSet.push(catPlaceholder)
                         }
                     })
-                }
                 mat.categorieIds = catIdsToSet;
                 return mat;
             } else {
@@ -182,8 +175,6 @@ export const ExcelImport = (props: ExcelImportProps) => {
             }
         })
 
-        console.log('newCategories', newCategories)
-        console.log('allCategories', allCategories)
         console.log(`Added ${material.length}/${excelData.data.length}`)
         console.log('materials', materials)
 
