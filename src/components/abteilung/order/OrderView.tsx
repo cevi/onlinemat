@@ -12,7 +12,7 @@ import { OrderItems } from './OrderItems';
 import { DetailedCartItem } from 'types/cart.types';
 import { MaterialsContext, MembersContext, MembersUserDataContext } from '../AbteilungDetails';
 import { getGroupName } from 'util/AbteilungUtil';
-import { addCommentOrder, completeOrder, deleteOrder, deliverOrder, getStatusColor, getStatusName, resetLostOrder, resetOrder } from 'util/OrderUtil';
+import { addCommentOrder, calculateTotalWeight, completeOrder, deleteOrder, deliverOrder, getStatusColor, getStatusName, resetLostOrder, resetOrder } from 'util/OrderUtil';
 import TextArea from 'antd/lib/input/TextArea';
 import { ability } from 'config/casl/ability';
 import { OrderNotFound } from './OrderNotFound';
@@ -222,6 +222,8 @@ export const OrderView = (props: OrderProps) => {
             </Tooltip>;
         }
 
+        
+
         if (order.status === 'completed' || order.status === 'completed-damaged') {
             return <Tooltip placement='bottom' title='Der Status der Bestellung wird auf "erstellt" zurückgesetzt.'>
                 <Popconfirm
@@ -250,6 +252,12 @@ export const OrderView = (props: OrderProps) => {
         return <></>
     }
 
+    const Weight = () => {
+        if(!order) return <>Loading...</>
+        const res = calculateTotalWeight(order, materials);
+        return <Tooltip key={`weight_${order.id}`} title='Das Gesamtgewicht kann nur genau berechnet werden, wenn auch alle Angaben vorhanden sind'>{`${res.totalWeight} Kg ${res.incompleteCount > 0 ? `${order.items.length - res.incompleteCount}/${order.items.length} Gewichtsangaben` : ''}`}</Tooltip>
+    }
+
     if (orderLoading || matLoading) return <Spin />;
 
     if (!order) return <OrderNotFound abteilung={abteilung} orderId={orderId} />
@@ -265,6 +273,7 @@ export const OrderView = (props: OrderProps) => {
                     <p><b>Von:</b>{` ${order?.startDate.format(dateFormatWithTime)}`}</p>
                     <p><b>Bis:</b>{` ${order?.endDate.format(dateFormatWithTime)}`}</p>
                     <p><b>{'Status '}</b><Tag color={getStatusColor(order)}>{getStatusName(order)}</Tag></p>
+                    <p><b>{'Gewicht '}</b><Weight/></p>
                 </Col>
                 <Col span={24}>
                     <div

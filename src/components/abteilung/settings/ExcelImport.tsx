@@ -67,10 +67,10 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         const newCategories: Categorie[] = [];
 
-        excelData.data.forEach(dataArray => {
+        for( const dataArray of excelData.data) {
             const matName: string = dataArray[indexes[name]] as string;
             //skip if name is still not found
-            if (!matName) return;
+            if (!matName) continue;
             const matComment: string | null = comment ? dataArray[indexes[comment]] as string : null;
             const matCount: number = count ? dataArray[indexes[count]] as number : 1;
             const matLost: number = lost ? dataArray[indexes[lost]] as number : 0;
@@ -82,7 +82,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
             let matCategorieNames: string[] = [];
             let matImageUrls: string[] = [];
-            let matCategorieIds: string[] = [];
+            const materialCategorieIds: string[] = [];
 
             //string to array of image urls
             if (matImageUrlsRaw !== null) {
@@ -96,34 +96,35 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
             //if cat is set loop throug and assign category id
 
-            matCategorieNames.forEach(catName => {
+            for(const catName of matCategorieNames) {
+                const placeholderName = `placeholder_${catName}`;
                 //check if cat already exists
                 const existingCat = categories.find(cat => cat.name.toLowerCase() === catName.toLowerCase());
                 if (existingCat) {
                     console.log('existing', existingCat.id)
-                    matCategorieIds.push(existingCat.id)
-                    return;
+                    materialCategorieIds.push(existingCat.id)
+                    continue;
                 }
                 //check if cat is getting generated
                 const newCat = newCategories.find(cat => cat.name.toLowerCase() === catName.toLowerCase());
                 if (newCat) {
                     console.log('new existing', newCat.id)
-                    matCategorieIds.push(`placeholder_${catName}`);
-                    return;
+                    materialCategorieIds.push(placeholderName);
+                    continue;
                 }
 
                 //generate new cat
                 newCategories.push({
                     name: catName,
-                    id: catName,
+                    id: placeholderName,
                     __caslSubjectType__: 'Categorie'
                 })
 
-                matCategorieIds.push(`placeholder_${catName}`);
-                console.log('generate', catName)
-            })
+                materialCategorieIds.push(placeholderName);
+                console.log('generate', placeholderName)
+            }
 
-            console.log('matCategorieIds', matCategorieIds)
+            console.log('matCategorieIds', materialCategorieIds)
             //TODO: whyyyyyy?
 
             const matToAdd = {
@@ -134,7 +135,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 damaged: matDamaged,
                 weightInKg: matWeightInKg,
                 consumables: matConsumablest,
-                categorieIds: matCategorieIds,
+                categorieIds: materialCategorieIds,
                 imageUrls: matImageUrls
             } as Material
 
@@ -142,7 +143,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
             material.push(matToAdd)
 
-        })
+        }
 
         console.log('material', material)
 

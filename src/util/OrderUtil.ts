@@ -312,3 +312,25 @@ export const updateMaterialLostDamage = async (abteilungId: string, damagedMater
     }
 
 }
+
+
+export const calculateTotalWeight = (order: Order, materials: Material[]) => {
+    let totalWeight = 0;
+    let incompleteCount = 0;
+    order.items.forEach(item => {
+        const mat = materials.find(material => material.id === item.matId);
+        if(!mat) return;
+
+        if(mat.weightInKg) {
+            totalWeight += item.count * mat.weightInKg;
+        } else {
+            incompleteCount++;
+        }
+    })
+
+    return {
+        totalWeight,
+        incompleteCount
+    }
+
+}
