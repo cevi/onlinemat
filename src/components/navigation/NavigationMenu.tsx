@@ -128,7 +128,7 @@ const NavigationMenu: React.FC = () => {
             }
           </Content>
           <Footer style={{ textAlign: 'center' }}>
-            Designed by Amigo &amp; Orion | &copy; Cevi Tools {(new Date()).getFullYear()}
+            Designed by <a href='https://softwulf.ch' target='_blank'>Orion</a> | &copy; Cevi Tools {(new Date()).getFullYear()}
           </Footer>
         </Layout>
       </Layout>
