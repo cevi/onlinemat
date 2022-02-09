@@ -1,8 +1,4 @@
-import classNames from 'classnames';
-import appStyles from 'styles.module.scss';
-import { Button, PageHeader, Result, Typography } from 'antd';
-import { useAuth0 } from '@auth0/auth0-react';
-import ceviLogoImage from 'assets/onlinemat_logo.png';
+import { Button, Result } from 'antd';
 import { useNavigate } from 'react-router';
 
 export const NotFoundView = () => {
@@ -19,6 +15,5 @@ export const NotFoundView = () => {
                 onClick={() => navigate('/')}
             >Zurück zur Startseite</Button>
         ]}
-    >
-    </Result>
+    />
 }

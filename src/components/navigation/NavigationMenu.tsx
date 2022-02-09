@@ -14,6 +14,7 @@ import { NotFoundView } from './NotFound';
 import { Abteilung } from 'types/abteilung.type';
 import { abteilungenCollection } from 'config/firebase/collections';
 import { setGroupDates } from 'util/GroupUtil';
+import { VerifyEmail } from './VerifyEmail';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -24,11 +25,13 @@ const NavigationMenu: React.FC = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const { isAuthenticated, isLoading, logout, loginWithRedirect } = useAuth0();
+  const { user, isAuthenticated, isLoading, logout, loginWithRedirect } = useAuth0();
   const userState = useUser();
 
   const [loading, setLoading] = useState(false);
   const [abteilungen, setAbteilungen] = useState<Abteilung[]>([]);
+
+  console.log('user', user)
 
   //fetch all abteilungen
   useEffect(() => {
@@ -120,6 +123,7 @@ const NavigationMenu: React.FC = () => {
                   <Spin tip='Lade...' />
                 </div>
                 :
+                user && !user.email_verified ? <VerifyEmail/> : 
                 <Routes>
                   {[HomeRoute, ...AppRoutes].map(appRoute => <Route key={appRoute.key} path={appRoute.key} element={appRoute.private ? <ProtectedRoute component={appRoute.view} /> : appRoute.element}></Route>)}
                   <Route path='*' element={<NotFoundView />} />
