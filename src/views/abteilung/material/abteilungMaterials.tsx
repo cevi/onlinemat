@@ -116,7 +116,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                 <Spin />
                 :
                 <>
-                    <Col span={24}>
+                    <Col span={20}>
                         <Search
                             placeholder='nach Material suchen'
                             allowClear
@@ -125,7 +125,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                             onSearch={(query) => setQuery(query)}
                         />
                     </Col>
-                    <Col span={24}>
+                    <Col span={4}>
                         <Radio.Group value={displayMode} onChange={(e) => setDisplayMode(e.target.value as 'table' | 'grid')}>
                             <Radio.Button value='grid' >{<AppstoreOutlined />}</Radio.Button>
                             <Radio.Button value='table'>{<MenuOutlined />}</Radio.Button>

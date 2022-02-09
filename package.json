@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "author": {
     "email": "cevitools@gmail.com",
-    "name": "Amigo [WEI] & Orion [URD]",
+    "name": "Orion [URD]",
     "url": "https://mat.cevi.tools"
   },
   "engines": {
@@ -35,7 +35,8 @@
     "redux-actions": "^2.6.5",
     "redux-devtools-extension": "^2.13.9",
     "redux-thunk": "^2.3.0",
-    "sass": "^1.32.8"
+    "sass": "^1.32.8",
+    "xlsx": "^0.18.0"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.9",
