@@ -73,7 +73,7 @@ export const exportMaterialsToXlsx = (abteilung: Abteilung, categories: Categori
     //get second last entry (last one is !ref to get the col char) EX: I1
     const col = Object.keys(materialsWS).slice(-2, -1)[0];
 
-    materialsWS['!autofilter'] = { ref: `A1:${col}` };;
+    materialsWS['!autofilter'] = { ref: `A1:${col}` };
 
     const wb = XLSX.utils.book_new();
 
