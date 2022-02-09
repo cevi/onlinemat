@@ -51,7 +51,7 @@ export const excelToJson = async (e: React.ChangeEvent<HTMLInputElement>): Promi
 
 export const exportMaterialsToXlsx = (abteilung: Abteilung, categories: Categorie[], materials: Material[]) => {
 
-    const materialsCleen = materials.map(mat => {
+    const materialsCleen = materials.sort((a: Material, b: Material) => a.name.localeCompare(b.name)).map(mat => {
         return {
             Name: mat.name,
             Bemerkung: mat.comment,
@@ -60,12 +60,20 @@ export const exportMaterialsToXlsx = (abteilung: Abteilung, categories: Categori
             Verloren: mat.lost || 0,
             Gewicht: mat.weightInKg,
             Verbrauchsmaterial: mat.consumables,
-            Bilder: mat.imageUrls || [].join(','),
-            Kategorien: mat.categorieIds?.map(catId => categories.find(cat => cat.id === catId)?.name).join(',')
+            Kategorien: mat.categorieIds?.map(catId => categories.find(cat => cat.id === catId)?.name).join(','),
+            Bilder: mat.imageUrls || [].join(',')
         }
     })
 
+    const sheetLength = Object.keys(materials[0]).length;
+
+
     const materialsWS = XLSX.utils.json_to_sheet(materialsCleen)
+
+    //get second last entry (last one is !ref to get the col char) EX: I1
+    const col = Object.keys(materialsWS).slice(-2, -1)[0];
+
+    materialsWS['!autofilter'] = { ref: `A1:${col}` };;
 
     const wb = XLSX.utils.book_new();
 

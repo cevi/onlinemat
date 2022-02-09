@@ -222,7 +222,10 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                                 </Button>
                             </Popconfirm>
                         </Col>
-                        <Col>
+                        <Col span={8}>
+                            <Button icon={<FileExcelOutlined />} onClick={()=> exportMaterialsToXlsx(abteilung, categories, materials)}>Excel export</Button>
+                        </Col>
+                        <Col span={8}>
                             <Form.Item
                                 label='Material hochladen'
                                 name='upload'
@@ -242,9 +245,6 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                                     }}
                                 />
                             </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Button icon={<FileExcelOutlined />} onClick={()=> exportMaterialsToXlsx(abteilung, categories, materials)}>Excel export</Button>
                         </Col>
                     </Can>
                 </Row>
