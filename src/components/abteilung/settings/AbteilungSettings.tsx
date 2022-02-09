@@ -3,18 +3,19 @@ import { Button, Col, Form, Image, Input, message, Popconfirm, Row, Upload } fro
 import ceviLogoImage from 'assets/onlinemat_logo.png';
 import { useNavigate } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { firestore, functions } from 'config/firebase/firebase';
 import { abteilungenCollection } from 'config/firebase/collections';
 import moduleStyles from '../Abteilung.module.scss'
 import { ability } from 'config/casl/ability';
 import { slugify } from 'util/FormUtil';
 import { Can } from 'config/casl/casl';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, FileExcelOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
-import { excelToJson } from 'util/ExcelUtil';
+import { excelToJson, exportMaterialsToXlsx } from 'util/ExcelUtil';
 import { ExcelImport } from './ExcelImport';
 import { ExcelJson } from 'types/excel.type';
+import { CategorysContext, MaterialsContext } from '../AbteilungDetails';
 
 export interface AbteilungSettingsProps {
     abteilung: Abteilung
@@ -26,12 +27,25 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
     const navigate = useNavigate();
 
+    //fetch materials
+    const materialsContext = useContext(MaterialsContext);
+
+    const materials = materialsContext.materials;
+    const matLoading = materialsContext.loading;
+
+    //fetch categories
+    const categoriesContext = useContext(CategorysContext);
+
+    const categories = categoriesContext.categories;
+    const catLoading = categoriesContext.loading;
+
     const [form] = Form.useForm<Abteilung>();
     const [updateLoading, setUpdateLoading] = useState(false);
     const [excelData, setExcelData] = useState<ExcelJson | undefined>();
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
     const disabled = ability.cannot('update', 'Abteilung');
+    
 
     const updateAbteilung = async () => {
         if (!abteilung) return;
@@ -228,6 +242,9 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                                     }}
                                 />
                             </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Button icon={<FileExcelOutlined />} onClick={()=> exportMaterialsToXlsx(abteilung, categories, materials)}>Excel export</Button>
                         </Col>
                     </Can>
                 </Row>

@@ -1,17 +1,22 @@
 import { message } from 'antd';
+import moment from 'moment';
+import { Abteilung } from 'types/abteilung.type';
+import { Categorie } from 'types/categorie.types';
 import { ExcelJson } from 'types/excel.type';
+import { Material } from 'types/material.types';
 import XLSX from 'xlsx'
+import { dateFormat } from './MaterialUtil';
 
 
 export const excelToJson = async (e: React.ChangeEvent<HTMLInputElement>): Promise<ExcelJson | undefined> => {
-    if(!e) return undefined;
+    if (!e) return undefined;
     e.preventDefault();
     let excelData: ExcelJson | undefined;
     if (e.target.files) {
         const reader = new FileReader();
         return new Promise((resolve, reject) => {
             reader.onload = (e) => {
-                if(!e.target) {
+                if (!e.target) {
                     message.error('Leider ist ein Fehler beim lesen der Datei aufgetreten');
                     console.error('Leider ist ein Fehler beim lesen der Datei aufgetreten')
                     return;
@@ -32,14 +37,39 @@ export const excelToJson = async (e: React.ChangeEvent<HTMLInputElement>): Promi
                 } as ExcelJson)
             };
             const file = e.target.files;
-            if(file !== null && file.length > 0) {
+            if (file !== null && file.length > 0) {
                 reader.readAsArrayBuffer(file[0]);
             } else {
                 reject()
             }
-            
+
         })
-        
+
     }
     return excelData;
+}
+
+export const exportMaterialsToXlsx = (abteilung: Abteilung, categories: Categorie[], materials: Material[]) => {
+
+    const materialsCleen = materials.map(mat => {
+        return {
+            Name: mat.name,
+            Bemerkung: mat.comment,
+            Anzahl: mat.count,
+            Beschädigt: mat.damaged || 0,
+            Verloren: mat.lost || 0,
+            Gewicht: mat.weightInKg,
+            Verbrauchsmaterial: mat.consumables,
+            Bilder: mat.imageUrls || [].join(','),
+            Kategorien: mat.categorieIds?.map(catId => categories.find(cat => cat.id === catId)?.name).join(',')
+        }
+    })
+
+    const materialsWS = XLSX.utils.json_to_sheet(materialsCleen)
+
+    const wb = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(wb, materialsWS, 'Material')
+
+    XLSX.writeFile(wb, `${abteilung.name}_Material_${moment().format(dateFormat)}.xlsx`)
 }
