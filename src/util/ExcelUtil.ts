@@ -65,9 +65,6 @@ export const exportMaterialsToXlsx = (abteilung: Abteilung, categories: Categori
         }
     })
 
-    const sheetLength = Object.keys(materials[0]).length;
-
-
     const materialsWS = XLSX.utils.json_to_sheet(materialsCleen)
 
     //get second last entry (last one is !ref to get the col char) EX: I1
