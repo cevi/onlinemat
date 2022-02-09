@@ -26,7 +26,6 @@ export const excelToJson = async (e: React.ChangeEvent<HTMLInputElement>): Promi
                     header: 1,
                     defval: null,
                 });
-                console.log(json)
                 resolve({
                     headers: json[0],
                     data: json.slice(1)

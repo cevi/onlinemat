@@ -6,6 +6,7 @@ import { Abteilung } from "types/abteilung.type";
 import { Categorie } from "types/categorie.types";
 import { ExcelJson } from "types/excel.type";
 import { Material } from "types/material.types";
+import { massImportMaterial } from "util/MaterialUtil";
 import { CategorysContext } from "../AbteilungDetails";
 
 export interface ExcelImportProps {
@@ -101,14 +102,12 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 //check if cat already exists
                 const existingCat = categories.find(cat => cat.name.toLowerCase() === catName.toLowerCase());
                 if (existingCat) {
-                    console.log('existing', existingCat.id)
                     materialCategorieIds.push(existingCat.id)
                     continue;
                 }
                 //check if cat is getting generated
                 const newCat = newCategories.find(cat => cat.toLowerCase() === catName.toLowerCase());
                 if (newCat) {
-                    console.log('new existing', newCat)
                     materialCategorieIds.push(placeholderName);
                     continue;
                 }
@@ -117,11 +116,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 newCategories.push(catName)
 
                 materialCategorieIds.push(placeholderName);
-                console.log('generate', placeholderName)
             }
-
-            console.log('matCategorieIds', materialCategorieIds)
-            //TODO: whyyyyyy?
 
             const matToAdd = {
                 name: matName,
@@ -135,13 +130,10 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 imageUrls: matImageUrls
             } as Material
 
-            console.log('matToAdd', matToAdd)
-
             material.push(matToAdd)
 
         }
 
-        console.log('material', material)
 
         //create categories
         const promieses = newCategories.map(catName => {
@@ -175,8 +167,15 @@ export const ExcelImport = (props: ExcelImportProps) => {
             }
         })
 
-        console.log(`Added ${material.length}/${excelData.data.length}`)
-        console.log('materials', materials)
+        try {
+            await massImportMaterial(abteilung.id, materials)
+            message.success(`Es wurden erfolgreich ${material.length}/${excelData.data.length} Materialien importiert.`)
+            setShow(false)
+        } catch(err) {
+            message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            console.error('Es ist ein Fehler aufgetreten', err)
+        }
+        
 
         return materials;
     }
@@ -188,6 +187,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
     return <Modal
         title='Material importieren'
         visible={showModal}
+        onCancel={()=>  setShow(false)}
         footer={[
             <Button key='back' onClick={() => { setShow(false) }}>
                 Abbrechen
