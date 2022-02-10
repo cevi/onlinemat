@@ -25,7 +25,7 @@ export const NoAccessToAbteilung = (props: NoAccessToAbteilungProps) => {
                 }
 
                 {
-                    abteilung.email && <p>{`Oder schreibe eine email an `}<a href={`mailto:${abteilung.email}`}>{abteilung.email}</a></p> 
+                    abteilung.email && <p>{`Oder schreibe eine Email an `}<a href={`mailto:${abteilung.email}`}>{abteilung.email}</a></p> 
                 }
             </>
         }

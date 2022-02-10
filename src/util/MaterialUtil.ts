@@ -12,6 +12,9 @@ export const generateKeywords = (text: string) => {
     for (let i = 1; i < text.length + 1; i++) {
         keywords.push(text.substring(0, i));
     }
+    for (let i = 1; i < text.length; i++) {
+        keywords.push(text.substring(text.length, i));
+    }
     return keywords;
 }
 
@@ -85,6 +88,10 @@ export const getAvailableMatCountToEdit = (mat: Material | undefined): { damged:
         damged: maxDamged,
         lost: maxLost
     }
+}
+
+export const showAvailableCountString = (mat: Material) => {
+    return getAvailableMatString(mat) + (!!mat.consumables ? getAvailableMatCount(mat) <= 0 ? '/unbegrenzt' : '' : `/${mat.count}`)
 }
 
 export const massImportMaterial = async (abteilungId: string, materials: Material[]): Promise<void> => {

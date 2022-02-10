@@ -61,6 +61,7 @@ export const Cart = (props: CartProps) => {
                 name: mat && mat.name || 'Loading...',
                 maxCount,
                 imageUrls: mat && mat.imageUrls || [],
+                weightInKg: mat && mat.weightInKg,
                 __caslSubjectType__: 'DetailedCartItem'
             }
             localItemsMerged.push(mergedItem);

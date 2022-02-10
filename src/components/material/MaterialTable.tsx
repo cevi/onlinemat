@@ -1,10 +1,12 @@
 import { DeleteOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { Button, Popconfirm, Space, Table } from 'antd';
 import { Can } from 'config/casl/casl';
+import { useState } from 'react';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
-import { deleteMaterial, getAvailableMatCount, getAvailableMatString } from 'util/MaterialUtil';
+import { deleteMaterial, getAvailableMatCount, getAvailableMatString, showAvailableCountString } from 'util/MaterialUtil';
 import { EditMaterialButton } from './EditMaterial';
+import { MaterialModal } from './MaterialModal';
 
 
 
@@ -20,12 +22,25 @@ export const MaterialTable = (props: MaterialTablelProps) => {
 
     const { abteilungId, material, categorie, addToCart } = props;
 
+    const [showMaterial, setShowMaterial] = useState<boolean>(false);
+    const [materialToShow, setMaterialToShow] = useState<Material | undefined>(undefined)
+
+
+
     const columns = [
         {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a: Material, b: Material) => a.name.normalize().localeCompare(b.name.normalize())
+            sorter: (a: Material, b: Material) => a.name.normalize().localeCompare(b.name.normalize()),
+            render: (text: string, record: Material) => (
+                <Button type='link' onClick={async () => {
+                    await setMaterialToShow(record);
+                    setShowMaterial(true);
+                }}>
+                    {record.name}
+                </Button>
+            )
         },
         {
             title: 'Bemerkung',
@@ -69,7 +84,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             title: 'Verfügbar',
             key: 'count',
             render: (text: string, record: Material) => (
-                <p key={`${record.id}_count`}>{getAvailableMatString(record) + (!!record.consumables ? getAvailableMatCount(record) <= 0 ? '/unbegrenzt' : '' : `/${record.count}`)}</p>
+                <p key={`${record.id}_count`}>{showAvailableCountString(record)}</p>
             ),
             sorter: (a: Material, b: Material) => a.count - b.count
         },
@@ -77,7 +92,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             title: 'Warenkorb',
             key: 'basket',
             render: (text: string, record: Material) => (
-                <div style={{display: 'flex', justifyContent: 'space-evenly'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
                     <Button type='primary' icon={<ShoppingCartOutlined />} onClick={() => { addToCart(record) }} />
                     <Can I='update' this={record}>
                         <EditMaterialButton material={record} materialId={record.id} abteilungId={abteilungId} />
@@ -99,7 +114,10 @@ export const MaterialTable = (props: MaterialTablelProps) => {
     ];
 
 
-    return <Table rowKey='id' columns={columns} dataSource={material}/>;
+    return <>
+        <MaterialModal material={materialToShow} isModalVisible={showMaterial} setModalVisible={setShowMaterial} />
+        <Table rowKey='id' columns={columns} dataSource={material} />
+    </>;
 
 
 }
@@ -119,7 +137,7 @@ export const filterCategorie = (value: any, record: Material): boolean => {
 }
 
 export const displayCategorieNames = (categorie: Categorie[], catIds: string[]): string => {
-    if(catIds.length <= 0) return '-';
+    if (catIds.length <= 0) return '-';
     let result: string[] = [];
     catIds.forEach(categoryId => {
         const cat = categorie.find(cat => cat.id === categoryId);
@@ -127,6 +145,8 @@ export const displayCategorieNames = (categorie: Categorie[], catIds: string[]):
             result.push(cat.name);
         }
     })
+
+    if (result.length <= 0) return '-';
 
     return result.join();
 }

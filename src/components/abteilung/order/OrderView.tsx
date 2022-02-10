@@ -116,6 +116,7 @@ export const OrderView = (props: OrderProps) => {
                 name: mat && mat.name || 'Loading...',
                 maxCount,
                 imageUrls: mat && mat.imageUrls || [],
+                weightInKg: mat && mat.weightInKg,
                 __caslSubjectType__: 'DetailedCartItem'
             }
             localItemsMerged.push(mergedItem);
@@ -312,6 +313,7 @@ export const OrderView = (props: OrderProps) => {
                         damagedMaterials={order.damagedMaterial || undefined}
                         damagedMaterialsCheckboxes={damagedMaterial}
                         setDamagedMaterialCheckboxes={setDamagedMaterial}
+                        showWeight={true}
                     />
                 </Col>
                 <Col span={24}>

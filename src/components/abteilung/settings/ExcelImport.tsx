@@ -6,7 +6,7 @@ import { Abteilung } from "types/abteilung.type";
 import { Categorie } from "types/categorie.types";
 import { ExcelJson } from "types/excel.type";
 import { Material } from "types/material.types";
-import { massImportMaterial } from "util/MaterialUtil";
+import { generateKeywords, massImportMaterial } from "util/MaterialUtil";
 import { CategorysContext } from "../AbteilungDetails";
 
 export interface ExcelImportProps {
@@ -127,7 +127,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 weightInKg: matWeightInKg,
                 consumables: matConsumablest,
                 categorieIds: materialCategorieIds,
-                imageUrls: matImageUrls
+                imageUrls: matImageUrls,
+                keywords: generateKeywords(matName)
             } as Material
 
             material.push(matToAdd)

@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { Col, message, PageHeader, Result, Spin, Statistic, Typography } from 'antd';
+import { Col, message, PageHeader, Radio, Result, Row, Spin, Statistic, Typography } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
 import Search from 'antd/lib/input/Search';
@@ -10,6 +10,8 @@ import { abteilungenCollection, abteilungenMaterialsCollection } from 'config/fi
 import { Material } from 'types/material.types';
 import { Abteilung } from 'types/abteilung.type';
 import { useSearchParams } from 'react-router-dom';
+import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
+import { MaterialCard } from 'components/material/MaterialGrid';
 
 export interface SeatchMaterial extends Material {
     abteilungId: string | undefined
@@ -31,6 +33,7 @@ export const SearchView = () => {
     const [search, setSearch] = useState<string | undefined>(initQuery !== null ? initQuery : undefined);
     const [abteilungLoading, setAbteilungLoading] = useState(false);
     const [material, setMaterial] = useState<SeatchMaterial[]>([]);
+    const [displayMode, setDisplayMode] = useState<'table' | 'grid'>('table');
 
     const searchKey = 'keywords';
 
@@ -87,9 +90,9 @@ export const SearchView = () => {
     }, [search])
 
     useMemo(() => {
-        if(query !== search) return;
+        if (query !== search) return;
         const params = new URLSearchParams()
-        
+
         if (query) {
             params.append('q', query)
         } else {
@@ -101,31 +104,44 @@ export const SearchView = () => {
 
     return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])}>
         <PageHeader title='Material Übersicht'></PageHeader>
-        <Statistic title='Abteilungen' value={abteilungen.length || 0} />
-
         {
             abteilungLoading && <Spin />
         }
-
-        {
-            !!user && <div className={classNames(appStyles['flex-grower'], appStyles['center-container'])}>
-                <h1>Onlinemat Suche</h1>
-                <p>Du kanst nach Material suchen. Wenn es eine Abteilung hat, wird dir das hier angezeigt.</p>
-
-                <Search placeholder='Materialname' value={query} onSearch={(val)=>setSearch(val)} onChange={(e)=> {
+        {!abteilungLoading && <Row gutter={[24, 24]}>
+            <Col span={24}>
+                <Statistic title='Abteilungen' value={abteilungen.length || 0} />
+            </Col>
+            <Col span={24}>
+                <div className={classNames(appStyles['flex-grower'], appStyles['center-container'])}>
+                    <h1>Onlinemat Suche</h1>
+                    <p>Du kanst nach Material suchen. Wenn es eine Abteilung hat, wird dir das hier angezeigt.</p>
+                </div>
+            </Col>
+            <Col span={22}>
+                <Search placeholder='Materialname' value={query} onSearch={(val) => setSearch(val)} onChange={(e) => {
                     e.preventDefault()
                     setQuery(e.currentTarget.value.toLowerCase())
                 }} disabled={loading} />
-                {
-                    loading && <Spin />
-                }
-                {
-                    material.map(mat => {
-                        const abteilung = abteilungen.filter(ab => ab.id === mat.abteilungId).length > 0 ? abteilungen.filter(ab => ab.id === mat.abteilungId)[0] : undefined;
-                        return <p key={mat.id}>{`${mat.name} `}<a href={abteilung ? `/abteilungen/${abteilung.slug || abteilung.id}` : '/abteilungen'}>{abteilung && abteilung.name ? abteilung.name : 'Unbekannte Abteilung'}</a></p>
-                    })
-                }
-            </div>
+            </Col>
+            <Col span={2}>
+                <Radio.Group value={displayMode} onChange={(e) => setDisplayMode(e.target.value as 'table' | 'grid')}>
+                    <Radio.Button value='table'>{<MenuOutlined />}</Radio.Button>
+                    <Radio.Button value='grid' >{<AppstoreOutlined />}</Radio.Button>
+                </Radio.Group>
+            </Col>
+            <Col span={24}>
+                <Row gutter={[24, 24]}>
+                    {
+                        material.map(mat => {
+                            const abteilung = abteilungen.filter(ab => ab.id === mat.abteilungId).length > 0 ? abteilungen.filter(ab => ab.id === mat.abteilungId)[0] : undefined;
+                            return <MaterialCard material={mat} abteilung={abteilung} isPublic={true} />
+                        })
+                    }
+                </Row>
+
+            </Col>
+        </Row>
         }
+
     </div>
 }
