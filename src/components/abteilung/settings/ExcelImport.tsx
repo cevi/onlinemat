@@ -1,4 +1,5 @@
-import { Button, Col, message, Modal, Row, Select, Spin } from "antd";
+import { Button, Col, message, Modal, Progress, Row, Select, Spin } from "antd";
+import classNames from "classnames";
 import { abteilungenCategoryCollection, abteilungenCollection } from "config/firebase/collections";
 import { firestore } from "config/firebase/firebase";
 import { useContext, useState } from "react";
@@ -8,6 +9,7 @@ import { ExcelJson } from "types/excel.type";
 import { Material } from "types/material.types";
 import { generateKeywords, massImportMaterial } from "util/MaterialUtil";
 import { CategorysContext } from "../AbteilungDetails";
+import appStyles from 'styles.module.scss';
 
 export interface ExcelImportProps {
     abteilung: Abteilung
@@ -35,6 +37,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
     const [categorieIds, setCategorieIds] = useState<string | undefined>();
     const [imageUrls, setImageUrls] = useState<string | undefined>();
 
+    const [importPercentage, setImportPercentage] = useState<number>(0);
+
 
     const findExampleData = (key: string | undefined): string => {
         if (!excelData || !key) return '';
@@ -61,6 +65,9 @@ export const ExcelImport = (props: ExcelImportProps) => {
             return [];
         }
 
+        //10%
+        await setImportPercentage(10);
+
         const indexes: { [key: string]: number } = {};
         excelData.headers.forEach(key => {
             indexes[key] = excelData.headers.findIndex(h => h === key)
@@ -68,7 +75,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         const newCategories: string[] = [];
 
-        for( const dataArray of excelData.data) {
+        for (const dataArray of excelData.data) {
             const matName: string = dataArray[indexes[name]] as string;
             //skip if name is still not found
             if (!matName) continue;
@@ -97,7 +104,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
             //if cat is set loop throug and assign category id
 
-            for(const catName of matCategorieNames) {
+            for (const catName of matCategorieNames) {
                 const placeholderName = '' + catName;
                 //check if cat already exists
                 const existingCat = categories.find(cat => cat.name.toLowerCase() === catName.toLowerCase());
@@ -132,6 +139,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
             } as Material
 
             material.push(matToAdd)
+            //10% + max 60% (pepared all data)
+            await setImportPercentage((Math.round((60 / excelData.data.length) * material.length)) + 10);
 
         }
 
@@ -147,20 +156,24 @@ export const ExcelImport = (props: ExcelImportProps) => {
             })
         })
 
+        await setImportPercentage(75)
+
         const allCategories = await Promise.all(promieses);
+
+        await setImportPercentage(90)
 
         //assign new catId to matCategorieIds
         const materials = material.map(mat => {
             const catIdsToSet: string[] = [];
             if (mat.categorieIds && mat.categorieIds.length > 0) {
-                    mat.categorieIds.forEach(catPlaceholder => {
-                        const foundCat = allCategories.find(cat => cat.name === catPlaceholder)
-                        if (foundCat) {
-                            catIdsToSet.push(foundCat.id)
-                        } else {
-                            catIdsToSet.push(catPlaceholder)
-                        }
-                    })
+                mat.categorieIds.forEach(catPlaceholder => {
+                    const foundCat = allCategories.find(cat => cat.name === catPlaceholder)
+                    if (foundCat) {
+                        catIdsToSet.push(foundCat.id)
+                    } else {
+                        catIdsToSet.push(catPlaceholder)
+                    }
+                })
                 mat.categorieIds = catIdsToSet;
                 return mat;
             } else {
@@ -170,13 +183,15 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         try {
             await massImportMaterial(abteilung.id, materials)
+            await setImportPercentage(100)
             message.success(`Es wurden erfolgreich ${material.length}/${excelData.data.length} Materialien importiert.`)
             setShow(false)
-        } catch(err) {
+        } catch (err) {
             message.error(`Es ist ein Fehler aufgetreten ${err}`)
             console.error('Es ist ein Fehler aufgetreten', err)
+            await setImportPercentage(0)
         }
-        
+
 
         return materials;
     }
@@ -188,7 +203,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
     return <Modal
         title='Material importieren'
         visible={showModal}
-        onCancel={()=>  setShow(false)}
+        onCancel={() => setShow(false)}
         footer={[
             <Button key='back' onClick={() => { setShow(false) }}>
                 Abbrechen
@@ -198,7 +213,12 @@ export const ExcelImport = (props: ExcelImportProps) => {
             </Button>
         ]}
     >
-        <Row gutter={[16, 16]}>
+
+        {
+            importPercentage > 0 && <div className={classNames(appStyles['flex-grower'], appStyles['center-container'])}><Progress type='circle' percent={importPercentage} /></div>
+        }
+
+        {importPercentage <= 0 && <Row gutter={[16, 16]}>
             <Col span={12}>
                 <p>Name*:</p>
                 {
@@ -285,6 +305,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 catLoading && <Spin />
             }
         </Row>
+        }
     </Modal>
 }
 
