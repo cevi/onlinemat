@@ -45,7 +45,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
     const disabled = ability.cannot('update', 'Abteilung');
-    
+
 
     const updateAbteilung = async () => {
         if (!abteilung) return;
@@ -232,6 +232,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                             >
                                 <Input
                                     type='file'
+                                    accept='.xlsx,.xls,.csv'
                                     name='excelFile'
                                     id='uploadExcel'
                                     onChange={async (e) => {
@@ -240,8 +241,10 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                                             setExcelData(res)
                                             setShowImportModal(true)
                                         } else {
-                                            message.error('Leider ist ein Fehler beim lesen der Datei aufgetreten 2');
+                                            message.error('Leider ist ein Fehler beim lesen der Datei aufgetreten');
+                                            form.resetFields(['upload'])
                                         }
+                                        
                                     }}
                                 />
                             </Form.Item>
@@ -249,7 +252,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                     </Can>
                 </Row>
             </Form>
-            <ExcelImport abteilung={abteilung} excelData={excelData} showModal={showImportModal} setShow={setShowImportModal}/>
+            <ExcelImport abteilung={abteilung} excelData={excelData} showModal={showImportModal} setShow={setShowImportModal} resetUpload={() => form.resetFields(['upload'])}/>
         </div>
     </Row>
 }

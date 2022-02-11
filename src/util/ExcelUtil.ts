@@ -13,6 +13,17 @@ export const excelToJson = async (e: React.ChangeEvent<HTMLInputElement>): Promi
     e.preventDefault();
     let excelData: ExcelJson | undefined;
     if (e.target.files) {
+
+        for(const file of Array.from(e.target.files)) {
+            const fileName = file.name;
+            //check if is excel .xlsx .xls .csv
+            if(!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls') && !fileName.endsWith('.csv')) {
+                message.error(`${fileName} Bitte lade eine gülte Excel Datei hoch (.xlsx .xls .csv)`)
+                return undefined;
+            }
+        }
+        
+        
         const reader = new FileReader();
         return new Promise((resolve, reject) => {
             reader.onload = (e) => {

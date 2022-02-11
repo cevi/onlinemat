@@ -16,10 +16,11 @@ export interface ExcelImportProps {
     excelData: ExcelJson | undefined
     showModal: boolean
     setShow: (show: boolean) => void
+    resetUpload: () => void
 }
 
 export const ExcelImport = (props: ExcelImportProps) => {
-    const { abteilung, excelData, showModal, setShow } = props;
+    const { abteilung, excelData, showModal, setShow, resetUpload } = props;
 
     //fetch categories
     const categoriesContext = useContext(CategorysContext);
@@ -203,12 +204,18 @@ export const ExcelImport = (props: ExcelImportProps) => {
     return <Modal
         title='Material importieren'
         visible={showModal}
-        onCancel={() => setShow(false)}
+        onCancel={() => {
+            resetUpload();
+            setShow(false)
+        }}
         footer={[
-            <Button key='back' onClick={() => { setShow(false) }}>
+            <Button key='back' disabled={importPercentage > 0} onClick={() => { resetUpload(); setShow(false) }}>
                 Abbrechen
             </Button>,
-            <Button key='import' type='primary' disabled={!name || catLoading} onClick={() => { prepareMaterial() }}>
+            <Button key='import' type='primary' disabled={!name || catLoading || importPercentage > 0} onClick={async () => { 
+                await prepareMaterial();
+                resetUpload();
+                }}>
                 Importieren
             </Button>
         ]}
