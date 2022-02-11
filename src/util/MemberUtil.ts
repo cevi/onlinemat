@@ -2,6 +2,7 @@ import { message } from 'antd';
 import { abteilungenCollection, abteilungenMembersCollection } from 'config/firebase/collections';
 import { firestore } from 'config/firebase/firebase';
 import { AbteilungMember } from 'types/abteilung.type'
+import { role } from 'types/user.type';
 
 
 export const changeRoleOfMember = async (abteilungId: string, userId: string, role: AbteilungMember['role'] ) => {
@@ -52,4 +53,21 @@ export const unBanMember = async (abteilungId: string, userId: string) => {
         message.error(`Es ist ein Fehler aufgetreten ${err}`)
         console.error('Es ist ein Fehler aufgetreten', err)
     }
+}
+
+
+export const getRoleText = (role: role | undefined): string => {
+    switch(role) {
+        case 'admin':
+            return 'Admin';
+        case 'guest':
+            return 'Gast';
+        case 'matchef':
+            return 'Matchef';
+        case 'member':
+            return 'Mitglied';
+        case 'pending':
+            return 'angefragt';
+    }
+    return 'unbekannt';
 }

@@ -173,7 +173,7 @@ export const Orders = (props: OrdersProps) => {
         const filtered = orders.filter(o => {
             const lowerQuery = query.toLowerCase();
             const user = membersMerged.find(u => u.id === o.orderer);
-            const userName = user ? user.displayName : 'Unbekannt';
+            const userName = user ? user.customDisplayName || user.displayName : 'Unbekannt';
 
             const groupName = getGroupName(o.groupId, abteilung);
 

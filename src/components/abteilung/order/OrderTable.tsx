@@ -60,7 +60,7 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
             sorter: (a: Order, b: Order) => a.orderer.normalize().localeCompare(b.orderer.normalize()),
             render: (text: string, record: Order) => {
                 const member = members.find(mem => mem.id === record.orderer);
-                return <p key={`orderer_${record.id}`}>{member ? member.displayName : 'Unbekannt'}</p>
+                return <p key={`orderer_${record.id}`}>{member ? member.customDisplayName || member.displayName : 'Unbekannt'}</p>
             }
         },
         {

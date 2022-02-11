@@ -66,7 +66,7 @@ export const UsersView = () => {
                 size='large'
                 onSearch={(query: string) => setQuery(query)}
             />
-            <UserTable loading={usersLoading} users={query ? users.filter(user => user.displayName.toLowerCase().includes(query.toLowerCase()) || user.email.toLowerCase().includes(query.toLowerCase())) : users} makeStaff={promoteDemoteStaff} />
+            <UserTable loading={usersLoading} users={query ? users.filter(user => (user.customDisplayName || user.displayName).toLowerCase().includes(query.toLowerCase()) || user.email.toLowerCase().includes(query.toLowerCase())) : users} makeStaff={promoteDemoteStaff} />
         </div>
     </div>
 

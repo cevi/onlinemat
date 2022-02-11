@@ -61,7 +61,7 @@ export const DamagedMaterialModal = (props: DamagedMaterialModalProps) => {
                 Abbrechen
             </Button>,
             <Button key='submit' type='primary' onClick={async () => { 
-                const success = await completeLostOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName, damagedMaterialDetails, materials) 
+                const success = await completeLostOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.customDisplayName || user.appUser.userData.displayName, damagedMaterialDetails, materials) 
                 if(success) {
                     setShowDamageModal(!showDamageModal)
                 }

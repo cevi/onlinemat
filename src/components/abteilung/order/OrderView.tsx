@@ -159,7 +159,7 @@ export const OrderView = (props: OrderProps) => {
         merged.push({
             timestamp: order.creationTime.toDate(),
             color: 'green',
-            text: `${`${orderer ? orderer.displayName : order?.orderer}`} hat die Bestellung erstellt.`,
+            text: `${`${orderer ? orderer.customDisplayName || orderer.displayName : order?.orderer}`} hat die Bestellung erstellt.`,
             type: 'creation'
         })
         //startDate for order
@@ -191,7 +191,7 @@ export const OrderView = (props: OrderProps) => {
             return <Tooltip placement='bottom' title='Bestätige das das Material bereit liegt.'>
                 <Button
                     type='primary'
-                    onClick={() => deliverOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
+                    onClick={() => deliverOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.customDisplayName || user.appUser.userData.displayName)}
                 >
                     Ausgeben
                 </Button>
@@ -203,7 +203,7 @@ export const OrderView = (props: OrderProps) => {
             return <Tooltip placement='bottom' title='Bestätige das das Material vollständig zurückgegeben wurde.'>
                 <Button
                     type='primary'
-                    onClick={() => completeOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
+                    onClick={() => completeOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.customDisplayName || user.appUser.userData.displayName)}
                 >
                     Abschliessen
                 </Button>
@@ -230,7 +230,7 @@ export const OrderView = (props: OrderProps) => {
                 <Popconfirm
                     title='Der Status der Bestellung wird auf "erstellt" zurückgesetzt.'
                     onConfirm={async () => {
-                        await resetLostOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName, materials)
+                        await resetLostOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.customDisplayName || user.appUser.userData.displayName, materials)
                         setDamagedMaterial([])
                     }}
                     onCancel={() => { }}
@@ -270,7 +270,7 @@ export const OrderView = (props: OrderProps) => {
                     <h1>{`${getGroupName(order?.groupId, abteilung, order?.customGroupName)} ${order?.startDate.format(dateFormat)}`}{order?.startDate.format(dateFormat) !== order?.endDate.format(dateFormat) && ` - ${order?.endDate.format(dateFormat)}`}</h1>
                 </Col>
                 <Col span={24}>
-                    <p><b>Besteller:</b>{` ${orderer ? orderer.displayName : order?.orderer}`}</p>
+                    <p><b>Besteller:</b>{` ${orderer ? orderer.customDisplayName || orderer.displayName : order?.orderer}`}</p>
                     <p><b>Von:</b>{` ${order?.startDate.format(dateFormatWithTime)}`}</p>
                     <p><b>Bis:</b>{` ${order?.endDate.format(dateFormatWithTime)}`}</p>
                     <p><b>{'Status '}</b><Tag color={getStatusColor(order)}>{getStatusName(order)}</Tag></p>
@@ -319,7 +319,7 @@ export const OrderView = (props: OrderProps) => {
                 <Col span={24}>
                     {order?.comment && <Comment
                         actions={undefined}
-                        author={orderer ? orderer.displayName : order?.orderer}
+                        author={orderer ? orderer.customDisplayName || orderer.displayName : order?.orderer}
                         avatar={undefined}
                         content={order?.comment}
                         datetime={order?.creationTime.format(dateFormatWithTime)}
@@ -341,7 +341,7 @@ export const OrderView = (props: OrderProps) => {
                             </Form.Item>
                             <Form.Item>
                                 <Button type='primary' onClick={async () => {
-                                    await addCommentOrder(abteilung.id, order, matChefComment, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)
+                                    await addCommentOrder(abteilung.id, order, matChefComment, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.customDisplayName || user.appUser.userData.displayName)
                                 }}>
                                     Bemerkung speichern
                                 </Button>

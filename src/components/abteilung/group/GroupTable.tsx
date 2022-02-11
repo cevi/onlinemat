@@ -56,7 +56,7 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
             render: (text: string, record: Group) => (
                 <p key={`members_${record.id}`}>{record.members.map(m => {
                     const member = members.find(mem => mem.id === m);
-                    return member ? member.displayName : 'Unbekannt'
+                    return member ? member.customDisplayName || member.displayName : 'Unbekannt'
                 }).join(', ')}</p>
             )
         },

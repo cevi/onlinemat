@@ -3,9 +3,12 @@ import appStyles from 'styles.module.scss';
 import { PageHeader, Result, Typography } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
+import { useUser } from 'hooks/use-user';
 
 export const HomeView = () => {
     const { user, isAuthenticated  } = useAuth0();
+
+    const userState = useUser();
 
     return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])} style={{backgroundImage:`url(${ceviLogoImage})`,backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundSize: '20%', backgroundPositionY: '25%'}}>
         <PageHeader title='Home'></PageHeader>
@@ -25,7 +28,7 @@ export const HomeView = () => {
                 <Result
                     status='success'
                     title='Onlinemat Dashboard'
-                    subTitle={`Willkommen ${user.given_name}, du kannst jetzt loslegen.`}
+                    subTitle={`Willkommen ${userState.appUser?.userData.customDisplayName || userState.appUser?.userData.displayName}, du kannst jetzt loslegen.`}
                 >
                 </Result>
             </div>

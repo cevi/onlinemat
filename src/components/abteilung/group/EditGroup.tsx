@@ -119,7 +119,7 @@ export const EditGroup = (props: EditGroupProps) => {
                         setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys])
                     }}
                     filterOption={(inputValue, option) => option.name.toLowerCase().indexOf(inputValue.toLowerCase()) > -1}
-                    render={item => item.displayName}
+                    render={item => item.customDisplayName || item.displayName}
                 />
             </Form.Item>
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

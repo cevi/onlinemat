@@ -23,7 +23,10 @@ export const UserTable = (props: UserTableProps) => {
             title: 'Name',
             dataIndex: 'displayName',
             key: 'displayName',
-            sorter: (a: UserData, b: UserData) => a.displayName.normalize().localeCompare(b.displayName.normalize()),
+            sorter: (a: UserData, b: UserData) => (a.customDisplayName || a.displayName).normalize().localeCompare((b.customDisplayName || b.displayName).normalize()),
+            render: (text: string, record: UserData) => (
+                <p>{record.customDisplayName || record.displayName}</p>
+            )
         },
         {
             title: 'Email',

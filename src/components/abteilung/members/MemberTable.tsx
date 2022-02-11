@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { Table, Select, Button, Tooltip } from 'antd';
 import { Abteilung, AbteilungMemberUserData } from 'types/abteilung.type';
-import { approveMemberRequest, banMember, changeRoleOfMember, denyMemberRequest, removeMember, unBanMember } from 'util/MemberUtil';
+import { approveMemberRequest, banMember, changeRoleOfMember, denyMemberRequest, getRoleText, removeMember, unBanMember } from 'util/MemberUtil';
 import classNames from 'classnames';
 import moduleStyles from './MemberTable.module.scss'
 import { AddGroupButton } from '../group/AddGroup';
@@ -36,7 +36,7 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
 
             //show approve / deny / ban
             return <div key={`member_action_div_${record.id}`} className={classNames(moduleStyles['actions'])}>
-                <Button key={`approve_${record.id}`} type='primary' onClick={() => approveMemberRequest(abteilungId, record.userId)}>{`als ${roles.find(r => r.key === record.role)?.name || record.role} Annehmen`}</Button>
+                <Button key={`approve_${record.id}`} type='primary' onClick={() => approveMemberRequest(abteilungId, record.userId)}>{`als ${getRoleText(record.role)} Annehmen`}</Button>
                 <Button key={`deny_${record.id}`} type='dashed' danger onClick={() => denyMemberRequest(abteilungId, record.userId)}>Ablehnen</Button>
                 <Tooltip key={`ban_tooltip_${record.id}`} title='Die Anfrage wird abgelehnt und der Benutzer kann in Zukunft keinen neuen Antrag stellen'>
                     <Button key={`ban_${record.id}`} type='primary' danger onClick={() => banMember(abteilungId, record.userId)}>Sperren</Button>
@@ -63,7 +63,7 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
             key: 'displayName',
             sorter: (a: AbteilungMemberUserData, b: AbteilungMemberUserData) => a.displayName.normalize().localeCompare(b.displayName.normalize()),
             render: (text: string, record: AbteilungMemberUserData) => (
-                <p key={`name_${record.id}`}>{record.displayName}</p>
+                <p key={`name_${record.id}`}>{record.customDisplayName || record.displayName}</p>
             )
         },
         {
