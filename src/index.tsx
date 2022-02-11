@@ -48,7 +48,7 @@ ReactDOM.render(<Provider store={store}>
         <Auth0Provider
             domain={process.env.REACT_APP_AUTH0_DOMAIN as string}
             clientId={process.env.REACT_APP_AUTH0_CLIENT_ID as string}
-            redirectUri={window.location.origin}
+            redirectUri={window.location.origin + '/redirect'}
             onRedirectCallback={onRedirectCallback}
             cacheLocation='localstorage'
         >

@@ -15,6 +15,7 @@ import { Abteilung } from 'types/abteilung.type';
 import { abteilungenCollection } from 'config/firebase/collections';
 import { setGroupDates } from 'util/GroupUtil';
 import { VerifyEmail } from './VerifyEmail';
+import { Redirect } from './Redirect';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -123,6 +124,7 @@ const NavigationMenu: React.FC = () => {
                 :
                 user && !user.email_verified ? <VerifyEmail/> : 
                 <Routes>
+                  <Route key='/redirect' path='/redirect' element={<Redirect/>}/>
                   {[HomeRoute, ...AppRoutes].map(appRoute => <Route key={appRoute.key} path={appRoute.key} element={appRoute.private ? <ProtectedRoute component={appRoute.view} /> : appRoute.element}></Route>)}
                   <Route path='*' element={<NotFoundView />} />
 

@@ -10,6 +10,7 @@ export interface UserData {
     email_verified?: boolean
     user_metadata?: any
     customDisplayName?: string
+    defaultAbteilung?: string
     staff?: boolean;
     roles: { [abteilungId: string]: role }
 }
