@@ -121,7 +121,7 @@ export const ProfileView = () => {
                                         }
 
                                         {
-                                            userState.appUser?.userData?.staff && <Tag color='#108ee9'>Staff</Tag>
+                                            userState.appUser?.userData?.staff && <><br/><br/><Tag color='#108ee9'>Staff</Tag></>
                                         }
                                     </Col>
                                     <Col span={24}>
