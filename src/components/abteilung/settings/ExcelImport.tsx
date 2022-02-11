@@ -59,7 +59,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         if (!excelData) return [];
 
-        if (!name) {
+        if (!name || name === 'none') {
             message.error('Du must den Namen des Materials zuordnen.')
             console.error('Du must den Namen des Materials zuordnen.')
             return [];
@@ -220,7 +220,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         {importPercentage <= 0 && <Row gutter={[16, 16]}>
             <Col span={12}>
-                <p>Name*:</p>
+                <p>Name<span style={{color: 'red'}}>*</span>:</p>
                 {
                     name && <p>{`Beispiel: ${findExampleData(name)}`}</p>
                 }
@@ -312,7 +312,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
 export interface ExcelImportSelectProps {
     options: string[]
     selected: string | undefined
-    setSelected: (option: string) => void
+    setSelected: (option: string | undefined) => void
 }
 
 const ExcelImportSelect = (props: ExcelImportSelectProps) => {
@@ -323,17 +323,25 @@ const ExcelImportSelect = (props: ExcelImportSelectProps) => {
 
     return <Select
         showSearch
-        value={selected}
+        allowClear={false}
+        value={selected || 'none'}
         placeholder='Passendes Feld'
         optionFilterProp='children'
-        onChange={setSelected}
+        onChange={(val) => {
+            if(!val || val === 'none') {
+                setSelected(undefined);
+            } else {
+                setSelected(val)
+            }
+        }}
+        defaultValue='none'
         filterOption={(input, option) => {
             if (!option) return false;
             return (option.children as any).toLowerCase().indexOf(input.toLowerCase()) >= 0
         }}
         style={{ width: '100%' }}
     >
-        <Option key='none' value={undefined}>Nicht vorhanden</Option>
+        <Option key='none' value='none'>Nicht vorhanden</Option>
         {
             options.map(o => <Option key={o} value={o}>{o}</Option>)
         }
