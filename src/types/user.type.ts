@@ -1,6 +1,6 @@
 export interface UserData {
     __caslSubjectType__ : 'UserData'
-    id: string;
+    id: string
     email: string
     displayName: string
     photoURL: string
@@ -13,6 +13,12 @@ export interface UserData {
     defaultAbteilung?: string
     staff?: boolean;
     roles: { [abteilungId: string]: role }
+}
+
+export interface PublicUser {
+    id: string
+    displayName: string
+    email?: string
 }
 
 export type role = 'pending' | 'guest' | 'member' | 'matchef' | 'admin';

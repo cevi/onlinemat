@@ -20,6 +20,9 @@ import { useUser } from 'hooks/use-user';
 import { CheckCircleOutlined, ClockCircleOutlined, DeleteOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
 import { DamagedMaterialModal } from './DamagedMaterialModal';
 import { Can } from 'config/casl/casl';
+import { useGetPublicUser } from 'util/UserUtils';
+import { PublicUser } from 'types/user.type';
+import { usePublicUsers } from 'hooks/use-publicUser';
 
 export interface OrderProps {
     abteilung: Abteilung
@@ -68,13 +71,23 @@ export const OrderView = (props: OrderProps) => {
 
     const abteilungOrdersLink = `/abteilungen/${abteilung.slug || abteilung.id}/orders`;
 
-    const orderer = membersMerged.find(m => m.id === order?.orderer);
+    const [orderer, setOrderer] = useState<PublicUser | undefined>()
 
     const [detailedHistory, setDetailedHistory] = useState<OrderHistory[]>([]);
     const [matChefComment, setMatchefComment] = useState<string | undefined>(undefined);
 
     const [damagedMaterial, setDamagedMaterial] = useState<DetailedCartItem[]>([]);
     const [showDamageModal, setShowDamageModal] = useState<boolean>(false);
+
+    const asdasd = useGetPublicUser(order?.orderer);
+
+    asdasd.then(val => {
+        console.log('val', val)
+        if(val.id !== 'loadingUser') {
+            setOrderer(val)
+        }
+        
+    })
 
     //fetch order
     useEffect(() => {
@@ -125,12 +138,14 @@ export const OrderView = (props: OrderProps) => {
     }, [order, materials])
 
     useEffect(() => {
-        if (!order) return;
+
+        if (!order || !orderer) return;
         if (!matChefComment) {
             setMatchefComment(order.matchefComment)
         }
-        setDetailedHistory(mergeHistory(order?.history))
-    }, [order])
+        setDetailedHistory(mergeHistory(order.history))
+        
+    }, [order, orderer])
 
     const getDotIcon = (icon: OrderHistory['type'], color?: string | null) => {
         if (!icon) return undefined;
@@ -159,7 +174,7 @@ export const OrderView = (props: OrderProps) => {
         merged.push({
             timestamp: order.creationTime.toDate(),
             color: 'green',
-            text: `${`${orderer ? orderer.customDisplayName || orderer.displayName : order?.orderer}`} hat die Bestellung erstellt.`,
+            text: `${`${orderer ? orderer.displayName : 'Loading...' }`} hat die Bestellung erstellt.`,
             type: 'creation'
         })
         //startDate for order
@@ -270,7 +285,7 @@ export const OrderView = (props: OrderProps) => {
                     <h1>{`${getGroupName(order?.groupId, abteilung, order?.customGroupName)} ${order?.startDate.format(dateFormat)}`}{order?.startDate.format(dateFormat) !== order?.endDate.format(dateFormat) && ` - ${order?.endDate.format(dateFormat)}`}</h1>
                 </Col>
                 <Col span={24}>
-                    <p><b>Besteller:</b>{` ${orderer ? orderer.customDisplayName || orderer.displayName : order?.orderer}`}</p>
+                    <p><b>Besteller:</b>{` ${orderer ? orderer.displayName: 'Loading...'}`}</p>
                     <p><b>Von:</b>{` ${order?.startDate.format(dateFormatWithTime)}`}</p>
                     <p><b>Bis:</b>{` ${order?.endDate.format(dateFormatWithTime)}`}</p>
                     <p><b>{'Status '}</b><Tag color={getStatusColor(order)}>{getStatusName(order)}</Tag></p>
@@ -287,8 +302,9 @@ export const OrderView = (props: OrderProps) => {
                     >
                         <Timeline mode='left' >
                             {
-                                detailedHistory.map(orderHistory => {
+                                detailedHistory.map((orderHistory, i) => {
                                     return <Timeline.Item
+                                        key={`timeline_${i}`}
                                         label={moment(orderHistory.timestamp).format(dateFormatWithTime)}
                                         color={orderHistory.color || undefined}
                                         dot={getDotIcon(orderHistory.type, orderHistory.color)}
@@ -319,7 +335,7 @@ export const OrderView = (props: OrderProps) => {
                 <Col span={24}>
                     {order?.comment && <Comment
                         actions={undefined}
-                        author={orderer ? orderer.customDisplayName || orderer.displayName : order?.orderer}
+                        author={orderer ? orderer.displayName : 'Loading...'}
                         avatar={undefined}
                         content={order?.comment}
                         datetime={order?.creationTime.format(dateFormatWithTime)}
