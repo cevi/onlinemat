@@ -1,11 +1,11 @@
-import { message } from "antd";
-import { usersCollection } from "config/firebase/collections";
-import { firestore, functions } from "config/firebase/firebase";
-import { setPublicUsers } from "config/redux/publicUser/publicUser";
-import { usePublicUsers } from "hooks/use-publicUser";
-import { useDispatch } from "react-redux";
-import { PublicUser } from "types/user.type";
-import { CustomDisplayName } from "views/profile/profile";
+import { message } from 'antd';
+import { usersCollection } from 'config/firebase/collections';
+import { firestore, functions } from 'config/firebase/firebase';
+import { setPublicUsers } from 'config/redux/publicUser/publicUser';
+import { usePublicUsers } from 'hooks/use-publicUser';
+import { useDispatch } from 'react-redux';
+import { PublicUser } from 'types/user.type';
+import { CustomDisplayName } from 'views/profile/profile';
 
 
 export const updateCustomDisplayName = async (uid: string, userSettings: CustomDisplayName) => {
