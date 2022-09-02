@@ -52,6 +52,15 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             ),
         },
         {
+            title: 'Standort',
+            dataIndex: 'location',
+            key: 'location',
+            sorter: (a: Material, b: Material) => (a.location || '').localeCompare(b.location || ''),
+            render: (text: string, record: Material) => (
+                <p key={`${record.id}_location`}>{record.location || '-'}</p>
+            ),
+        },
+        {
             title: 'Gewicht',
             key: 'weightInKg',
             dataIndex: 'weightInKg',

@@ -30,6 +30,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
     const [count, setCount] = useState<string | undefined>();
     const [lost, setLost] = useState<string | undefined>();
     const [damaged, setDamaged] = useState<string | undefined>();
+    const [location, setLocation] = useState<string | undefined>();
     const [weightInKg, setWeightInKg] = useState<string | undefined>();
     const [consumables, setConsumables] = useState<string | undefined>();
     const [categorieIds, setCategorieIds] = useState<string | undefined>();
@@ -73,6 +74,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
             //skip if name is still not found
             if (!matName) continue;
             const matComment: string | null = comment ? dataArray[indexes[comment]] as string : null;
+            const matLocation: string | null = location ? dataArray[indexes[location]] as string : null;
             const matCount: number = count ? dataArray[indexes[count]] as number : 1;
             const matLost: number = lost ? dataArray[indexes[lost]] as number : 0;
             const matDamaged: number = damaged ? dataArray[indexes[damaged]] as number : 0;
@@ -123,6 +125,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 comment: matComment,
                 count: matCount,
                 lost: matLost,
+                location: matLocation,
                 damaged: matDamaged,
                 weightInKg: matWeightInKg,
                 consumables: matConsumablest,
@@ -215,6 +218,15 @@ export const ExcelImport = (props: ExcelImportProps) => {
             </Col>
             <Col span={12}>
                 <ExcelImportSelect options={excelData.headers} selected={comment} setSelected={setComment} />
+            </Col>
+            <Col span={12}>
+                <p>Standort:</p>
+                {
+                    location && <p>{`Beispiel: ${findExampleData(location)}`}</p>
+                }
+            </Col>
+            <Col span={12}>
+                <ExcelImportSelect options={excelData.headers} selected={location} setSelected={setLocation} />
             </Col>
             <Col span={12}>
                 <p>Anzahl:</p>
