@@ -58,6 +58,7 @@ export const exportMaterialsToXlsx = (abteilung: Abteilung, categories: Categori
             Anzahl: mat.count,
             Beschädigt: mat.damaged || 0,
             Verloren: mat.lost || 0,
+            Standort: mat.location,
             Gewicht: mat.weightInKg,
             Verbrauchsmaterial: mat.consumables,
             Kategorien: mat.categorieIds?.map(catId => categories.find(cat => cat.id === catId)?.name).join(','),
