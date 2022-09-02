@@ -128,6 +128,18 @@ export const AddMaterial = (props: AddMaterialProps) => {
                         />
                     </Form.Item>
                     <Form.Item
+                        label='Standort'
+                        name='location'
+                        rules={[
+                            { required: false },
+                            { type: 'string', min: 1 },
+                        ]}
+                    >
+                        <Input
+                            placeholder='Standort'
+                        />
+                    </Form.Item>
+                    <Form.Item
                         label='Anzahl'
                         name='count'
                         rules={[
