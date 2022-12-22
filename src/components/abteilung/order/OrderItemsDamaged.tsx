@@ -38,7 +38,7 @@ export const OrderItemsDamaged = (props: OrderItemsProps) => {
                             min={1} 
                             max={item.count} 
                             value={item.count} 
-                            onChange={(val) => { updateDamagedMaterial({...item, count: val}) }} />
+                            onChange={(val) => { updateDamagedMaterial({...item, count: val || 0}) }} />
                     </Form.Item>
                     <Form.Item style={{marginLeft: '1%'}}>
                         <Radio.Group onChange={(e) => { updateDamagedMaterial({...item, type: e.target.value}) }} value={item.type}>
