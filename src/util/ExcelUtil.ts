@@ -4,7 +4,7 @@ import { Abteilung } from 'types/abteilung.type';
 import { Categorie } from 'types/categorie.types';
 import { ExcelJson } from 'types/excel.type';
 import { Material } from 'types/material.types';
-import XLSX from 'xlsx'
+import * as XLSX from 'xlsx'
 import { dateFormat } from './MaterialUtil';
 
 

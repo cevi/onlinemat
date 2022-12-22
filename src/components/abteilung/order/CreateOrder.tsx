@@ -35,7 +35,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
     const [form] = Form.useForm<Order>();
     const userState = useUser();
 
-    const { RangePicker } = DatePicker;
+    const { RangePicker } = DatePicker as any;
     const { TextArea } = Input;
     const { Option, OptGroup } = Select;
 
@@ -194,7 +194,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                             <RangePicker
                                 value={[startDate, endDate]}
                                 minuteStep={10}
-                                onCalendarChange={(values) => {
+                                onCalendarChange={(values: any[]) => {
                                     if (!values) return;
                                     if (values.length <= 1) return;
                                     if (values[0] === null) return;

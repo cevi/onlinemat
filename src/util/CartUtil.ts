@@ -29,10 +29,10 @@ export const removeFromCart = (cartItems: DetailedCartItem[], item: DetailedCart
     } as CartItem));
 }
 
-export const changeCountFromCart = (cartItems: DetailedCartItem[], item: DetailedCartItem, count: number): CartItem[] => {
+export const changeCountFromCart = (cartItems: DetailedCartItem[], item: DetailedCartItem, count: number | null): CartItem[] => {
     return cartItems.map(i => ({
         __caslSubjectType__: 'CartItem',
-        count: i.matId === item.matId ? count: i.count,
+        count: i.matId === item.matId ? count || 0: i.count,
         matId: i.matId
     } as CartItem));
 }
