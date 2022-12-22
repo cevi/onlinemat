@@ -1,12 +1,23 @@
 version: '3'
 services:
-  onlinemat-frontend:
+  onlinemat:
     build:
       context: ./
     ports:
       - "3000:3000"
-    container_name: onlinemat-frontend
+    container_name: frontend
     stdin_open: true
+    environment:
+      REACT_APP_FIREBASE_API_KEY: '${REACT_APP_FIREBASE_API_KEY}'
+      REACT_APP_FIREBASE_AUTH_DOMAIN: '${REACT_APP_FIREBASE_AUTH_DOMAIN}'
+      REACT_APP_FIREBASE_PROJECT_ID: '${REACT_APP_FIREBASE_PROJECT_ID}'
+      REACT_APP_FIREBASE_STORAGE_BUCKET: '${REACT_APP_FIREBASE_STORAGE_BUCKET}'
+      REACT_APP_FIREBASE_MESSAGING_SENDER_ID: '${REACT_APP_FIREBASE_MESSAGING_SENDER_ID}'
+      REACT_APP_FIREBASE_APP_ID: '${REACT_APP_FIREBASE_APP_ID}'
+      REACT_APP_SENTRY_DNS: '${REACT_APP_SENTRY_DNS}'
+      REACT_APP_AUTH0_DOMAIN: '${REACT_APP_AUTH0_DOMAIN}'
+      REACT_APP_AUTH0_CLIENT_ID: '${REACT_APP_AUTH0_CLIENT_ID}'
+
     volumes:
        - ./:/usr/src/app
        - /usr/src/app/node_modules
