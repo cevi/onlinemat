@@ -12,11 +12,10 @@ RUN yarn install --frozen-lockfile
 # Bundle app source
 COPY . .
 
+# load environment variables from .env
+RUN set -a && . .env && set +a
+
 RUN yarn run build
-
-
-FROM node:16-alpine3.16
-
 
 # Stage 2: Serve app with nginx server
 # Use official nginx image as the base image
@@ -28,5 +27,5 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 # copy the /public folder from the builder stage
 COPY --from=builder /usr/src/app/build /usr/share/nginx/html
 
-# Expose port 3000
 EXPOSE 3000
+CMD ["nginx", "-g", "daemon off;"]

@@ -5,7 +5,7 @@ docker-compose.yml
 **/npm-debug.log
 **/README.md
 **/.next
-**/.env
 **/.vscode
+**/.idea
 **/dist
 **/*.code-workspace
