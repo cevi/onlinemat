@@ -26,6 +26,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Copy .env.example to .env
+        run: cp .env.example .env
+
       - name: 🏗️ Build the stack
         run: docker-compose build
 
