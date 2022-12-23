@@ -1,4 +1,4 @@
-name: Deploy master
+name: Productive Deployment (Master Branch)
 
 on:
   push:
@@ -6,23 +6,28 @@ on:
       - master
 
 jobs:
-  build:
+  build_docker_container:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+
+      # Checkout the source code
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v2
+
+      # Restores the cache if it exists.
+      - name: ⛏ Restore docker image from cache
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+
+      - name: 🔐 Login to private Registry (registry.cevi.tools)
+        uses: docker/login-action@v2
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "onlinemat" #Must be unique in Heroku
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
-          buildpack: "https://github.com/mars/create-react-app-buildpack.git"
-        env:
-          HD_REACT_APP_FIREBASE_API_KEY: ${{secrets.REACT_APP_FIREBASE_API_KEY}}
-          HD_REACT_APP_FIREBASE_AUTH_DOMAIN: ${{secrets.REACT_APP_FIREBASE_AUTH_DOMAIN}}
-          HD_REACT_APP_FIREBASE_PROJECT_ID: ${{secrets.REACT_APP_FIREBASE_PROJECT_ID}}
-          HD_REACT_APP_FIREBASE_STORAGE_BUCKET: ${{secrets.REACT_APP_FIREBASE_STORAGE_BUCKET}}
-          HD_REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${{secrets.REACT_APP_FIREBASE_MESSAGING_SENDER_ID}}
-          HD_REACT_APP_FIREBASE_APP_ID: ${{secrets.REACT_APP_FIREBASE_APP_ID}}
-          HD_REACT_APP_SENTRY_DNS: ${{secrets.REACT_APP_SENTRY_DNS}}
-          HD_REACT_APP_AUTH0_DOMAIN: ${{secrets.REACT_APP_AUTH0_DOMAIN}}
-          HD_REACT_APP_AUTH0_CLIENT_ID: ${{secrets.REACT_APP_AUTH0_CLIENT_ID}}
+          registry: registry.cevi.tools
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🏗️ Build the stack
+        run: docker-compose build
+
+      - name: 🚀 Push containers to registry
+        run: docker-compose push

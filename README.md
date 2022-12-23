@@ -10,7 +10,6 @@
 4. Execute `npm i yarn -g` --> Installs yarn globally.
 5. Execute `yarn` --> Installs all dependencies.
 
-
 ### Start the application
 
 1. Execute: `yarn start` --> Runs the app in the development mode.
@@ -21,21 +20,18 @@ You will also see any lint errors in the console.
 
 Happy Coding!
 
-
 ### FAQ
 
-**The Application won't start**  
+**The Application won't start**
 Don't forget to create the `.env` file with all the keys and values in it.
+For that just copy the `.env.example` file, rename it to `.env`, and add the missing secrets.
 
-Keys:  
-```
-REACT_APP_FIREBASE_API_KEY=
-REACT_APP_FIREBASE_AUTH_DOMAIN=
-REACT_APP_FIREBASE_PROJECT_ID=
-REACT_APP_FIREBASE_STORAGE_BUCKET=
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=
-REACT_APP_FIREBASE_APP_ID=
-REACT_APP_SENTRY_DNS=
-REACT_APP_AUTH0_DOMAIN=
-REACT_APP_AUTH0_CLIENT_ID=
-```
+**Where is the backend?**
+For the backend we use Firebase. It's a NoSQL database provided by Google.
+
+**How do I deploy the application?**
+The application is auto deployed using a GitHub Action.
+The action is triggered when a new commit is pushed to the `master` branch. It builds the docker container(s) and pushes
+them to the [Private Container Registry](registry.cevi.tools). The container is then deployed to
+the [Swarm Cluster](swarm.cevi.tools). All configs are stored in
+the [Cevi Tools Infrastructure registry](https://github.com/cevi/cevi-tools-infrastructure).

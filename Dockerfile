@@ -8,10 +8,8 @@ RUN apk add --no-cache libc6-compat
 # ENV REACT_APP_SENTRY_RELEASE=$SENTRY_RELEASE
 # ENV SENTRY_ENV=$SENTRY_ENV
 # ENV REACT_APP_SENTRY_ENV=$SENTRY_ENV
-
 # ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
 # ENV SENTRY_ORG=$SENTRY_ORG
-
 # ARG NODE_ENV=production
 
 # Create app directory
@@ -32,6 +30,8 @@ RUN yarn run build
 #RUN sentry-cli releases files $SENTRY_RELEASE upload-sourcemaps build
 # Finalize sentry release
 #RUN sentry-cli releases finalize $SENTRY_RELEASE
+
+WORKDIR /usr/src/app/public
 
 EXPOSE 3000
 CMD [ "yarn", "run", "serve" ]
