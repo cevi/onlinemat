@@ -10,7 +10,6 @@
 4. Execute `npm i yarn -g` --> Installs yarn globally.
 5. Execute `yarn` --> Installs all dependencies.
 
-
 ### Start the application
 
 1. Execute: `yarn start` --> Runs the app in the development mode.
@@ -21,21 +20,8 @@ You will also see any lint errors in the console.
 
 Happy Coding!
 
-
 ### FAQ
 
-**The Application won't start**  
+**The Application won't start**
 Don't forget to create the `.env` file with all the keys and values in it.
-
-Keys:  
-```
-REACT_APP_FIREBASE_API_KEY=
-REACT_APP_FIREBASE_AUTH_DOMAIN=
-REACT_APP_FIREBASE_PROJECT_ID=
-REACT_APP_FIREBASE_STORAGE_BUCKET=
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=
-REACT_APP_FIREBASE_APP_ID=
-REACT_APP_SENTRY_DNS=
-REACT_APP_AUTH0_DOMAIN=
-REACT_APP_AUTH0_CLIENT_ID=
-```
+For that just copy the `.env.example` file, rename it to `.env`, and add the missing secrets.
