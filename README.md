@@ -25,3 +25,13 @@ Happy Coding!
 **The Application won't start**
 Don't forget to create the `.env` file with all the keys and values in it.
 For that just copy the `.env.example` file, rename it to `.env`, and add the missing secrets.
+
+**Where is the backend?**
+For the backend we use Firebase. It's a NoSQL database provided by Google.
+
+**How do I deploy the application?**
+The application is auto deployed using a GitHub Action.
+The action is triggered when a new commit is pushed to the `master` branch. It builds the docker container(s) and pushes
+them to the [Private Container Registry](registry.cevi.tools). The container is then deployed to
+the [Swarm Cluster](swarm.cevi.tools). All configs are stored in
+the [Cevi Tools Infrastructure registry](https://github.com/cevi/cevi-tools-infrastructure).
