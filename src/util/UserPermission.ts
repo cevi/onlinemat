@@ -32,6 +32,12 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
     can('update', 'AbteilungMember');
     can('delete', 'AbteilungMember');
 
+    //Standort
+    can('create', 'Standort');
+    can('read', 'Standort');
+    can('update', 'Standort');
+    can('delete', 'Standort');
+
     //UserData
     can('read', 'UserData');
     can('update', 'UserData');
@@ -71,6 +77,11 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
           can('update', 'Categorie', { abteilungId: abteilungId });
           can('delete', 'Categorie', { abteilungId: abteilungId });
 
+          //Standort
+          can('create', 'Standort', { abteilungId: abteilungId });
+          can('update', 'Standort', { abteilungId: abteilungId });
+          can('delete', 'Standort', { abteilungId: abteilungId });
+
           //Order
           can('create', 'Order', { abteilungId: abteilungId });
           can('read', 'Order', { abteilungId: abteilungId });
@@ -91,6 +102,11 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
           can('create', 'Categorie', { abteilungId: abteilungId });
           can('update', 'Categorie', { abteilungId: abteilungId });
           can('delete', 'Categorie', { abteilungId: abteilungId });
+
+          //Standort
+          can('create', 'Standort', { abteilungId: abteilungId });
+          can('update', 'Standort', { abteilungId: abteilungId });
+          can('delete', 'Standort', { abteilungId: abteilungId });
 
           //Order
           can('create', 'Order', { abteilungId: abteilungId });

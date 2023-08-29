@@ -10,13 +10,14 @@ import { MaterialTable } from 'components/material/MaterialTable';
 import { MaterialGrid } from 'components/material/MaterialGrid';
 import { Can } from 'config/casl/casl';
 import { AbteilungEntityCasl } from 'config/casl/ability';
-import { CategorysContext, MaterialsContext } from 'components/abteilung/AbteilungDetails';
+import {CategorysContext, MaterialsContext, StandorteContext} from 'components/abteilung/AbteilungDetails';
 import { useCookies } from 'react-cookie';
 import { CartItem } from 'types/cart.types';
 import { cookieToCart, getCartName } from 'util/CartUtil';
 import moment from 'moment';
 import { Material } from 'types/material.types';
 import { getAvailableMatCount } from 'util/MaterialUtil';
+import {AddStandortButton} from "components/standort/AddStandort";
 
 export type AbteilungMaterialViewProps = {
     abteilung: Abteilung;
@@ -39,13 +40,16 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
 
     //fetch categories
     const categoriesContext = useContext(CategorysContext);
-
     const categories = categoriesContext.categories;
     const catLoading = categoriesContext.loading;
 
+    //fetch categories
+    const standorteContext = useContext(StandorteContext);
+    const standorte = standorteContext.standorte;
+    const standortLoading = standorteContext.loading;
+
     //fetch materials
     const materialsContext = useContext(MaterialsContext);
-
     const materials = materialsContext.materials;
     const matLoading = materialsContext.loading;
 
@@ -106,6 +110,11 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
         <Col span={4}>
             <Can I={'create'} this={{ __caslSubjectType__: 'Categorie', abteilungId: abteilung.id } as AbteilungEntityCasl}>
                 <AddCategorieButton abteilungId={abteilung.id} />
+            </Can>
+        </Col>
+        <Col span={4}>
+            <Can I={'create'} this={{ __caslSubjectType__: 'Standort', abteilungId: abteilung.id } as AbteilungEntityCasl}>
+                <AddStandortButton abteilungId={abteilung.id} />
             </Can>
         </Col>
 

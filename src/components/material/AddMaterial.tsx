@@ -10,7 +10,7 @@ import { Material } from 'types/material.types';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
 import { generateKeywords, getAvailableMatCount, getAvailableMatCountToEdit } from 'util/MaterialUtil';
-import { CategorysContext } from 'components/abteilung/AbteilungDetails';
+import {CategorysContext, StandorteContext} from 'components/abteilung/AbteilungDetails';
 
 export interface AddMaterialProps {
     abteilungId: string
@@ -52,9 +52,13 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
     //fetch categories
     const categoriesContext = useContext(CategorysContext);
-
     const categories = categoriesContext.categories;
     const catLoading = categoriesContext.loading;
+
+    //fetch Standorte
+    const standorteContext = useContext(StandorteContext);
+    const standorte = standorteContext.standorte;
+    const standorteLoading = standorteContext.loading;
 
     const addMaterial = async () => {
         try {
@@ -86,7 +90,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
     return <>
         {
-            catLoading ? <Spin /> : <>
+            standorteLoading && catLoading ? <Spin /> : <>
 
                 <Form
                     form={form}
@@ -103,6 +107,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
                     onFinish={addMaterial}
                     validateMessages={validateMessages}
                 >
+
                     <Form.Item
                         label='Name'
                         name='name'
@@ -132,12 +137,18 @@ export const AddMaterial = (props: AddMaterialProps) => {
                         name='location'
                         rules={[
                             { required: false },
-                            { type: 'string', min: 1 },
                         ]}
                     >
-                        <Input
+                        <Select
+                            mode='multiple'
+                            allowClear
+                            style={{ width: '100%' }}
                             placeholder='Standort'
-                        />
+                        >
+                            {
+                                standorte.map(std => <Option key={std.id} value={std.id}>{std.name}</Option>)
+                            }
+                        </Select>
                     </Form.Item>
                     <Form.Item
                         label='Anzahl'

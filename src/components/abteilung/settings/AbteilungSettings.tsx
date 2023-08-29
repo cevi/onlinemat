@@ -15,7 +15,7 @@ import { validateMessages } from 'util/FormValdationMessages';
 import { excelToJson, exportMaterialsToXlsx } from 'util/ExcelUtil';
 import { ExcelImport } from './ExcelImport';
 import { ExcelJson } from 'types/excel.type';
-import { CategorysContext, MaterialsContext } from '../AbteilungDetails';
+import {CategorysContext, MaterialsContext, StandorteContext} from '../AbteilungDetails';
 
 export interface AbteilungSettingsProps {
     abteilung: Abteilung
@@ -29,15 +29,18 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
     //fetch materials
     const materialsContext = useContext(MaterialsContext);
-
     const materials = materialsContext.materials;
     const matLoading = materialsContext.loading;
 
     //fetch categories
     const categoriesContext = useContext(CategorysContext);
-
     const categories = categoriesContext.categories;
     const catLoading = categoriesContext.loading;
+
+    //fetch categories
+    const standorteContext = useContext(StandorteContext);
+    const standorte = standorteContext.standorte;
+    const standorteLoading = standorteContext.loading;
 
     const [form] = Form.useForm<Abteilung>();
     const [updateLoading, setUpdateLoading] = useState(false);
