@@ -88,11 +88,11 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             render: (text: string, record: Material) => (
                 <div style={{display: 'flex', justifyContent: 'space-evenly'}}>
                     <Button type='primary' icon={<ShoppingCartOutlined />} onClick={() => { addToCart(record) }} />
-                    <Can I='update' this={record}>
+                    <Can I='update' this={{...record, abteilungId: abteilungId}}>
                         <EditMaterialButton material={record} materialId={record.id} abteilungId={abteilungId} />
                     </Can>
-                    <Can I='delete' this={record}>
-                        <Popconfirm
+                    <Can I='delete' this={{...record, abteilungId: abteilungId}}>
+                       <Popconfirm
                             title={`Möchtest du ${record.name} wirklich löschen?`}
                             onConfirm={() => deleteMaterial(abteilungId, record)}
                             onCancel={() => { }}
