@@ -226,7 +226,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                             </Popconfirm>
                         </Col>
                         <Col span={8}>
-                            <Button icon={<FileExcelOutlined />} onClick={()=> exportMaterialsToXlsx(abteilung, categories, materials)}>Excel export</Button>
+                            <Button icon={<FileExcelOutlined />} onClick={()=> exportMaterialsToXlsx(abteilung, categories, materials, standorte)}>Excel export</Button>
                         </Col>
                         <Col span={8}>
                             <Form.Item

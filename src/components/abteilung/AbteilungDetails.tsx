@@ -63,13 +63,11 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const initTab: AbteilungTab = tab as AbteilungTab || 'mat';
 
     const abteilungenContext = useContext(AbteilungenContext);
-
     const abteilungen = abteilungenContext.abteilungen;
     const abteilungLoading = abteilungenContext.loading;
 
     const [abteilung, setAbteilung] = useState<Abteilung | undefined>(undefined);
     const [selectedMenu, setSelectedMenu] = useState<AbteilungTab>(initTab);
-
 
     const [members, setMembers] = useState<AbteilungMember[]>([]);
     const [userData, setUserData] = useState<{ [uid: string]: UserData }>({});
@@ -86,9 +84,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const [standorteLoading, setStandorteLoading] = useState(false);
     const [standorte, setStandorte] = useState<Standort[]>([]);
 
-
     const [cookies] = useCookies();
-
     const [cartItems, setCartItems] = useState<CartItem[]>(state as CartItem[] || []);
 
     const canUpdate = ability.can('update', 'Abteilung');

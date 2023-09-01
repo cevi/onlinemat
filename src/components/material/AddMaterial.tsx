@@ -134,7 +134,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
                     </Form.Item>
                     <Form.Item
                         label='Standort'
-                        name='location'
+                        name='standort'
                         rules={[
                             { required: false },
                         ]}

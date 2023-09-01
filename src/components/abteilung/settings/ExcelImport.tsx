@@ -7,7 +7,7 @@ import { Categorie } from "types/categorie.types";
 import { ExcelJson } from "types/excel.type";
 import { Material } from "types/material.types";
 import { massImportMaterial } from "util/MaterialUtil";
-import { CategorysContext } from "../AbteilungDetails";
+import {CategorysContext, StandorteContext} from "../AbteilungDetails";
 
 export interface ExcelImportProps {
     abteilung: Abteilung
@@ -21,8 +21,10 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
     //fetch categories
     const categoriesContext = useContext(CategorysContext);
+    const standorteContext = useContext(StandorteContext);
 
     const categories = categoriesContext.categories;
+    const standorte = standorteContext.standorte;
     const catLoading = categoriesContext.loading;
 
     const [name, setName] = useState<string | undefined>();
@@ -34,6 +36,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
     const [weightInKg, setWeightInKg] = useState<string | undefined>();
     const [consumables, setConsumables] = useState<string | undefined>();
     const [categorieIds, setCategorieIds] = useState<string | undefined>();
+    const [standorteIds, setStandorteIds] = useState<string | undefined>();
     const [imageUrls, setImageUrls] = useState<string | undefined>();
 
 
@@ -68,24 +71,27 @@ export const ExcelImport = (props: ExcelImportProps) => {
         })
 
         const newCategories: string[] = [];
+        const newStandorte: string[] = [];
 
         for( const dataArray of excelData.data) {
             const matName: string = dataArray[indexes[name]] as string;
             //skip if name is still not found
             if (!matName) continue;
             const matComment: string | null = comment ? dataArray[indexes[comment]] as string : null;
-            const matLocation: string | null = location ? dataArray[indexes[location]] as string : null;
             const matCount: number = count ? dataArray[indexes[count]] as number : 1;
             const matLost: number = lost ? dataArray[indexes[lost]] as number : 0;
             const matDamaged: number = damaged ? dataArray[indexes[damaged]] as number : 0;
             const matWeightInKg: number | null = weightInKg ? dataArray[indexes[weightInKg]] as number : null;
             const matConsumablest: boolean = consumables ? dataArray[indexes[consumables]] as boolean : false;
             const matCategorienRaw: string | null = categorieIds ? dataArray[indexes[categorieIds]] as string : null;
+            const matStandorteRaw: string | null = standorteIds ? dataArray[indexes[standorteIds]] as string : null;
             const matImageUrlsRaw: string | null = imageUrls ? dataArray[indexes[imageUrls]] as string : null;
 
             let matCategorieNames: string[] = [];
             let matImageUrls: string[] = [];
             const materialCategorieIds: string[] = [];
+            let matStandortNames: string[] = [];
+            const matStandortIds: string[] = [];
 
             //string to array of image urls
             if (matImageUrlsRaw !== null) {
@@ -96,9 +102,12 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 matCategorieNames = matCategorienRaw.replaceAll(' ', '').split(',');
             }
 
+            if (matStandorteRaw) {
+                matStandortNames = matStandorteRaw.replaceAll(' ', '').split(',');
+            }
 
-            //if cat is set loop throug and assign category id
 
+            //if cat is set loop through and assign category id
             for(const catName of matCategorieNames) {
                 const placeholderName = '' + catName;
                 //check if cat already exists
@@ -120,17 +129,40 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 materialCategorieIds.push(placeholderName);
             }
 
+            //if ort is set loop through and assign ort id
+            for(const ortName of matStandortNames) {
+                const placeholderName = '' + ortName;
+                //check if ort already exists
+                const existingOrt = standorte.find(ort => ort.name.toLowerCase() === ortName.toLowerCase());
+                if (existingOrt) {
+                    matStandortIds.push(existingOrt.id)
+                    continue;
+                }
+                //check if ort is getting generated
+                const newOrt = newStandorte.find(ort => ort.toLowerCase() === ortName.toLowerCase());
+                if (newOrt) {
+                    matStandortIds.push(placeholderName);
+                    continue;
+                }
+
+                //generate new cat
+                newStandorte.push(ortName)
+
+                matStandortIds.push(placeholderName);
+            }
+
+
             const matToAdd = {
                 name: matName,
                 comment: matComment,
                 count: matCount,
                 lost: matLost,
-                location: matLocation,
                 damaged: matDamaged,
                 weightInKg: matWeightInKg,
                 consumables: matConsumablest,
                 categorieIds: materialCategorieIds,
-                imageUrls: matImageUrls
+                imageUrls: matImageUrls,
+                standortIds: matStandortIds
             } as Material
 
             material.push(matToAdd)
@@ -141,7 +173,6 @@ export const ExcelImport = (props: ExcelImportProps) => {
         //create categories
         const promieses = newCategories.map(catName => {
             return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenCategoryCollection).add({ name: catName } as Categorie).then(doc => {
-
                 return {
                     id: doc.id,
                     name: catName
@@ -220,10 +251,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 <ExcelImportSelect options={excelData.headers} selected={comment} setSelected={setComment} />
             </Col>
             <Col span={12}>
-                <p>Standort:</p>
-                {
-                    location && <p>{`Beispiel: ${findExampleData(location)}`}</p>
-                }
+                <ExcelImportSelect options={excelData.headers} selected={standorteIds} setSelected={setStandorteIds} />
             </Col>
             <Col span={12}>
                 <ExcelImportSelect options={excelData.headers} selected={location} setSelected={setLocation} />

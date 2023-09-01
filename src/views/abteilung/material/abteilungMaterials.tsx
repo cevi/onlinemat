@@ -43,7 +43,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     const categories = categoriesContext.categories;
     const catLoading = categoriesContext.loading;
 
-    //fetch categories
+    //fetch standort
     const standorteContext = useContext(StandorteContext);
     const standorte = standorteContext.standorte;
     const standortLoading = standorteContext.loading;
@@ -142,7 +142,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                     </Col>
                     <Col span={24}>
                         {
-                            displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToCart={addItemToCart} />
+                            displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categories} standort={standorte} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToCart={addItemToCart} />
                         }
                         {
                             displayMode === 'grid' && <MaterialGrid categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToCart={addItemToCart} />

@@ -5,6 +5,7 @@ import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
 import { deleteMaterial, getAvailableMatCount, getAvailableMatString } from 'util/MaterialUtil';
 import { EditMaterialButton } from './EditMaterial';
+import {Standort} from "types/standort.types";
 
 
 
@@ -12,13 +13,14 @@ export interface MaterialTablelProps {
     abteilungId: string
     material: Material[]
     categorie: Categorie[]
+    standort: Standort[]
     addToCart: (mat: Material) => void
 }
 
 
 export const MaterialTable = (props: MaterialTablelProps) => {
 
-    const { abteilungId, material, categorie, addToCart } = props;
+    const { abteilungId, material, categorie, standort, addToCart } = props;
 
     const columns = [
         {
@@ -53,11 +55,17 @@ export const MaterialTable = (props: MaterialTablelProps) => {
         },
         {
             title: 'Standort',
-            dataIndex: 'location',
-            key: 'location',
-            sorter: (a: Material, b: Material) => (a.location || '').localeCompare(b.location || ''),
+            dataIndex: 'standortIds',
+            key: 'standortIds',
+            filters: standort.map(ort => {
+                return {
+                    text: ort.name,
+                    value: ort.id
+                }
+            }),
+            onFilter: (value: any, record: Material) => filterStandort(value, record),
             render: (text: string, record: Material) => (
-                <p key={`${record.id}_location`}>{record.location || '-'}</p>
+                <p key={`${record.id}_standort`}>{displayStandortNames(standort, record.standortIds || [])}</p>
             ),
         },
         {
@@ -126,6 +134,19 @@ export const filterCategorie = (value: any, record: Material): boolean => {
 
     return result;
 }
+export const filterStandort = (value: any, record: Material): boolean => {
+    let result: boolean = false;
+
+    if (record.standortIds) {
+        record.standortIds.forEach(ortId => {
+            if (ortId.indexOf(value as string) === 0) {
+                result = true;
+            }
+        })
+    }
+
+    return result;
+}
 
 export const displayCategorieNames = (categorie: Categorie[], catIds: string[]): string => {
     if(catIds.length <= 0) return '-';
@@ -134,6 +155,18 @@ export const displayCategorieNames = (categorie: Categorie[], catIds: string[]):
         const cat = categorie.find(cat => cat.id === categoryId);
         if (cat) {
             result.push(cat.name);
+        }
+    })
+
+    return result.join();
+}
+export const displayStandortNames = (standort: Standort[], standortIds: string[]): string => {
+    if(standortIds.length <= 0) return '-';
+    let result: string[] = [];
+    standortIds.forEach(standortId => {
+        const ort = standort.find(ort => ort.id === standortId);
+        if (ort) {
+            result.push(ort.name);
         }
     })
 
