@@ -43,7 +43,6 @@ export const ExcelImport = (props: ExcelImportProps) => {
     const findExampleData = (key: string | undefined): string => {
         if (!excelData || !key) return '';
 
-
         const index = excelData.headers.findIndex(h => h === key);
 
         const res = excelData.data.find(data => data[index] !== null);
@@ -251,10 +250,13 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 <ExcelImportSelect options={excelData.headers} selected={comment} setSelected={setComment} />
             </Col>
             <Col span={12}>
-                <ExcelImportSelect options={excelData.headers} selected={standort} setSelected={setStandort} />
+                <p>Standort:</p>
+                {
+                    standort && <p>{`Beispiel: ${findExampleData(standort)}`}</p>
+                }
             </Col>
             <Col span={12}>
-                <ExcelImportSelect options={excelData.headers} selected={location} setSelected={setLocation} />
+                <ExcelImportSelect options={excelData.headers} selected={standort} setSelected={setStandort} />
             </Col>
             <Col span={12}>
                 <p>Anzahl:</p>
