@@ -6,6 +6,7 @@ import { ExcelJson } from 'types/excel.type';
 import { Material } from 'types/material.types';
 import * as XLSX from 'xlsx'
 import { dateFormat } from './MaterialUtil';
+import {Standort} from "types/standort.types";
 
 
 export const excelToJson = async (e: React.ChangeEvent<HTMLInputElement>): Promise<ExcelJson | undefined> => {
@@ -49,7 +50,7 @@ export const excelToJson = async (e: React.ChangeEvent<HTMLInputElement>): Promi
     return excelData;
 }
 
-export const exportMaterialsToXlsx = (abteilung: Abteilung, categories: Categorie[], materials: Material[]) => {
+export const exportMaterialsToXlsx = (abteilung: Abteilung, categories: Categorie[], materials: Material[], standort: Standort[]) => {
 
     const materialsCleen = materials.sort((a: Material, b: Material) => a.name.localeCompare(b.name)).map(mat => {
         return {
@@ -58,7 +59,7 @@ export const exportMaterialsToXlsx = (abteilung: Abteilung, categories: Categori
             Anzahl: mat.count,
             Beschädigt: mat.damaged || 0,
             Verloren: mat.lost || 0,
-            Standort: mat.location,
+            Standort: mat.standort?.map(ortId => standort.find(ort => ort.id === ortId)?.name).join(','),
             Gewicht: mat.weightInKg,
             Verbrauchsmaterial: mat.consumables,
             Kategorien: mat.categorieIds?.map(catId => categories.find(cat => cat.id === catId)?.name).join(','),

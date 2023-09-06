@@ -10,7 +10,7 @@ import { Material } from 'types/material.types';
 import { EditOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
 import { editMaterial, generateKeywords, getAvailableMatCount, getAvailableMatCountToEdit } from 'util/MaterialUtil';
-import { CategorysContext } from 'components/abteilung/AbteilungDetails';
+import {CategorysContext, StandorteContext} from 'components/abteilung/AbteilungDetails';
 import { max } from 'moment';
 
 export interface EditMaterialProps {
@@ -40,9 +40,13 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
 
     //fetch categories
     const categoriesContext = useContext(CategorysContext);
-
     const categories = categoriesContext.categories;
     const catLoading = categoriesContext.loading;
+
+    //fetch Standorte
+    const standorteContext = useContext(StandorteContext);
+    const standorte = standorteContext.standorte;
+    const standorteLoading = standorteContext.loading;
 
     const [renderMatImages, setRenderMatImages] = useState(material.imageUrls || []);
 
@@ -94,7 +98,7 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
 
     return <>
         {
-            catLoading ? <Spin /> : <>
+            catLoading && standorteLoading ? <Spin /> : <>
 
                 <Form
                     form={form}
@@ -138,15 +142,21 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
                     </Form.Item>
                     <Form.Item
                         label='Standort'
-                        name='location'
+                        name='standort'
                         rules={[
                             { required: false },
-                            { type: 'string', min: 1 },
                         ]}
                     >
-                        <Input
+                        <Select
+                            mode='multiple'
+                            allowClear
+                            style={{ width: '100%' }}
                             placeholder='Standort'
-                        />
+                        >
+                            {
+                                standorte.map(std => <Option key={std.id} value={std.id}>{std.name}</Option>)
+                            }
+                        </Select>
                     </Form.Item>
                     <Form.Item
                         label='Anzahl'
