@@ -47,6 +47,8 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
     const [excelData, setExcelData] = useState<ExcelJson | undefined>();
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
+    const [slug, setSlug] = useState<string>(abteilung.slug);
+
     const disabled = ability.cannot('update', 'Abteilung');
     
 
@@ -54,17 +56,35 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
         if (!abteilung) return;
         try {
             setUpdateLoading(true);
-            if (abteilung?.slug !== form.getFieldsValue().slug) {
+            let slugChanged = false;
+            if (abteilung?.slug !== slug) {
                 await updateSlug();
+                slugChanged = true
             }
 
-            await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
-                name: form.getFieldsValue().name,
-                ceviDBId: form.getFieldsValue().ceviDBId || null,
-                logoUrl: form.getFieldsValue().logoUrl || null,
-                email: form.getFieldsValue().email || null
-            } as Abteilung);
+
+            let noDatatToUpdate = false
+            if(!form.getFieldsValue().name && !form.getFieldsValue().ceviDBId && !form.getFieldsValue().logoUrl && !form.getFieldsValue().email) {
+                noDatatToUpdate = true
+            }
+
+            if(!noDatatToUpdate) {
+                console.log('do update')
+                await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
+                    name: form.getFieldsValue().name,
+                    ceviDBId: form.getFieldsValue().ceviDBId || null,
+                    logoUrl: form.getFieldsValue().logoUrl || null,
+                    email: form.getFieldsValue().email || null
+                } as Abteilung);
+            }
+           
             message.success(`Änderungen erfolgreich gespeichert`);
+
+            //if slug changed, redirect to new url
+            if (slugChanged && slug) {
+                navigate(`/abteilungen/${slug}/settings`)
+            }
+
         } catch (ex) {
             message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
         }
@@ -134,7 +154,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                             tooltip={'Url lesbarer Name'}
                             rules={[
                                 { required: true },
-                                { type: 'string', min: 4 },
+                                { type: 'string', min: 3 },
                                 {
                                     validator: (rule: any, value: string, cb: (msg?: string) => void) => {
                                         //check for whitespaces
@@ -155,7 +175,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                         >
                             <Input
                                 placeholder='Slug'
-                                onChange={(val) => form.setFieldsValue({ slug: slugify(val.currentTarget.value) })}
+                                onChange={(val) => {form.setFieldsValue({ slug: slugify(val.currentTarget.value) }); setSlug(val.currentTarget.value)}}
                                 disabled={disabled || updateLoading}
                             />
                         </Form.Item>
