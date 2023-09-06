@@ -65,7 +65,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             }),
             onFilter: (value: any, record: Material) => filterStandort(value, record),
             render: (text: string, record: Material) => (
-                <p key={`${record.id}_standort`}>{displayStandortNames(standort, record.standortIds || [])}</p>
+                <p key={`${record.id}_standort`}>{displayStandortNames(standort, record.standort || [])}</p>
             ),
         },
         {
@@ -137,8 +137,8 @@ export const filterCategorie = (value: any, record: Material): boolean => {
 export const filterStandort = (value: any, record: Material): boolean => {
     let result: boolean = false;
 
-    if (record.standortIds) {
-        record.standortIds.forEach(ortId => {
+    if (record.standort) {
+        record.standort.forEach(ortId => {
             if (ortId.indexOf(value as string) === 0) {
                 result = true;
             }

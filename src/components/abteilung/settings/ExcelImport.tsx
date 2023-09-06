@@ -36,7 +36,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
     const [weightInKg, setWeightInKg] = useState<string | undefined>();
     const [consumables, setConsumables] = useState<string | undefined>();
     const [categorieIds, setCategorieIds] = useState<string | undefined>();
-    const [standorteIds, setStandorteIds] = useState<string | undefined>();
+    const [standort, setStandort] = useState<string | undefined>();
     const [imageUrls, setImageUrls] = useState<string | undefined>();
 
 
@@ -84,7 +84,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
             const matWeightInKg: number | null = weightInKg ? dataArray[indexes[weightInKg]] as number : null;
             const matConsumablest: boolean = consumables ? dataArray[indexes[consumables]] as boolean : false;
             const matCategorienRaw: string | null = categorieIds ? dataArray[indexes[categorieIds]] as string : null;
-            const matStandorteRaw: string | null = standorteIds ? dataArray[indexes[standorteIds]] as string : null;
+            const matStandorteRaw: string | null = standort ? dataArray[indexes[standort]] as string : null;
             const matImageUrlsRaw: string | null = imageUrls ? dataArray[indexes[imageUrls]] as string : null;
 
             let matCategorieNames: string[] = [];
@@ -162,7 +162,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 consumables: matConsumablest,
                 categorieIds: materialCategorieIds,
                 imageUrls: matImageUrls,
-                standortIds: matStandortIds
+                standort: matStandortIds
             } as Material
 
             material.push(matToAdd)
@@ -251,7 +251,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 <ExcelImportSelect options={excelData.headers} selected={comment} setSelected={setComment} />
             </Col>
             <Col span={12}>
-                <ExcelImportSelect options={excelData.headers} selected={standorteIds} setSelected={setStandorteIds} />
+                <ExcelImportSelect options={excelData.headers} selected={standort} setSelected={setStandort} />
             </Col>
             <Col span={12}>
                 <ExcelImportSelect options={excelData.headers} selected={location} setSelected={setLocation} />

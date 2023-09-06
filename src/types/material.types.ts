@@ -11,7 +11,7 @@ export interface Material {
     keywords: string[]
     damaged?: number
     lost?: number
-    standortIds?: string[]
+    standort?: string[]
 }
 
 export interface DamagedMaterial {
