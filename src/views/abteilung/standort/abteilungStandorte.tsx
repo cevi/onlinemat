@@ -22,12 +22,10 @@ import {StandortTable} from "../../../components/standort/StandortTable";
 
 export type AbteilungStandorteViewProps = {
     abteilung: Abteilung;
-    cartItems: CartItem[]
-    changeCart: (cart: CartItem[]) => void
 };
 
 export const AbteilungStandorteView = (props: AbteilungStandorteViewProps) => {
-    const { abteilung, cartItems, changeCart } = props;
+    const { abteilung } = props;
 
     const { Search } = Input;
 
@@ -37,7 +35,6 @@ export const AbteilungStandorteView = (props: AbteilungStandorteViewProps) => {
 
 
     const [query, setQuery] = useState<string | undefined>(undefined);
-    const [displayMode, setDisplayMode] = useState<'table' | 'grid'>('table');
 
     //fetch standort
     const standorteContext = useContext(StandorteContext);
@@ -68,7 +65,14 @@ export const AbteilungStandorteView = (props: AbteilungStandorteViewProps) => {
 
         <Col span={24}>
             {
-                <StandortTable abteilungId={abteilung.id} standort={standorte} />
+                standortLoading ?
+                    <Spin />
+                    :
+                    <>
+
+                        <StandortTable abteilungId={abteilung.id} standort={standorte} />
+
+                    </>
             }
 
         </Col>

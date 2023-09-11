@@ -13,41 +13,19 @@ export const StandortTable = (props: StandortTableProps) => {
     const columns = [
         {
             title: 'Name',
-            key: 'name',
-            sorter: (a: Standort, b: Standort) => a.name.normalize().localeCompare(b.name.normalize())
+            key: 'name'
         },
         {
             title: 'Strasse',
-            key: 'street',
-            sorter: (a: Standort, b: Standort) => {
-                let street = ""
-                if (b.street !== undefined) {
-                    street = b.street;
-                }
-                return a.street?.normalize().localeCompare(street.normalize());
-            },
+            key: 'street'
         },
         {
             title: 'Ort',
-            key: 'city',
-            sorter: (a: Standort, b: Standort) => {
-                let city = ""
-                if (b.city !== undefined) {
-                    city = b.city;
-                }
-                return a.city?.normalize().localeCompare(city.normalize());
-            },
+            key: 'city'
         },
         {
             title: 'Koordinaten',
-            key: 'coordinates',
-            sorter: (a: Standort, b: Standort) => {
-                let coordinates = ""
-                if (b.coordinates !== undefined) {
-                    coordinates = b.coordinates;
-                }
-                return a.coordinates?.normalize().localeCompare(coordinates.normalize());
-            },
+            key: 'coordinates'
         },
         {
             title: 'Bearbeiten',
@@ -72,7 +50,6 @@ export const StandortTable = (props: StandortTableProps) => {
             )
         }
     ];
-
 
     return <Table rowKey='id' columns={columns} dataSource={standort}/>;
 

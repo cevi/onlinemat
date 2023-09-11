@@ -223,7 +223,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
         if (!isAuthenticated || !abteilung || !canRead) return;
         setStandorteLoading(true);
         return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenStandortCollection).onSnapshot(snap => {
-            setCatLoading(false);
+            setStandorteLoading(false);
             const standorteLoaded = snap.docs.flatMap(doc => {
                 return {
                     ...doc.data(),
@@ -296,7 +296,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             case 'order':
                 return <OrderView abteilung={abteilung}/>
             case 'standort':
-                return <AbteilungStandorteView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
+                return <AbteilungStandorteView abteilung={abteilung} />
         }
     }
 
