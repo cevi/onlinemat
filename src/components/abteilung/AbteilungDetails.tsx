@@ -13,7 +13,15 @@ import {
     usersCollection
 } from 'config/firebase/collections';
 import { useLocation, useNavigate, useParams } from 'react-router';
-import { ContainerOutlined, SettingOutlined, ShoppingCartOutlined, TagsOutlined, TeamOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import {
+    ContainerOutlined,
+    HomeOutlined,
+    SettingOutlined,
+    ShoppingCartOutlined,
+    TagsOutlined,
+    TeamOutlined,
+    UnorderedListOutlined
+} from '@ant-design/icons';
 import { ability } from 'config/casl/ability';
 import { AbteilungenContext } from 'components/navigation/NavigationMenu';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -32,6 +40,7 @@ import { Member } from './members/Member';
 import { Orders } from './order/Orders';
 import { OrderView } from './order/OrderView';
 import {Standort} from "../../types/standort.types";
+import {AbteilungStandorteView} from "../../views/abteilung/standort/abteilungStandorte";
 
 
 export interface AbteilungDetailProps {
@@ -50,7 +59,7 @@ export const MaterialsContext = createContext<{ materials: Material[], loading: 
 //export const CartContext = createContext<Cart | undefined>(undefined);
 
 
-export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart' | 'orders' | 'order';
+export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart' | 'orders' | 'order' | 'standort';
 
 
 export const AbteilungDetail = (props: AbteilungDetailProps) => {
@@ -286,6 +295,8 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                 return <Orders abteilung={abteilung}/>
             case 'order':
                 return <OrderView abteilung={abteilung}/>
+            case 'standort':
+                return <AbteilungStandorteView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
         }
     }
 
@@ -303,6 +314,9 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                 <Menu onClick={(e) => { setSelectedMenu(e.key as AbteilungTab) }} selectedKeys={[selectedMenu]} mode='horizontal'>
                                     <Menu.Item key='mat' icon={<ContainerOutlined />}>
                                         Material
+                                    </Menu.Item>
+                                    <Menu.Item key='standort' icon={<HomeOutlined />}>
+                                        Standorte
                                     </Menu.Item>
                                     <Menu.Item key='orders' icon={<UnorderedListOutlined />}>
                                         Bestellungen
