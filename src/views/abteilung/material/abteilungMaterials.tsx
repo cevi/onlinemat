@@ -148,10 +148,6 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                             displayMode === 'grid' && <MaterialGrid categorie={categories} material={query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials} addToCart={addItemToCart} />
                         }
                     </Col>
-
-
-
-
                 </>
         }
     </Row >
