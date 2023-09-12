@@ -1,5 +1,11 @@
-import { Button, Popconfirm, Space, Table } from 'antd';
+import {Button, Popconfirm, Table} from 'antd';
 import {Standort} from "types/standort.types";
+import { Can } from 'config/casl/casl';
+import {EditStandortButton} from "./EditStandort";
+import {deleteMaterial} from "../../util/MaterialUtil";
+import {DeleteOutlined} from "@ant-design/icons";
+import {deleteStandort} from "../../util/StandortUtil";
+
 export interface StandortTableProps {
     abteilungId: string
     standort: Standort[]
@@ -13,39 +19,44 @@ export const StandortTable = (props: StandortTableProps) => {
     const columns = [
         {
             title: 'Name',
-            key: 'name'
+            key: 'name',
+            dataIndex: 'name'
         },
         {
             title: 'Strasse',
-            key: 'street'
+            key: 'street',
+            dataIndex: 'street'
         },
         {
             title: 'Ort',
-            key: 'city'
+            key: 'city',
+            dataIndex: 'city'
         },
         {
             title: 'Koordinaten',
-            key: 'coordinates'
+            key: 'coordinates',
+            dataIndex: 'coordinates'
         },
         {
             title: 'Bearbeiten',
             key: 'edit',
+            width: '10%',
             render: (text: string, record: Standort) => (
                 <div style={{display: 'flex', justifyContent: 'space-evenly'}}>
-                    {/*<Can I='update' this={{...record, abteilungId: abteilungId}}>
-                        <EditMaterialButton material={record} materialId={record.id} abteilungId={abteilungId} />
+                    <Can I='update' this={{...record, abteilungId: abteilungId}}>
+                        <EditStandortButton standort={record} standortId={record.id} abteilungId={abteilungId} />
                     </Can>
                     <Can I='delete' this={{...record, abteilungId: abteilungId}}>
                        <Popconfirm
                             title={`Möchtest du ${record.name} wirklich löschen?`}
-                            onConfirm={() => deleteMaterial(abteilungId, record)}
+                            onConfirm={() => deleteStandort(abteilungId, record)}
                             onCancel={() => { }}
                             okText='Ja'
                             cancelText='Nein'
                         >
                             <Button type='ghost' danger icon={<DeleteOutlined />} />
                         </Popconfirm>
-                    </Can>*/}
+                    </Can>
                 </div>
             )
         }
