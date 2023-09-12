@@ -15,7 +15,7 @@ import {
 import { useLocation, useNavigate, useParams } from 'react-router';
 import {
     ContainerOutlined,
-    HomeOutlined,
+    HomeOutlined, PaperClipOutlined,
     SettingOutlined,
     ShoppingCartOutlined,
     TagsOutlined,
@@ -41,6 +41,7 @@ import { Orders } from './order/Orders';
 import { OrderView } from './order/OrderView';
 import {Standort} from "../../types/standort.types";
 import {AbteilungStandorteView} from "../../views/abteilung/standort/abteilungStandorte";
+import {AbteilungCategoryView} from "../../views/abteilung/category/abteilungCategory";
 
 
 export interface AbteilungDetailProps {
@@ -59,7 +60,7 @@ export const MaterialsContext = createContext<{ materials: Material[], loading: 
 //export const CartContext = createContext<Cart | undefined>(undefined);
 
 
-export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart' | 'orders' | 'order' | 'standort';
+export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart' | 'orders' | 'order' | 'standort' | 'category';
 
 
 export const AbteilungDetail = (props: AbteilungDetailProps) => {
@@ -297,6 +298,8 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                 return <OrderView abteilung={abteilung}/>
             case 'standort':
                 return <AbteilungStandorteView abteilung={abteilung} />
+            case 'category':
+                return <AbteilungCategoryView abteilung={abteilung} />
         }
     }
 
@@ -317,6 +320,9 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                     </Menu.Item>
                                     <Menu.Item key='standort' icon={<HomeOutlined />}>
                                         Standorte
+                                    </Menu.Item>
+                                    <Menu.Item key='category' icon={<PaperClipOutlined />}>
+                                        Kategorien
                                     </Menu.Item>
                                     <Menu.Item key='orders' icon={<UnorderedListOutlined />}>
                                         Bestellungen
