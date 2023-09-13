@@ -158,7 +158,7 @@ export const OrderView = (props: OrderProps) => {
         merged.push({
             timestamp: order.creationTime.toDate(),
             color: 'green',
-            text: `${`${orderer ? orderer.displayName : order?.orderer}`} hat die Bestellung erstellt.`,
+            text: `${`${(!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName}`} hat die Bestellung erstellt.`,
             type: 'creation'
         })
         //startDate for order

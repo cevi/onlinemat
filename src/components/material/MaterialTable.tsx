@@ -95,7 +95,10 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             key: 'basket',
             render: (text: string, record: Material) => (
                 <div style={{display: 'flex', justifyContent: 'space-evenly'}}>
-                    <Button type='primary' icon={<ShoppingCartOutlined />} onClick={() => { addToCart(record) }} />
+                    <Button type='primary' icon={<ShoppingCartOutlined />} onClick={(event) => {
+                        event.preventDefault();
+                        addToCart(record)
+                    }} />
                     <Can I='update' this={{...record, abteilungId: abteilungId}}>
                         <EditMaterialButton material={record} materialId={record.id} abteilungId={abteilungId} />
                     </Can>
