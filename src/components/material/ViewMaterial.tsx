@@ -26,10 +26,6 @@ export const ViewMaterial = forwardRef((props: ViewMaterialProps, ref) => {
     const standorte = standorteContext.standorte;
     const standorteLoading = standorteContext.loading;
 
-    const [renderMatImages, setRenderMatImages] = useState(material?.imageUrls || []);
-
-    const [availCount, setAvailCount] = useState<number>(getAvailableMatCount(material));
-
     // @ts-ignore
     return <>
         {
@@ -42,7 +38,7 @@ export const ViewMaterial = forwardRef((props: ViewMaterialProps, ref) => {
                     <b>Standort:</b> {displayStandortNames(standorte, material?.standort || [])}
                 </p>
                 <p>
-                    <b>Verfügbar:</b> {availCount}
+                    <b>Verfügbar:</b> {getAvailableMatCount(material)}
                 </p>
                 <p>
                     <b>Gewicht in Kg:</b> {material?.weightInKg}
@@ -51,7 +47,7 @@ export const ViewMaterial = forwardRef((props: ViewMaterialProps, ref) => {
                     <b>Kategorien:</b> {displayCategorieNames(categories, material?.categorieIds || [])}
                 </p>
                 <p>
-                    <PicturesWall showRemove={false} imageUrls={renderMatImages} />
+                    <PicturesWall showRemove={false} imageUrls={material?.imageUrls ? material.imageUrls : []} />
                 </p>
 
             </>
