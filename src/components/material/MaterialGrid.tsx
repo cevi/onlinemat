@@ -1,11 +1,13 @@
 import { Button, Card, Carousel, Col, Image, Row } from 'antd';
 import Meta from 'antd/lib/card/Meta';
-import React, { useRef } from 'react';
+import React, {useRef, useState} from 'react';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
+import {ViewMaterial} from "./ViewMaterial";
+import Modal from "antd/lib/modal/Modal";
 
 
 
@@ -53,7 +55,17 @@ export const MaterialCard = (props: MaterialCardProps) => {
             height={100}
             width='auto'
             src={url}
+            preview={false}
         />)
+    }
+
+
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [activeRecord, setActiveRecord] = useState<Material>();
+
+    function clickCard(event: React.MouseEvent<HTMLDivElement, MouseEvent>, material: Material) {
+        setActiveRecord(material);
+        setIsModalVisible(!isModalVisible);
     }
 
     return <Col xs={24} sm={24} md={12} lg={12} xl={8} xxl={4}>
@@ -69,8 +81,28 @@ export const MaterialCard = (props: MaterialCardProps) => {
                 </Image.PreviewGroup>
             </div>
             }
+            onClick = {(event) => clickCard(event, material)}
         >
             <Meta title={material.name} description={material.comment} />
         </Card>
+
+        <Modal
+            title={activeRecord?.name}
+            visible={isModalVisible}
+            onCancel={() => {
+                setIsModalVisible(false);
+            }}
+            footer={[
+                <Button key='back' onClick={() => {
+                    setIsModalVisible(false);
+                }}>
+                    Abbrechen
+                </Button>
+            ]}
+        >
+            <ViewMaterial material={activeRecord}></ViewMaterial>
+        </Modal>
     </Col>
+
+
 }

@@ -1,4 +1,4 @@
-import { DeleteOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import {DeleteOutlined, EditOutlined, ShoppingCartOutlined} from '@ant-design/icons';
 import { Button, Popconfirm, Space, Table } from 'antd';
 import { Can } from 'config/casl/casl';
 import { Categorie } from 'types/categorie.types';
@@ -6,6 +6,9 @@ import { Material } from 'types/material.types';
 import { deleteMaterial, getAvailableMatCount, getAvailableMatString } from 'util/MaterialUtil';
 import { EditMaterialButton } from './EditMaterial';
 import {Standort} from "types/standort.types";
+import Modal from "antd/lib/modal/Modal";
+import React, {useState} from "react";
+import {ViewMaterial} from "./ViewMaterial";
 
 
 
@@ -116,7 +119,36 @@ export const MaterialTable = (props: MaterialTablelProps) => {
     ];
 
 
-    return <Table rowKey='id' columns={columns} dataSource={material}/>;
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [activeRecord, setActiveRecord] = useState<Material>();
+
+    return <>
+            <Table rowKey='id' columns={columns} dataSource={material}
+                    onRow={(record, rowIndex) => {
+                        return {
+                            onClick: event => {
+                                setActiveRecord(record);
+                                setIsModalVisible(!isModalVisible);
+                            }, // click row
+                        };
+            }}/>
+            <Modal
+                title={activeRecord?.name}
+                visible={isModalVisible}
+                onCancel={() => {
+                    setIsModalVisible(false);
+                }}
+                footer={[
+                    <Button key='back' onClick={() => {
+                        setIsModalVisible(false);
+                    }}>
+                        Abbrechen
+                    </Button>
+                ]}
+            >
+                <ViewMaterial material={activeRecord}></ViewMaterial>
+            </Modal>
+        </>
 
 
 }
