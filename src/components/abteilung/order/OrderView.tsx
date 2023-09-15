@@ -123,13 +123,17 @@ export const OrderView = (props: OrderProps) => {
         setCartItemsMerged(localItemsMerged);
     }, [order, materials])
 
+
+
     useEffect(() => {
-        if (!order) return;
-        if (!matChefComment) {
-            setMatchefComment(order.matchefComment)
+        if(!membersLoading && !userDataLoading) {
+            if (!order) return;
+            if (!matChefComment) {
+                setMatchefComment(order.matchefComment)
+            }
+            setDetailedHistory(mergeHistory(order?.history))
         }
-        setDetailedHistory(mergeHistory(order?.history))
-    }, [order])
+    }, [membersLoading, userDataLoading, order])
 
     const getDotIcon = (icon: OrderHistory['type'], color?: string | null) => {
         if (!icon) return undefined;
@@ -152,13 +156,14 @@ export const OrderView = (props: OrderProps) => {
     }
 
     const mergeHistory = (history: OrderHistory[]): OrderHistory[] => {
+        
         if (!order) return [];
         const merged = [...history] || [];
         //order creation
         merged.push({
             timestamp: order.creationTime.toDate(),
             color: 'green',
-            text: `${`${orderer ? orderer.displayName : order?.orderer}`} hat die Bestellung erstellt.`,
+            text: `${` ${orderer ? orderer.displayName : order?.orderer}`} hat die Bestellung erstellt.`,
             type: 'creation'
         })
         //startDate for order
