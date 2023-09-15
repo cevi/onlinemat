@@ -40,3 +40,13 @@ $box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.15); // major shadow for layers
     border-color: #B5B2B0;
    
 }
+
+@media screen and (max-width:769px) {
+    .center-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        margin-top: 10%;
+    }
+}

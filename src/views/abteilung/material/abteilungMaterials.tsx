@@ -1,22 +1,20 @@
-import { useContext, useState } from 'react';
-import classNames from 'classnames';
-import appStyles from 'styles.module.scss';
-import { Spin, Input, Radio, message, Row, Col } from 'antd';
-import { AddMaterialButton } from 'components/material/AddMaterial';
-import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
-import { AddCategorieButton } from 'components/categorie/AddCategorie';
-import { Abteilung } from 'types/abteilung.type';
-import { MaterialTable } from 'components/material/MaterialTable';
-import { MaterialGrid } from 'components/material/MaterialGrid';
-import { Can } from 'config/casl/casl';
-import { AbteilungEntityCasl } from 'config/casl/ability';
+import {useContext, useState} from 'react';
+import {Col, Input, message, Radio, Row, Spin} from 'antd';
+import {AddMaterialButton} from 'components/material/AddMaterial';
+import {AppstoreOutlined, MenuOutlined} from '@ant-design/icons';
+import {AddCategorieButton} from 'components/categorie/AddCategorie';
+import {Abteilung} from 'types/abteilung.type';
+import {MaterialTable} from 'components/material/MaterialTable';
+import {MaterialGrid} from 'components/material/MaterialGrid';
+import {Can} from 'config/casl/casl';
+import {AbteilungEntityCasl} from 'config/casl/ability';
 import {CategorysContext, MaterialsContext, StandorteContext} from 'components/abteilung/AbteilungDetails';
-import { useCookies } from 'react-cookie';
-import { CartItem } from 'types/cart.types';
-import { cookieToCart, getCartName } from 'util/CartUtil';
+import {useCookies} from 'react-cookie';
+import {CartItem} from 'types/cart.types';
+import {getCartName} from 'util/CartUtil';
 import moment from 'moment';
-import { Material } from 'types/material.types';
-import { getAvailableMatCount } from 'util/MaterialUtil';
+import {Material} from 'types/material.types';
+import {getAvailableMatCount} from 'util/MaterialUtil';
 import {AddStandortButton} from "components/standort/AddStandort";
 
 export type AbteilungMaterialViewProps = {
@@ -24,6 +22,8 @@ export type AbteilungMaterialViewProps = {
     cartItems: CartItem[]
     changeCart: (cart: CartItem[]) => void
 };
+
+
 
 export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     const { abteilung, cartItems, changeCart } = props;
@@ -34,9 +34,16 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
 
     const [cookies, setCookie] = useCookies([cookieName]);
 
+    const [windowSize, setWindowSize] = useState([
+        window.innerWidth,
+        window.innerHeight,
+    ]);
 
+    function getInitialMode() {
+        return windowSize[0] > 768 ? 'table' : 'grid';
+    }
     const [query, setQuery] = useState<string | undefined>(undefined);
-    const [displayMode, setDisplayMode] = useState<'table' | 'grid'>('table');
+    const [displayMode, setDisplayMode] = useState(() => getInitialMode());
 
     //fetch categories
     const categoriesContext = useContext(CategorysContext);
@@ -52,7 +59,6 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     const materialsContext = useContext(MaterialsContext);
     const materials = materialsContext.materials;
     const matLoading = materialsContext.loading;
-
 
     const addItemToCart = (material: Material) => {
 
@@ -100,28 +106,28 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
         return <Spin />
     }
 
+
     return <Row gutter={[16, 16]}>
 
-        <Col span={4}>
+        <Col xl={4}>
             <Can I={'create'} this={{ __caslSubjectType__: 'Material', abteilungId: abteilung.id } as AbteilungEntityCasl}>
                 <AddMaterialButton abteilungId={abteilung.id} />
             </Can>
         </Col>
-        <Col span={4}>
+        <Col xl={4}>
             <Can I={'create'} this={{ __caslSubjectType__: 'Categorie', abteilungId: abteilung.id } as AbteilungEntityCasl}>
                 <AddCategorieButton abteilungId={abteilung.id} />
             </Can>
         </Col>
-        <Col span={4}>
+        <Col xl={4}>
             <Can I={'create'} this={{ __caslSubjectType__: 'Standort', abteilungId: abteilung.id } as AbteilungEntityCasl}>
                 <AddStandortButton abteilungId={abteilung.id} />
             </Can>
         </Col>
 
-
-
         {
             matLoading || catLoading ?
+
                 <Spin />
                 :
                 <>
@@ -137,8 +143,12 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                     <Col span={4}>
                         <Radio.Group value={displayMode} onChange={(e) => setDisplayMode(e.target.value as 'table' | 'grid')}>
                             <Radio.Button value='grid' >{<AppstoreOutlined />}</Radio.Button>
-                            <Radio.Button value='table'>{<MenuOutlined />}</Radio.Button>
+                            { windowSize[0] > 768 &&
+                                <Radio.Button value='table'>{<MenuOutlined />}</Radio.Button>
+                            }
                         </Radio.Group>
+
+
                     </Col>
                     <Col span={24}>
                         {

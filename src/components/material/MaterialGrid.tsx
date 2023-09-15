@@ -8,6 +8,15 @@ import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import {ViewMaterial} from "./ViewMaterial";
 import Modal from "antd/lib/modal/Modal";
+import {
+    DeleteOutlined,
+    EditOutlined,
+    EllipsisOutlined,
+    EyeOutlined,
+    SettingOutlined,
+    ShoppingCartOutlined
+} from "@ant-design/icons";
+import {deleteMaterial} from "../../util/MaterialUtil";
 
 
 
@@ -26,7 +35,7 @@ export const MaterialGrid = (props: MaterialGridProps) => {
 
         <Row gutter={[24, 24]}>
             {
-                material.map(mat => <MaterialCard material={mat} />)
+                material.map(mat => <MaterialCard material={mat} addToCart={addToCart} />)
             }
         </Row>
 
@@ -36,11 +45,12 @@ export const MaterialGrid = (props: MaterialGridProps) => {
 
 export interface MaterialCardProps {
     material: Material
+    addToCart: (mat: Material) => void
 }
 
 export const MaterialCard = (props: MaterialCardProps) => {
 
-    const { material } = props;
+    const { material , addToCart} = props;
 
     const createImageCarousel = () => {
         if (!material.imageUrls || material.imageUrls.length <= 0) {
@@ -63,7 +73,7 @@ export const MaterialCard = (props: MaterialCardProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [activeRecord, setActiveRecord] = useState<Material>();
 
-    function clickCard(event: React.MouseEvent<HTMLDivElement, MouseEvent>, material: Material) {
+    function clickCard(event: React.MouseEvent, material: Material) {
         setActiveRecord(material);
         setIsModalVisible(!isModalVisible);
     }
@@ -81,11 +91,13 @@ export const MaterialCard = (props: MaterialCardProps) => {
                 </Image.PreviewGroup>
             </div>
             }
-            onClick = {(event) => clickCard(event, material)}
+            actions={[
+                    <EyeOutlined key="view" onClick={(event) => clickCard(event, material)} />,
+                    <ShoppingCartOutlined key="cart" onClick={(event) => addToCart(material)} />
+            ]}
         >
             <Meta title={material.name} description={material.comment} />
         </Card>
-
         <Modal
             title={activeRecord?.name}
             visible={isModalVisible}

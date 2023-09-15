@@ -1,5 +1,5 @@
-import {DeleteOutlined, EditOutlined, ShoppingCartOutlined} from '@ant-design/icons';
-import { Button, Popconfirm, Space, Table } from 'antd';
+import {DeleteOutlined, ShoppingCartOutlined} from '@ant-design/icons';
+import { Button, Popconfirm, Table } from 'antd';
 import { Can } from 'config/casl/casl';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
