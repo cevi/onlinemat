@@ -2,9 +2,9 @@ import {Button, Popconfirm, Table} from 'antd';
 import {Standort} from "types/standort.types";
 import { Can } from 'config/casl/casl';
 import {EditStandortButton} from "./EditStandort";
-import {deleteMaterial} from "../../util/MaterialUtil";
 import {DeleteOutlined} from "@ant-design/icons";
 import {deleteStandort} from "../../util/StandortUtil";
+import {ColumnsType} from "antd/es/table";
 
 export interface StandortTableProps {
     abteilungId: string
@@ -16,7 +16,7 @@ export const StandortTable = (props: StandortTableProps) => {
 
     const { abteilungId, standort } = props;
 
-    const columns = [
+    const columns: ColumnsType<Standort> = [
         {
             title: 'Name',
             key: 'name',
@@ -25,17 +25,20 @@ export const StandortTable = (props: StandortTableProps) => {
         {
             title: 'Strasse',
             key: 'street',
-            dataIndex: 'street'
+            dataIndex: 'street',
+            responsive: ['md']
         },
         {
             title: 'Ort',
             key: 'city',
-            dataIndex: 'city'
+            dataIndex: 'city',
+            responsive: ['md']
         },
         {
             title: 'Koordinaten',
             key: 'coordinates',
-            dataIndex: 'coordinates'
+            dataIndex: 'coordinates',
+            responsive: ['md']
         },
         {
             title: 'Bearbeiten',

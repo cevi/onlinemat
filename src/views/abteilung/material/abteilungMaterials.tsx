@@ -114,12 +114,12 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                 <AddMaterialButton abteilungId={abteilung.id} />
             </Can>
         </Col>
-        <Col xl={4}>
+        <Col hidden={windowSize[0] < 769} xl={4}>
             <Can I={'create'} this={{ __caslSubjectType__: 'Categorie', abteilungId: abteilung.id } as AbteilungEntityCasl}>
                 <AddCategorieButton abteilungId={abteilung.id} />
             </Can>
         </Col>
-        <Col xl={4}>
+        <Col hidden={windowSize[0] < 769} xl={4}>
             <Can I={'create'} this={{ __caslSubjectType__: 'Standort', abteilungId: abteilung.id } as AbteilungEntityCasl}>
                 <AddStandortButton abteilungId={abteilung.id} />
             </Can>
@@ -131,20 +131,21 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                 <Spin />
                 :
                 <>
-                    <Col span={20}>
+                    <Col xl={20} md={20} xs={24} >
                         <Search
                             placeholder='nach Material suchen'
                             allowClear
-                            enterButton='Suchen'
                             size='large'
                             onSearch={(query) => setQuery(query)}
                         />
                     </Col>
-                    <Col span={4}>
+                    <Col xl={4} md={4} xs={0}>
                         <Radio.Group value={displayMode} onChange={(e) => setDisplayMode(e.target.value as 'table' | 'grid')}>
-                            <Radio.Button value='grid' >{<AppstoreOutlined />}</Radio.Button>
                             { windowSize[0] > 768 &&
-                                <Radio.Button value='table'>{<MenuOutlined />}</Radio.Button>
+                                <>
+                                    <Radio.Button value='grid'>{<AppstoreOutlined/>}</Radio.Button>
+                                    <Radio.Button value='table'>{<MenuOutlined/>}</Radio.Button>
+                                </>
                             }
                         </Radio.Group>
 
