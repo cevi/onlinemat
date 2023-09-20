@@ -55,7 +55,7 @@ export const MaterialCard = (props: MaterialCardProps) => {
     const createImageCarousel = () => {
         if (!material.imageUrls || material.imageUrls.length <= 0) {
             return <Image
-                key={material.id}
+                key={`mat_${material.id}_ceviLogo`}
                 height={100}
                 width='auto'
                 src={ceviLogoImage}
@@ -63,7 +63,7 @@ export const MaterialCard = (props: MaterialCardProps) => {
             />;
         }
         return material.imageUrls.map(url => <Image
-            key={material.id}
+            key={`mat_${material.id}_${url}`}
             height={100}
             width='auto'
             src={url}
