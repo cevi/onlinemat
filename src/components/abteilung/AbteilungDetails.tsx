@@ -135,12 +135,19 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     }, [abteilungen])
 
     //update url
-    useMemo(() => {
+    // useMemo(() => {
+    //     if (!abteilung) return;
+    //     navigate(`/abteilungen/${abteilung.slug || abteilung.id}/${selectedMenu}`, {
+    //         state: cartItems
+    //     })
+    // }, [selectedMenu])
+
+    const navigateToMenu = (selectedMenu: AbteilungTab) => {
         if (!abteilung) return;
         navigate(`/abteilungen/${abteilung.slug || abteilung.id}/${selectedMenu}`, {
             state: cartItems
         })
-    }, [selectedMenu])
+    }
 
 
     //fetch members if user has access
@@ -314,7 +321,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                         <StandorteContext.Provider value={{ standorte, loading: standorteLoading}}>
                             {/* <CartContext.Provider value={cart}> */}
                             <PageHeader title={`Abteilung ${abteilung?.name}`}>
-                                <Menu onClick={(e) => { setSelectedMenu(e.key as AbteilungTab) }} selectedKeys={[selectedMenu]} mode='horizontal'>
+                                <Menu onClick={(e) => { navigateToMenu(e.key as AbteilungTab) }} selectedKeys={[selectedMenu]} mode='horizontal'>
                                     <Menu.Item key='mat' icon={<ContainerOutlined />}>
                                         Material
                                     </Menu.Item>
