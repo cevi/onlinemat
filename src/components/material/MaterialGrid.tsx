@@ -35,7 +35,7 @@ export const MaterialGrid = (props: MaterialGridProps) => {
 
         <Row gutter={[24, 24]}>
             {
-                material.map(mat => <MaterialCard key={Math.random()} material={mat} addToCart={addToCart} />)
+                material.map(mat => <MaterialCard key={mat.id} material={mat} addToCart={addToCart} />)
             }
         </Row>
 
@@ -55,7 +55,7 @@ export const MaterialCard = (props: MaterialCardProps) => {
     const createImageCarousel = () => {
         if (!material.imageUrls || material.imageUrls.length <= 0) {
             return <Image
-                key={Math.random()}
+                key={material.id}
                 height={100}
                 width='auto'
                 src={ceviLogoImage}
@@ -63,7 +63,7 @@ export const MaterialCard = (props: MaterialCardProps) => {
             />;
         }
         return material.imageUrls.map(url => <Image
-            key={Math.random()}
+            key={material.id}
             height={100}
             width='auto'
             src={url}

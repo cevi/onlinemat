@@ -76,6 +76,11 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const abteilungen = abteilungenContext.abteilungen;
     const abteilungLoading = abteilungenContext.loading;
 
+    const [windowSize, setWindowSize] = useState([
+        window.innerWidth,
+        window.innerHeight,
+    ]);
+
     const [abteilung, setAbteilung] = useState<Abteilung | undefined>(undefined);
     const [selectedMenu, setSelectedMenu] = useState<AbteilungTab>(initTab);
 
@@ -288,26 +293,36 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             return <NoAccessToAbteilung abteilung={abteilung} />
         }
 
-        switch (selectedMenu) {
-            case 'mat':
-                return <AbteilungMaterialView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
-            case 'members':
-                return <Member abteilungId={abteilung.id} />
-            case 'groups':
-                return <Group abteilung={abteilung} />
-            case 'settings':
-                return <AbteilungSettings abteilung={abteilung} />
-            case 'cart':
-                return <Cart abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
-            case 'orders':
-                return <Orders abteilung={abteilung}/>
-            case 'order':
-                return <OrderView abteilung={abteilung}/>
-            case 'standort':
-                return <AbteilungStandorteView abteilung={abteilung} />
-            case 'category':
-                return <AbteilungCategoryView abteilung={abteilung} />
+        if (windowSize[0] > 768) {
+            switch (selectedMenu) {
+                case 'mat':
+                    return <AbteilungMaterialView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
+                case 'members':
+                    return <Member abteilungId={abteilung.id} />
+                case 'groups':
+                    return <Group abteilung={abteilung} />
+                case 'settings':
+                    return <AbteilungSettings abteilung={abteilung} />
+                case 'cart':
+                    return <Cart abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
+                case 'orders':
+                    return <Orders abteilung={abteilung}/>
+                case 'order':
+                    return <OrderView abteilung={abteilung}/>
+                case 'standort':
+                    return <AbteilungStandorteView abteilung={abteilung} />
+                case 'category':
+                    return <AbteilungCategoryView abteilung={abteilung} />
+            }
+        } else {
+            switch (selectedMenu) {
+                case 'mat':
+                    return <AbteilungMaterialView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart}/>
+                case 'cart':
+                    return <Cart abteilung={abteilung} cartItems={cartItems} changeCart={changeCart}/>
+            }
         }
+
     }
 
 
@@ -325,26 +340,30 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                     <Menu.Item key='mat' icon={<ContainerOutlined />}>
                                         Material
                                     </Menu.Item>
-                                    <Menu.Item key='standort' icon={<HomeOutlined />}>
-                                        Standorte
-                                    </Menu.Item>
-                                    <Menu.Item key='category' icon={<PaperClipOutlined />}>
-                                        Kategorien
-                                    </Menu.Item>
-                                    <Menu.Item key='orders' icon={<UnorderedListOutlined />}>
-                                        Bestellungen
-                                    </Menu.Item>
-                                    {canUpdate && <Menu.Item key='members' icon={<TeamOutlined />}>
-                                        Mitglieder
-                                    </Menu.Item>
-                                    }
-                                    {canUpdate && <Menu.Item key='groups' icon={<TagsOutlined />}>
-                                        Gruppen
-                                    </Menu.Item>
-                                    }
-                                    {canUpdate && <Menu.Item key='settings' icon={<SettingOutlined />}>
-                                        Einstellungen
-                                    </Menu.Item>
+                                    { windowSize[0] > 768 &&
+                                        <>
+                                            <Menu.Item key='standort' icon={<HomeOutlined />}>
+                                                Standorte
+                                            </Menu.Item>
+                                            <Menu.Item key='category' icon={<PaperClipOutlined />}>
+                                                Kategorien
+                                            </Menu.Item>
+                                            <Menu.Item key='orders' icon={<UnorderedListOutlined />}>
+                                                Bestellungen
+                                            </Menu.Item>
+                                            {canUpdate && <Menu.Item key='members' icon={<TeamOutlined />}>
+                                                Mitglieder
+                                            </Menu.Item>
+                                            }
+                                            {canUpdate && <Menu.Item key='groups' icon={<TagsOutlined />}>
+                                                Gruppen
+                                            </Menu.Item>
+                                            }
+                                            {canUpdate && <Menu.Item key='settings' icon={<SettingOutlined />}>
+                                                Einstellungen
+                                            </Menu.Item>
+                                            }
+                                        </>
                                     }
                                     {
                                         // right menu
