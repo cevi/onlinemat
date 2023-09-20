@@ -31,8 +31,6 @@ const NavigationMenu: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [abteilungen, setAbteilungen] = useState<Abteilung[]>([]);
 
-  console.log('user', user)
-
   //fetch all abteilungen
   useEffect(() => {
     if(!isAuthenticated || !userState.appUser?.firebaseUser) return;

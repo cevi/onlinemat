@@ -67,7 +67,7 @@ const App = () => {
           console.error("unable to login to firebase with token", err)
         );
     }
-  }, [user]);
+  }, [user, isAuthenticated]);
 
   return <NavigationMenu />;
 };
