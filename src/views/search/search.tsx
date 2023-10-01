@@ -110,7 +110,7 @@ export const SearchView = () => {
         {
             !!user && <div className={classNames(appStyles['flex-grower'], appStyles['center-container'])}>
                 <h1>Onlinemat Suche</h1>
-                <p>Du kanst nach Material suchen. Wenn es eine Abteilung hat, wird dir das hier angezeigt.</p>
+                <p>Du kannst nach Material suchen. Wenn es eine Abteilung hat, wird dir das hier angezeigt.</p>
 
                 <Search placeholder='Materialname' value={query} onSearch={(val)=>setSearch(val)} onChange={(e)=> {
                     e.preventDefault()
