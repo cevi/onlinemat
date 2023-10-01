@@ -8,6 +8,7 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
   const { can, cannot, rules } = new AbilityBuilder(AppAbility);
 
   if (!!user.staff) {
+
     //Abteilung
     can('create', 'Abteilung');
     can('read', 'Abteilung');
