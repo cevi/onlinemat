@@ -76,13 +76,13 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const abteilungen = abteilungenContext.abteilungen;
     const abteilungLoading = abteilungenContext.loading;
 
-    const [windowSize, setWindowSize] = useState([
+    const [windowSize] = useState([
         window.innerWidth,
         window.innerHeight,
     ]);
 
     const [abteilung, setAbteilung] = useState<Abteilung | undefined>(undefined);
-    const [selectedMenu, setSelectedMenu] = useState<AbteilungTab>(initTab);
+    const [selectedMenu] = useState<AbteilungTab>(initTab);
 
     const [members, setMembers] = useState<AbteilungMember[]>([]);
     const [userData, setUserData] = useState<{ [uid: string]: UserData }>({});
@@ -102,8 +102,9 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const [cookies] = useCookies();
     const [cartItems, setCartItems] = useState<CartItem[]>(state as CartItem[] || []);
 
-    const canUpdate = ability.can('update', 'Abteilung');
-    const canRead = ability.can('read', 'Abteilung');
+
+    const canUpdate = useMemo(()=> ability.can('update', {__caslSubjectType__: 'Abteilung', id: abteilung?.id} as Abteilung), [abteilung]);
+    const canRead = useMemo(()=> ability.can('read', {__caslSubjectType__: 'Abteilung', id: abteilung?.id} as Abteilung), [abteilung]);
 
     //force rerender if cart changed
     const changeCart = (cartToChange: CartItem[]) => {
@@ -119,7 +120,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
         if (!cookieRaw) return;
         const cookieCart = cookieToCart(cookieRaw, abteilung.id)
         setCartItems(cookieCart)
-    }, [])
+    }, [abteilung, cartItems, cookies])
 
 
     useMemo(() => {
@@ -137,7 +138,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                 message.error(`Unbekannte Abteilung ${abteilungSlugOrId}`)
             }
         }
-    }, [abteilungen])
+    }, [abteilungen, abteilungLoading, abteilungSlugOrId])
 
     //update url
     // useMemo(() => {
@@ -174,7 +175,7 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
             message.error(`Es ist ein Fehler aufgetreten ${err}`)
             console.error('Es ist ein Fehler aufgetreten', err)
         });
-    }, [isAuthenticated]);
+    }, [isAuthenticated, abteilung, canUpdate]);
 
     //fetch user data from members if user has access
     useEffect(() => {
