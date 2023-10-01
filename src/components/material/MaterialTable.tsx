@@ -30,7 +30,15 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a: Material, b: Material) => a.name.normalize().localeCompare(b.name.normalize())
+            sorter: (a: Material, b: Material) => a.name.normalize().localeCompare(b.name.normalize()),
+            render: (text: string, record: Material) => {
+                return <a onClick={()=> {
+                    setActiveRecord(record);
+                    setIsModalVisible(!isModalVisible);
+                }}>
+                    {text}
+                </a>
+            }
         },
         {
             title: 'Bemerkung',
@@ -109,7 +117,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
                     <Can I='delete' this={{...record, abteilungId: abteilungId}}>
                        <Popconfirm
                             title={`Möchtest du ${record.name} wirklich löschen?`}
-                            onConfirm={() => deleteMaterial(abteilungId, record)}
+                            onConfirm={(event) => {event?.stopPropagation(); deleteMaterial(abteilungId, record)}}
                             onCancel={() => { }}
                             okText='Ja'
                             cancelText='Nein'
@@ -127,15 +135,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
     const [activeRecord, setActiveRecord] = useState<Material>();
 
     return <>
-            <Table rowKey='id' columns={columns} dataSource={material}
-                    onRow={(record, rowIndex) => {
-                        return {
-                            onClick: event => {
-                                setActiveRecord(record);
-                                setIsModalVisible(!isModalVisible);
-                            }, // click row
-                        };
-            }}/>
+            <Table rowKey='id' columns={columns} dataSource={material}/>
             <Modal
                 title={activeRecord?.name}
                 visible={isModalVisible}

@@ -302,7 +302,7 @@ export const EditMaterialButton = (props: EditMaterialProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
-        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
+        <Button type='primary' onClick={(event) => { event.preventDefault(); event.stopPropagation(); setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
         <Modal
             title='Material bearbeiten'
             visible={isModalVisible}
