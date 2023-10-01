@@ -100,6 +100,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
                 <div style={{display: 'flex', justifyContent: 'space-evenly'}}>
                     <Button type='primary' icon={<ShoppingCartOutlined />} onClick={(event) => {
                         event.preventDefault();
+                        event.stopPropagation()
                         addToCart(record)
                     }} />
                     <Can I='update' this={{...record, abteilungId: abteilungId}}>
