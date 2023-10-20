@@ -1,7 +1,6 @@
 import {firestore} from "../config/firebase/firebase";
 import {usersCollection} from "../config/firebase/collections";
 import {message} from "antd";
-import {AppUser} from "../config/redux/user/user";
 import {UserData} from "../types/user.type";
 
 export const dateFormat = 'DD.MM.YYYY';
