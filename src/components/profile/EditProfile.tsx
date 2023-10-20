@@ -1,11 +1,12 @@
 import {UserData} from "../../types/user.type";
-import React, {forwardRef, useImperativeHandle, useRef, useState} from "react";
-import {Button, Form, Input, message} from "antd";
+import React, {forwardRef, useContext, useImperativeHandle, useRef, useState} from "react";
+import {AutoComplete, Button, Form, Input, message} from "antd";
 import {editUserData} from "../../util/UserUtil";
 import {useUser} from "../../hooks/use-user";
 import {validateMessages} from "../../util/FormValdationMessages";
 import {EditOutlined} from "@ant-design/icons";
 import Modal from "antd/lib/modal/Modal";
+import {AbteilungenContext} from "../navigation/NavigationMenu";
 
 export interface EditProfileProps {
     userId: string | undefined;
@@ -29,6 +30,9 @@ export const EditProfile = forwardRef((props: EditProfileProps, ref) => {
 
     const userState = useUser();
 
+    const abteilungenContext = useContext(AbteilungenContext);
+    const abteilungen = abteilungenContext.abteilungen;
+
     const prepareEditProfile = async () => {
         try {
             await form.validateFields();
@@ -38,9 +42,7 @@ export const EditProfile = forwardRef((props: EditProfileProps, ref) => {
         }
         try {
             const userData = Object.assign(userState.appUser?.userData, form.getFieldsValue());
-
             userData.id = userId || '';
-            console.log(userData);
             await editUserData(userState.appUser?.firebaseUser?.uid, userData);
             if (onSuccess) {
                 onSuccess()
@@ -129,13 +131,13 @@ export const EditProfile = forwardRef((props: EditProfileProps, ref) => {
                     label='Standard Abteilung'
                     name='defaultAbteilung'
                     rules={[
-                        {required: true},
                         {type: 'string', min: 1},
                     ]}
                 >
-                    <Input
-                        placeholder='Standard Abteilung'
+                    <AutoComplete
+                        dataSource={abteilungen.map(a => a.slug ? a.slug : a.id)}
                     />
+
                 </Form.Item>
             </Form>
         }
@@ -149,25 +151,34 @@ export const EditProfileButton = (props: EditProfileProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
-        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
+        <Button type='primary' onClick={() => {
+            setIsModalVisible(!isModalVisible)
+        }} icon={<EditOutlined/>}/>
         <Modal
             title='Profil bearbeiten'
             visible={isModalVisible}
-            onCancel={() => { setIsModalVisible(false) }}
+            onCancel={() => {
+                setIsModalVisible(false)
+            }}
             footer={[
-                <Button key='back' onClick={() => { setIsModalVisible(false) }}>
+                <Button key='back' onClick={() => {
+                    setIsModalVisible(false)
+                }}>
                     Abbrechen
                 </Button>,
-                <Button key='save'  type='primary' onClick={() => {
-                    if(!editProfileRef || !editProfileRef.current) return;
+                <Button key='save' type='primary' onClick={() => {
+                    if (!editProfileRef || !editProfileRef.current) return;
                     //TODO: typescript
-                    (editProfileRef.current as any).saveEditProfile() }}
+                    (editProfileRef.current as any).saveEditProfile()
+                }}
                 >
                     Änderungen speichern
                 </Button>
             ]}
         >
-            <EditProfile ref={editProfileRef} userId={userId} userData={userData} onSuccess={() => { setIsModalVisible(false) }} />
+            <EditProfile ref={editProfileRef} userId={userId} userData={userData} onSuccess={() => {
+                setIsModalVisible(false)
+            }}/>
         </Modal>
     </>
 
