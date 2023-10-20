@@ -9,6 +9,7 @@ import { Auth0User } from 'types/auth0.types';
 import moment from 'moment';
 import { useUser } from 'hooks/use-user';
 import { UserData } from 'types/user.type';
+import {EditProfileButton} from "../../components/profile/EditProfile";
 
 export const ProfileView = () => {
     const { user, isAuthenticated, isLoading } = useAuth0();
@@ -48,6 +49,7 @@ export const ProfileView = () => {
                     <p>Sub: {auth0User.sub}</p>
                     <p>Updated at: {moment(auth0User.updated_at).format('L LT')}</p>
                     <p>Firebase User ID: {(userState.appUser && userState.appUser.firebaseUser.uid) || '-'}</p>
+                    <p>Default Abteilung: {userState.appUser?.userData.defaultAbteilung}</p>
                     <p>Staff: {userState.appUser?.userData?.staff ? 'Ja' : 'Nein'}</p>
                 </Card>
                 {
@@ -55,6 +57,7 @@ export const ProfileView = () => {
                         throw Error('forced error')
                     }}>Crash</Button>
                 }
+                <EditProfileButton userId={userState.appUser?.userData?.id} userData={userState.appUser?.userData} />
             </div>
         }
     </div>

@@ -98,7 +98,13 @@ const NavigationMenu: React.FC = () => {
                 :
                 [HomeRoute, ...filteredRoutes].map(appRoute => {
                   if (appRoute.showInMenue) {
-                    return <Menu.Item key={`${appRoute.key}`} onClick={() => { navigate(appRoute.key) }}>
+                    return <Menu.Item key={`${appRoute.key}`} onClick={() => {
+                        if (appRoute.key === '/abteilungen' && userState.appUser?.userData?.defaultAbteilung) {
+                            navigate(`${appRoute.key}/${userState.appUser.userData.defaultAbteilung}`)
+                        } else {
+                            navigate(appRoute.key)
+                        }
+                    }}>
                       {appRoute.icon}
                       <span>{appRoute.displayName}</span>
                     </Menu.Item>
@@ -121,7 +127,7 @@ const NavigationMenu: React.FC = () => {
                   <Spin tip='Lade...' />
                 </div>
                 :
-                user && !user.email_verified ? <VerifyEmail/> : 
+                user && !user.email_verified ? <VerifyEmail/> :
                 <Routes>
                   {[HomeRoute, ...AppRoutes].map(appRoute => <Route key={appRoute.key} path={appRoute.key} element={appRoute.private ? <ProtectedRoute component={appRoute.view} /> : appRoute.element}></Route>)}
                   <Route path='*' element={<NotFoundView />} />
