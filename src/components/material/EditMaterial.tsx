@@ -212,6 +212,17 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
                     >
                         <Switch />
                     </Form.Item>
+
+                    <Form.Item
+                        label='Darf nur Von Internen ausgeliehen werden'
+                        name='onlyLendInternal'
+                        rules={[
+                            { required: true },
+
+                        ]}
+                    >
+                        <Switch defaultChecked={true}/>
+                    </Form.Item>
                     <Form.Item
                         label='Kategorien'
                         name='categorieIds'

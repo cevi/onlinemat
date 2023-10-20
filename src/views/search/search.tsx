@@ -10,6 +10,7 @@ import { abteilungenCollection, abteilungenMaterialsCollection } from 'config/fi
 import { Material } from 'types/material.types';
 import { Abteilung } from 'types/abteilung.type';
 import { useSearchParams } from 'react-router-dom';
+import {useUser} from "../../hooks/use-user";
 
 export interface SeatchMaterial extends Material {
     abteilungId: string | undefined
@@ -31,6 +32,9 @@ export const SearchView = () => {
     const [search, setSearch] = useState<string | undefined>(initQuery !== null ? initQuery : undefined);
     const [abteilungLoading, setAbteilungLoading] = useState(false);
     const [material, setMaterial] = useState<SeatchMaterial[]>([]);
+
+    const userState = useUser();
+    const filteredMaterials = material.filter(material => !material.onlyLendInternal);
 
     const searchKey = 'keywords';
 
@@ -120,7 +124,7 @@ export const SearchView = () => {
                     loading && <Spin />
                 }
                 {
-                    material.map(mat => {
+                    filteredMaterials.map(mat => {
                         const abteilung = abteilungen.filter(ab => ab.id === mat.abteilungId).length > 0 ? abteilungen.filter(ab => ab.id === mat.abteilungId)[0] : undefined;
                         return <p key={mat.id}>{`${mat.name} `}<a href={abteilung ? `/abteilungen/${abteilung.slug || abteilung.id}` : '/abteilungen'}>{abteilung && abteilung.name ? abteilung.name : 'Unbekannte Abteilung'}</a></p>
                     })
