@@ -15,4 +15,15 @@ export interface UserData {
     roles: { [abteilungId: string]: role }
 }
 
+export interface UserDataUpdate {
+    email: string
+    displayName: string
+    photoURL: string
+    given_name: string,
+    family_name: string,
+    nickname: string,
+    name: string,
+    defaultAbteilung?: string;
+}
+
 export type role = 'pending' | 'guest' | 'member' | 'matchef' | 'admin';

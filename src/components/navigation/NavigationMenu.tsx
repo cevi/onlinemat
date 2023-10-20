@@ -14,6 +14,7 @@ import {Abteilung} from 'types/abteilung.type';
 import {abteilungenCollection} from 'config/firebase/collections';
 import {setGroupDates} from 'util/GroupUtil';
 import {VerifyEmail} from './VerifyEmail';
+import { useParams } from "react-router-dom";
 
 const {Header, Content, Footer, Sider} = Layout;
 
@@ -29,6 +30,8 @@ const NavigationMenu: React.FC = () => {
 
     const {user, isAuthenticated, isLoading, logout, loginWithRedirect} = useAuth0();
     const userState = useUser();
+
+    const { showAll } = useParams();
 
     const [loading, setLoading] = useState(false);
     const [abteilungen, setAbteilungen] = useState<Abteilung[]>([]);
@@ -80,6 +83,14 @@ const NavigationMenu: React.FC = () => {
     const matchedRoute = filteredRoutes.find((appRoute: AppRoute) => pathname.startsWith(appRoute.key));
     const matchedKey = matchedRoute ? matchedRoute.key : '/';
 
+    const calculateSelectedKeys = () => {
+        console.log(pathname)
+        if(pathname === `/abteilungen/${userState.appUser?.userData?.defaultAbteilung}`) {
+            return ['/']
+        }
+        return [matchedKey]
+    }
+
     return (
         <AbteilungenContext.Provider value={{
             abteilungen, loading
@@ -99,7 +110,7 @@ const NavigationMenu: React.FC = () => {
                     <Menu
                         mode='inline'
                         theme='dark'
-                        selectedKeys={[matchedKey]}
+                        selectedKeys={calculateSelectedKeys()}
                         selectable={false}
                     >
                         {
@@ -110,9 +121,10 @@ const NavigationMenu: React.FC = () => {
                                 :
                                 [HomeRoute, ...filteredRoutes].map(appRoute => {
                                     if (appRoute.showInMenue) {
+                                        
                                         return <Menu.Item key={`${appRoute.key}`} onClick={() => {
-                                            if (appRoute.key === '/abteilungen' && userState.appUser?.userData?.defaultAbteilung) {
-                                                navigate(`${appRoute.key}/${userState.appUser.userData.defaultAbteilung}`)
+                                            if (appRoute.key === '/' && userState.appUser?.userData?.defaultAbteilung) {
+                                                navigate(`abteilungen/${userState.appUser.userData.defaultAbteilung}`)
                                             } else {
                                                 navigate(appRoute.key)
                                             }
