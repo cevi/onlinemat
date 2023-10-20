@@ -1,9 +1,6 @@
 import {UserData} from "../../types/user.type";
 import React, {forwardRef, useImperativeHandle, useRef, useState} from "react";
-import {EditCategory, EditCategoryProps} from "../categorie/EditCategory";
 import {Button, Form, Input, message} from "antd";
-import {Categorie} from "../../types/categorie.types";
-import {editCategory} from "../../util/CategoryUtil";
 import {editUserData} from "../../util/UserUtil";
 import {useUser} from "../../hooks/use-user";
 import {validateMessages} from "../../util/FormValdationMessages";
@@ -147,7 +144,7 @@ export const EditProfile = forwardRef((props: EditProfileProps, ref) => {
 
 export const EditProfileButton = (props: EditProfileProps) => {
 
-    const {userId, userData, onSuccess} = props;
+    const {userId, userData} = props;
     const editProfileRef = useRef();
     const [isModalVisible, setIsModalVisible] = useState(false);
 

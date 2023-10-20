@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { PageHeader, Spin, Card, message, Button } from 'antd';
-import { useAuth0 } from '@auth0/auth0-react';
+import {Button, Card, PageHeader, Spin} from 'antd';
+import {useAuth0} from '@auth0/auth0-react';
 import Meta from 'antd/lib/card/Meta';
 import Avatar from 'antd/lib/avatar/avatar';
-import { Auth0User } from 'types/auth0.types';
+import {Auth0User} from 'types/auth0.types';
 import moment from 'moment';
-import { useUser } from 'hooks/use-user';
-import { UserData } from 'types/user.type';
+import {useUser} from 'hooks/use-user';
 import {EditProfileButton} from "../../components/profile/EditProfile";
 
 export const ProfileView = () => {

@@ -1,20 +1,19 @@
-import React, { useState, createContext, useEffect } from 'react';
+import React, {createContext, useEffect, useState} from 'react';
 import styles from './NavigationMenu.module.scss';
 import appStyles from 'styles.module.scss';
 import classNames from 'classnames';
-import { Menu, Layout, Typography, Spin, Result, Button, message } from 'antd';
-import { AppRoutes, HomeRoute } from 'routes';
-import { useLocation, useNavigate, Route, Routes } from 'react-router';
-import { auth, firestore } from 'config/firebase/firebase';
-import { AppRoute } from 'routes';
-import { LoginOutlined, LogoutOutlined } from '@ant-design/icons';
-import { useAuth0, withAuthenticationRequired } from '@auth0/auth0-react';
-import { useUser } from 'hooks/use-user';
-import { NotFoundView } from './NotFound';
-import { Abteilung } from 'types/abteilung.type';
-import { abteilungenCollection } from 'config/firebase/collections';
-import { setGroupDates } from 'util/GroupUtil';
-import { VerifyEmail } from './VerifyEmail';
+import {Layout, Menu, message, Spin, Typography} from 'antd';
+import {AppRoute, AppRoutes, HomeRoute} from 'routes';
+import {Route, Routes, useLocation, useNavigate} from 'react-router';
+import {auth, firestore} from 'config/firebase/firebase';
+import {LoginOutlined, LogoutOutlined} from '@ant-design/icons';
+import {useAuth0, withAuthenticationRequired} from '@auth0/auth0-react';
+import {useUser} from 'hooks/use-user';
+import {NotFoundView} from './NotFound';
+import {Abteilung} from 'types/abteilung.type';
+import {abteilungenCollection} from 'config/firebase/collections';
+import {setGroupDates} from 'util/GroupUtil';
+import {VerifyEmail} from './VerifyEmail';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -115,7 +114,7 @@ const NavigationMenu: React.FC = () => {
               !isAuthenticated && !isLoading && <Menu.Item onClick={() => { loginWithRedirect() }} key='login'><LoginOutlined /><span>Anmelden</span></Menu.Item>
             }
             {
-              !!isAuthenticated && !isLoading && <Menu.Item onClick={async () => { await auth().signOut(); logout({ returnTo: window.location.origin }) }} key='logout' className={classNames(styles['logout'])}><LogoutOutlined /><span>Abmelden</span></Menu.Item>
+              isAuthenticated && !isLoading && <Menu.Item onClick={async () => { await auth().signOut(); logout({ returnTo: window.location.origin }) }} key='logout' className={classNames(styles['logout'])}><LogoutOutlined /><span>Abmelden</span></Menu.Item>
             }
           </Menu>
         </Sider>
