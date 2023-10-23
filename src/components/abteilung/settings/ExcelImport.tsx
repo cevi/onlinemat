@@ -38,6 +38,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
     const [categorieIds, setCategorieIds] = useState<string | undefined>();
     const [standort, setStandort] = useState<string | undefined>();
     const [imageUrls, setImageUrls] = useState<string | undefined>();
+    const [onlyLendInternal, setOnlyLendInternal] = useState<string | undefined>();
 
 
     const findExampleData = (key: string | undefined): string => {
@@ -320,6 +321,15 @@ export const ExcelImport = (props: ExcelImportProps) => {
             </Col>
             <Col span={12}>
                 <ExcelImportSelect options={excelData.headers} selected={imageUrls} setSelected={setImageUrls} />
+            </Col>
+            <Col span={12}>
+                <p>Nur Intern ausleihbar:</p>
+                {
+                    onlyLendInternal && <p>{`Beispiel: ${findExampleData(onlyLendInternal)}`}</p>
+                }
+            </Col>
+            <Col span={12}>
+                <ExcelImportSelect options={excelData.headers} selected={onlyLendInternal} setSelected={setOnlyLendInternal} />
             </Col>
 
             {

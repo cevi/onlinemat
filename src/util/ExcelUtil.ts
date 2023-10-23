@@ -63,7 +63,8 @@ export const exportMaterialsToXlsx = (abteilung: Abteilung, categories: Categori
             Gewicht: mat.weightInKg,
             Verbrauchsmaterial: mat.consumables,
             Kategorien: mat.categorieIds?.map(catId => categories.find(cat => cat.id === catId)?.name).join(','),
-            Bilder: mat.imageUrls || [].join(',')
+            Bilder: mat.imageUrls || [].join(','),
+            'Nur intern ausleihbar': mat.onlyLendInternal || false
         }
     })
 
