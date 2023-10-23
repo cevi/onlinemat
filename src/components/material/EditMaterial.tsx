@@ -214,7 +214,7 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
                     </Form.Item>
 
                     <Form.Item
-                        label='Darf nur Von Internen ausgeliehen werden'
+                        label='Darf nur von Internen ausgeliehen werden'
                         name='onlyLendInternal'
                         rules={[
                             { required: true },
