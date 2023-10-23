@@ -59,8 +59,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
         if (!excelData) return [];
 
         if (!name) {
-            message.error('Du must den Namen des Materials zuordnen.')
-            console.error('Du must den Namen des Materials zuordnen.')
+            message.error('Du musst den Namen des Materials zuordnen.')
+            console.error('Du musst den Namen des Materials zuordnen.')
             return [];
         }
 
