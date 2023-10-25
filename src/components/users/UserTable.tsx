@@ -1,10 +1,8 @@
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import { Table, Switch } from 'antd';
+import {CheckOutlined, CloseOutlined} from '@ant-design/icons';
+import {Switch, Table} from 'antd';
 import React from 'react';
-import { Categorie } from 'types/categorie.types';
-import { Material } from 'types/material.types';
-import { UserData } from 'types/user.type';
-
+import {UserData} from 'types/user.type';
+import {AddUserToAbteilungButton} from "./AddUserToAbteilung";
 
 
 export interface UserTableProps {
@@ -38,17 +36,27 @@ export const UserTable = (props: UserTableProps) => {
                 <Switch
                     key={`switch_${record.id}`}
                     checked={record.staff || false}
-                    checkedChildren={<CheckOutlined />}
-                    unCheckedChildren={<CloseOutlined />}
-                    onChange={()=> { makeStaff(record.id) }}
+                    checkedChildren={<CheckOutlined/>}
+                    unCheckedChildren={<CloseOutlined/>}
+                    onChange={() => {
+                        makeStaff(record.id)
+                    }}
                 />
             ),
             sorter: (a: UserData, b: UserData) => ((a.staff || false) === (b.staff || false)) ? 0 : (a.staff || false) ? -1 : 1,
-        }
-      ];
+        },
+        {
+            title: 'Aktionen',
+            key: 'actions',
+            dataIndex: 'id',
+            render: (text: string, record: UserData) => (
+                    <AddUserToAbteilungButton uid={record.id}/>
+            )
+        },
+    ];
 
 
-      return <Table rowKey='id' columns={columns} dataSource={users} loading={loading} />;
+    return <Table rowKey='id' columns={columns} dataSource={users} loading={loading}/>;
 
 
 }
