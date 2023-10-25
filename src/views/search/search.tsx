@@ -34,7 +34,6 @@ export const SearchView = () => {
     const [material, setMaterial] = useState<SeatchMaterial[]>([]);
 
     const userState = useUser();
-    const filteredMaterials = material.filter(material => !material.onlyLendInternal);
 
     const searchKey = 'keywords';
 
@@ -63,7 +62,7 @@ export const SearchView = () => {
         const queryFirebase = async () => {
             try {
                 setLoading(true)
-                const querySnapshot = await firestore().collectionGroup(abteilungenMaterialsCollection).where(searchKey, 'array-contains', search).limit(50).get();
+                const querySnapshot = await firestore().collectionGroup(abteilungenMaterialsCollection).where('onlyLendInternal', '==', false).where(searchKey, 'array-contains', search).limit(50).get();
 
                 setLoading(false);
 
@@ -124,7 +123,7 @@ export const SearchView = () => {
                     loading && <Spin />
                 }
                 {
-                    filteredMaterials.map(mat => {
+                    material.map(mat => {
                         const abteilung = abteilungen.filter(ab => ab.id === mat.abteilungId).length > 0 ? abteilungen.filter(ab => ab.id === mat.abteilungId)[0] : undefined;
                         return <p key={mat.id}>{`${mat.name} `}<a href={abteilung ? `/abteilungen/${abteilung.slug || abteilung.id}` : '/abteilungen'}>{abteilung && abteilung.name ? abteilung.name : 'Unbekannte Abteilung'}</a></p>
                     })
