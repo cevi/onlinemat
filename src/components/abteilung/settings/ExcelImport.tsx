@@ -86,6 +86,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
             const matCategorienRaw: string | null = categorieIds ? dataArray[indexes[categorieIds]] as string : null;
             const matStandorteRaw: string | null = standort ? dataArray[indexes[standort]] as string : null;
             const matImageUrlsRaw: string | null = imageUrls ? dataArray[indexes[imageUrls]] as string : null;
+            const matonlyLendInternal: boolean = onlyLendInternal ? dataArray[indexes[onlyLendInternal]] as boolean : false;
 
             let matCategorieNames: string[] = [];
             let matImageUrls: string[] = [];
@@ -162,7 +163,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 consumables: matConsumablest,
                 categorieIds: materialCategorieIds,
                 imageUrls: matImageUrls,
-                standort: matStandortIds
+                standort: matStandortIds,
+                onlyLendInternal: matonlyLendInternal
             } as Material
 
             material.push(matToAdd)
