@@ -30,7 +30,7 @@ jobs:
         run: echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: 🏗️ Build the stack
-        run: docker-compose build --build-arg TAG=dev
+        run: docker-compose build -f docker-compose-dev.yml
 
       - name: 🚀 Push containers to registry
-        run: docker-compose push
+        run: docker-compose push -f docker-compose-dev.yml
