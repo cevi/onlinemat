@@ -10,6 +10,7 @@ import { abteilungenCollection, abteilungenMaterialsCollection } from 'config/fi
 import { Material } from 'types/material.types';
 import { Abteilung } from 'types/abteilung.type';
 import { useSearchParams } from 'react-router-dom';
+import {useUser} from "../../hooks/use-user";
 
 export interface SeatchMaterial extends Material {
     abteilungId: string | undefined
@@ -31,6 +32,8 @@ export const SearchView = () => {
     const [search, setSearch] = useState<string | undefined>(initQuery !== null ? initQuery : undefined);
     const [abteilungLoading, setAbteilungLoading] = useState(false);
     const [material, setMaterial] = useState<SeatchMaterial[]>([]);
+
+    const userState = useUser();
 
     const searchKey = 'keywords';
 
@@ -59,7 +62,7 @@ export const SearchView = () => {
         const queryFirebase = async () => {
             try {
                 setLoading(true)
-                const querySnapshot = await firestore().collectionGroup(abteilungenMaterialsCollection).where(searchKey, 'array-contains', search).limit(50).get();
+                const querySnapshot = await firestore().collectionGroup(abteilungenMaterialsCollection).where('onlyLendInternal', '==', false).where(searchKey, 'array-contains', search).limit(50).get();
 
                 setLoading(false);
 

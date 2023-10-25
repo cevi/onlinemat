@@ -1,26 +1,19 @@
-import { Button, Card, Carousel, Col, Image, Row } from 'antd';
+import {Button, Card, Carousel, Col, Image, Row} from 'antd';
 import Meta from 'antd/lib/card/Meta';
-import React, {useRef, useState} from 'react';
-import { Categorie } from 'types/categorie.types';
-import { Material } from 'types/material.types';
+import React, {useState} from 'react';
+import {Categorie} from 'types/categorie.types';
+import {Material} from 'types/material.types';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import {ViewMaterial} from "./ViewMaterial";
 import Modal from "antd/lib/modal/Modal";
-import {
-    DeleteOutlined,
-    EditOutlined,
-    EllipsisOutlined,
-    EyeOutlined,
-    SettingOutlined,
-    ShoppingCartOutlined
-} from "@ant-design/icons";
-import {deleteMaterial} from "../../util/MaterialUtil";
-
+import {EyeOutlined, ShoppingCartOutlined} from "@ant-design/icons";
+import {useUser} from "../../hooks/use-user";
 
 
 export interface MaterialGridProps {
+    abteilungId: string;
     material: Material[]
     categorie: Categorie[]
     addToCart: (mat: Material) => void
@@ -29,13 +22,18 @@ export interface MaterialGridProps {
 
 export const MaterialGrid = (props: MaterialGridProps) => {
 
-    const { material, categorie, addToCart } = props;
+    const { abteilungId, material, categorie, addToCart } = props;
+
+    const userState = useUser();
+
+    const filteredMaterials = userState.appUser?.userData.roles[abteilungId].includes('guest') ?
+        material.filter(material => !material.onlyLendInternal) : material;
 
     return <>
 
         <Row gutter={[24, 24]}>
             {
-                material.map(mat => <MaterialCard key={mat.id} material={mat} addToCart={addToCart} />)
+                filteredMaterials.map(mat => <MaterialCard key={mat.id} material={mat} addToCart={addToCart} />)
             }
         </Row>
 

@@ -9,6 +9,7 @@ import {Standort} from "types/standort.types";
 import Modal from "antd/lib/modal/Modal";
 import React, {useState} from "react";
 import {ViewMaterial} from "./ViewMaterial";
+import {useUser} from "../../hooks/use-user";
 
 
 
@@ -24,6 +25,11 @@ export interface MaterialTablelProps {
 export const MaterialTable = (props: MaterialTablelProps) => {
 
     const { abteilungId, material, categorie, standort, addToCart } = props;
+
+    const userState = useUser();
+
+    const filteredMaterials = (userState.appUser?.userData?.roles|| {})[abteilungId]?.includes('guest') ?
+        material.filter(material => !material.onlyLendInternal) : material;
 
     const columns = [
         {
@@ -135,7 +141,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
     const [activeRecord, setActiveRecord] = useState<Material>();
 
     return <>
-            <Table rowKey='id' columns={columns} dataSource={material}/>
+            <Table rowKey='id' columns={columns} dataSource={filteredMaterials}/>
             <Modal
                 title={activeRecord?.name}
                 visible={isModalVisible}

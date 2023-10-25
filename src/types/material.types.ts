@@ -12,6 +12,7 @@ export interface Material {
     damaged?: number
     lost?: number
     standort?: string[]
+    onlyLendInternal: boolean;
 }
 
 export interface DamagedMaterial {
