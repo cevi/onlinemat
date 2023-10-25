@@ -28,7 +28,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
 
     const userState = useUser();
 
-    const filteredMaterials = userState.appUser?.userData.roles[abteilungId].includes('guest') ?
+    const filteredMaterials = (userState.appUser?.userData?.roles|| {})[abteilungId]?.includes('guest') ?
         material.filter(material => !material.onlyLendInternal) : material;
 
     const columns = [

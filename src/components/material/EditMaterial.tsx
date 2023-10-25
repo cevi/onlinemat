@@ -11,7 +11,6 @@ import { EditOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/ico
 import { validateMessages } from 'util/FormValdationMessages';
 import { editMaterial, generateKeywords, getAvailableMatCount, getAvailableMatCountToEdit } from 'util/MaterialUtil';
 import {CategorysContext, StandorteContext} from 'components/abteilung/AbteilungDetails';
-import { max } from 'moment';
 
 export interface EditMaterialProps {
     abteilungId: string
@@ -205,9 +204,9 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
                     <Form.Item
                         label='Ist Verbrauchsmaterial'
                         name='consumables'
+                        valuePropName="checked"
                         rules={[
                             { required: true },
-
                         ]}
                     >
                         <Switch />
@@ -216,12 +215,12 @@ export const EditMaterial = forwardRef((props: EditMaterialProps, ref) => {
                     <Form.Item
                         label='Darf nur von Internen ausgeliehen werden'
                         name='onlyLendInternal'
+                        valuePropName="checked"
                         rules={[
                             { required: true },
-
                         ]}
                     >
-                        <Switch defaultChecked={true}/>
+                        <Switch/>
                     </Form.Item>
                     <Form.Item
                         label='Kategorien'
