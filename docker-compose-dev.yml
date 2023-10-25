@@ -1,0 +1,14 @@
+version: '3'
+services:
+  onlinemat:
+
+    container_name: frontend
+    image: registry.cevi.tools/cevi/onlinemat-frontend:dev
+
+    build:
+      context: .
+
+    ports:
+      - "3000:3000"
+
+    stdin_open: true
