@@ -32,6 +32,10 @@ jobs:
       - name: Load .evn file from secrets
         run: echo "${{ secrets.ENV_FILE }}" > .env
 
+      - name: Set gitInfo file
+        run: |
+          echo "{\"gitBranch\": \"${GITHUB_REF#refs/heads/}\",\"gitCommitHash\": \"$(git rev-parse --short $GITHUB_SHA)\"}" > src/generatedGitInfo.json
+
       - name: 🏗️ Build the stack
         run: docker-compose build
 
