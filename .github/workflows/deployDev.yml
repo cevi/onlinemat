@@ -8,6 +8,9 @@ on:
 jobs:
   build_docker_container:
     runs-on: ubuntu-latest
+    environment: 
+      name: dev
+      url: https://dev-onlinemat.cevi.tools
     steps:
 
       # Checkout the source code
