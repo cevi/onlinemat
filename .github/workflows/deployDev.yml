@@ -37,7 +37,7 @@ jobs:
         uses: jsdaniell/create-json@v1.2.2
         with:
           name: "generatedGitInfo.json"
-          json: "{\"gitBranch\": \"${GITHUB_REF#refs/heads/}\",\"gitCommitHash\": \"$(git rev-parse --short '$GITHUB_SHA')\"}"
+          json: "{\"gitBranch\": \"${{GITHUB_REF#refs/heads/}}\",\"gitCommitHash\": \"${{(git rev-parse --short '$GITHUB_SHA')}}\"}"
           dir: 'src/'
 
       - name: Read git infos
