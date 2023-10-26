@@ -34,7 +34,7 @@ jobs:
 
       - name: Set gitInfo file
         run: |
-          echo "{\"gitBranch\": \"${GITHUB_REF#refs/heads/}\",\"gitCommitHash\": \"$(git rev-parse --short $GITHUB_SHA)\"}\"" > src/generatedGitInfo.json
+          echo "{\"gitBranch\": \"${GITHUB_REF#refs/heads/}\",\"gitCommitHash\": \"$(git rev-parse --short $GITHUB_SHA)\"}" > src/generatedGitInfo.json
 
       - name: Read git infos
         run: less src/generatedGitInfo.json
