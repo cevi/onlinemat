@@ -16,6 +16,7 @@ import {setGroupDates} from 'util/GroupUtil';
 import {VerifyEmail} from './VerifyEmail';
 import { useParams } from "react-router-dom";
 import generatedGitInfo from 'generatedGitInfo.json';
+import { StatusPage } from 'components/status/Status';
 
 const {Header, Content, Footer, Sider} = Layout;
 
@@ -164,6 +165,7 @@ const NavigationMenu: React.FC = () => {
                                                                                           element={appRoute.private ?
                                                                                               <ProtectedRoute
                                                                                                   component={appRoute.view}/> : appRoute.element}></Route>)}
+                                        <Route path='status' element={<StatusPage/>}/>
                                         <Route path='*' element={<NotFoundView/>}/>
 
                                     </Routes>

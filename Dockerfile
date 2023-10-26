@@ -7,6 +7,8 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
+COPY src/generatedGitInfo.json generatedGitInfo.json
+
 RUN yarn install --frozen-lockfile
 
 # Bundle app source
