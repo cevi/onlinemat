@@ -32,13 +32,9 @@ jobs:
       - name: Load .evn file from secrets
         run: echo "${{ secrets.ENV_FILE }}" > .env
 
-      - name: create-json
-        id: create--git-info-json
-        uses: jsdaniell/create-json@v1.2.2
-        with:
-          name: "generatedGitInfo.json"
-          json: "{\"gitBranch\": \"${{GITHUB_REF#refs/heads/}}\",\"gitCommitHash\": \"${{(git rev-parse --short '$GITHUB_SHA')}}\"}"
-          dir: 'src/'
+      - name: Set gitInfo file
+        run: |
+          echo "{\"gitBranch\": \"${GITHUB_REF#refs/heads/}\",\"gitCommitHash\": \"$(git rev-parse --short $GITHUB_SHA)}\"" > src/generatedGitInfo.json
 
       - name: Read git infos
         run: less src/generatedGitInfo.json
