@@ -36,9 +36,6 @@ jobs:
         run: |
           echo "{\"gitBranch\": \"${GITHUB_REF#refs/heads/}\",\"gitCommitHash\": \"$(git rev-parse --short $GITHUB_SHA)\"}" > src/generatedGitInfo.json
 
-      - name: Read git infos
-        run: less src/generatedGitInfo.json
-
       - name: 🏗️ Build and 🚀 push Docker image
         uses: docker/build-push-action@v5
         with:
