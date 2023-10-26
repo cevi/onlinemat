@@ -16,6 +16,12 @@ const App = () => {
 
   const dispatch = useDispatch();
 
+  useEffect(()=> {
+    if(process.env.REACT_APP_DEV_ENV === 'true') {
+      document.title = 'Onlinemat (DEV)'
+    }
+  }, [])
+
   useEffect(() => {
     let unsubscribe: () => void;
     return auth().onAuthStateChanged((user) => {
