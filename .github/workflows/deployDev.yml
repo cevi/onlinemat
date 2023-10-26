@@ -29,13 +29,10 @@ jobs:
       - name: Load .evn file from secrets
         run: echo "${{ secrets.ENV_FILE }}" > .env
 
-      - name: 🏗️ Build and push Docker image
+      - name: 🏗️ Build and 🚀 push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           push: true
           tags: registry.cevi.tools/cevi/onlinemat-frontend:dev
-
-      - name: 🚀 Push containers to registry
-        run: docker-compose push -f docker-compose-dev.yml
