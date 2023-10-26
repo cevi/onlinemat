@@ -2,7 +2,7 @@ import React, {createContext, useEffect, useState} from 'react';
 import styles from './NavigationMenu.module.scss';
 import appStyles from 'styles.module.scss';
 import classNames from 'classnames';
-import {Layout, Menu, message, Spin, Typography} from 'antd';
+import {Layout, Menu, message, Spin, Tag, Typography} from 'antd';
 import {AppRoute, AppRoutes, HomeRoute} from 'routes';
 import {Route, Routes, useLocation, useNavigate} from 'react-router';
 import {auth, firestore} from 'config/firebase/firebase';
@@ -15,6 +15,7 @@ import {abteilungenCollection} from 'config/firebase/collections';
 import {setGroupDates} from 'util/GroupUtil';
 import {VerifyEmail} from './VerifyEmail';
 import { useParams } from "react-router-dom";
+import generatedGitInfo from 'generatedGitInfo.json';
 
 const {Header, Content, Footer, Sider} = Layout;
 
@@ -168,11 +169,12 @@ const NavigationMenu: React.FC = () => {
                                     </Routes>
                         }
                     </Content>
-                    <Footer style={{textAlign: 'center'}}>
+                    <Footer style={{textAlign: 'center', backgroundColor: process.env.REACT_APP_DEV_ENV === 'true' ? '#FF4B91' : 'unset'}}>
                         Designed by <a href='https://cevi.tools' target='_blank'>Cevi Tools</a> | &copy; Cevi
                         Tools {(new Date()).getFullYear()}
                         {process.env.REACT_APP_DEV_ENV === 'true' && <> |
-                            DEV
+                            Branch: <Tag>{generatedGitInfo.gitBranch}</Tag>
+                            Git Hash: <Tag>{generatedGitInfo.gitCommitHash}</Tag>
                         </>}
                     </Footer>
                 </Layout>
