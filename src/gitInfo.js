@@ -21,11 +21,17 @@ const main = () => {
     gitCommitHash
   };
 
-  const filePath = path.resolve('src', 'generatedGitInfo.json');
-  const fileContents = JSON.stringify(obj, null, 2);
+  if(gitBranch && gitCommitHash) {
+    const filePath = path.resolve('src', 'generatedGitInfo.json');
+    const fileContents = JSON.stringify(obj, null, 2);
+  
+    fs.writeFileSync(filePath, fileContents);
+    console.log(`Wrote the following contents to ${filePath}\n${fileContents}`);
+  } else {
+    console.log('Skipped writing generatedGitInfo.json. Could not get git info')
+  }
 
-  fs.writeFileSync(filePath, fileContents);
-  console.log(`Wrote the following contents to ${filePath}\n${fileContents}`);
+  
 };
 
 main();
