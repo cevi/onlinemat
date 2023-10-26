@@ -25,6 +25,7 @@ Happy Coding!
 **The Application won't start**
 Don't forget to create the `.env` file with all the keys and values in it.
 For that just copy the `.env.example` file, rename it to `.env`, and add the missing secrets.
+To get the `.env` values for the dev instance, please contact onlinemat@cevi.tools
 
 **Where is the backend?**
 For the backend we use Firebase. It's a NoSQL database provided by Google.
