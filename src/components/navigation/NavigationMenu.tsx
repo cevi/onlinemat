@@ -171,6 +171,9 @@ const NavigationMenu: React.FC = () => {
                     <Footer style={{textAlign: 'center'}}>
                         Designed by <a href='https://cevi.tools' target='_blank'>Cevi Tools</a> | &copy; Cevi
                         Tools {(new Date()).getFullYear()}
+                        {process.env.REACT_APP_DEV_ENV === 'true' && <> |
+                            DEV
+                        </>}
                     </Footer>
                 </Layout>
             </Layout>
