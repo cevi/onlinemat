@@ -1,5 +1,5 @@
-import { Button, Col, message, Modal, Row, Select, Spin } from "antd";
-import { abteilungenCategoryCollection, abteilungenCollection } from "config/firebase/collections";
+import { Button, Col, message, Modal, Row, Select, Spin, Popconfirm } from "antd";
+import { abteilungenCategoryCollection, abteilungenMaterialsCollection, abteilungenCollection } from "config/firebase/collections";
 import { firestore } from "config/firebase/firebase";
 import { useContext, useState } from "react";
 import { Abteilung } from "types/abteilung.type";
@@ -7,7 +7,7 @@ import { Categorie } from "types/categorie.types";
 import { ExcelJson } from "types/excel.type";
 import { Material } from "types/material.types";
 import { massImportMaterial } from "util/MaterialUtil";
-import {CategorysContext, StandorteContext} from "../AbteilungDetails";
+import {CategorysContext, StandorteContext} from "components/abteilung/AbteilungDetails";
 
 export interface ExcelImportProps {
     abteilung: Abteilung
@@ -52,6 +52,17 @@ export const ExcelImport = (props: ExcelImportProps) => {
         }
 
         return '';
+    }
+
+    const replaceMaterial = async () => {
+        await firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenMaterialsCollection).get().then((snapshot) => {
+            snapshot.docs.forEach((doc) => {
+                doc.ref.delete();
+            });
+            prepareMaterial()
+        }).catch((ex) => {
+            message.error(`Es ist ein Fehler aufgetreten: ${ex}`);
+        });
     }
 
     const prepareMaterial = async (): Promise<Material[]> => {
@@ -171,7 +182,6 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         }
 
-
         //create categories
         const promieses = newCategories.map(catName => {
             return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenCategoryCollection).add({ name: catName } as Categorie).then(doc => {
@@ -228,9 +238,20 @@ export const ExcelImport = (props: ExcelImportProps) => {
             <Button key='back' onClick={() => { setShow(false) }}>
                 Abbrechen
             </Button>,
-            <Button key='import' type='primary' disabled={!name || catLoading} onClick={() => { prepareMaterial() }}>
-                Importieren
-            </Button>
+            <Button key='importAdd' type='primary' disabled={!name || catLoading} onClick={() => { prepareMaterial() }}>
+                Importieren hinzufügen
+            </Button>,
+            <Popconfirm
+            title='Möchtest du wirklich alles bestehendes Material dieser Abteilung löschen?'
+            onConfirm={() => replaceMaterial()}
+            onCancel={() => { }}
+            okText='Ja'
+            cancelText='Nein'
+            >
+                <Button key='importReplace' type='primary' disabled={!name || catLoading}>
+                    Importieren ersetzen
+                </Button>   
+            </Popconfirm>  
         ]}
     >
         <Row gutter={[16, 16]}>

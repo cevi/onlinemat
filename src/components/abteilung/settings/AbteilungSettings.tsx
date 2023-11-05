@@ -5,17 +5,13 @@ import { useNavigate } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
 import { useContext, useState } from 'react';
 import { firestore, functions } from 'config/firebase/firebase';
-import { abteilungenCollection } from 'config/firebase/collections';
+import { abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
 import moduleStyles from '../Abteilung.module.scss'
 import { ability } from 'config/casl/ability';
 import { slugify } from 'util/FormUtil';
 import { Can } from 'config/casl/casl';
-import { DeleteOutlined, FileExcelOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import { validateMessages } from 'util/FormValdationMessages';
-import { excelToJson, exportMaterialsToXlsx } from 'util/ExcelUtil';
-import { ExcelImport } from './ExcelImport';
-import { ExcelJson } from 'types/excel.type';
-import {CategorysContext, MaterialsContext, StandorteContext} from '../AbteilungDetails';
 
 export interface AbteilungSettingsProps {
     abteilung: Abteilung
@@ -27,25 +23,8 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
     const navigate = useNavigate();
 
-    //fetch materials
-    const materialsContext = useContext(MaterialsContext);
-    const materials = materialsContext.materials;
-    const matLoading = materialsContext.loading;
-
-    //fetch categories
-    const categoriesContext = useContext(CategorysContext);
-    const categories = categoriesContext.categories;
-    const catLoading = categoriesContext.loading;
-
-    //fetch categories
-    const standorteContext = useContext(StandorteContext);
-    const standorte = standorteContext.standorte;
-    const standorteLoading = standorteContext.loading;
-
     const [form] = Form.useForm<Abteilung>();
     const [updateLoading, setUpdateLoading] = useState(false);
-    const [excelData, setExcelData] = useState<ExcelJson | undefined>();
-    const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
     const [slug, setSlug] = useState<string>(abteilung.slug);
 
@@ -225,14 +204,10 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                         </Form.Item>
                     </Col>
                     <Can I='update' this={abteilung}>
-                        <Col span={8}>
-                            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                                <Button type='primary' htmlType='submit' disabled={updateLoading}>
-                                    Speichern
-                                </Button>
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
+                        <Col span={16}>
+                            <Button style={{ marginRight: '10px' }} type='primary' htmlType='submit' disabled={updateLoading}>
+                                Speichern
+                            </Button>
                             <Popconfirm
                                 title='Möchtest du diese Abteilung wirklich löschen?'
                                 onConfirm={() => delteAbteilung(abteilung)}
@@ -241,38 +216,13 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                                 cancelText='Nein'
                             >
                                 <Button type='ghost' danger icon={<DeleteOutlined />} disabled={updateLoading}>
-                                    Löschen
+                                    Abteilung Löschen
                                 </Button>
                             </Popconfirm>
-                        </Col>
-                        <Col span={8}>
-                            <Button icon={<FileExcelOutlined />} onClick={()=> exportMaterialsToXlsx(abteilung, categories, materials, standorte)}>Excel export</Button>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                label='Material hochladen'
-                                name='upload'
-                            >
-                                <Input
-                                    type='file'
-                                    name='excelFile'
-                                    id='uploadExcel'
-                                    onChange={async (e) => {
-                                        const res = await excelToJson(e);
-                                        if(res) {
-                                            setExcelData(res)
-                                            setShowImportModal(true)
-                                        } else {
-                                            message.error('Leider ist ein Fehler beim lesen der Datei aufgetreten 2');
-                                        }
-                                    }}
-                                />
-                            </Form.Item>
                         </Col>
                     </Can>
                 </Row>
             </Form>
-            <ExcelImport abteilung={abteilung} excelData={excelData} showModal={showImportModal} setShow={setShowImportModal}/>
         </div>
     </Row>
 }
