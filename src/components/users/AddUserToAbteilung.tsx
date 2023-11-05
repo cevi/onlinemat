@@ -30,14 +30,18 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
         } else {
             const member = {
                 userId: uid,
-                abteilung: form.getFieldValue('abteilung'),
                 role: form.getFieldValue('role'),
                 approved: true,
             }
-            const response = await firestore().collection(abteilungenCollection).doc(form.getFieldValue('abteilung')).collection(abteilungenMembersCollection).add(member);
-            if (response.id && onSuccess) {
-                onSuccess()
-            }
+            await firestore().collection(abteilungenCollection).doc(form.getFieldValue('abteilung')).collection(abteilungenMembersCollection).doc(uid).set(member)
+                .then(() => {
+                    if (onSuccess) {
+                        onSuccess();
+                    }
+                })
+                .catch(() => {
+                    message.error('Der Benutzer konnte nicht zur Abteilung hinzugefügt werden!')
+                })
         }
     }
 
@@ -77,11 +81,12 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
                     >
                         <Select key='role' defaultValue='member'>
                             {
-                                roles.map(role => <Select.Option key={role.key} value={role.key}>{role.name}</Select.Option>)
+                                roles.map(role => <Select.Option key={role.key}
+                                                                 value={role.key}>{role.name}</Select.Option>)
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                    <Form.Item wrapperCol={{offset: 8, span: 16}}>
                         <Button type='primary' htmlType='submit'>
                             Zu Abteilung hinzufügen
                         </Button>
@@ -93,25 +98,28 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
 }
 
 export const AddUserToAbteilungButton = (props: EditAbteilungMemberProps) => {
-    const { uid } = props;
+    const {uid} = props;
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
-        <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }}>
+        <Button type='primary' onClick={() => setIsModalVisible(!isModalVisible)}>
             Benutzer zu Abteilung hinzufügen
         </Button>
         <Modal
             title='Benutzer zu Abteilung hinzufügen'
             visible={isModalVisible}
-            onCancel={() => { setIsModalVisible(false) }}
+            onCancel={() => setIsModalVisible(false)}
             footer={[
-                <Button key='back' onClick={() => { setIsModalVisible(false) }}>
+                <Button key='back' onClick={() => setIsModalVisible(false)}>
                     Abbrechen
                 </Button>,
             ]}
         >
-            <AddUserToAbteilung uid={uid} onSuccess={()=> { setIsModalVisible(false)}}/>
+            <AddUserToAbteilung uid={uid} onSuccess={() => {
+                message.success('Der Benutzer wurde erfolgreich zur Abteilung hinzugefügt')
+                setIsModalVisible(false)
+            }}/>
         </Modal>
     </>
 
