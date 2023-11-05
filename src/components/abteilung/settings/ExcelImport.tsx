@@ -38,6 +38,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
     const [categorieIds, setCategorieIds] = useState<string | undefined>();
     const [standort, setStandort] = useState<string | undefined>();
     const [imageUrls, setImageUrls] = useState<string | undefined>();
+    const [onlyLendInternal, setOnlyLendInternal] = useState<string | undefined>();
 
 
     const findExampleData = (key: string | undefined): string => {
@@ -59,8 +60,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
         if (!excelData) return [];
 
         if (!name) {
-            message.error('Du must den Namen des Materials zuordnen.')
-            console.error('Du must den Namen des Materials zuordnen.')
+            message.error('Du musst den Namen des Materials zuordnen.')
+            console.error('Du musst den Namen des Materials zuordnen.')
             return [];
         }
 
@@ -85,6 +86,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
             const matCategorienRaw: string | null = categorieIds ? dataArray[indexes[categorieIds]] as string : null;
             const matStandorteRaw: string | null = standort ? dataArray[indexes[standort]] as string : null;
             const matImageUrlsRaw: string | null = imageUrls ? dataArray[indexes[imageUrls]] as string : null;
+            const matonlyLendInternal: boolean = onlyLendInternal ? dataArray[indexes[onlyLendInternal]] as boolean : false;
 
             let matCategorieNames: string[] = [];
             let matImageUrls: string[] = [];
@@ -161,7 +163,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 consumables: matConsumablest,
                 categorieIds: materialCategorieIds,
                 imageUrls: matImageUrls,
-                standort: matStandortIds
+                standort: matStandortIds,
+                onlyLendInternal: matonlyLendInternal
             } as Material
 
             material.push(matToAdd)
@@ -320,6 +323,15 @@ export const ExcelImport = (props: ExcelImportProps) => {
             </Col>
             <Col span={12}>
                 <ExcelImportSelect options={excelData.headers} selected={imageUrls} setSelected={setImageUrls} />
+            </Col>
+            <Col span={12}>
+                <p>Nur Intern ausleihbar:</p>
+                {
+                    onlyLendInternal && <p>{`Beispiel: ${findExampleData(onlyLendInternal)}`}</p>
+                }
+            </Col>
+            <Col span={12}>
+                <ExcelImportSelect options={excelData.headers} selected={onlyLendInternal} setSelected={setOnlyLendInternal} />
             </Col>
 
             {

@@ -94,7 +94,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
 
                 <Form
                     form={form}
-                    initialValues={{ consumables: false, categorieIds: [], comment: '', lost: 0, damaged: 0,  weightInKg: null, imageUrls: [] }}
+                    initialValues={{ consumables: false, categorieIds: [], comment: '', lost: 0, damaged: 0,  weightInKg: null, imageUrls: [], onlyLendInternal: true, standort: [] }}
                     onValuesChange={() => {
                         if (renderMatImages !== form.getFieldValue('imageUrls')) {
                             setRenderMatImages(form.getFieldValue('imageUrls'))
@@ -194,12 +194,24 @@ export const AddMaterial = (props: AddMaterialProps) => {
                     <Form.Item
                         label='Ist Verbrauchsmaterial'
                         name='consumables'
+                        valuePropName="checked"
                         rules={[
                             { required: true },
 
                         ]}
                     >
                         <Switch />
+                    </Form.Item>
+                    <Form.Item
+                        label='Darf nur von Internen ausgeliehen werden'
+                        name='onlyLendInternal'
+                        valuePropName="checked"
+                        rules={[
+                            { required: true },
+
+                        ]}
+                    >
+                        <Switch/>
                     </Form.Item>
                     <Form.Item
                         label='Kategorien'

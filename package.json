@@ -51,9 +51,10 @@
     "typescript": "^4.4.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "git-info": "node src/gitInfo.js",
+    "start": "npm run git-info && react-scripts start",
+    "build": "npm run git-info && react-scripts build",
+    "test": "npm run git-info && react-scripts test",
     "eject": "react-scripts eject",
     "serve": "serve -s build"
   },
