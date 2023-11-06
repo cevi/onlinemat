@@ -6,6 +6,7 @@ import {AbteilungenContext} from "../navigation/NavigationMenu";
 import {roles} from "../abteilung/members/MemberTable";
 import {useForm} from "antd/es/form/Form";
 import Modal from "antd/lib/modal/Modal";
+import { AbteilungMember } from 'types/user.type';
 
 export interface EditAbteilungMemberProps {
     uid: string
@@ -16,7 +17,7 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
 
     const {uid, onSuccess} = props;
 
-    const [form] = useForm();
+    const [form] = useForm<AbteilungMember>();
 
     const abteilungenContext = useContext(AbteilungenContext);
     const abteilungen = abteilungenContext.abteilungen;
@@ -28,7 +29,7 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
         if (memberDoc.exists) {
             message.error('Dieser Benutzer ist bereits mitglied dieser Abteilung');
         } else {
-            const member = {
+            const member: AbteilungMember = {
                 userId: uid,
                 role: form.getFieldValue('role'),
                 approved: true,
@@ -50,6 +51,9 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
             abtielungenLoading ? <Spin/> : <>
                 <Form
                     form={form}
+                    initialValues={{
+                        role: 'member'
+                    } as Partial<AbteilungMember>}
                     onFinish={addUserToAbteilung}>
                     <Form.Item
                         label='Abteilung'
@@ -79,7 +83,7 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
                             {required: true}
                         ]}
                     >
-                        <Select key='role' defaultValue='member'>
+                        <Select key='role'>
                             {
                                 roles.map(role => <Select.Option key={role.key}
                                                                  value={role.key}>{role.name}</Select.Option>)
