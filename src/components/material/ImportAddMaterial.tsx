@@ -17,6 +17,12 @@ export const ImportAddMaterialButton = (props: importAddMaterialProps) => {
     const [updateLoading] = useState(false);
     let excelInput = React.useRef<HTMLInputElement>(null);
 
+    function clearFileInput() {
+        if (excelInput.current?.value) {
+            excelInput.current.value = '';
+        }
+    }
+
     return <>
        <input
         style={{ display: 'none' }} 
@@ -33,6 +39,7 @@ export const ImportAddMaterialButton = (props: importAddMaterialProps) => {
                     message.error('Leider ist ein Fehler beim lesen der Datei aufgetreten 2');
                 }
             }}
+            onClick={clearFileInput}
         />
         <Button type='primary' disabled={updateLoading} onClick={() => excelInput?.current?.click()}>
             Excel Import
