@@ -26,7 +26,7 @@ export const MaterialGrid = (props: MaterialGridProps) => {
 
     const userState = useUser();
 
-    const filteredMaterials = userState.appUser?.userData.roles[abteilungId].includes('guest') ?
+    const filteredMaterials = (userState.appUser?.userData?.roles|| {})[abteilungId]?.includes('guest') ?
         material.filter(material => !material.onlyLendInternal) : material;
 
     return <>

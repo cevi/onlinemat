@@ -16,6 +16,9 @@ import moment from 'moment';
 import {Material} from 'types/material.types';
 import {getAvailableMatCount} from 'util/MaterialUtil';
 import {AddStandortButton} from "components/standort/AddStandort";
+import {ImportAddMaterialButton} from 'components/material/ImportAddMaterial';
+import {DeleteMaterialButton} from 'components/material/DeleteMaterial';
+import {ExportMaterialButton} from 'components/material/ExportMaterial';
 
 export type AbteilungMaterialViewProps = {
     abteilung: Abteilung;
@@ -124,6 +127,18 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                 <AddStandortButton abteilungId={abteilung.id} />
             </Can>
         </Col>
+        <Can I={'delete'} this={{ __caslSubjectType__: 'Material', abteilungId: abteilung.id } as AbteilungEntityCasl}>
+            <Col hidden={windowSize[0] < 769} xl={4}>
+                    <ImportAddMaterialButton abteilung={abteilung} />
+            </Col>
+            <Col hidden={windowSize[0] < 769} xl={4}>
+                <ExportMaterialButton abteilung={abteilung} />
+            </Col>
+            <Col hidden={windowSize[0] < 769} xl={4}>
+                <DeleteMaterialButton abteilung={abteilung} />
+            </Col>
+        </Can>
+        
 
         {
             matLoading || catLoading ?
