@@ -7,6 +7,7 @@ RUN apk update && apk add --no-cache git
 WORKDIR /usr/src/app
 
 COPY package*.json ./
+COPY *.lock ./
 
 RUN yarn install --frozen-lockfile --ignore-engines
 
@@ -16,7 +17,7 @@ COPY . .
 # load environment variables from .env
 RUN set -a && . .env && set +a
 
-RUN yarn run build --ignore-engines
+RUN yarn run build
 
 # Stage 2: Serve app with nginx server
 # Use official nginx image as the base image
