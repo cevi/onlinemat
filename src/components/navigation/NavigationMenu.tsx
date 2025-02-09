@@ -172,7 +172,7 @@ const NavigationMenu: React.FC = () => {
                         }
                     </Content>
                     <Footer style={{textAlign: 'center', backgroundColor: process.env.REACT_APP_DEV_ENV === 'true' ? '#FF4B91' : 'unset'}}>
-                        Designed by <a href='https://cevi.tools' target='_blank'>Cevi Tools</a> | &copy; Cevi
+                        Designed by <a href='https://cevi.tools' target='_blank'>Cevi Tools</a> | <a href='mailto:onlinemat@cevi.tools'>Contact</a> | &copy; Cevi
                         Tools {(new Date()).getFullYear()}
                         {process.env.REACT_APP_DEV_ENV === 'true' && <> |
                             Branch: <Tag>{generatedGitInfo.gitBranch}</Tag>

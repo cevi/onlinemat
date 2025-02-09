@@ -58,6 +58,8 @@ export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
 
     if (!user.roles) user.roles = {};
 
+    can('create', 'Abteilung');
+
     for (const abteilungId of Object.keys(user.roles)) {
 
       const role = user.roles[abteilungId] as (AbteilungMember['role'] | 'pending');
