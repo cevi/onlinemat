@@ -16,7 +16,7 @@ COPY . .
 # load environment variables from .env
 RUN set -a && . .env && set +a
 
-RUN yarn run build
+RUN yarn run build --ignore-engines
 
 # Stage 2: Serve app with nginx server
 # Use official nginx image as the base image
