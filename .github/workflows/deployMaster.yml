@@ -37,7 +37,7 @@ jobs:
           echo "{\"gitBranch\": \"${GITHUB_REF#refs/heads/}\",\"gitCommitHash\": \"$(git rev-parse --short $GITHUB_SHA)\"}" > src/generatedGitInfo.json
 
       - name: 🏗️ Build the stack
-        run: docker-compose build
+        run: docker compose build
 
       - name: 🚀 Push containers to registry
-        run: docker-compose push
+        run: docker compose push
