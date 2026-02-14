@@ -66,14 +66,11 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
                             showSearch
                             placeholder='Abteilung'
                             optionFilterProp='children'
-                            options={[{label: 'Keine Abteilung', value: null} as any, ...abteilungen.map((a) => {
-                                return {
-                                    value: a.id,
-                                    label: a.name,
-                                }
-                            }).sort((a, b) => a.label.localeCompare(b.label))]}
-                        >
-                        </Select>
+                            options={abteilungen.map((a) => ({
+                                value: a.id,
+                                label: a.name,
+                            })).sort((a, b) => a.label.localeCompare(b.label))}
+                        />
                     </Form.Item>
                     <Form.Item
                         label='Rolle'

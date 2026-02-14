@@ -54,9 +54,12 @@ export const UsersView = () => {
         <Typography.Title level={3}>Benutzer</Typography.Title>
 
         <div className={classNames(appStyles['flex-grower'])}>
-            <Row>
-                <Col span={12}>
+            <Row gutter={16}>
+                <Col>
                     <Statistic title='Benutzer' value={users.length} />
+                </Col>
+                <Col>
+                    <Statistic title='Staff' value={users.filter(u => u.staff).length} />
                 </Col>
             </Row>
 
