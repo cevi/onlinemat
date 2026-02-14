@@ -155,7 +155,7 @@ export const EditProfileButton = (props: EditProfileProps) => {
       />
       <Modal
         title="Profil bearbeiten"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={() => {
           setIsModalVisible(false);
         }}

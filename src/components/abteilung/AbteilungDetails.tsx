@@ -1,9 +1,11 @@
 import { useState, useContext, useMemo, useEffect, createContext } from 'react';
-import { PageHeader, Spin, message, Menu, Row, Col } from 'antd';
+import { Spin, message, Menu, Row, Col, Typography } from 'antd';
+import type { MenuProps } from 'antd';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
-import { firestore } from 'config/firebase/firebase';
+import { db } from 'config/firebase/firebase';
+import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import {
     abteilungenCategoryCollection,
     abteilungenCollection,
@@ -160,14 +162,14 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     useEffect(() => {
         if (!isAuthenticated || !abteilung || !canUpdate) return;
         setMembersLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenMembersCollection).onSnapshot(snap => {
+        return onSnapshot(collection(db, abteilungenCollection, abteilung.id, abteilungenMembersCollection), (snap) => {
             setMembersLoading(false);
-            const membersLoaded = snap.docs.flatMap(doc => {
+            const membersLoaded = snap.docs.flatMap(d => {
 
                 return {
-                    ...doc.data(),
+                    ...d.data(),
                     __caslSubjectType__: 'AbteilungMember',
-                    userId: doc.id
+                    userId: d.id
                 } as AbteilungMember;
             });
             setMembers(membersLoaded);
@@ -188,11 +190,11 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                 const uid = member.userId;
                 if (!userData[uid]) {
                     //fetch full user data
-                    const userDoc = firestore().collection(usersCollection).doc(uid).get().then((doc) => {
+                    const userDoc = getDoc(doc(db, usersCollection, uid)).then((d) => {
                         return {
-                            ...doc.data(),
+                            ...d.data(),
                             __caslSubjectType__: 'UserData',
-                            id: doc.id
+                            id: d.id
                         } as UserData
                     });
                     promises.push(userDoc);
@@ -216,13 +218,13 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     useEffect(() => {
         if (!isAuthenticated || !abteilung || !canRead) return;
         setCatLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenCategoryCollection).onSnapshot(snap => {
+        return onSnapshot(collection(db, abteilungenCollection, abteilung.id, abteilungenCategoryCollection), (snap) => {
             setCatLoading(false);
-            const categoriesLoaded = snap.docs.flatMap(doc => {
+            const categoriesLoaded = snap.docs.flatMap(d => {
                 return {
-                    ...doc.data(),
+                    ...d.data(),
                     __caslSubjectType__: 'Categorie',
-                    id: doc.id
+                    id: d.id
                 } as Categorie;
             });
             setCategories(categoriesLoaded);
@@ -236,13 +238,13 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     useEffect(() => {
         if (!isAuthenticated || !abteilung || !canRead) return;
         setStandorteLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenStandortCollection).onSnapshot(snap => {
+        return onSnapshot(collection(db, abteilungenCollection, abteilung.id, abteilungenStandortCollection), (snap) => {
             setStandorteLoading(false);
-            const standorteLoaded = snap.docs.flatMap(doc => {
+            const standorteLoaded = snap.docs.flatMap(d => {
                 return {
-                    ...doc.data(),
+                    ...d.data(),
                     __caslSubjectType__: 'Standort',
-                    id: doc.id
+                    id: d.id
                 } as Standort;
             });
             setStandorte(standorteLoaded);
@@ -256,13 +258,13 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     useEffect(() => {
         if (!isAuthenticated || !abteilung || !canRead) return;
         setMatLoading(true);
-        return firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenMaterialsCollection).onSnapshot(snap => {
+        return onSnapshot(collection(db, abteilungenCollection, abteilung.id, abteilungenMaterialsCollection), (snap) => {
             setMatLoading(false);
-            const materialLoaded = snap.docs.flatMap(doc => {
+            const materialLoaded = snap.docs.flatMap(d => {
                 return {
-                    ...doc.data(),
+                    ...d.data(),
                     __caslSubjectType__: 'Material',
-                    id: doc.id
+                    id: d.id
                 } as Material;
             });
             setMaterials(materialLoaded);
@@ -336,46 +338,26 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                     <MaterialsContext.Provider value={{ materials, loading: matLoading }}>
                         <StandorteContext.Provider value={{ standorte, loading: standorteLoading}}>
                             {/* <CartContext.Provider value={cart}> */}
-                            <PageHeader title={`Abteilung ${abteilung?.name}`}>
-                                <Menu onClick={(e) => { navigateToMenu(e.key as AbteilungTab) }} selectedKeys={[selectedMenu]} mode='horizontal'>
-                                    <Menu.Item key='mat' icon={<ContainerOutlined />}>
-                                        Material
-                                    </Menu.Item>
-                                    { windowSize[0] > 768 &&
-                                        <>
-                                            <Menu.Item key='standort' icon={<HomeOutlined />}>
-                                                Standorte
-                                            </Menu.Item>
-                                            <Menu.Item key='category' icon={<PaperClipOutlined />}>
-                                                Kategorien
-                                            </Menu.Item>
-                                            <Menu.Item key='orders' icon={<UnorderedListOutlined />}>
-                                                Bestellungen
-                                            </Menu.Item>
-                                            {canUpdate && <Menu.Item key='members' icon={<TeamOutlined />}>
-                                                Mitglieder
-                                            </Menu.Item>
-                                            }
-                                            {canUpdate && <Menu.Item key='groups' icon={<TagsOutlined />}>
-                                                Gruppen
-                                            </Menu.Item>
-                                            }
-                                            {canUpdate && <Menu.Item key='settings' icon={<SettingOutlined />}>
-                                                Einstellungen
-                                            </Menu.Item>
-                                            }
-                                        </>
-                                    }
-                                    {
-                                        // right menu
-                                    }
-                                    <Menu.Item key='cart' icon={<ShoppingCartOutlined />} style={{ marginLeft: 'auto' }}>
-                                        {
-                                            getCartCount(cartItems)
-                                        }
-                                    </Menu.Item>
-
-                                </Menu>
+                            <Typography.Title level={3}>Abteilung {abteilung?.name}</Typography.Title>
+                                <Menu
+                                    onClick={(e) => { navigateToMenu(e.key as AbteilungTab) }}
+                                    selectedKeys={[selectedMenu]}
+                                    mode='horizontal'
+                                    items={[
+                                        { key: 'mat', icon: <ContainerOutlined />, label: 'Material' },
+                                        ...(windowSize[0] > 768 ? [
+                                            { key: 'standort', icon: <HomeOutlined />, label: 'Standorte' },
+                                            { key: 'category', icon: <PaperClipOutlined />, label: 'Kategorien' },
+                                            { key: 'orders', icon: <UnorderedListOutlined />, label: 'Bestellungen' },
+                                            ...(canUpdate ? [
+                                                { key: 'members', icon: <TeamOutlined />, label: 'Mitglieder' },
+                                                { key: 'groups', icon: <TagsOutlined />, label: 'Gruppen' },
+                                                { key: 'settings', icon: <SettingOutlined />, label: 'Einstellungen' },
+                                            ] : []),
+                                        ] : []),
+                                        { key: 'cart', icon: <ShoppingCartOutlined />, label: getCartCount(cartItems), style: { marginLeft: 'auto' } },
+                                    ] as MenuProps['items']}
+                                />
                                 <Row gutter={[16, 24]}>
                                     <Col span={24}></Col>
                                     <Col span={24}>
@@ -384,9 +366,6 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
                                         }
                                     </Col>
                                 </Row>
-
-
-                            </PageHeader>
                             {/* </CartContext.Provider> */}
                         </StandorteContext.Provider>
                     </MaterialsContext.Provider>

@@ -1,4 +1,4 @@
-@import "styles.module.scss";
+@use "../../styles.module.scss" as styles;
 
 .display-linebreak {
     white-space: pre-line;

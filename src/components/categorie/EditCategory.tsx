@@ -91,7 +91,7 @@ export const EditCategoryButton = (props: EditCategoryProps) => {
         <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
         <Modal
             title='Kategorie bearbeiten'
-            visible={isModalVisible}
+            open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>

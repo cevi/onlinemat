@@ -1,12 +1,13 @@
 import { message } from 'antd';
 import { abteilungenCollection, abteilungenMembersCollection } from 'config/firebase/collections';
-import { firestore } from 'config/firebase/firebase';
+import { db } from 'config/firebase/firebase';
+import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { AbteilungMember } from 'types/abteilung.type'
 
 
 export const changeRoleOfMember = async (abteilungId: string, userId: string, role: AbteilungMember['role'] ) => {
     try {
-        await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMembersCollection).doc(userId).update({role});
+        await updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMembersCollection, userId), {role});
     } catch(err) {
         message.error(`Es ist ein Fehler aufgetreten ${err}`)
         console.error('Es ist ein Fehler aufgetreten', err)
@@ -15,7 +16,7 @@ export const changeRoleOfMember = async (abteilungId: string, userId: string, ro
 
 export const approveMemberRequest =  async (abteilungId: string, userId: string) => {
     try {
-        await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMembersCollection).doc(userId).update({ approved: true });
+        await updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMembersCollection, userId), { approved: true });
     } catch(err) {
         message.error(`Es ist ein Fehler aufgetreten ${err}`)
         console.error('Es ist ein Fehler aufgetreten', err)
@@ -24,7 +25,7 @@ export const approveMemberRequest =  async (abteilungId: string, userId: string)
 
 export const removeMember = async (abteilungId: string, userId: string) => {
     try {
-        await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMembersCollection).doc(userId).delete();
+        await deleteDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMembersCollection, userId));
     } catch(err) {
         message.error(`Es ist ein Fehler aufgetreten ${err}`)
         console.error('Es ist ein Fehler aufgetreten', err)
@@ -38,7 +39,7 @@ export const denyMemberRequest = async (abteilungId: string, userId: string) => 
 //user is not allowed to request access again
 export const banMember = async (abteilungId: string, userId: string) => {
     try {
-        await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMembersCollection).doc(userId).update({ approved: false, banned: true });
+        await updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMembersCollection, userId), { approved: false, banned: true });
     } catch(err) {
         message.error(`Es ist ein Fehler aufgetreten ${err}`)
         console.error('Es ist ein Fehler aufgetreten', err)
@@ -47,7 +48,7 @@ export const banMember = async (abteilungId: string, userId: string) => {
 
 export const unBanMember = async (abteilungId: string, userId: string) => {
     try {
-        await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMembersCollection).doc(userId).update({ approved: false, banned: false });
+        await updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMembersCollection, userId), { approved: false, banned: false });
     } catch(err) {
         message.error(`Es ist ein Fehler aufgetreten ${err}`)
         console.error('Es ist ein Fehler aufgetreten', err)

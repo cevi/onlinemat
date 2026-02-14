@@ -6,7 +6,7 @@ import { deleteGroup, EditGroupButton } from './EditGroup';
 import { DeleteOutlined } from '@ant-design/icons';
 import { groupObjToList } from 'util/GroupUtil';
 import { dateFormat } from 'util/MaterialUtil';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 
 
@@ -46,7 +46,7 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
             key: 'createdAt',
             sorter: (a: Group, b: Group) => a.createdAt.valueOf() - b.createdAt.valueOf(),
             render: (text: string, record: Group) => (
-                <p key={`createdAt_${record.id}`}>{moment(record.createdAt).format(dateFormat)}</p>
+                <p key={`createdAt_${record.id}`}>{dayjs(record.createdAt).format(dateFormat)}</p>
             )
         },
         {

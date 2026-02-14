@@ -1,4 +1,4 @@
-import { Moment } from "moment";
+import { Dayjs } from "dayjs";
 
 export interface Group {
     __caslSubjectType__ : 'Group'

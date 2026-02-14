@@ -4,7 +4,9 @@ import ceviLogoImage from 'assets/onlinemat_logo.png';
 import { useNavigate } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
 import { useContext, useState } from 'react';
-import { firestore, functions } from 'config/firebase/firebase';
+import { db, functions } from 'config/firebase/firebase';
+import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
 import moduleStyles from '../Abteilung.module.scss'
 import { ability } from 'config/casl/ability';
@@ -49,7 +51,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
             if(!noDatatToUpdate) {
                 console.log('do update')
-                await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
+                await updateDoc(doc(db, abteilungenCollection, abteilung.id), {
                     name: form.getFieldsValue().name,
                     ceviDBId: form.getFieldsValue().ceviDBId || null,
                     logoUrl: form.getFieldsValue().logoUrl || null,
@@ -74,7 +76,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
         if (!abteilung) return;
         try {
             const slug = form.getFieldsValue().slug;
-            await functions().httpsCallable('updateSlug')({ abteilungId: abteilung.id, slug });
+            await httpsCallable(functions, 'updateSlug')({ abteilungId: abteilung.id, slug });
         } catch (ex) {
             console.error(`Es ist ein Fehler aufgetreten: ${ex}`)
             throw ex;
@@ -84,7 +86,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
     const delteAbteilung = async (ab: Abteilung | undefined) => {
         if (!ab) return;
         try {
-            await firestore().collection(abteilungenCollection).doc(ab.id).delete();
+            await deleteDoc(doc(db, abteilungenCollection, ab.id));
             message.info(`${ab.name} erfolgreich gelöscht`)
             navigate('/')
         } catch (ex) {

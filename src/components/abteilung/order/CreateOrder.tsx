@@ -1,6 +1,6 @@
 import { Avatar, Col, DatePicker, Form, Input, List, message, Row, Select, Spin } from 'antd';
 import { useUser } from 'hooks/use-user';
-import moment, { Moment } from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Abteilung } from 'types/abteilung.type';
 import { CartItem, DetailedCartItem } from 'types/cart.types';
@@ -40,16 +40,16 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
     const { Option, OptGroup } = Select;
 
     //select next satureday from 14:00 - 17:00
-    const defaultStartDate = moment().day(6).hour(14).minute(0).second(0);
-    const deafultEndDate = moment().day(6).hour(17).minute(0).second(0);
+    const defaultStartDate = dayjs().day(6).hour(14).minute(0).second(0);
+    const deafultEndDate = dayjs().day(6).hour(17).minute(0).second(0);
 
     const customGroupId = 'custom';
 
     const [userGroups, setUserGroups] = useState<Group[]>([]);
 
     const [selectedGroup, setSelectedGroup] = useState<string | undefined>(undefined);
-    const [startDate, setStartDate] = useState<Moment>(defaultStartDate);
-    const [endDate, setEndDate] = useState<Moment>(deafultEndDate);
+    const [startDate, setStartDate] = useState<Dayjs>(defaultStartDate);
+    const [endDate, setEndDate] = useState<Dayjs>(deafultEndDate);
 
     const [collisions, setCollisions] = useState<{ [matId: string]: number } | undefined>(undefined)
 

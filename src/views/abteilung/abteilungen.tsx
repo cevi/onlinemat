@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { Col, PageHeader, Row, Spin } from 'antd';
+import { Col, Row, Spin, Typography } from 'antd';
 import styles from './abteilungen.module.scss';
 import { AbteilungCard } from 'components/abteilung/AbteilungCard';
 import { AddAbteilung } from 'components/abteilung/AddAbteilung';
@@ -20,7 +20,7 @@ export const AbteilungenView = () => {
 
     return <div className={classNames(appStyles['flex-grower'])}>
 
-        <PageHeader title='Abteilungen'></PageHeader>
+        <Typography.Title level={3}>Abteilungen</Typography.Title>
 
         <div className={classNames(appStyles['flex-grower'])} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'stretch' }}>
             <Row gutter={[16, 16]} className={classNames(styles['row'])}>

@@ -1,6 +1,7 @@
 import { message } from "antd";
 import { abteilungenCollection, abteilungenMaterialsCollection } from "config/firebase/collections";
-import { firestore } from "config/firebase/firebase";
+import { db } from "config/firebase/firebase";
+import { collection, doc, deleteDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { Material } from "types/material.types";
 
 export const dateFormat = 'DD.MM.YYYY';
@@ -17,7 +18,7 @@ export const generateKeywords = (text: string) => {
 
 export const deleteMaterial = async (abteilungId: string, mat: Material) => {
     try {
-        await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).doc(mat.id).delete();
+        await deleteDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, mat.id));
         message.success(`Material ${mat.name} erfolgreich gelöscht`);
     } catch (ex) {
         message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
@@ -28,7 +29,7 @@ export const editMaterial = async (abteilungId: string, material: Material) => {
     try {
         material.keywords = generateKeywords(material.name)
 
-        await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).doc(material.id).update(material);
+        await updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, material.id), material);
         message.success(`Material ${material.name} erfolgreich bearbeitet`);
     } catch (ex) {
         message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
@@ -88,11 +89,9 @@ export const getAvailableMatCountToEdit = (mat: Material | undefined): { damged:
 }
 
 export const massImportMaterial = async (abteilungId: string, materials: Material[]): Promise<void> => {
-    const batch = firestore().batch();
+    const batch = writeBatch(db);
     materials.forEach(mat => {
-        const insert = firestore()
-        .collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection)
-            .doc();
+        const insert = doc(collection(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection));
         batch.set(insert, mat);
     });
     return await batch.commit();

@@ -12,7 +12,7 @@ import {CategorysContext, MaterialsContext, StandorteContext} from 'components/a
 import {useCookies} from 'react-cookie';
 import {CartItem} from 'types/cart.types';
 import {getCartName} from 'util/CartUtil';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import {Material} from 'types/material.types';
 import {getAvailableMatCount} from 'util/MaterialUtil';
 import {AddStandortButton} from "components/standort/AddStandort";
@@ -93,8 +93,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
             message.warning(`${material.name} ist zur Zeit leider nicht verfügbar.`)
         }
 
-        const expires = moment();
-        expires.add(24, 'hours');
+        const expires = dayjs().add(24, 'hours');
 
         setCookie(cookieName, localCart, {
             path: '/',

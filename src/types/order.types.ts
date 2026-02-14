@@ -1,4 +1,4 @@
-import { Moment } from "moment";
+import { Dayjs } from "dayjs";
 import { CartItem } from "./cart.types";
 import { DamagedMaterial } from "./material.types";
 
@@ -6,11 +6,11 @@ import { DamagedMaterial } from "./material.types";
 export interface Order {
     __caslSubjectType__ : 'Order'
     id: string
-    startDate: Moment
-    endDate: Moment
+    startDate: Dayjs
+    endDate: Dayjs
     items: CartItem[]
     orderer: string
-    creationTime: Moment
+    creationTime: Dayjs
     status: 'created' | 'delivered' | 'completed'
     history: OrderHistory[]
     comment?: string

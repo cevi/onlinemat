@@ -1,4 +1,4 @@
-@import "styles.module.scss";
+@use "../../styles.module.scss" as styles;
 
 .app-container {
     height: 100vh;
@@ -35,5 +35,5 @@
 }
 
 .logout {
-    color: $error-color !important;
+    color: styles.$error-color !important;
 }

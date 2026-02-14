@@ -1,9 +1,10 @@
-import { Col, Input, message, PageHeader, Row, Statistic } from 'antd';
+import { Col, Input, message, Row, Statistic, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { UserTable } from 'components/users/UserTable';
-import { firestore } from 'config/firebase/firebase';
+import { db } from 'config/firebase/firebase';
+import { collection, doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { usersCollection } from 'config/firebase/collections';
 import { UserData } from 'types/user.type';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -33,13 +34,13 @@ export const UsersView = () => {
 
         if(!isAuthenticated) return;
         setUsersLoading(true);
-        return firestore().collection(usersCollection).onSnapshot(snap => {
+        return onSnapshot(collection(db, usersCollection), (snap) => {
             setUsersLoading(false);
-            const usersLoaded = snap.docs.flatMap(doc => {
+            const usersLoaded = snap.docs.flatMap(d => {
                 return {
-                    ...doc.data(),
+                    ...d.data(),
                     __caslSubjectType__: 'UserData',
-                    id: doc.id
+                    id: d.id
                 } as UserData;
             });
             setUsers(usersLoaded);
@@ -50,7 +51,7 @@ export const UsersView = () => {
     }, [isAuthenticated]);
 
     return <div className={classNames(appStyles['flex-grower'])}>
-        <PageHeader title={`Benutzer`}></PageHeader>
+        <Typography.Title level={3}>Benutzer</Typography.Title>
 
         <div className={classNames(appStyles['flex-grower'])}>
             <Row>
@@ -73,13 +74,13 @@ export const UsersView = () => {
 }
 
 export const promoteDemoteStaff = async (userId: string) => {
-    const userDoc = await firestore().collection(usersCollection).doc(userId).get();
-    const userData = userDoc.data() as UserData;
+    const userDocSnap = await getDoc(doc(db, usersCollection, userId));
+    const userData = userDocSnap.data() as UserData;
 
     const isStaff = userData.staff ? userData.staff : false
 
     try {
-        await firestore().collection(usersCollection).doc(userId).update({
+        await updateDoc(doc(db, usersCollection, userId), {
             staff: !isStaff
         })
     } catch (ex) {

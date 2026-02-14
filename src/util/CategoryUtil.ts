@@ -1,12 +1,13 @@
 import {message} from "antd";
 import {abteilungenCategoryCollection, abteilungenCollection} from "config/firebase/collections";
-import {firestore} from "config/firebase/firebase";
+import {db} from "config/firebase/firebase";
+import {doc, deleteDoc, updateDoc} from 'firebase/firestore';
 import {Categorie} from "../types/categorie.types";
 
 
 export const deleteCategory = async (abteilungId: string, category: Categorie) => {
     try {
-        await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).doc(category.id).delete();
+        await deleteDoc(doc(db, abteilungenCollection, abteilungId, abteilungenCategoryCollection, category.id));
         message.success(`Kategorie ${category.name} erfolgreich gelöscht`);
     } catch (ex) {
         message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
@@ -15,7 +16,7 @@ export const deleteCategory = async (abteilungId: string, category: Categorie) =
 
 export const editCategory = async (abteilungId: string, category: Categorie) => {
     try {
-        await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).doc(category.id).update(category);
+        await updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenCategoryCollection, category.id), category);
         message.success(`Kategorie ${category.name} erfolgreich bearbeitet`);
     } catch (ex) {
         message.error(`Es ist ein Fehler aufgetreten: ${ex}`)

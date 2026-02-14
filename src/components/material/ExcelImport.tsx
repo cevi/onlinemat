@@ -14,7 +14,8 @@ import {
   abteilungenMaterialsCollection,
   abteilungenCollection,
 } from "config/firebase/collections";
-import { firestore } from "config/firebase/firebase";
+import { db } from "config/firebase/firebase";
+import { collection, getDocs, deleteDoc, addDoc } from "firebase/firestore";
 import { useContext, useState } from "react";
 import { Abteilung } from "types/abteilung.type";
 import { Categorie } from "types/categorie.types";
@@ -73,14 +74,10 @@ export const ExcelImport = (props: ExcelImportProps) => {
   };
 
   const replaceMaterial = async () => {
-    await firestore()
-      .collection(abteilungenCollection)
-      .doc(abteilung.id)
-      .collection(abteilungenMaterialsCollection)
-      .get()
+    await getDocs(collection(db, abteilungenCollection, abteilung.id, abteilungenMaterialsCollection))
       .then((snapshot) => {
-        snapshot.docs.forEach((doc) => {
-          doc.ref.delete();
+        snapshot.docs.forEach((d) => {
+          deleteDoc(d.ref);
         });
         prepareMaterial();
       })
@@ -231,14 +228,10 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
     //create categories
     const promieses = newCategories.map((catName) => {
-      return firestore()
-        .collection(abteilungenCollection)
-        .doc(abteilung.id)
-        .collection(abteilungenCategoryCollection)
-        .add({ name: catName } as Categorie)
-        .then((doc) => {
+      return addDoc(collection(db, abteilungenCollection, abteilung.id, abteilungenCategoryCollection), { name: catName } as Categorie)
+        .then((docRef) => {
           return {
-            id: doc.id,
+            id: docRef.id,
             name: catName,
           } as Categorie;
         });
@@ -288,7 +281,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
   return (
     <Modal
       title="Material importieren"
-      visible={showModal}
+      open={showModal}
       onCancel={() => setShow(false)}
       footer={[
         <Button

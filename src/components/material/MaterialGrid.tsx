@@ -100,7 +100,7 @@ export const MaterialCard = (props: MaterialCardProps) => {
         </Card>
         <Modal
             title={activeRecord?.name}
-            visible={isModalVisible}
+            open={isModalVisible}
             onCancel={() => {
                 setIsModalVisible(false);
             }}

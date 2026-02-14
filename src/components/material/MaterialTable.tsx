@@ -144,7 +144,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             <Table rowKey='id' columns={columns} dataSource={filteredMaterials}/>
             <Modal
                 title={activeRecord?.name}
-                visible={isModalVisible}
+                open={isModalVisible}
                 onCancel={() => {
                     setIsModalVisible(false);
                 }}
