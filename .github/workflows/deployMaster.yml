@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: production
-      url: https://onlinemat.cevi.tools
+      url: https://mat.cevi.tools
     steps:
 
       # Checkout the source code

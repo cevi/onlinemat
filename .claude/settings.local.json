@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm ls:*)",
+      "Bash(node --version:*)",
+      "Bash(npm:*)"
+    ]
+  }
+}
