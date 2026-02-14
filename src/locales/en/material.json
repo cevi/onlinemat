@@ -71,6 +71,7 @@
     "notAvailable": "{{name}} is currently not available."
   },
   "util": {
-    "unlimited": "unlimited"
+    "unlimited": "unlimited",
+    "deleted": "Deleted material"
   }
 }

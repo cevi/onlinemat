@@ -67,7 +67,7 @@ export const OrderView = (props: OrderProps) => {
     const userDataLoading = membersUserDataContext.loading;
 
 
-    const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: 'Loading...' }) }));
+    const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: t('common:status.loading') }) }));
 
     const abteilungOrdersLink = `/abteilungen/${abteilung.slug || abteilung.id}/orders`;
 
@@ -116,7 +116,7 @@ export const OrderView = (props: OrderProps) => {
             const maxCount = getAvailableMatCount(mat);
             const mergedItem: DetailedCartItem = {
                 ...item,
-                name: mat && mat.name || 'Loading...',
+                name: mat?.name || (matLoading ? t('common:status.loading') : t('material:util.deleted')),
                 maxCount,
                 imageUrls: mat && mat.imageUrls || [],
                 __caslSubjectType__: 'DetailedCartItem'
@@ -261,7 +261,7 @@ export const OrderView = (props: OrderProps) => {
     }
 
     const Weight = () => {
-        if(!order) return <>Loading...</>
+        if(!order) return <>{t('common:status.loading')}</>
         const res = calculateTotalWeight(order, materials);
         const incompleteInfo = res.incompleteCount > 0 ? t('order:view.weightInfoIncomplete', { complete: order.items.length - res.incompleteCount, total: order.items.length }) : '';
         return <Tooltip key={`weight_${order.id}`} title={t('order:view.weightTooltip')}>{t('order:view.weightInfo', { totalWeight: res.totalWeight, incompleteInfo })}</Tooltip>
@@ -285,6 +285,7 @@ export const OrderView = (props: OrderProps) => {
                     <p><b>{t('order:view.weight')}</b><Weight/></p>
                 </Col>
                 <Col span={24}>
+                    <style>{`.order-timeline .ant-timeline-item-head-custom { background: transparent; }`}</style>
                     <div
                         id='scrollableDiv'
                         style={{
@@ -293,19 +294,17 @@ export const OrderView = (props: OrderProps) => {
                             padding: '10px 16px 0 0',
                         }}
                     >
-                        <Timeline mode='left' >
-                            {
-                                detailedHistory.map(orderHistory => {
-                                    return <Timeline.Item
-                                        label={dayjs(orderHistory.timestamp).format(dateFormatWithTime)}
-                                        color={orderHistory.color || undefined}
-                                        dot={getDotIcon(orderHistory.type, orderHistory.color)}
-                                    >
-                                        {orderHistory.text}
-                                    </Timeline.Item>
-                                })
-                            }
-                        </Timeline>
+                        <Timeline
+                            className='order-timeline'
+                            mode='left'
+                            items={detailedHistory.map((orderHistory, index) => ({
+                                key: `history_${index}`,
+                                label: dayjs(orderHistory.timestamp).format(dateFormatWithTime),
+                                color: orderHistory.color || undefined,
+                                dot: getDotIcon(orderHistory.type, orderHistory.color),
+                                children: orderHistory.text,
+                            }))}
+                        />
                     </div>
                 </Col>
             </Row>
