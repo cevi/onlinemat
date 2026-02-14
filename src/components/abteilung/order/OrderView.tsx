@@ -104,6 +104,7 @@ export const OrderView = (props: OrderProps) => {
             } as Order;
             setOrder(orderLoaded);
         }, (err) => {
+            if ((err as any).code === 'permission-denied') return;
             message.error(t('common:errors.generic', { error: err }))
             console.error('Es ist ein Fehler aufgetreten', err)
         });

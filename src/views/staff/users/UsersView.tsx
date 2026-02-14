@@ -45,6 +45,7 @@ export const UsersView = () => {
             });
             setUsers(usersLoaded);
         }, (err) => {
+            if ((err as any).code === 'permission-denied') return;
             message.error(`Es ist ein Fehler aufgetreten ${err}`)
             console.error('Es ist ein Fehler aufgetreten', err)
         });

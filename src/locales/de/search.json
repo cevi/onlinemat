@@ -6,11 +6,23 @@
   "results": {
     "found_one": "{{count}} Ergebnis gefunden",
     "found_other": "{{count}} Ergebnisse gefunden",
-    "none": "Keine Ergebnisse gefunden"
+    "none": "Keine Ergebnisse gefunden",
+    "materialName": "Material",
+    "abteilung": "Abteilung"
   },
   "featured": {
     "title": "Vorschläge"
   },
   "unknownAbteilung": "Unbekannte Abteilung",
-  "error": "Fehler beim Laden der Materialien"
+  "error": "Fehler beim Laden der Materialien",
+  "suggestions": {
+    "multipleAbteilungen_one": "{{count}} Abteilung",
+    "multipleAbteilungen_other": "{{count}} Abteilungen"
+  },
+  "abteilungen": {
+    "title": "Abteilungen",
+    "name": "Name",
+    "found_one": "{{count}} Abteilung gefunden",
+    "found_other": "{{count}} Abteilungen gefunden"
+  }
 }

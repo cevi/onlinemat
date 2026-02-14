@@ -49,6 +49,7 @@ const App = () => {
             Sentry.setUser({ id: base64 });
           },
           (err) => {
+            if ((err as any).code === 'permission-denied') return;
             message.error(i18n.t('common:errors.generic', { error: String(err) }));
             console.error("Error occurred", err);
           }

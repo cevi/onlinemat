@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { AutoComplete, Card, Col, Row, Spin, Tag, Typography } from 'antd';
+import { AutoComplete, Card, Col, Row, Spin, Table, Tag, Typography } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
 import { db } from 'config/firebase/firebase';
 import { collectionGroup, query as firestoreQuery, where, limit, getDocs } from 'firebase/firestore';
@@ -29,6 +29,7 @@ export const SearchView = () => {
 
     const [query, setQuery] = useState(initQuery);
     const [results, setResults] = useState<SearchMaterial[]>([]);
+    const [abteilungResults, setAbteilungResults] = useState<Abteilung[]>([]);
     const [hasSearched, setHasSearched] = useState(false);
 
     const [allSearchable, setAllSearchable] = useState<SearchMaterial[]>([]);
@@ -77,45 +78,79 @@ export const SearchView = () => {
         return shuffled.slice(0, FEATURED_DISPLAY_COUNT);
     }, [allSearchable]);
 
-    // Autocomplete options: fuzzy filter on name as user types
+    // Autocomplete options: deduplicated by material name, max 10 unique names
+    // Hide options once a search has been executed to prevent feedback loop
     const autocompleteOptions = useMemo(() => {
+        if (hasSearched) return [];
         const term = query.trim().toLowerCase();
         if (!term) return [];
-        return allSearchable
-            .filter(mat => mat.name.toLowerCase().includes(term))
-            .slice(0, 10)
-            .map(mat => {
-                const abteilung = findAbteilung(mat.abteilungId);
-                return {
-                    value: mat.name,
-                    label: (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span>{mat.name}</span>
-                            <Tag color="blue" style={{ marginLeft: 8 }}>{abteilung?.name ?? t('common:status.unknown')}</Tag>
-                        </div>
-                    ),
-                    key: mat.id,
-                };
-            });
-    }, [query, allSearchable, abteilungen]);
+        const filtered = allSearchable.filter(mat => mat.name.toLowerCase().includes(term));
 
-    // Execute search: filter from loaded materials client-side
+        // Group by material name (case-insensitive)
+        const grouped = new Map<string, { name: string; abteilungIds: Set<string> }>();
+        for (const mat of filtered) {
+            const key = mat.name.toLowerCase();
+            if (!grouped.has(key)) {
+                grouped.set(key, { name: mat.name, abteilungIds: new Set() });
+            }
+            if (mat.abteilungId) {
+                grouped.get(key)!.abteilungIds.add(mat.abteilungId);
+            }
+        }
+
+        return Array.from(grouped.values()).slice(0, 10).map((group, index) => {
+            const count = group.abteilungIds.size;
+            const tag = count === 1
+                ? (() => {
+                    const ab = findAbteilung(Array.from(group.abteilungIds)[0]);
+                    return ab?.name ?? t('common:status.unknown');
+                })()
+                : t('search:suggestions.multipleAbteilungen', { count });
+
+            return {
+                value: group.name,
+                label: (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>{group.name}</span>
+                        <Tag color="blue" style={{ marginLeft: 8 }}>{tag}</Tag>
+                    </div>
+                ),
+                key: `suggestion_${index}`,
+            };
+        });
+    }, [query, allSearchable, abteilungen, hasSearched]);
+
+    // Handle typing in autocomplete — resets search mode so suggestions reappear
+    const handleSearchInput = (value: string) => {
+        setQuery(value);
+        if (hasSearched) setHasSearched(false);
+    };
+
+    // Execute search: filter materials + abteilungen client-side
     const doSearch = (term: string) => {
         const normalized = term.trim().toLowerCase();
         if (!normalized) {
             setResults([]);
+            setAbteilungResults([]);
             setHasSearched(false);
             setSearchParams({});
             return;
         }
 
-        setSearchParams({ q: normalized });
+        if (searchParams.get('q') !== normalized) {
+            setSearchParams({ q: normalized });
+        }
         setHasSearched(true);
 
         const filtered = allSearchable.filter(mat =>
             mat.name.toLowerCase().includes(normalized)
         );
         setResults(filtered);
+
+        const matchedAbteilungen = abteilungen.filter(ab =>
+            ab.name.toLowerCase().includes(normalized)
+        );
+        setAbteilungResults(matchedAbteilungen);
     };
 
     // Run initial search if URL has query param
@@ -125,25 +160,34 @@ export const SearchView = () => {
         }
     }, [allSearchable]);
 
-    const renderResultItem = (mat: SearchMaterial) => {
-        const abteilung = findAbteilung(mat.abteilungId);
-        const href = abteilung
-            ? `/abteilungen/${abteilung.slug || abteilung.id}/mat`
-            : '/abteilungen';
+    const abteilungColumns = [
+        {
+            title: t('search:abteilungen.name'),
+            dataIndex: 'name',
+            key: 'name',
+            render: (name: string, ab: Abteilung) => (
+                <a href={`/abteilungen/${ab.slug || ab.id}/mat`}>{name}</a>
+            ),
+        },
+    ];
 
-        return (
-            <Col key={mat.id} xs={24} sm={12} md={8}>
-                <a href={href} style={{ textDecoration: 'none' }}>
-                    <Card hoverable size="small">
-                        <Card.Meta
-                            title={mat.name}
-                            description={abteilung?.name ?? t('search:unknownAbteilung')}
-                        />
-                    </Card>
-                </a>
-            </Col>
-        );
-    };
+    const materialColumns = [
+        {
+            title: t('search:results.materialName'),
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: t('search:results.abteilung'),
+            dataIndex: 'abteilungId',
+            key: 'abteilung',
+            render: (abteilungId: string | undefined) => {
+                const ab = findAbteilung(abteilungId);
+                if (!ab) return t('search:unknownAbteilung');
+                return <a href={`/abteilungen/${ab.slug || ab.id}/mat`}>{ab.name}</a>;
+            },
+        },
+    ];
 
     return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])} style={{ alignItems: 'center' }}>
         <Typography.Title level={3}>{t('search:title')}</Typography.Title>
@@ -153,7 +197,7 @@ export const SearchView = () => {
 
         <AutoComplete
             options={autocompleteOptions}
-            onSearch={setQuery}
+            onSearch={handleSearchInput}
             onSelect={(value) => { setQuery(value); doSearch(value); }}
             value={query}
             style={{ maxWidth: 600, width: '100%', marginBottom: 24 }}
@@ -169,22 +213,44 @@ export const SearchView = () => {
             />
         </AutoComplete>
 
-        {(allLoading || allLoading) && <Spin style={{ marginBottom: 16 }} />}
+        {allLoading && <Spin style={{ marginBottom: 16 }} />}
 
         {hasSearched && !allLoading && (
             <>
+                {abteilungResults.length > 0 && (
+                    <>
+                        <Typography.Title level={5}>
+                            {t('search:abteilungen.found', { count: abteilungResults.length })}
+                        </Typography.Title>
+                        <Table
+                            dataSource={abteilungResults}
+                            columns={abteilungColumns}
+                            rowKey="id"
+                            size="small"
+                            pagination={false}
+                            style={{ maxWidth: 800, width: '100%', marginBottom: 24 }}
+                        />
+                    </>
+                )}
+
                 <Typography.Title level={5}>
                     {results.length > 0
                         ? t('search:results.found', { count: results.length })
                         : t('search:results.none')}
                 </Typography.Title>
-                <Row gutter={[16, 16]} style={{ maxWidth: 800 }}>
-                    {results.map(renderResultItem)}
-                </Row>
+                {results.length > 0 && (
+                    <Table
+                        dataSource={results}
+                        columns={materialColumns}
+                        rowKey="id"
+                        size="small"
+                        style={{ maxWidth: 800, width: '100%' }}
+                    />
+                )}
             </>
         )}
 
-        {!hasSearched && !allLoading && !allLoading && (
+        {!hasSearched && !allLoading && (
             <>
                 <Typography.Title level={5} style={{ marginTop: 16 }}>{t('search:featured.title')}</Typography.Title>
                 <Row gutter={[16, 16]} style={{ maxWidth: 800 }}>
