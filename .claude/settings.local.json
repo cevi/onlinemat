@@ -4,7 +4,8 @@
       "Bash(where:*)",
       "Bash(npx yarn:*)",
       "Bash(yarn install:*)",
-      "Bash(npx vite build:*)"
+      "Bash(npx vite build:*)",
+      "Bash(yarn audit:*)"
     ]
   }
 }

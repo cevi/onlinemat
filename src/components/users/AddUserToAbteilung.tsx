@@ -1,12 +1,10 @@
-import {Button, Form, message, Select, Spin} from "antd";
+import {Button, Form, message, Modal, Select, Spin} from "antd";
 import {db} from "../../config/firebase/firebase";
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import {abteilungenCollection, abteilungenMembersCollection} from "../../config/firebase/collections";
 import React, {useContext, useState} from "react";
 import {AbteilungenContext} from "../navigation/NavigationMenu";
 import {roles} from "../abteilung/members/MemberTable";
-import {useForm} from "antd/es/form/Form";
-import Modal from "antd/lib/modal/Modal";
 import { AbteilungMember } from 'types/user.type';
 
 export interface EditAbteilungMemberProps {
@@ -18,7 +16,7 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
 
     const {uid, onSuccess} = props;
 
-    const [form] = useForm<AbteilungMember>();
+    const [form] = Form.useForm<AbteilungMember>();
 
     const abteilungenContext = useContext(AbteilungenContext);
     const abteilungen = abteilungenContext.abteilungen;

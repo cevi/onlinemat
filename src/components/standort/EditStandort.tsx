@@ -1,6 +1,5 @@
 import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
-import {Button, Form, Input, message} from 'antd';
-import Modal from 'antd/lib/modal/Modal';
+import {Button, Form, Input, message, Modal} from 'antd';
 import {EditOutlined} from '@ant-design/icons';
 import {validateMessages} from 'util/FormValdationMessages';
 import {Standort} from "../../types/standort.types";

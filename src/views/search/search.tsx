@@ -1,9 +1,8 @@
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { Col, message, Result, Spin, Statistic, Typography } from 'antd';
+import { Col, Input, message, Result, Spin, Statistic, Typography } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
-import Search from 'antd/lib/input/Search';
 import { useEffect, useMemo, useState } from 'react';
 import { db } from 'config/firebase/firebase';
 import { collection, collectionGroup, query as firestoreQuery, where, limit, getDocs, onSnapshot } from 'firebase/firestore';
@@ -116,7 +115,7 @@ export const SearchView = () => {
                 <h1>Onlinemat Suche (Noch in bearbeitung)</h1>
                 <p>Du kannst nach Material suchen. Wenn es eine Abteilung hat, wird dir das hier angezeigt.</p>
 
-                <Search placeholder='Materialname' value={query} onSearch={(val)=>setSearch(val)} onChange={(e)=> {
+                <Input.Search placeholder='Materialname' value={query} onSearch={(val)=>setSearch(val)} onChange={(e)=> {
                     e.preventDefault()
                     setQuery(e.currentTarget.value.toLowerCase())
                 }} disabled={loading} />
