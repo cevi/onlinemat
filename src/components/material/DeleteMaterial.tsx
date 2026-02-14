@@ -1,6 +1,7 @@
 import { Button, Popconfirm, message } from 'antd';
 import {Abteilung} from 'types/abteilung.type';
-import { firestore } from 'config/firebase/firebase';
+import { db } from 'config/firebase/firebase';
+import { collection, getDocs, deleteDoc } from 'firebase/firestore';
 import { abteilungenCollection, abteilungenMaterialsCollection} from "config/firebase/collections";
 import { DeleteOutlined } from '@ant-design/icons';
 import { useContext, useState } from 'react';
@@ -14,9 +15,9 @@ export const DeleteMaterialButton = (props: DeleteMaterialProps) => {
     const [updateLoading] = useState(false);
 
     const delteMaterial = async () => {
-        await firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenMaterialsCollection).get().then((snapshot) => {
-            snapshot.docs.forEach((doc) => {
-                doc.ref.delete();
+        await getDocs(collection(db, abteilungenCollection, abteilung.id, abteilungenMaterialsCollection)).then((snapshot) => {
+            snapshot.docs.forEach((d) => {
+                deleteDoc(d.ref);
             });
         }).then(() => {
             message.info(`Alles Material von ${abteilung.name} wurde erfolgreich gelöscht`);

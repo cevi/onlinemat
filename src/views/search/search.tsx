@@ -1,11 +1,11 @@
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { Col, message, PageHeader, Result, Spin, Statistic, Typography } from 'antd';
+import { Col, Input, message, Result, Spin, Statistic, Typography } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
-import Search from 'antd/lib/input/Search';
 import { useEffect, useMemo, useState } from 'react';
-import { firestore, } from 'config/firebase/firebase';
+import { db } from 'config/firebase/firebase';
+import { collection, collectionGroup, query as firestoreQuery, where, limit, getDocs, onSnapshot } from 'firebase/firestore';
 import { abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
 import { Material } from 'types/material.types';
 import { Abteilung } from 'types/abteilung.type';
@@ -42,13 +42,13 @@ export const SearchView = () => {
     useEffect(() => {
         if (!isAuthenticated) return;
         setAbteilungLoading(true);
-        return firestore().collection(abteilungenCollection).onSnapshot(snap => {
+        return onSnapshot(collection(db, abteilungenCollection), (snap) => {
             setAbteilungLoading(false);
-            const abteilungenLoaded = snap.docs.flatMap(doc => {
+            const abteilungenLoaded = snap.docs.flatMap(d => {
                 return {
-                    ...doc.data(),
+                    ...d.data(),
                     __caslSubjectType__: 'Abteilung',
-                    id: doc.id
+                    id: d.id
                 } as Abteilung;
             });
             setAbteilungen(abteilungenLoaded);
@@ -62,7 +62,7 @@ export const SearchView = () => {
         const queryFirebase = async () => {
             try {
                 setLoading(true)
-                const querySnapshot = await firestore().collectionGroup(abteilungenMaterialsCollection).where('onlyLendInternal', '==', false).where(searchKey, 'array-contains', search).limit(50).get();
+                const querySnapshot = await getDocs(firestoreQuery(collectionGroup(db, abteilungenMaterialsCollection), where('onlyLendInternal', '==', false), where(searchKey, 'array-contains', search), limit(50)));
 
                 setLoading(false);
 
@@ -103,7 +103,7 @@ export const SearchView = () => {
 
 
     return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])}>
-        <PageHeader title='Material Übersicht'></PageHeader>
+        <Typography.Title level={3}>Material Übersicht</Typography.Title>
         <Statistic title='Abteilungen' value={abteilungen.length || 0} />
 
         {
@@ -115,7 +115,7 @@ export const SearchView = () => {
                 <h1>Onlinemat Suche (Noch in bearbeitung)</h1>
                 <p>Du kannst nach Material suchen. Wenn es eine Abteilung hat, wird dir das hier angezeigt.</p>
 
-                <Search placeholder='Materialname' value={query} onSearch={(val)=>setSearch(val)} onChange={(e)=> {
+                <Input.Search placeholder='Materialname' value={query} onSearch={(val)=>setSearch(val)} onChange={(e)=> {
                     e.preventDefault()
                     setQuery(e.currentTarget.value.toLowerCase())
                 }} disabled={loading} />

@@ -2,6 +2,7 @@ import { MailOutlined } from '@ant-design/icons';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Button, Result } from 'antd';
 import { auth } from 'config/firebase/firebase';
+import { signOut } from 'firebase/auth';
 
 export const VerifyEmail = () => {
 
@@ -17,7 +18,7 @@ export const VerifyEmail = () => {
                 key='reload'
                 type='primary'
                 onClick={async () => {
-                    await auth().signOut(); 
+                    await signOut(auth);
                     await logout();
                     loginWithRedirect();
                 }}

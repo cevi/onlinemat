@@ -1,10 +1,10 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Col, message, Row, Select } from 'antd';
-import Search from 'antd/lib/input/Search';
+import { Col, Input, message, Row, Select } from 'antd';
 import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
-import { firestore } from 'config/firebase/firebase';
+import { db } from 'config/firebase/firebase';
+import { collection, query as firestoreQuery, where, onSnapshot } from 'firebase/firestore';
 import { useUser } from 'hooks/use-user';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { useContext, useEffect, useState } from 'react';
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
 import { Group } from 'types/group.types';
@@ -90,13 +90,14 @@ export const Orders = (props: OrdersProps) => {
         let ordersRef;
 
         //check if user can see all orders
+        const ordersCollectionRef = collection(db, abteilungenCollection, abteilung.id, abteilungenOrdersCollection);
         if (userRole !== 'admin' && userRole !== 'matchef' && !isStaff) {
-            ordersRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection).where('orderer', '==', uid)
+            ordersRef = firestoreQuery(ordersCollectionRef, where('orderer', '==', uid))
         } else {
-            ordersRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection);
+            ordersRef = ordersCollectionRef;
         }
 
-        return ordersRef.onSnapshot(snap => {
+        return onSnapshot(ordersRef, (snap) => {
             setOrdersLoading(false);
             const ordersLoaded = snap.docs.flatMap(doc => {
 
@@ -104,9 +105,9 @@ export const Orders = (props: OrdersProps) => {
                     ...doc.data() as Order,
                     __caslSubjectType__: 'Order',
                     id: doc.id,
-                    startDate: moment(doc.data().startDate.toDate()),
-                    endDate: moment(doc.data().endDate.toDate()),
-                    creationTime: moment(doc.data().creationTime.toDate())
+                    startDate: dayjs(doc.data().startDate.toDate()),
+                    endDate: dayjs(doc.data().endDate.toDate()),
+                    creationTime: dayjs(doc.data().creationTime.toDate())
                 } as Order;
             });
             setOrdersByOrderer(ordersLoaded);
@@ -129,8 +130,9 @@ export const Orders = (props: OrdersProps) => {
         const groupsToCheck = selectedGroups.map(group => group.id);
 
         //check if user can see all orders
+        const ordersCollectionRef2 = collection(db, abteilungenCollection, abteilung.id, abteilungenOrdersCollection);
         if (userRole !== 'admin' && userRole !== 'matchef' && !isStaff && groupsToCheck.length > 0) {
-            ordersRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection).where('groupId', 'in', groupsToCheck)
+            ordersRef = firestoreQuery(ordersCollectionRef2, where('groupId', 'in', groupsToCheck))
         }
 
         if (!ordersRef) {
@@ -142,7 +144,7 @@ export const Orders = (props: OrdersProps) => {
             return;
         }
 
-        ordersByGroupListener = ordersRef.onSnapshot(snap => {
+        ordersByGroupListener = onSnapshot(ordersRef, (snap) => {
             setOrdersLoading(false);
             const ordersLoaded = snap.docs.flatMap(doc => {
 
@@ -150,9 +152,9 @@ export const Orders = (props: OrdersProps) => {
                     ...doc.data() as Order,
                     __caslSubjectType__: 'Order',
                     id: doc.id,
-                    startDate: moment(doc.data().startDate.toDate()),
-                    endDate: moment(doc.data().endDate.toDate()),
-                    creationTime: moment(doc.data().creationTime.toDate())
+                    startDate: dayjs(doc.data().startDate.toDate()),
+                    endDate: dayjs(doc.data().endDate.toDate()),
+                    creationTime: dayjs(doc.data().creationTime.toDate())
                 } as Order;
             });
             setOrdersByGroup(ordersLoaded);
@@ -241,7 +243,7 @@ export const Orders = (props: OrdersProps) => {
         </Col>
         }
         <Col span={selectedGroups.length > 0 || userGroups.length > 0 ? 12 : 24}>
-            <Search
+            <Input.Search
                 placeholder='nach Bestellung suchen'
                 allowClear
                 enterButton='Suchen'

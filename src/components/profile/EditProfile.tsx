@@ -6,12 +6,11 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { AutoComplete, Button, Form, Input, Select, message } from "antd";
+import { AutoComplete, Button, Form, Input, Modal, Select, message } from "antd";
 import { editUserData } from "../../util/UserUtil";
 import { useUser } from "../../hooks/use-user";
 import { validateMessages } from "../../util/FormValdationMessages";
 import { EditOutlined } from "@ant-design/icons";
-import Modal from "antd/lib/modal/Modal";
 import { AbteilungenContext } from "../navigation/NavigationMenu";
 
 export interface EditProfileProps {
@@ -155,7 +154,7 @@ export const EditProfileButton = (props: EditProfileProps) => {
       />
       <Modal
         title="Profil bearbeiten"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={() => {
           setIsModalVisible(false);
         }}

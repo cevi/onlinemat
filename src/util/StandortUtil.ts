@@ -4,7 +4,8 @@ import {
     abteilungenMaterialsCollection,
     abteilungenStandortCollection
 } from "config/firebase/collections";
-import { firestore } from "config/firebase/firebase";
+import { db } from "config/firebase/firebase";
+import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { Material } from "types/material.types";
 import {Standort} from "../types/standort.types";
 
@@ -12,7 +13,7 @@ import {Standort} from "../types/standort.types";
 
 export const deleteStandort = async (abteilungId: string, standort: Standort) => {
     try {
-        await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenStandortCollection).doc(standort.id).delete();
+        await deleteDoc(doc(db, abteilungenCollection, abteilungId, abteilungenStandortCollection, standort.id));
         message.success(`Standort ${standort.name} erfolgreich gelöscht`);
     } catch (ex) {
         message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
@@ -21,7 +22,7 @@ export const deleteStandort = async (abteilungId: string, standort: Standort) =>
 
 export const editStandort = async (abteilungId: string, standort: Standort) => {
     try {
-        await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenStandortCollection).doc(standort.id).update(standort);
+        await updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenStandortCollection, standort.id), standort);
         message.success(`Standort ${standort.name} erfolgreich bearbeitet`);
     } catch (ex) {
         message.error(`Es ist ein Fehler aufgetreten: ${ex}`)

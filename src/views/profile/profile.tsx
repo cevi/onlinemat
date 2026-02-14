@@ -1,12 +1,10 @@
 import React from "react";
 import classNames from "classnames";
 import appStyles from "styles.module.scss";
-import { Button, Card, PageHeader, Spin } from "antd";
+import { Avatar, Button, Card, Spin, Typography } from "antd";
 import { useAuth0 } from "@auth0/auth0-react";
-import Meta from "antd/lib/card/Meta";
-import Avatar from "antd/lib/avatar/avatar";
 import { Auth0User } from "types/auth0.types";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useUser } from "hooks/use-user";
 import { EditProfileButton } from "../../components/profile/EditProfile";
 
@@ -26,7 +24,7 @@ export const ProfileView = () => {
         appStyles["center-container-stretch"]
       )}
     >
-      <PageHeader title="Profile"></PageHeader>
+      <Typography.Title level={3}>Profile</Typography.Title>
       {userState.loading && <Spin size="large" />}
       {!!user && isAuthenticated && (
         <div
@@ -39,7 +37,7 @@ export const ProfileView = () => {
             loading={isLoading || userState.loading}
             style={{ width: "70%" }}
           >
-            <Meta
+            <Card.Meta
               avatar={
                 <Avatar
                   src={
@@ -74,7 +72,7 @@ export const ProfileView = () => {
                 <p>Locale: {auth0User.locale}</p>
                 <p>Picture: {auth0User.picture ? "Ja" : "Nein"}</p>
                 <p>Sub: {auth0User.sub}</p>
-                <p>Updated at: {moment(auth0User.updated_at).format("L LT")}</p>
+                <p>Updated at: {dayjs(auth0User.updated_at).format("L LT")}</p>
                 <p>
                   Firebase User ID:{" "}
                   {(userState.appUser && userState.appUser.firebaseUser.uid) ||

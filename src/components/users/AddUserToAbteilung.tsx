@@ -1,11 +1,10 @@
-import {Button, Form, message, Select, Spin} from "antd";
-import {firestore} from "../../config/firebase/firebase";
+import {Button, Form, message, Modal, Select, Spin} from "antd";
+import {db} from "../../config/firebase/firebase";
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import {abteilungenCollection, abteilungenMembersCollection} from "../../config/firebase/collections";
 import React, {useContext, useState} from "react";
 import {AbteilungenContext} from "../navigation/NavigationMenu";
 import {roles} from "../abteilung/members/MemberTable";
-import {useForm} from "antd/es/form/Form";
-import Modal from "antd/lib/modal/Modal";
 import { AbteilungMember } from 'types/user.type';
 
 export interface EditAbteilungMemberProps {
@@ -17,16 +16,16 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
 
     const {uid, onSuccess} = props;
 
-    const [form] = useForm<AbteilungMember>();
+    const [form] = Form.useForm<AbteilungMember>();
 
     const abteilungenContext = useContext(AbteilungenContext);
     const abteilungen = abteilungenContext.abteilungen;
     const abtielungenLoading = abteilungenContext.loading;
 
     const addUserToAbteilung = async () => {
-        const userRef = firestore().collection(abteilungenCollection).doc(form.getFieldValue('abteilung')).collection(abteilungenMembersCollection).doc(uid)
-        const memberDoc = await userRef.get();
-        if (memberDoc.exists) {
+        const userRef = doc(db, abteilungenCollection, form.getFieldValue('abteilung'), abteilungenMembersCollection, uid)
+        const memberDoc = await getDoc(userRef);
+        if (memberDoc.exists()) {
             message.error('Dieser Benutzer ist bereits mitglied dieser Abteilung');
         } else {
             const member: AbteilungMember = {
@@ -34,7 +33,7 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
                 role: form.getFieldValue('role'),
                 approved: true,
             }
-            await firestore().collection(abteilungenCollection).doc(form.getFieldValue('abteilung')).collection(abteilungenMembersCollection).doc(uid).set(member)
+            await setDoc(doc(db, abteilungenCollection, form.getFieldValue('abteilung'), abteilungenMembersCollection, uid), member)
                 .then(() => {
                     if (onSuccess) {
                         onSuccess();
@@ -112,7 +111,7 @@ export const AddUserToAbteilungButton = (props: EditAbteilungMemberProps) => {
         </Button>
         <Modal
             title='Benutzer zu Abteilung hinzufügen'
-            visible={isModalVisible}
+            open={isModalVisible}
             onCancel={() => setIsModalVisible(false)}
             footer={[
                 <Button key='back' onClick={() => setIsModalVisible(false)}>

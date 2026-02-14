@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, message, Form, Radio, Transfer } from 'antd';
-import Modal from 'antd/lib/modal/Modal';
-import { firestore } from 'config/firebase/firebase';
+import { Button, Input, message, Modal, Form, Radio, Transfer } from 'antd';
+import { db } from 'config/firebase/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 import { abteilungenCategoryCollection, abteilungenCollection } from 'config/firebase/collections';
 import { validateMessages } from 'util/FormValdationMessages';
 import { Abteilung, AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
@@ -37,7 +37,7 @@ export const EditGroup = (props: EditGroupProps) => {
             }
 
 
-            await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
+            await updateDoc(doc(db, abteilungenCollection, abteilung.id), {
                 groups: filterGroups
             })
             message.success(`${form.getFieldValue('type') === 'group' ? 'Gruppe' : 'Anlass'} ${form.getFieldValue('name')} erfolgreich bearbeitet`);
@@ -141,7 +141,7 @@ export const EditGroupButton = (props: EditGroupProps) => {
         <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
         <Modal
             title='Gruppe/Anlass bearbeiten'
-            visible={isModalVisible}
+            open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>
@@ -162,7 +162,7 @@ export const deleteGroup = async (abteilung: Abteilung, group: Group) => {
         const { [group.id]: unused, ...filterGroups } = abteilung.groups
 
 
-        await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
+        await updateDoc(doc(db, abteilungenCollection, abteilung.id), {
             groups: filterGroups
         })
         message.success(`${group.type === 'group' ? 'Gruppe' : 'Anlass'} ${group.name} erfolgreich gelöscht`);

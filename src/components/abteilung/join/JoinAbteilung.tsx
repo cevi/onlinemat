@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button, Select, message, Form, Spin } from 'antd';
-import Modal from 'antd/lib/modal/Modal';
+import { Button, Modal, Select, message, Form, Spin } from 'antd';
 import { functions } from 'config/firebase/firebase';
+import { httpsCallable } from 'firebase/functions';
 import { validateMessages } from 'util/FormValdationMessages';
 import { AbteilungMember } from 'types/abteilung.type';
 import { roles } from '../members/MemberTable';
@@ -26,7 +26,7 @@ export const JoinAbteilung = (props: JoinAbteilungProps) => {
         try {
             setLoading(true)
             const role = form.getFieldValue('role');
-            await functions().httpsCallable('joinAbteilung')({ abteilungId, role });
+            await httpsCallable(functions, 'joinAbteilung')({ abteilungId, role });
             setLoading(false)
             message.success(`Anfrage an ${abteilungName} erfolgreich gesendet`)
             form.resetFields();
@@ -87,7 +87,7 @@ export const JoinAbteilungButton = (props: JoinAbteilungProps) => {
         </Button>
         <Modal 
             title={`Abteilung ${abteilungName} beitreten`}
-            visible={isModalVisible} 
+            open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>

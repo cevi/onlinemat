@@ -1,5 +1,4 @@
-import {Button, Card, Carousel, Col, Image, Row} from 'antd';
-import Meta from 'antd/lib/card/Meta';
+import {Button, Card, Carousel, Col, Image, Modal, Row} from 'antd';
 import React, {useState} from 'react';
 import {Categorie} from 'types/categorie.types';
 import {Material} from 'types/material.types';
@@ -7,7 +6,6 @@ import ceviLogoImage from 'assets/onlinemat_logo.png';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import {ViewMaterial} from "./ViewMaterial";
-import Modal from "antd/lib/modal/Modal";
 import {EyeOutlined, ShoppingCartOutlined} from "@ant-design/icons";
 import {useUser} from "../../hooks/use-user";
 
@@ -96,11 +94,11 @@ export const MaterialCard = (props: MaterialCardProps) => {
                     <ShoppingCartOutlined key="cart" onClick={(event) => addToCart(material)} />
             ]}
         >
-            <Meta title={material.name} description={material.comment} />
+            <Card.Meta title={material.name} description={material.comment} />
         </Card>
         <Modal
             title={activeRecord?.name}
-            visible={isModalVisible}
+            open={isModalVisible}
             onCancel={() => {
                 setIsModalVisible(false);
             }}

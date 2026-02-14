@@ -1,9 +1,10 @@
 import { message } from "antd";
 import { abteilungenCollection, abteilungenMaterialsCollection, abteilungenOrdersCollection } from "config/firebase/collections";
-import { firestore } from "config/firebase/firebase";
+import { db } from "config/firebase/firebase";
+import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { UserState } from "config/redux/user/user";
 import { useUser } from "hooks/use-user";
-import moment from "moment";
+import dayjs from "dayjs";
 import { Abteilung } from "types/abteilung.type";
 import { DamagedMaterial, DamagedMaterialDetails, Material } from "types/material.types";
 import { Order } from "types/order.types";
@@ -47,18 +48,18 @@ export const getStatusColor = (order: Order | undefined): string | undefined => 
 export const deliverOrder = async (abteilungId: string, order: Order, userName: string): Promise<boolean> => {
     try {
 
-        const orderRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenOrdersCollection).doc(order.id);
+        const orderRef = doc(db, abteilungenCollection, abteilungId, abteilungenOrdersCollection, order.id);
 
         const orderHistory = order.history || [];
 
         orderHistory.push({
-            timestamp: moment().toDate(),
+            timestamp: dayjs().toDate(),
             text: `${userName} hat die Bestellung ausgegeben.`,
             color: 'green',
             type: 'delivered'
         })
 
-        await orderRef.update({
+        await updateDoc(orderRef, {
             status: 'delivered',
             history: orderHistory,
         } as Order)
@@ -74,18 +75,18 @@ export const deliverOrder = async (abteilungId: string, order: Order, userName: 
 export const completeOrder = async (abteilungId: string, order: Order, userName: string): Promise<boolean> => {
     try {
 
-        const orderRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenOrdersCollection).doc(order.id);
+        const orderRef = doc(db, abteilungenCollection, abteilungId, abteilungenOrdersCollection, order.id);
 
         const orderHistory = order.history || [];
 
         orderHistory.push({
-            timestamp: moment().toDate(),
+            timestamp: dayjs().toDate(),
             text: `${userName} hat die Bestellung abgeschlossen.`,
             color: 'green',
             type: 'completed'
         })
 
-        await orderRef.update({
+        await updateDoc(orderRef, {
             status: 'completed',
             history: orderHistory,
         } as Order)
@@ -101,18 +102,18 @@ export const completeOrder = async (abteilungId: string, order: Order, userName:
 export const resetOrder = async (abteilungId: string, order: Order, userName: string): Promise<boolean> => {
     try {
 
-        const orderRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenOrdersCollection).doc(order.id);
+        const orderRef = doc(db, abteilungenCollection, abteilungId, abteilungenOrdersCollection, order.id);
 
         const orderHistory = order.history || [];
 
         orderHistory.push({
-            timestamp: moment().toDate(),
+            timestamp: dayjs().toDate(),
             text: `${userName} hat die Bestellung zurückgesetzt.`,
             color: 'gray',
             type: 'reset'
         })
 
-        await orderRef.update({
+        await updateDoc(orderRef, {
             status: 'created',
             history: orderHistory,
             damagedMaterial: order.damagedMaterial
@@ -152,7 +153,7 @@ export const completeLostOrder = async (abteilungId: string, order: Order, userN
         await updateMaterialLostDamage(abteilungId, damagedMaterial, materials, 'set');
 
         //save order
-        const orderRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenOrdersCollection).doc(order.id);
+        const orderRef = doc(db, abteilungenCollection, abteilungId, abteilungenOrdersCollection, order.id);
 
         const orderHistory = order.history || [];
 
@@ -165,13 +166,13 @@ export const completeLostOrder = async (abteilungId: string, order: Order, userN
         })
 
         orderHistory.push({
-            timestamp: moment().toDate(),
+            timestamp: dayjs().toDate(),
             text: `${userName} hat die Bestellung mit Verlust/Schaden abgeschlossen.`,
             color: 'red',
             type: 'completed-damaged'
         })
 
-        await orderRef.update({
+        await updateDoc(orderRef, {
             status: 'completed',
             history: orderHistory,
             damagedMaterial: slimDamagedMaterial
@@ -188,14 +189,14 @@ export const completeLostOrder = async (abteilungId: string, order: Order, userN
 export const addCommentOrder = async (abteilungId: string, order: Order, comment: string | undefined, userName: string): Promise<boolean> => {
     try {
         if (order.matchefComment === comment) return true;
-        const orderRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenOrdersCollection).doc(order.id);
+        const orderRef = doc(db, abteilungenCollection, abteilungId, abteilungenOrdersCollection, order.id);
 
         const orderHistory = order.history || [];
 
         if (comment) {
             //added comment
             orderHistory.push({
-                timestamp: moment().toDate(),
+                timestamp: dayjs().toDate(),
                 text: `${userName} hat eine Bemerkung hinzugefügt.`,
                 type: 'matchefComment',
                 color: 'red',
@@ -203,7 +204,7 @@ export const addCommentOrder = async (abteilungId: string, order: Order, comment
         } else {
             //removed comment
             orderHistory.push({
-                timestamp: moment().toDate(),
+                timestamp: dayjs().toDate(),
                 text: `${userName} hat eine Bemerkung entfernt.`,
                 type: 'matchefComment',
                 color: 'grey'
@@ -212,7 +213,7 @@ export const addCommentOrder = async (abteilungId: string, order: Order, comment
 
         const newComment = comment ? comment : null;
 
-        await orderRef.update({
+        await updateDoc(orderRef, {
             matchefComment: newComment,
             history: orderHistory,
         } as Order)
@@ -261,8 +262,7 @@ export const deleteOrder = async (abteilung: Abteilung, order: Order, materials:
         }
 
         //delete order
-        const orderRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection).doc(order.id);
-        await orderRef.delete();
+        await deleteDoc(doc(db, abteilungenCollection, abteilung.id, abteilungenOrdersCollection, order.id));
         message.success(`Die Bestellung wurde erfolgreich gelöscht.`)
         return true;
 
@@ -276,7 +276,7 @@ export const updateMaterialLostDamage = async (abteilungId: string, damagedMater
     try {
         //updateMaterial
         const promises = damagedMaterial.map(material => {
-            const matRef = firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).doc(material.id);
+            const matRef = doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, material.id);
             const currentMat = materials.find(m => m.id === material.id);
             if (!currentMat) return new Promise<void>((resolve, reject) => reject('Konnte kein Promise zurückgeben'));
             let toUpdate = undefined;
@@ -299,7 +299,7 @@ export const updateMaterialLostDamage = async (abteilungId: string, damagedMater
                 } as Material
             }
             if (!toUpdate) return new Promise<void>((resolve, reject) => reject('Konnte kein Promise zurückgeben'));
-            return matRef.update(toUpdate)
+            return updateDoc(matRef, toUpdate)
 
         })
 

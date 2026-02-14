@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button, Input, message, Form } from 'antd';
-import Modal from 'antd/lib/modal/Modal';
-import { firestore } from 'config/firebase/firebase';
+import { Button, Input, message, Modal, Form } from 'antd';
+import { db } from 'config/firebase/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 import { abteilungenCategoryCollection, abteilungenCollection } from 'config/firebase/collections';
 import { validateMessages } from 'util/FormValdationMessages';
 import { Categorie } from 'types/categorie.types';
@@ -19,7 +19,7 @@ export const AddCategorie = (props: AddCategorieProps) => {
 
     const addCategorie = async () => {
         try {
-            const response = await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenCategoryCollection).add(form.getFieldsValue() as Categorie)
+            const response = await addDoc(collection(db, abteilungenCollection, abteilungId, abteilungenCategoryCollection), form.getFieldsValue() as Categorie)
             if(response.id) {
                 message.success(`Kategorie ${form.getFieldValue('name')} erfolgreich erstellt`);
                 form.resetFields();
@@ -75,7 +75,7 @@ export const AddCategorieButton = (props: AddCategorieProps) => {
         </Button>
         <Modal 
             title='Kategorie hinzufügen' 
-            visible={isModalVisible} 
+            open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>

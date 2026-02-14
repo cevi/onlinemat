@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Input, message, Switch, InputNumber, Select, Spin, Form } from 'antd';
-import Modal from 'antd/lib/modal/Modal';
-import { firestore } from 'config/firebase/firebase';
+import { Button, Input, message, Modal, Switch, InputNumber, Select, Spin, Form } from 'antd';
+import { db } from 'config/firebase/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
 import { Categorie } from 'types/categorie.types';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -71,7 +71,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
             const material = form.getFieldsValue() as Material;
             material.keywords = generateKeywords(material.name)
 
-            const response = await firestore().collection(abteilungenCollection).doc(abteilungId).collection(abteilungenMaterialsCollection).add(material)
+            const response = await addDoc(collection(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection), material)
             if (response.id) {
                 message.success(`Material ${form.getFieldValue('name')} erfolgreich erstellt`);
                 form.resetFields();
@@ -312,7 +312,7 @@ export const AddMaterialButton = (props: AddMaterialProps) => {
         </Button>
         <Modal 
             title='Material hinzufügen' 
-            visible={isModalVisible} 
+            open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>

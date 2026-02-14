@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Button, Input, message } from 'antd';
-import Modal from 'antd/lib/modal/Modal';
-import { firestore } from 'config/firebase/firebase';
+import { Modal } from 'antd';
+import { db } from 'config/firebase/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 import { abteilungenCollection, abteilungenMembersCollection } from 'config/firebase/collections';
 import { useUser } from 'hooks/use-user';
 
@@ -19,7 +20,7 @@ export const AddAbteilung = (props: AddAbteilungProps) => {
 
     const addAbteilungToDB = async () => {
         try {
-            const response = await firestore().collection(abteilungenCollection).add({
+            const response = await addDoc(collection(db, abteilungenCollection), {
                 name: abteilungsName,
                 creatorId: userState.appUser?.userData?.id,
             })
@@ -40,7 +41,7 @@ export const AddAbteilung = (props: AddAbteilungProps) => {
         <Button type='primary' onClick={()=>{setIsModalVisible(!isModalVisible)}}>
             Abteilung hinzufügen
       </Button>
-        <Modal title='Abteilung erstellen' visible={isModalVisible} onOk={addAbteilungToDB} onCancel={()=>{ setIsModalVisible(false) }}>
+        <Modal title='Abteilung erstellen' open={isModalVisible} onOk={addAbteilungToDB} onCancel={()=>{ setIsModalVisible(false) }}>
             <Input
                 value={abteilungsName}
                 onChange={(e)=> setAbteilungsName(e.currentTarget.value)}

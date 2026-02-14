@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Button, Input, message, Form } from "antd";
-import Modal from "antd/lib/modal/Modal";
-import { firestore } from "config/firebase/firebase";
+import { Button, Input, message, Modal, Form } from "antd";
+import { db } from "config/firebase/firebase";
+import { collection, addDoc } from "firebase/firestore";
 import {
   abteilungenCollection,
   abteilungenStandortCollection,
@@ -21,11 +21,7 @@ export const AddStandort = (props: AddStandortProps) => {
 
   const addStandort = async () => {
     try {
-      const response = await firestore()
-        .collection(abteilungenCollection)
-        .doc(abteilungId)
-        .collection(abteilungenStandortCollection)
-        .add(form.getFieldsValue() as Standort);
+      const response = await addDoc(collection(db, abteilungenCollection, abteilungId, abteilungenStandortCollection), form.getFieldsValue() as Standort);
       if (response.id) {
         message.success(
           `Standort ${form.getFieldValue("name")} erfolgreich erstellt`
@@ -102,7 +98,7 @@ export const AddStandortButton = (props: AddStandortProps) => {
       </Button>
       <Modal
         title="Standort hinzufügen"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={() => {
           setIsModalVisible(false);
         }}

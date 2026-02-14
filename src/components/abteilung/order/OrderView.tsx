@@ -1,8 +1,9 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Button, Col, Comment, Form, message, Popconfirm, Row, Spin, Tag, Timeline, Tooltip } from 'antd';
+import { Button, Card, Col, Form, Input, message, Popconfirm, Row, Spin, Tag, Timeline, Tooltip } from 'antd';
 import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
-import { firestore } from 'config/firebase/firebase';
-import moment from 'moment';
+import { db } from 'config/firebase/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
+import dayjs from 'dayjs';
 import { useContext, useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
@@ -13,7 +14,6 @@ import { DetailedCartItem } from 'types/cart.types';
 import { MaterialsContext, MembersContext, MembersUserDataContext } from '../AbteilungDetails';
 import { getGroupName } from 'util/AbteilungUtil';
 import { addCommentOrder, calculateTotalWeight, completeOrder, deleteOrder, deliverOrder, getStatusColor, getStatusName, resetLostOrder, resetOrder } from 'util/OrderUtil';
-import TextArea from 'antd/lib/input/TextArea';
 import { ability } from 'config/casl/ability';
 import { OrderNotFound } from './OrderNotFound';
 import { useUser } from 'hooks/use-user';
@@ -80,18 +80,18 @@ export const OrderView = (props: OrderProps) => {
     useEffect(() => {
         if (!isAuthenticated || !abteilung) return;
         setOrderLoading(true);
-        const ordersRef = firestore().collection(abteilungenCollection).doc(abteilung.id).collection(abteilungenOrdersCollection).doc(orderId);
+        const ordersRef = doc(db, abteilungenCollection, abteilung.id, abteilungenOrdersCollection, orderId!);
 
-        return ordersRef.onSnapshot(snap => {
+        return onSnapshot(ordersRef, (snap) => {
             setOrderLoading(false);
-            if (!snap.exists) return;
+            if (!snap.exists()) return;
             const orderLoaded = {
                 ...snap.data() as Order,
                 __caslSubjectType__: 'Order',
                 id: snap.id,
-                startDate: moment((snap.data() as any).startDate.toDate()),
-                endDate: moment((snap.data() as any).endDate.toDate()),
-                creationTime: moment((snap.data() as any).creationTime.toDate()),
+                startDate: dayjs((snap.data() as any).startDate.toDate()),
+                endDate: dayjs((snap.data() as any).endDate.toDate()),
+                creationTime: dayjs((snap.data() as any).creationTime.toDate()),
                 history: ((snap.data() as Order).history || []).map(h => {
                     return {
                         ...h,
@@ -169,14 +169,14 @@ export const OrderView = (props: OrderProps) => {
         //startDate for order
         merged.push({
             timestamp: order.startDate.toDate(),
-            color: order.startDate.isSameOrBefore(moment()) ? null : 'grey',
+            color: order.startDate.isSameOrBefore(dayjs()) ? null : 'grey',
             text: `Start der Bestellung`,
             type: 'startDate'
         })
         //endDate for order
         merged.push({
             timestamp: order.endDate.toDate(),
-            color: order.endDate.isSameOrBefore(moment()) ? null : 'grey',
+            color: order.endDate.isSameOrBefore(dayjs()) ? null : 'grey',
             text: `Ende der Bestellung`,
             type: 'endDate'
         })
@@ -293,7 +293,7 @@ export const OrderView = (props: OrderProps) => {
                             {
                                 detailedHistory.map(orderHistory => {
                                     return <Timeline.Item
-                                        label={moment(orderHistory.timestamp).format(dateFormatWithTime)}
+                                        label={dayjs(orderHistory.timestamp).format(dateFormatWithTime)}
                                         color={orderHistory.color || undefined}
                                         dot={getDotIcon(orderHistory.type, orderHistory.color)}
                                     >
@@ -320,13 +320,10 @@ export const OrderView = (props: OrderProps) => {
                     />
                 </Col>
                 <Col span={24}>
-                    {order?.comment && <Comment
-                        actions={undefined}
-                        author={orderer ? orderer.displayName : order?.orderer}
-                        avatar={undefined}
-                        content={order?.comment}
-                        datetime={order?.creationTime.format(dateFormatWithTime)}
-                    />}
+                    {order?.comment && <Card size="small" title={orderer ? orderer.displayName : order?.orderer}>
+                        <p>{order?.comment}</p>
+                        <small>{order?.creationTime.format(dateFormatWithTime)}</small>
+                    </Card>}
 
 
                     {
@@ -336,7 +333,7 @@ export const OrderView = (props: OrderProps) => {
                             abteilungId: abteilung.id
                         }) && order.status !== 'completed' ? <>
                             <Form.Item label='Bemerkung'>
-                                <TextArea
+                                <Input.TextArea
                                     value={matChefComment}
                                     onChange={(e) => setMatchefComment(e.currentTarget.value)}
                                     placeholder='Bemerkung hinzufügen'
@@ -352,13 +349,10 @@ export const OrderView = (props: OrderProps) => {
 
                         </>
                             :
-                            order?.matchefComment && <Comment
-                                actions={undefined}
-                                author={getMatchefInfo()?.text.split('hat')[0] || 'Matchef'}
-                                avatar={undefined}
-                                content={order?.matchefComment}
-                                datetime={moment(getMatchefInfo()?.timestamp).format(dateFormatWithTime)}
-                            />
+                            order?.matchefComment && <Card size="small" title={getMatchefInfo()?.text.split('hat')[0] || 'Matchef'}>
+                                <p>{order?.matchefComment}</p>
+                                <small>{dayjs(getMatchefInfo()?.timestamp).format(dateFormatWithTime)}</small>
+                            </Card>
                     }
                 </Col>
                 <Col span={24}>

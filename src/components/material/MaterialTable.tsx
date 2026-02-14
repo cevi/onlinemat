@@ -1,12 +1,11 @@
 import {DeleteOutlined, ShoppingCartOutlined} from '@ant-design/icons';
-import { Button, Popconfirm, Table } from 'antd';
+import { Button, Modal, Popconfirm, Table } from 'antd';
 import { Can } from 'config/casl/casl';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
 import { deleteMaterial, getAvailableMatCount, getAvailableMatString } from 'util/MaterialUtil';
 import { EditMaterialButton } from './EditMaterial';
 import {Standort} from "types/standort.types";
-import Modal from "antd/lib/modal/Modal";
 import React, {useState} from "react";
 import {ViewMaterial} from "./ViewMaterial";
 import {useUser} from "../../hooks/use-user";
@@ -144,7 +143,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             <Table rowKey='id' columns={columns} dataSource={filteredMaterials}/>
             <Modal
                 title={activeRecord?.name}
-                visible={isModalVisible}
+                open={isModalVisible}
                 onCancel={() => {
                     setIsModalVisible(false);
                 }}

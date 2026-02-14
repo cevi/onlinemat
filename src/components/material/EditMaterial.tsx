@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext, forwardRef, useImperativeHandle, useRef } from 'react';
-import { Button, Input, message, Switch, InputNumber, Select, Spin, Form } from 'antd';
-import Modal from 'antd/lib/modal/Modal';
+import { Button, Input, message, Modal, Switch, InputNumber, Select, Spin, Form } from 'antd';
 import { firestore } from 'config/firebase/firebase';
 import { abteilungenCategoryCollection, abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
 import { Categorie } from 'types/categorie.types';
@@ -315,7 +314,7 @@ export const EditMaterialButton = (props: EditMaterialProps) => {
         <Button type='primary' onClick={(event) => { event.preventDefault(); event.stopPropagation(); setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
         <Modal
             title='Material bearbeiten'
-            visible={isModalVisible}
+            open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>

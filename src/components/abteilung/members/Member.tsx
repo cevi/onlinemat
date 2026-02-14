@@ -1,5 +1,4 @@
-import { Col, Row } from "antd";
-import Search from "antd/lib/input/Search";
+import { Col, Input, Row } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { AbteilungMemberUserData } from "types/abteilung.type";
 import { MembersContext, MembersUserDataContext } from "../AbteilungDetails";
@@ -35,7 +34,7 @@ export const Member = (props: MemberProps) => {
 
     return <Row gutter={[16, 16]}>
         <Col span={24}>
-            <Search
+            <Input.Search
                 placeholder='nach Mitglied suchen'
                 allowClear
                 enterButton='Suchen'
