@@ -1,11 +1,14 @@
 import {
   Button,
   Col,
+  Input,
+  InputNumber,
   message,
   Modal,
   Row,
   Select,
   Spin,
+  Switch,
   Popconfirm,
   Tooltip,
 } from "antd";
@@ -16,7 +19,7 @@ import {
 } from "config/firebase/collections";
 import { db } from "config/firebase/firebase";
 import { collection, getDocs, deleteDoc, addDoc } from "firebase/firestore";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Abteilung } from "types/abteilung.type";
 import { Categorie } from "types/categorie.types";
 import { ExcelJson } from "types/excel.type";
@@ -59,6 +62,83 @@ export const ExcelImport = (props: ExcelImportProps) => {
   const [onlyLendInternal, setOnlyLendInternal] = useState<
     string | undefined
   >();
+
+  // Default values used when no Excel column is matched
+  const [defaultComment, setDefaultComment] = useState<string | null>(null);
+  const [defaultCount, setDefaultCount] = useState<number>(1);
+  const [defaultLost, setDefaultLost] = useState<number>(0);
+  const [defaultDamaged, setDefaultDamaged] = useState<number>(0);
+  const [defaultWeightInKg, setDefaultWeightInKg] = useState<number | null>(
+    null
+  );
+  const [defaultConsumables, setDefaultConsumables] = useState<boolean>(false);
+  const [defaultCategorieIds, setDefaultCategorieIds] = useState<string[]>([]);
+  const [defaultStandort, setDefaultStandort] = useState<string[]>([]);
+  const [defaultImageUrls, setDefaultImageUrls] = useState<string | null>(null);
+  const [defaultOnlyLendInternal, setDefaultOnlyLendInternal] =
+    useState<boolean>(false);
+
+  // Auto-match Excel headers to Onlinemat fields when data is loaded
+  useEffect(() => {
+    if (!excelData) return;
+
+    const headers = excelData.headers;
+    const usedHeaders = new Set<string>();
+
+    // Maps each field to known aliases (lowercase) and its setter
+    const fieldMappings: {
+      aliases: string[];
+      setter: (val: string | undefined) => void;
+    }[] = [
+      { aliases: ["name"], setter: setName },
+      { aliases: ["bemerkung", "comment", "kommentar"], setter: setComment },
+      { aliases: ["standort", "location", "ort"], setter: setStandort },
+      { aliases: ["anzahl", "count", "menge"], setter: setCount },
+      { aliases: ["verloren", "lost"], setter: setLost },
+      {
+        aliases: ["beschädigt", "damaged", "beschaedigt"],
+        setter: setDamaged,
+      },
+      {
+        aliases: ["gewicht in kg", "gewicht", "weight", "weightinkg"],
+        setter: setWeightInKg,
+      },
+      {
+        aliases: [
+          "verbrauchsmaterial",
+          "ist verbrauchsmaterial",
+          "consumables",
+        ],
+        setter: setConsumables,
+      },
+      {
+        aliases: ["kategorien", "kategorie", "categories", "category"],
+        setter: setCategorieIds,
+      },
+      { aliases: ["bilder", "images", "bild"], setter: setImageUrls },
+      {
+        aliases: [
+          "nur intern ausleihbar",
+          "nur intern",
+          "only internal",
+          "onlylendinternal",
+        ],
+        setter: setOnlyLendInternal,
+      },
+    ];
+
+    for (const { aliases, setter } of fieldMappings) {
+      const match = headers.find(
+        (h) =>
+          !usedHeaders.has(h) &&
+          aliases.includes(h.toLowerCase().trim())
+      );
+      if (match) {
+        setter(match);
+        usedHeaders.add(match);
+      }
+    }
+  }, [excelData]);
 
   const findExampleData = (key: string | undefined): string => {
     if (!excelData || !key) return "";
@@ -111,20 +191,22 @@ export const ExcelImport = (props: ExcelImportProps) => {
       if (!matName) continue;
       const matComment: string | null = comment
         ? (dataArray[indexes[comment]] as string)
-        : null;
+        : defaultComment;
       const matCount: number = count
         ? (dataArray[indexes[count]] as number)
-        : 1;
-      const matLost: number = lost ? (dataArray[indexes[lost]] as number) : 0;
+        : defaultCount;
+      const matLost: number = lost
+        ? (dataArray[indexes[lost]] as number)
+        : defaultLost;
       const matDamaged: number = damaged
         ? (dataArray[indexes[damaged]] as number)
-        : 0;
+        : defaultDamaged;
       const matWeightInKg: number | null = weightInKg
         ? (dataArray[indexes[weightInKg]] as number)
-        : null;
+        : defaultWeightInKg;
       const matConsumablest: boolean = consumables
         ? (dataArray[indexes[consumables]] as boolean)
-        : false;
+        : defaultConsumables;
       const matCategorienRaw: string | null = categorieIds
         ? (dataArray[indexes[categorieIds]] as string)
         : null;
@@ -133,10 +215,10 @@ export const ExcelImport = (props: ExcelImportProps) => {
         : null;
       const matImageUrlsRaw: string | null = imageUrls
         ? (dataArray[indexes[imageUrls]] as string)
-        : null;
+        : defaultImageUrls;
       const matonlyLendInternal: boolean = onlyLendInternal
         ? (dataArray[indexes[onlyLendInternal]] as boolean)
-        : false;
+        : defaultOnlyLendInternal;
 
       let matCategorieNames: string[] = [];
       let matImageUrls: string[] = [];
@@ -151,10 +233,14 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
       if (matCategorienRaw) {
         matCategorieNames = matCategorienRaw.replaceAll(" ", "").split(",");
+      } else if (!categorieIds && defaultCategorieIds.length > 0) {
+        materialCategorieIds.push(...defaultCategorieIds);
       }
 
       if (matStandorteRaw) {
         matStandortNames = matStandorteRaw.replaceAll(" ", "").split(",");
+      } else if (!standort && defaultStandort.length > 0) {
+        matStandortIds.push(...defaultStandort);
       }
 
       //if cat is set loop through and assign category id
@@ -292,9 +378,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
         >
           Abbrechen
         </Button>,
-        <Tooltip title="Bestehendes Material wird mit dem Inhalt der Excel-Tabelle ergänzt.">
+        <Tooltip key="importAdd" title="Bestehendes Material wird mit dem Inhalt der Excel-Tabelle ergänzt.">
           <Button
-            key="importAdd"
             type="primary"
             disabled={!name || catLoading}
             onClick={() => {
@@ -305,6 +390,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
           </Button>
         </Tooltip>,
         <Popconfirm
+          key="importReplace"
           title="Möchtest du wirklich alles bestehendes Material dieser Abteilung löschen?"
           onConfirm={() => replaceMaterial()}
           onCancel={() => {}}
@@ -313,7 +399,6 @@ export const ExcelImport = (props: ExcelImportProps) => {
         >
           <Tooltip title="Bestehendes Material wird gelöscht und mit dem Inhalt der Excel-Tabelle ersetzt.">
             <Button
-              key="importReplace"
               type="primary"
               disabled={!name || catLoading}
             >
@@ -324,6 +409,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
       ]}
     >
       <Row gutter={[16, 16]}>
+        {/* Name (required, no default) */}
         <Col span={12}>
           <p>Name*:</p>
           {name && <p>{`Beispiel: ${findExampleData(name)}`}</p>}
@@ -335,6 +421,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
             setSelected={setName}
           />
         </Col>
+
+        {/* Bemerkung */}
         <Col span={12}>
           <p>Bemerkung:</p>
           {comment && <p>{`Beispiel: ${findExampleData(comment)}`}</p>}
@@ -345,7 +433,17 @@ export const ExcelImport = (props: ExcelImportProps) => {
             selected={comment}
             setSelected={setComment}
           />
+          {!comment && (
+            <Input
+              placeholder="Standardwert"
+              value={defaultComment ?? undefined}
+              onChange={(e) => setDefaultComment(e.target.value || null)}
+              style={{ width: "100%", marginTop: 4 }}
+            />
+          )}
         </Col>
+
+        {/* Standort */}
         <Col span={12}>
           <p>Standort:</p>
           {standort && <p>{`Beispiel: ${findExampleData(standort)}`}</p>}
@@ -356,7 +454,24 @@ export const ExcelImport = (props: ExcelImportProps) => {
             selected={standort}
             setSelected={setStandort}
           />
+          {!standort && (
+            <Select
+              mode="multiple"
+              placeholder="Standard-Standort"
+              value={defaultStandort}
+              onChange={setDefaultStandort}
+              style={{ width: "100%", marginTop: 4 }}
+            >
+              {standorte.map((s) => (
+                <Select.Option key={s.id} value={s.id}>
+                  {s.name}
+                </Select.Option>
+              ))}
+            </Select>
+          )}
         </Col>
+
+        {/* Anzahl */}
         <Col span={12}>
           <p>Anzahl:</p>
           {count && <p>{`Beispiel: ${findExampleData(count)}`}</p>}
@@ -367,7 +482,18 @@ export const ExcelImport = (props: ExcelImportProps) => {
             selected={count}
             setSelected={setCount}
           />
+          {!count && (
+            <InputNumber
+              placeholder="Standardwert"
+              value={defaultCount}
+              min={0}
+              onChange={(val) => setDefaultCount(val ?? 1)}
+              style={{ width: "100%", marginTop: 4 }}
+            />
+          )}
         </Col>
+
+        {/* Verloren */}
         <Col span={12}>
           <p>Verloren:</p>
           {lost && <p>{`Beispiel: ${findExampleData(lost)}`}</p>}
@@ -378,7 +504,18 @@ export const ExcelImport = (props: ExcelImportProps) => {
             selected={lost}
             setSelected={setLost}
           />
+          {!lost && (
+            <InputNumber
+              placeholder="Standardwert"
+              value={defaultLost}
+              min={0}
+              onChange={(val) => setDefaultLost(val ?? 0)}
+              style={{ width: "100%", marginTop: 4 }}
+            />
+          )}
         </Col>
+
+        {/* Beschädigt */}
         <Col span={12}>
           <p>Beschädigt:</p>
           {damaged && <p>{`Beispiel: ${findExampleData(damaged)}`}</p>}
@@ -389,7 +526,18 @@ export const ExcelImport = (props: ExcelImportProps) => {
             selected={damaged}
             setSelected={setDamaged}
           />
+          {!damaged && (
+            <InputNumber
+              placeholder="Standardwert"
+              value={defaultDamaged}
+              min={0}
+              onChange={(val) => setDefaultDamaged(val ?? 0)}
+              style={{ width: "100%", marginTop: 4 }}
+            />
+          )}
         </Col>
+
+        {/* Gewicht in Kg */}
         <Col span={12}>
           <p>Gewicht in Kg:</p>
           {weightInKg && <p>{`Beispiel: ${findExampleData(weightInKg)}`}</p>}
@@ -400,7 +548,18 @@ export const ExcelImport = (props: ExcelImportProps) => {
             selected={weightInKg}
             setSelected={setWeightInKg}
           />
+          {!weightInKg && (
+            <InputNumber
+              placeholder="Standardwert"
+              value={defaultWeightInKg ?? undefined}
+              min={0}
+              onChange={(val) => setDefaultWeightInKg(val ?? null)}
+              style={{ width: "100%", marginTop: 4 }}
+            />
+          )}
         </Col>
+
+        {/* Ist Verbrauchsmaterial */}
         <Col span={12}>
           <p>Ist Verbrauchsmaterial:</p>
           {consumables && <p>{`Beispiel: ${findExampleData(consumables)}`}</p>}
@@ -411,7 +570,18 @@ export const ExcelImport = (props: ExcelImportProps) => {
             selected={consumables}
             setSelected={setConsumables}
           />
+          {!consumables && (
+            <div style={{ marginTop: 4 }}>
+              <Switch
+                checked={defaultConsumables}
+                onChange={setDefaultConsumables}
+              />{" "}
+              <span>{defaultConsumables ? "Ja" : "Nein"}</span>
+            </div>
+          )}
         </Col>
+
+        {/* Kategorien */}
         <Col span={12}>
           <p>Katergorien:</p>
           {categorieIds && (
@@ -424,7 +594,24 @@ export const ExcelImport = (props: ExcelImportProps) => {
             selected={categorieIds}
             setSelected={setCategorieIds}
           />
+          {!categorieIds && (
+            <Select
+              mode="multiple"
+              placeholder="Standard-Kategorien"
+              value={defaultCategorieIds}
+              onChange={setDefaultCategorieIds}
+              style={{ width: "100%", marginTop: 4 }}
+            >
+              {categories.map((c) => (
+                <Select.Option key={c.id} value={c.id}>
+                  {c.name}
+                </Select.Option>
+              ))}
+            </Select>
+          )}
         </Col>
+
+        {/* Bilder */}
         <Col span={12}>
           <p>Bilder:</p>
           {imageUrls && <p>{`Beispiel: ${findExampleData(imageUrls)}`}</p>}
@@ -435,7 +622,17 @@ export const ExcelImport = (props: ExcelImportProps) => {
             selected={imageUrls}
             setSelected={setImageUrls}
           />
+          {!imageUrls && (
+            <Input
+              placeholder="Standard-URLs (kommagetrennt)"
+              value={defaultImageUrls ?? undefined}
+              onChange={(e) => setDefaultImageUrls(e.target.value || null)}
+              style={{ width: "100%", marginTop: 4 }}
+            />
+          )}
         </Col>
+
+        {/* Nur Intern ausleihbar */}
         <Col span={12}>
           <p>Nur Intern ausleihbar:</p>
           {onlyLendInternal && (
@@ -448,6 +645,15 @@ export const ExcelImport = (props: ExcelImportProps) => {
             selected={onlyLendInternal}
             setSelected={setOnlyLendInternal}
           />
+          {!onlyLendInternal && (
+            <div style={{ marginTop: 4 }}>
+              <Switch
+                checked={defaultOnlyLendInternal}
+                onChange={setDefaultOnlyLendInternal}
+              />{" "}
+              <span>{defaultOnlyLendInternal ? "Ja" : "Nein"}</span>
+            </div>
+          )}
         </Col>
 
         {catLoading && <Spin />}

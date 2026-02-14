@@ -1,134 +1,211 @@
+import { useContext, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { Col, Input, message, Result, Spin, Statistic, Typography } from 'antd';
+import { AutoComplete, Card, Col, Row, Spin, Tag, Typography } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
-import ceviLogoImage from 'assets/onlinemat_logo.png';
-import { useEffect, useMemo, useState } from 'react';
 import { db } from 'config/firebase/firebase';
-import { collection, collectionGroup, query as firestoreQuery, where, limit, getDocs, onSnapshot } from 'firebase/firestore';
-import { abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
+import { collectionGroup, query as firestoreQuery, where, limit, getDocs } from 'firebase/firestore';
+import { abteilungenMaterialsCollection } from 'config/firebase/collections';
 import { Material } from 'types/material.types';
 import { Abteilung } from 'types/abteilung.type';
 import { useSearchParams } from 'react-router-dom';
-import {useUser} from "../../hooks/use-user";
+import { AbteilungenContext } from 'components/navigation/NavigationMenu';
+import { SearchOutlined } from '@ant-design/icons';
+import { Input } from 'antd';
 
-export interface SeatchMaterial extends Material {
+interface SearchMaterial extends Material {
     abteilungId: string | undefined
 }
 
-export interface SearchParams {
-    q: string | undefined
-}
+const FEATURED_DISPLAY_COUNT = 6;
 
 export const SearchView = () => {
-    const { user, isAuthenticated } = useAuth0();
+    const { isAuthenticated } = useAuth0();
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const initQuery = searchParams.has('q') ? searchParams.get('q') : undefined;
+    const initQuery = searchParams.get('q') ?? '';
 
+    const [query, setQuery] = useState(initQuery);
+    const [results, setResults] = useState<SearchMaterial[]>([]);
+    const [hasSearched, setHasSearched] = useState(false);
 
-    const [query, setQuery] = useState<string | undefined>(initQuery !== null ? initQuery : undefined);
-    const [loading, setLoading] = useState(false);
-    const [search, setSearch] = useState<string | undefined>(initQuery !== null ? initQuery : undefined);
-    const [abteilungLoading, setAbteilungLoading] = useState(false);
-    const [material, setMaterial] = useState<SeatchMaterial[]>([]);
+    const [allSearchable, setAllSearchable] = useState<SearchMaterial[]>([]);
+    const [allLoading, setAllLoading] = useState(false);
 
-    const userState = useUser();
+    const { abteilungen } = useContext(AbteilungenContext);
 
-    const searchKey = 'keywords';
+    const findAbteilung = (abteilungId: string | undefined): Abteilung | undefined => {
+        if (!abteilungId) return undefined;
+        return abteilungen.find(ab => ab.id === abteilungId);
+    };
 
-    const [abteilungen, setAbteilungen] = useState<Abteilung[]>([]);
-
+    // Load all searchable materials on mount for autocomplete + featured
     useEffect(() => {
         if (!isAuthenticated) return;
-        setAbteilungLoading(true);
-        return onSnapshot(collection(db, abteilungenCollection), (snap) => {
-            setAbteilungLoading(false);
-            const abteilungenLoaded = snap.docs.flatMap(d => {
-                return {
-                    ...d.data(),
-                    __caslSubjectType__: 'Abteilung',
-                    id: d.id
-                } as Abteilung;
-            });
-            setAbteilungen(abteilungenLoaded);
-        }, (err) => {
-            message.error(`Es ist ein Fehler aufgetreten ${err}`)
-            console.error('Es ist ein Fehler aufgetreten', err)
-        });
+        const loadAll = async () => {
+            try {
+                setAllLoading(true);
+                const snap = await getDocs(
+                    firestoreQuery(
+                        collectionGroup(db, abteilungenMaterialsCollection),
+                        where('onlyLendInternal', '==', false),
+                        limit(200)
+                    )
+                );
+                const loaded = snap.docs.map(doc => ({
+                    ...doc.data(),
+                    __caslSubjectType__: 'Material',
+                    id: doc.id,
+                    abteilungId: doc.ref.parent.parent?.id
+                } as SearchMaterial));
+                setAllSearchable(loaded);
+                setAllLoading(false);
+            } catch (err) {
+                setAllLoading(false);
+                console.error('Fehler beim Laden der Materialien', err);
+            }
+        };
+        loadAll();
     }, [isAuthenticated]);
 
-    useMemo(() => {
-        const queryFirebase = async () => {
-            try {
-                setLoading(true)
-                const querySnapshot = await getDocs(firestoreQuery(collectionGroup(db, abteilungenMaterialsCollection), where('onlyLendInternal', '==', false), where(searchKey, 'array-contains', search), limit(50)));
+    // Featured: random selection from loaded materials
+    const featured = useMemo(() => {
+        if (allSearchable.length === 0) return [];
+        const shuffled = [...allSearchable].sort(() => Math.random() - 0.5);
+        return shuffled.slice(0, FEATURED_DISPLAY_COUNT);
+    }, [allSearchable]);
 
-                setLoading(false);
+    // Autocomplete options: fuzzy filter on name as user types
+    const autocompleteOptions = useMemo(() => {
+        const term = query.trim().toLowerCase();
+        if (!term) return [];
+        return allSearchable
+            .filter(mat => mat.name.toLowerCase().includes(term))
+            .slice(0, 10)
+            .map(mat => {
+                const abteilung = findAbteilung(mat.abteilungId);
+                return {
+                    value: mat.name,
+                    label: (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span>{mat.name}</span>
+                            <Tag color="blue" style={{ marginLeft: 8 }}>{abteilung?.name ?? 'Unbekannt'}</Tag>
+                        </div>
+                    ),
+                    key: mat.id,
+                };
+            });
+    }, [query, allSearchable, abteilungen]);
 
-                const materialLoaded = querySnapshot.docs.flatMap(doc => {
-                    return {
-                        ...doc.data(),
-                        __caslSubjectType__: 'Material',
-                        id: doc.id,
-                        abteilungId: doc.ref.parent.parent?.id
-                    } as SeatchMaterial;
-                });
-                setMaterial(materialLoaded);
-            } catch (err) {
-                setLoading(false);
-                message.error(`Es ist ein Fehler aufgetreten ${err}`)
-                console.error('Es ist ein Fehler aufgetreten', err)
-            }
-
-        }
-        if (search && search !== '') {
-            queryFirebase()
-        } else {
-            setMaterial([])
-        }
-    }, [search])
-
-    useMemo(() => {
-        if(query !== search) return;
-        const params = new URLSearchParams()
-        
-        if (query) {
-            params.append('q', query)
-        } else {
-            params.delete('q')
-        }
-        setSearchParams(params);
-    }, [query, search])
-
-
-    return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])}>
-        <Typography.Title level={3}>Material Übersicht</Typography.Title>
-        <Statistic title='Abteilungen' value={abteilungen.length || 0} />
-
-        {
-            abteilungLoading && <Spin />
+    // Execute search: filter from loaded materials client-side
+    const doSearch = (term: string) => {
+        const normalized = term.trim().toLowerCase();
+        if (!normalized) {
+            setResults([]);
+            setHasSearched(false);
+            setSearchParams({});
+            return;
         }
 
-        {
-            !!user && <div className={classNames(appStyles['flex-grower'], appStyles['center-container'])}>
-                <h1>Onlinemat Suche (Noch in bearbeitung)</h1>
-                <p>Du kannst nach Material suchen. Wenn es eine Abteilung hat, wird dir das hier angezeigt.</p>
+        setSearchParams({ q: normalized });
+        setHasSearched(true);
 
-                <Input.Search placeholder='Materialname' value={query} onSearch={(val)=>setSearch(val)} onChange={(e)=> {
-                    e.preventDefault()
-                    setQuery(e.currentTarget.value.toLowerCase())
-                }} disabled={loading} />
-                {
-                    loading && <Spin />
-                }
-                {
-                    material.map(mat => {
-                        const abteilung = abteilungen.filter(ab => ab.id === mat.abteilungId).length > 0 ? abteilungen.filter(ab => ab.id === mat.abteilungId)[0] : undefined;
-                        return <p key={mat.id}>{`${mat.name} `}<a href={abteilung ? `/abteilungen/${abteilung.slug || abteilung.id}` : '/abteilungen'}>{abteilung && abteilung.name ? abteilung.name : 'Unbekannte Abteilung'}</a></p>
-                    })
-                }
-            </div>
+        const filtered = allSearchable.filter(mat =>
+            mat.name.toLowerCase().includes(normalized)
+        );
+        setResults(filtered);
+    };
+
+    // Run initial search if URL has query param
+    useEffect(() => {
+        if (initQuery && allSearchable.length > 0) {
+            doSearch(initQuery);
         }
+    }, [allSearchable]);
+
+    const renderResultItem = (mat: SearchMaterial) => {
+        const abteilung = findAbteilung(mat.abteilungId);
+        const href = abteilung
+            ? `/abteilungen/${abteilung.slug || abteilung.id}/mat`
+            : '/abteilungen';
+
+        return (
+            <Col key={mat.id} xs={24} sm={12} md={8}>
+                <a href={href} style={{ textDecoration: 'none' }}>
+                    <Card hoverable size="small">
+                        <Card.Meta
+                            title={mat.name}
+                            description={abteilung?.name ?? 'Unbekannte Abteilung'}
+                        />
+                    </Card>
+                </a>
+            </Col>
+        );
+    };
+
+    return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])} style={{ alignItems: 'center' }}>
+        <Typography.Title level={3}>Material Suche</Typography.Title>
+        <Typography.Paragraph type="secondary">
+            Suche nach Material, das von Abteilungen zum Ausleihen angeboten wird.
+        </Typography.Paragraph>
+
+        <AutoComplete
+            options={autocompleteOptions}
+            onSearch={setQuery}
+            onSelect={(value) => { setQuery(value); doSearch(value); }}
+            value={query}
+            style={{ maxWidth: 600, width: '100%', marginBottom: 24 }}
+        >
+            <Input.Search
+                placeholder='Nach Material suchen...'
+                enterButton='Suchen'
+                size='large'
+                prefix={<SearchOutlined />}
+                onSearch={doSearch}
+                loading={allLoading}
+                allowClear
+            />
+        </AutoComplete>
+
+        {(allLoading || allLoading) && <Spin style={{ marginBottom: 16 }} />}
+
+        {hasSearched && !allLoading && (
+            <>
+                <Typography.Title level={5}>
+                    {results.length > 0
+                        ? `${results.length} Ergebnis${results.length !== 1 ? 'se' : ''} gefunden`
+                        : 'Keine Ergebnisse gefunden'}
+                </Typography.Title>
+                <Row gutter={[16, 16]} style={{ maxWidth: 800 }}>
+                    {results.map(renderResultItem)}
+                </Row>
+            </>
+        )}
+
+        {!hasSearched && !allLoading && !allLoading && (
+            <>
+                <Typography.Title level={5} style={{ marginTop: 16 }}>Vorschläge</Typography.Title>
+                <Row gutter={[16, 16]} style={{ maxWidth: 800 }}>
+                    {featured.map(mat => {
+                        const abteilung = findAbteilung(mat.abteilungId);
+                        const href = abteilung
+                            ? `/abteilungen/${abteilung.slug || abteilung.id}/mat`
+                            : '/abteilungen';
+                        return (
+                            <Col key={mat.id} xs={24} sm={12} md={8}>
+                                <a href={href} style={{ textDecoration: 'none' }}>
+                                    <Card hoverable size="small">
+                                        <Card.Meta
+                                            title={mat.name}
+                                            description={abteilung?.name ?? 'Unbekannte Abteilung'}
+                                        />
+                                    </Card>
+                                </a>
+                            </Col>
+                        );
+                    })}
+                </Row>
+            </>
+        )}
     </div>
 }
