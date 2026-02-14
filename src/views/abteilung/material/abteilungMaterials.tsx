@@ -1,4 +1,5 @@
 import {useContext, useState} from 'react';
+import {useSearchParams} from 'react-router-dom';
 import {Col, Input, message, Radio, Row, Spin} from 'antd';
 import {AddMaterialButton} from 'components/material/AddMaterial';
 import {AppstoreOutlined, MenuOutlined} from '@ant-design/icons';
@@ -32,6 +33,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     const { abteilung, cartItems, changeCart } = props;
 
     const { Search } = Input;
+    const [searchParams] = useSearchParams();
 
     const cookieName = getCartName(abteilung.id);
 
@@ -45,7 +47,8 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     function getInitialMode() {
         return windowSize[0] > 768 ? 'table' : 'grid';
     }
-    const [query, setQuery] = useState<string | undefined>(undefined);
+    const initQuery = searchParams.get('q') || undefined;
+    const [query, setQuery] = useState<string | undefined>(initQuery);
     const [displayMode, setDisplayMode] = useState(() => getInitialMode());
 
     //fetch categories
@@ -150,6 +153,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                             placeholder='nach Material suchen'
                             allowClear
                             size='large'
+                            defaultValue={initQuery}
                             onSearch={(query) => setQuery(query)}
                         />
                     </Col>

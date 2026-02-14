@@ -160,6 +160,9 @@ export const SearchView = () => {
         }
     }, [allSearchable]);
 
+    const getAbteilungMatLink = (ab: Abteilung) =>
+        `/abteilungen/${ab.slug || ab.id}/mat?q=${encodeURIComponent(query)}`;
+
     const abteilungColumns = [
         {
             title: t('search:abteilungen.name'),
@@ -184,7 +187,7 @@ export const SearchView = () => {
             render: (abteilungId: string | undefined) => {
                 const ab = findAbteilung(abteilungId);
                 if (!ab) return t('search:unknownAbteilung');
-                return <a href={`/abteilungen/${ab.slug || ab.id}/mat`}>{ab.name}</a>;
+                return <a href={getAbteilungMatLink(ab)}>{ab.name}</a>;
             },
         },
     ];
@@ -257,7 +260,7 @@ export const SearchView = () => {
                     {featured.map(mat => {
                         const abteilung = findAbteilung(mat.abteilungId);
                         const href = abteilung
-                            ? `/abteilungen/${abteilung.slug || abteilung.id}/mat`
+                            ? `/abteilungen/${abteilung.slug || abteilung.id}/mat?q=${encodeURIComponent(mat.name)}`
                             : '/abteilungen';
                         return (
                             <Col key={mat.id} xs={24} sm={12} md={8}>
