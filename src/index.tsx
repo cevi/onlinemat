@@ -1,33 +1,31 @@
-import { createBrowserHistory } from "history";
-import ReactDOM from "react-dom";
-import "antd/dist/antd.css";
+import { createRoot } from "react-dom/client";
 import * as serviceWorker from "./serviceWorker";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { configureStore } from "config/redux/store";
 import "config/firebase/firebase";
-import "moment/locale/de-ch";
+import "./index.css";
+import dayjs from "dayjs";
+import "dayjs/locale/de-ch";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+dayjs.locale("de-ch");
+dayjs.extend(isSameOrBefore);
+dayjs.extend(localizedFormat);
 import * as Sentry from "@sentry/react";
 import App from "App";
 import { AppState, Auth0Provider } from "@auth0/auth0-react";
-import { Integrations } from "@sentry/tracing";
 import { AbilityContext } from "config/casl/casl";
 import { ability } from "config/casl/ability";
 import { CookiesProvider } from "react-cookie";
 
 const store = configureStore();
-export const history = createBrowserHistory();
 
 Sentry.init({
-  dsn: process.env.REACT_APP_SENTRY_DNS,
-  integrations: [new Integrations.BrowserTracing() as any],
-
-  // Set tracesSampleRate to 1.0 to capture 100%
-  // of transactions for performance monitoring.
-  // We recommend adjusting this value in production
+  dsn: import.meta.env.VITE_SENTRY_DNS,
+  integrations: [Sentry.browserTracingIntegration()],
   tracesSampleRate: 1.0,
-  beforeSend(event, hint) {
-    // Check if it is an exception, and if so, show the report dialog
+  beforeSend(event) {
     if (event.exception) {
       Sentry.showReportDialog({ eventId: event.event_id });
     }
@@ -36,19 +34,19 @@ Sentry.init({
 });
 
 const onRedirectCallback = (appState: AppState | undefined) => {
-  // Use the router's history module to replace the url
-  history.replace(appState?.returnTo || window.location.pathname);
+  window.history.replaceState({}, "", appState?.returnTo || window.location.pathname);
 };
 
-//TODO: replace <BrowserRouter> with <HistoryRouter> as soon as it's stable
-ReactDOM.render(
-    // @ts-ignore
+const root = createRoot(document.getElementById("root")!);
+root.render(
   <Provider store={store}>
     <BrowserRouter>
       <Auth0Provider
-        domain={process.env.REACT_APP_AUTH0_DOMAIN as string}
-        clientId={process.env.REACT_APP_AUTH0_CLIENT_ID as string}
-        redirectUri={window.location.origin}
+        domain={import.meta.env.VITE_AUTH0_DOMAIN as string}
+        clientId={import.meta.env.VITE_AUTH0_CLIENT_ID as string}
+        authorizationParams={{
+          redirect_uri: window.location.origin,
+        }}
         onRedirectCallback={onRedirectCallback}
         cacheLocation="localstorage"
       >
@@ -59,8 +57,7 @@ ReactDOM.render(
         </AbilityContext.Provider>
       </Auth0Provider>
     </BrowserRouter>
-  </Provider>,
-  document.getElementById("root")
+  </Provider>
 );
 
 // If you want your app to work offline and load faster, you can change

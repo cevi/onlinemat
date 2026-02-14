@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where:*)",
+      "Bash(npx yarn:*)",
+      "Bash(yarn install:*)",
+      "Bash(npx vite build:*)"
+    ]
+  }
+}

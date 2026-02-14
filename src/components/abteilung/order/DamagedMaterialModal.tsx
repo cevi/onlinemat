@@ -51,7 +51,7 @@ export const DamagedMaterialModal = (props: DamagedMaterialModalProps) => {
     }
 
     return <Modal
-        visible={showDamageModal}
+        open={showDamageModal}
         title='Bestellung teilweise abschliessen'
         width={700}
         onOk={() => { }}

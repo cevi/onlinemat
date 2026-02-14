@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input, message, Form, Radio, Transfer } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
-import { firestore } from 'config/firebase/firebase';
+import { db } from 'config/firebase/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 import { abteilungenCategoryCollection, abteilungenCollection } from 'config/firebase/collections';
 import { validateMessages } from 'util/FormValdationMessages';
 import { Abteilung, AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
 import { Group } from 'types/group.types';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 export interface AddGroupProps {
     abteilung: Abteilung
@@ -37,10 +38,10 @@ export const AddGroup = (props: AddGroupProps) => {
             const groupToAdd = groups;
             groupToAdd[generatedId] = {
                 ...form.getFieldsValue(),
-                createdAt: moment().toDate()
+                createdAt: dayjs().toDate()
             }
 
-            await firestore().collection(abteilungenCollection).doc(abteilung.id).update({
+            await updateDoc(doc(db, abteilungenCollection, abteilung.id), {
                 groups: groupToAdd
             })
             message.success(`${form.getFieldValue('type') === 'group' ? 'Gruppe' : 'Anlass'} ${form.getFieldValue('name')} erfolgreich erstellt`);
@@ -147,7 +148,7 @@ export const AddGroupButton = (props: AddGroupProps) => {
         </Button>
         <Modal
             title='Gruppe/Anlass hinzufügen'
-            visible={isModalVisible}
+            open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>

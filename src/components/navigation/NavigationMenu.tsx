@@ -1,11 +1,14 @@
-import React, {createContext, useEffect, useState} from 'react';
+import React, {createContext, useEffect, useMemo, useState} from 'react';
 import styles from './NavigationMenu.module.scss';
 import appStyles from 'styles.module.scss';
 import classNames from 'classnames';
 import {Layout, Menu, message, Spin, Tag, Typography} from 'antd';
+import type {MenuProps} from 'antd';
 import {AppRoute, AppRoutes, HomeRoute} from 'routes';
 import {Route, Routes, useLocation, useNavigate} from 'react-router';
-import {auth, firestore} from 'config/firebase/firebase';
+import {auth, db} from 'config/firebase/firebase';
+import {signOut} from 'firebase/auth';
+import {collection, onSnapshot} from 'firebase/firestore';
 import {LoginOutlined, LogoutOutlined} from '@ant-design/icons';
 import {useAuth0, withAuthenticationRequired} from '@auth0/auth0-react';
 import {useUser} from 'hooks/use-user';
@@ -49,7 +52,7 @@ const NavigationMenu: React.FC = () => {
     useEffect(() => {
         if (!isAuthenticated || !userState.appUser?.firebaseUser) return;
         setLoading(true);
-        return firestore().collection(abteilungenCollection).onSnapshot(snap => {
+        return onSnapshot(collection(db, abteilungenCollection), snap => {
             setLoading(false);
             const abteilungenLoaded = snap.docs.flatMap(doc => {
                 return {
@@ -86,12 +89,59 @@ const NavigationMenu: React.FC = () => {
     const matchedKey = matchedRoute ? matchedRoute.key : '/';
 
     const calculateSelectedKeys = () => {
-        console.log(pathname)
         if(pathname === `/abteilungen/${userState.appUser?.userData?.defaultAbteilung}`) {
             return ['/']
         }
         return [matchedKey]
     }
+
+    const menuItems: MenuProps['items'] = useMemo(() => {
+        if (isLoading) {
+            return [{
+                key: 'menuLoader',
+                label: <div style={{justifyContent: 'center', display: 'flex'}}><Spin/></div>,
+            }];
+        }
+
+        const routeItems: MenuProps['items'] = [HomeRoute, ...filteredRoutes]
+            .filter(appRoute => appRoute.showInMenue)
+            .map(appRoute => ({
+                key: appRoute.key,
+                icon: appRoute.icon,
+                label: appRoute.displayName,
+                onClick: () => {
+                    if (appRoute.key === '/' && userState.appUser?.userData?.defaultAbteilung) {
+                        navigate(`abteilungen/${userState.appUser.userData.defaultAbteilung}`)
+                    } else {
+                        navigate(appRoute.key)
+                    }
+                },
+            }));
+
+        if (!isAuthenticated && !isLoading) {
+            routeItems.push({
+                key: 'login',
+                icon: <LoginOutlined/>,
+                label: 'Anmelden',
+                onClick: () => loginWithRedirect(),
+            });
+        }
+
+        if (isAuthenticated && !isLoading) {
+            routeItems.push({
+                key: 'logout',
+                icon: <LogoutOutlined/>,
+                label: 'Abmelden',
+                className: classNames(styles['logout']),
+                onClick: async () => {
+                    await signOut(auth);
+                    logout({logoutParams: {returnTo: window.location.origin}});
+                },
+            });
+        }
+
+        return routeItems;
+    }, [isLoading, isAuthenticated, filteredRoutes, userState.appUser?.userData?.defaultAbteilung]);
 
     return (
         <AbteilungenContext.Provider value={{
@@ -114,49 +164,16 @@ const NavigationMenu: React.FC = () => {
                         theme='dark'
                         selectedKeys={calculateSelectedKeys()}
                         selectable={false}
-                    >
-                        {
-                            isLoading ?
-                                <Menu.Item key='menuLoader'>
-                                    <div style={{justifyContent: 'center', display: 'flex'}}><Spin/></div>
-                                </Menu.Item>
-                                :
-                                [HomeRoute, ...filteredRoutes].map(appRoute => {
-                                    if (appRoute.showInMenue) {
-                                        
-                                        return <Menu.Item key={`${appRoute.key}`} onClick={() => {
-                                            if (appRoute.key === '/' && userState.appUser?.userData?.defaultAbteilung) {
-                                                navigate(`abteilungen/${userState.appUser.userData.defaultAbteilung}`)
-                                            } else {
-                                                navigate(appRoute.key)
-                                            }
-                                        }}>
-                                            {appRoute.icon}
-                                            <span>{appRoute.displayName}</span>
-                                        </Menu.Item>
-                                    }
-                                })
-                        }
-                        {
-                            !isAuthenticated && !isLoading && <Menu.Item onClick={() => {
-                                loginWithRedirect()
-                            }} key='login'><LoginOutlined/><span>Anmelden</span></Menu.Item>
-                        }
-                        {
-                            isAuthenticated && !isLoading && <Menu.Item onClick={async () => {
-                                await auth().signOut();
-                                logout({returnTo: window.location.origin})
-                            }} key='logout' className={classNames(styles['logout'])}><LogoutOutlined/><span>Abmelden</span></Menu.Item>
-                        }
-                    </Menu>
+                        items={menuItems}
+                    />
                 </Sider>
                 <Layout>
                     <Content style={{margin: '0 16px'}} className={classNames(appStyles['center-container-stretch'])}>
                         {
                             isLoading || loading ?
-                                <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                                    <Spin tip='Lade...'/>
-                                </div>
+                                <Spin tip='Lade...'>
+                                    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 100}}/>
+                                </Spin>
                                 :
                                 user && !user.email_verified ? <VerifyEmail/> :
                                     <Routes>
@@ -171,10 +188,10 @@ const NavigationMenu: React.FC = () => {
                                     </Routes>
                         }
                     </Content>
-                    <Footer style={{textAlign: 'center', backgroundColor: process.env.REACT_APP_DEV_ENV === 'true' ? '#FF4B91' : 'unset'}}>
+                    <Footer style={{textAlign: 'center', backgroundColor: import.meta.env.VITE_DEV_ENV === 'true' ? '#FF4B91' : 'unset'}}>
                         Designed by <a href='https://cevi.tools' target='_blank'>Cevi Tools</a> | <a href='mailto:onlinemat@cevi.tools'>Contact</a> | &copy; Cevi
                         Tools {(new Date()).getFullYear()}
-                        {process.env.REACT_APP_DEV_ENV === 'true' && <> |
+                        {import.meta.env.VITE_DEV_ENV === 'true' && <> |
                             Branch: <Tag>{generatedGitInfo.gitBranch}</Tag>
                             Git Hash: <Tag>{generatedGitInfo.gitCommitHash}</Tag>
                         </>}

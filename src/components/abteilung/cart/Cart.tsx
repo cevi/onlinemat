@@ -1,6 +1,6 @@
 import { DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Button, Col, message, Popconfirm, Result, Row, Steps } from 'antd';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
@@ -12,6 +12,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { MaterialsContext } from '../AbteilungDetails';
 import { CreateOrder } from '../order/CreateOrder';
 import { functions } from 'config/firebase/firebase';
+import { httpsCallable } from 'firebase/functions';
 import { getAvailableMatCount } from 'util/MaterialUtil';
 
 export interface CartProps {
@@ -73,7 +74,7 @@ export const Cart = (props: CartProps) => {
             setOrderError(undefined)
             setOrderLoading(true)
             
-            const result = await functions().httpsCallable('createOrder')({ abteilungId: abteilung.id, order: orderToCreate });
+            const result = await httpsCallable(functions, 'createOrder')({ abteilungId: abteilung.id, order: orderToCreate });
             const orderId: string | undefined = result.data.id;
             const collisions: { [matId: string]: number } | undefined = result.data.collisions;
             if(orderId) {
@@ -107,8 +108,7 @@ export const Cart = (props: CartProps) => {
 
     const changeCartAndCookie = (items: CartItem[]) => {
 
-        const expires = moment();
-        expires.add(24, 'hours');
+        const expires = dayjs().add(24, 'hours');
 
         setCookie(cookieName, items, {
             path: '/',

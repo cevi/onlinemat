@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { Abteilung } from 'types/abteilung.type';
 import { Categorie } from 'types/categorie.types';
 import { ExcelJson } from 'types/excel.type';
@@ -79,5 +79,5 @@ export const exportMaterialsToXlsx = (abteilung: Abteilung, categories: Categori
 
     XLSX.utils.book_append_sheet(wb, materialsWS, 'Material')
 
-    XLSX.writeFile(wb, `${abteilung.name}_Material_${moment().format(dateFormat)}.xlsx`)
+    XLSX.writeFile(wb, `${abteilung.name}_Material_${dayjs().format(dateFormat)}.xlsx`)
 }
