@@ -1,0 +1,25 @@
+{
+  "add": {
+    "button": "Add category",
+    "title": "Add category",
+    "submit": "Add category",
+    "success": "Category {{name}} successfully created"
+  },
+  "edit": {
+    "title": "Edit category",
+    "submit": "Save changes",
+    "success": "Category {{name}} successfully edited"
+  },
+  "delete": {
+    "confirm": "Do you really want to delete {{name}}?",
+    "success": "Category {{name}} successfully deleted"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Category name"
+  },
+  "table": {
+    "name": "Name",
+    "edit": "Edit"
+  }
+}

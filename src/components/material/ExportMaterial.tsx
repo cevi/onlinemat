@@ -1,4 +1,5 @@
 import { Button} from 'antd';
+import { useTranslation } from 'react-i18next';
 import {Abteilung} from 'types/abteilung.type';
 import { useContext } from 'react';
 import { exportMaterialsToXlsx } from 'util/ExcelUtil';
@@ -10,6 +11,7 @@ export interface ExportMaterialProps {
 
 export const ExportMaterialButton = (props: ExportMaterialProps) => {
     const { abteilung} = props;
+    const { t } = useTranslation();
 
         //fetch materials
         const materialsContext = useContext(MaterialsContext);
@@ -29,7 +31,7 @@ export const ExportMaterialButton = (props: ExportMaterialProps) => {
     
     return <>
          <Button type='primary' onClick={()=> exportMaterialsToXlsx(abteilung, categories, materials, standorte)}>
-            Excel export
+            {t('material:export.button')}
         </Button>
     </>
 }

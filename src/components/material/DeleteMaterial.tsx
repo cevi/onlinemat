@@ -1,4 +1,5 @@
 import { Button, Popconfirm, message } from 'antd';
+import { useTranslation } from 'react-i18next';
 import {Abteilung} from 'types/abteilung.type';
 import { db } from 'config/firebase/firebase';
 import { collection, getDocs, deleteDoc } from 'firebase/firestore';
@@ -12,6 +13,7 @@ export interface DeleteMaterialProps {
 
 export const DeleteMaterialButton = (props: DeleteMaterialProps) => {
     const { abteilung} = props;
+    const { t } = useTranslation();
     const [updateLoading] = useState(false);
 
     const delteMaterial = async () => {
@@ -20,22 +22,22 @@ export const DeleteMaterialButton = (props: DeleteMaterialProps) => {
                 deleteDoc(d.ref);
             });
         }).then(() => {
-            message.info(`Alles Material von ${abteilung.name} wurde erfolgreich gelöscht`);
+            message.info(t('material:delete.successAll', { name: abteilung.name }));
         }).catch((ex) => {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`);
+            message.error(t('common:errors.generic', { error: String(ex) }));
         });
     }
 
     return <>
         <Popconfirm
-            title='Möchtest du wirklich alles Material dieser Abteilung löschen?'
+            title={t('material:delete.confirmAll')}
             onConfirm={() => delteMaterial()}
             onCancel={() => { }}
-            okText='Ja'
-            cancelText='Nein'
+            okText={t('common:confirm.yes')}
+            cancelText={t('common:confirm.no')}
         >
         <Button type='ghost' danger icon={<DeleteOutlined />} disabled={updateLoading}>
-            Material Löschen
+            {t('material:delete.button')}
         </Button>     
         </Popconfirm>
     </>

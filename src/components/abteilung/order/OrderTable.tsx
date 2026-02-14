@@ -6,6 +6,7 @@ import { Order } from 'types/order.types';
 import { dateFormatWithTime } from 'util/constants';
 import { getStatusColor, getStatusName } from 'util/OrderUtil';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -21,11 +22,12 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
     const { abteilung, orders, loading, members } = props;
 
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
 
     const columns = [
         {
-            title: 'Status',
+            title: t('order:table.status'),
             dataIndex: 'status',
             key: 'status',
             sorter: (a: Order, b: Order) => a.status.normalize().localeCompare(b.status.normalize()),
@@ -34,12 +36,12 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
             }
         },
         {
-            title: 'Gruppe / Anlass',
+            title: t('order:table.group'),
             dataIndex: 'groupId',
             key: 'groupId',
             sorter: (a: Order, b: Order) => ((a.groupId || a.customGroupName) || '').normalize().localeCompare(((a.groupId || a.customGroupName) || '').normalize()),
             render: (text: string, record: Order) => {
-                let name = 'Unbekannt';
+                let name = t('common:status.unknown');
                 if(record.groupId) {
                     const group = abteilung.groups[record.groupId];
                     if(group) {
@@ -49,22 +51,22 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
                     name = record.customGroupName
                 }
 
-                
+
                 return <p key={`group_${record.id}`}>{name}</p>
             }
         },
         {
-            title: 'Besteller',
+            title: t('order:table.orderer'),
             dataIndex: 'orderer',
             key: 'orderer',
             sorter: (a: Order, b: Order) => a.orderer.normalize().localeCompare(b.orderer.normalize()),
             render: (text: string, record: Order) => {
                 const member = members.find(mem => mem.id === record.orderer);
-                return <p key={`orderer_${record.id}`}>{member ? member.displayName : 'Unbekannt'}</p>
+                return <p key={`orderer_${record.id}`}>{member ? member.displayName : t('common:status.unknown')}</p>
             }
         },
         {
-            title: 'Start Datum',
+            title: t('order:table.startDate'),
             dataIndex: 'startDate',
             key: 'startDate',
             sorter: (a: Order, b: Order) => a.startDate.valueOf() - b.startDate.valueOf(),
@@ -73,7 +75,7 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
             )
         },
         {
-            title: 'End Datum',
+            title: t('order:table.endDate'),
             dataIndex: 'endDate',
             key: 'endDate',
             sorter: (a: Order, b: Order) => a.endDate.valueOf() - b.endDate.valueOf(),
@@ -82,11 +84,11 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
             )
         },
         {
-            title: 'Aktion',
+            title: t('order:table.action'),
             dataIndex: 'id',
             key: 'id',
             render: (text: string, record: Order) => (
-                <Button onClick={() => { navigate(`/abteilungen/${abteilung.slug || abteilung.id}/order/${record.id}`)}}>Öffnen</Button>
+                <Button onClick={() => { navigate(`/abteilungen/${abteilung.slug || abteilung.id}/order/${record.id}`)}}>{t('order:actions.open')}</Button>
             )
         }
     ];
@@ -107,7 +109,7 @@ export const OrderTable = (props: OrderTableProps) => {
 
     const { abteilung, orders, loading, members } = props;
 
-    
+
 
     return <OrderTableImpl loading={loading} abteilung={abteilung} orders={orders} members={members}/>
 }

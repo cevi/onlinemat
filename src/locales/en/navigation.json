@@ -1,0 +1,62 @@
+{
+  "routes": {
+    "home": "Home",
+    "login": "Login",
+    "search": "Search",
+    "abteilungen": "Departments",
+    "abteilungenDetails": "Department Details",
+    "users": "Users",
+    "profile": "Profile"
+  },
+  "menu": {
+    "login": "Log in",
+    "logout": "Log out"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "backToHome": "Back to home page"
+  },
+  "verifyEmail": {
+    "title": "Please verify your email",
+    "subtitle": "You need to verify your email to use Onlinemat. Please also check your spam folder.",
+    "confirmed": "I have verified my email"
+  },
+  "home": {
+    "title": "Home",
+    "appName": "Onlinemat",
+    "description": "This is the website of Cevi Onlinemat",
+    "dashboard": "Onlinemat Dashboard",
+    "welcome": "Welcome {{name}}, you can get started now."
+  },
+  "login": {
+    "button": "Log in"
+  },
+  "status": {
+    "branch": "Branch",
+    "gitHash": "Git Hash"
+  },
+  "users": {
+    "title": "Users",
+    "searchPlaceholder": "Search for users",
+    "statisticUsers": "Users",
+    "statisticStaff": "Staff",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "abteilungen": "Departments",
+      "staff": "Staff",
+      "actions": "Actions"
+    },
+    "addToAbteilung": {
+      "button": "Add user to department",
+      "title": "Add user to department",
+      "submit": "Add to department",
+      "abteilungLabel": "Department",
+      "abteilungPlaceholder": "Department",
+      "roleLabel": "Role",
+      "alreadyMember": "This user is already a member of this department",
+      "error": "The user could not be added to the department!",
+      "success": "The user was successfully added to the department"
+    }
+  }
+}

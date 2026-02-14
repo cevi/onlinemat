@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Button, Modal, Select, message, Form, Spin } from 'antd';
 import { functions } from 'config/firebase/firebase';
 import { httpsCallable } from 'firebase/functions';
-import { validateMessages } from 'util/FormValdationMessages';
+import { getValidateMessages } from 'util/FormValdationMessages';
 import { AbteilungMember } from 'types/abteilung.type';
-import { roles } from '../members/MemberTable';
+import { getRoles } from '../members/MemberTable';
+import { useTranslation } from 'react-i18next';
 
 export interface JoinAbteilungProps {
     abteilungId: string
@@ -16,6 +17,8 @@ export const JoinAbteilung = (props: JoinAbteilungProps) => {
 
     const { abteilungId, abteilungName, onSuccess } = props;
 
+    const { t } = useTranslation();
+    const roles = getRoles(t);
     const { Option } = Select;
 
     const [form] = Form.useForm<AbteilungMember['role']>();
@@ -28,14 +31,14 @@ export const JoinAbteilung = (props: JoinAbteilungProps) => {
             const role = form.getFieldValue('role');
             await httpsCallable(functions, 'joinAbteilung')({ abteilungId, role });
             setLoading(false)
-            message.success(`Anfrage an ${abteilungName} erfolgreich gesendet`)
+            message.success(t('abteilung:join.success', { name: abteilungName }))
             form.resetFields();
             if(onSuccess) {
                 onSuccess()
             }
         } catch(ex) {
             setLoading(false)
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+            message.error(t('common:errors.generic', { error: ex }))
         }
         
     }
@@ -43,13 +46,13 @@ export const JoinAbteilung = (props: JoinAbteilungProps) => {
     return <>
             <Form
                 form={form}
-                validateMessages={validateMessages}
+                validateMessages={getValidateMessages()}
                 onFinish={joinAbteilung}
                 initialValues={{ role: 'member' }}
             >
 
                 <Form.Item
-                    label='Rolle'
+                    label={t('abteilung:join.roleLabel')}
                     name='role'
                     rules={[
                         { required: true }
@@ -63,7 +66,7 @@ export const JoinAbteilung = (props: JoinAbteilungProps) => {
                 </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                     <Button type='primary' htmlType='submit' disabled={loading}>
-                        Beitritt anfragen
+                        {t('abteilung:join.submit')}
                     </Button>
                 </Form.Item>
 
@@ -79,19 +82,20 @@ export const JoinAbteilungButton = (props: JoinAbteilungProps) => {
 
     const { abteilungId, abteilungName } = props;
 
+    const { t } = useTranslation();
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
         <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }}>
-            Beitreten
+            {t('abteilung:join.button')}
         </Button>
         <Modal 
-            title={`Abteilung ${abteilungName} beitreten`}
+            title={t('abteilung:join.title', { name: abteilungName })}
             open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>
-                  Abbrechen
+                  {t('common:buttons.cancel')}
                 </Button>,
               ]}
         >

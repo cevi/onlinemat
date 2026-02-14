@@ -1,8 +1,9 @@
 import React, { useState, forwardRef, useImperativeHandle, useRef } from 'react';
 import { Button, message, Modal, Form } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { EditOutlined } from '@ant-design/icons';
 import { Material } from 'types/material.types';
-import { validateMessages } from 'util/FormValdationMessages';
+import { getValidateMessages } from 'util/FormValdationMessages';
 import { editMaterial, generateKeywords, getAvailableMatCount, getAvailableMatCountToEdit } from 'util/MaterialUtil';
 import { EditFormHandle } from 'types/form.types';
 import { MaterialFormFields } from './MaterialFormFields';
@@ -15,6 +16,8 @@ export interface EditMaterialProps {
 }
 
 export const EditMaterial = forwardRef<EditFormHandle, EditMaterialProps>((props, ref) => {
+    const { t } = useTranslation();
+
     useImperativeHandle(
         ref,
         () => ({
@@ -47,10 +50,10 @@ export const EditMaterial = forwardRef<EditFormHandle, EditMaterialProps>((props
             if (onSuccess) {
                 onSuccess()
             } else {
-                message.error('Es ist leider ein Fehler aufgetreten')
+                message.error(t('common:errors.genericShort'))
             }
         } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+            message.error(t('common:errors.generic', { error: String(ex) }))
         }
 
     }
@@ -69,7 +72,7 @@ export const EditMaterial = forwardRef<EditFormHandle, EditMaterialProps>((props
 
                 form.validateFields()
             }}
-            validateMessages={validateMessages}
+            validateMessages={getValidateMessages()}
         >
             <MaterialFormFields
                 maxCount={maxCount}
@@ -83,6 +86,7 @@ export const EditMaterial = forwardRef<EditFormHandle, EditMaterialProps>((props
 export const EditMaterialButton = (props: EditMaterialProps) => {
 
     const { abteilungId, materialId, material } = props;
+    const { t } = useTranslation();
 
     const editMaterialRef = useRef<EditFormHandle>(null);
 
@@ -91,15 +95,15 @@ export const EditMaterialButton = (props: EditMaterialProps) => {
     return <>
         <Button type='primary' onClick={(event) => { event.preventDefault(); event.stopPropagation(); setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
         <Modal
-            title='Material bearbeiten'
+            title={t('material:edit.title')}
             open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>
-                    Abbrechen
+                    {t('common:buttons.cancel')}
                 </Button>,
                 <Button key='save'  type='primary' onClick={() => { editMaterialRef.current?.save() }}>
-                    Änderungen speichern
+                    {t('material:edit.submit')}
                 </Button>
             ]}
         >

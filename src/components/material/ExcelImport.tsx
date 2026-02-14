@@ -12,6 +12,7 @@ import {
   Popconfirm,
   Tooltip,
 } from "antd";
+import { useTranslation } from 'react-i18next';
 import {
   abteilungenCategoryCollection,
   abteilungenMaterialsCollection,
@@ -39,6 +40,7 @@ export interface ExcelImportProps {
 
 export const ExcelImport = (props: ExcelImportProps) => {
   const { abteilung, excelData, showModal, setShow } = props;
+  const { t } = useTranslation();
 
   //fetch categories
   const categoriesContext = useContext(CategorysContext);
@@ -162,7 +164,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
         prepareMaterial();
       })
       .catch((ex) => {
-        message.error(`Es ist ein Fehler aufgetreten: ${ex}`);
+        message.error(t('common:errors.generic', { error: String(ex) }));
       });
   };
 
@@ -172,7 +174,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
     if (!excelData) return [];
 
     if (!name) {
-      message.error("Du musst den Namen des Materials zuordnen.");
+      message.error(t('excel:import.nameRequired'));
       console.error("Du musst den Namen des Materials zuordnen.");
       return [];
     }
@@ -349,11 +351,11 @@ export const ExcelImport = (props: ExcelImportProps) => {
     try {
       await massImportMaterial(abteilung.id, materials);
       message.success(
-        `Es wurden erfolgreich ${material.length}/${excelData.data.length} Materialien importiert.`
+        t('excel:import.success', { imported: material.length, total: excelData.data.length })
       );
       setShow(false);
     } catch (err) {
-      message.error(`Es ist ein Fehler aufgetreten ${err}`);
+      message.error(t('common:errors.generic', { error: String(err) }));
       console.error("Es ist ein Fehler aufgetreten", err);
     }
 
@@ -366,7 +368,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
   return (
     <Modal
-      title="Material importieren"
+      title={t('excel:import.title')}
       open={showModal}
       onCancel={() => setShow(false)}
       footer={[
@@ -376,9 +378,9 @@ export const ExcelImport = (props: ExcelImportProps) => {
             setShow(false);
           }}
         >
-          Abbrechen
+          {t('common:buttons.cancel')}
         </Button>,
-        <Tooltip key="importAdd" title="Bestehendes Material wird mit dem Inhalt der Excel-Tabelle ergänzt.">
+        <Tooltip key="importAdd" title={t('excel:import.importAddTooltip')}>
           <Button
             type="primary"
             disabled={!name || catLoading}
@@ -386,23 +388,23 @@ export const ExcelImport = (props: ExcelImportProps) => {
               prepareMaterial();
             }}
           >
-            Importieren hinzufügen
+            {t('excel:import.importAdd')}
           </Button>
         </Tooltip>,
         <Popconfirm
           key="importReplace"
-          title="Möchtest du wirklich alles bestehendes Material dieser Abteilung löschen?"
+          title={t('excel:import.importReplaceConfirm')}
           onConfirm={() => replaceMaterial()}
           onCancel={() => {}}
-          okText="Ja"
-          cancelText="Nein"
+          okText={t('common:confirm.yes')}
+          cancelText={t('common:confirm.no')}
         >
-          <Tooltip title="Bestehendes Material wird gelöscht und mit dem Inhalt der Excel-Tabelle ersetzt.">
+          <Tooltip title={t('excel:import.importReplaceTooltip')}>
             <Button
               type="primary"
               disabled={!name || catLoading}
             >
-              Importieren ersetzen
+              {t('excel:import.importReplace')}
             </Button>
           </Tooltip>
         </Popconfirm>,
@@ -411,8 +413,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
       <Row gutter={[16, 16]}>
         {/* Name (required, no default) */}
         <Col span={12}>
-          <p>Name*:</p>
-          {name && <p>{`Beispiel: ${findExampleData(name)}`}</p>}
+          <p>{t('excel:fields.name')}</p>
+          {name && <p>{t('excel:import.example', { value: findExampleData(name) })}</p>}
         </Col>
         <Col span={12}>
           <ExcelImportSelect
@@ -424,8 +426,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         {/* Bemerkung */}
         <Col span={12}>
-          <p>Bemerkung:</p>
-          {comment && <p>{`Beispiel: ${findExampleData(comment)}`}</p>}
+          <p>{t('excel:fields.comment')}</p>
+          {comment && <p>{t('excel:import.example', { value: findExampleData(comment) })}</p>}
         </Col>
         <Col span={12}>
           <ExcelImportSelect
@@ -435,7 +437,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
           />
           {!comment && (
             <Input
-              placeholder="Standardwert"
+              placeholder={t('excel:import.defaultValue')}
               value={defaultComment ?? undefined}
               onChange={(e) => setDefaultComment(e.target.value || null)}
               style={{ width: "100%", marginTop: 4 }}
@@ -445,8 +447,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         {/* Standort */}
         <Col span={12}>
-          <p>Standort:</p>
-          {standort && <p>{`Beispiel: ${findExampleData(standort)}`}</p>}
+          <p>{t('excel:fields.standort')}</p>
+          {standort && <p>{t('excel:import.example', { value: findExampleData(standort) })}</p>}
         </Col>
         <Col span={12}>
           <ExcelImportSelect
@@ -457,7 +459,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
           {!standort && (
             <Select
               mode="multiple"
-              placeholder="Standard-Standort"
+              placeholder={t('excel:fields.defaultStandort')}
               value={defaultStandort}
               onChange={setDefaultStandort}
               style={{ width: "100%", marginTop: 4 }}
@@ -473,8 +475,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         {/* Anzahl */}
         <Col span={12}>
-          <p>Anzahl:</p>
-          {count && <p>{`Beispiel: ${findExampleData(count)}`}</p>}
+          <p>{t('excel:fields.count')}</p>
+          {count && <p>{t('excel:import.example', { value: findExampleData(count) })}</p>}
         </Col>
         <Col span={12}>
           <ExcelImportSelect
@@ -484,7 +486,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
           />
           {!count && (
             <InputNumber
-              placeholder="Standardwert"
+              placeholder={t('excel:import.defaultValue')}
               value={defaultCount}
               min={0}
               onChange={(val) => setDefaultCount(val ?? 1)}
@@ -495,8 +497,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         {/* Verloren */}
         <Col span={12}>
-          <p>Verloren:</p>
-          {lost && <p>{`Beispiel: ${findExampleData(lost)}`}</p>}
+          <p>{t('excel:fields.lost')}</p>
+          {lost && <p>{t('excel:import.example', { value: findExampleData(lost) })}</p>}
         </Col>
         <Col span={12}>
           <ExcelImportSelect
@@ -506,7 +508,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
           />
           {!lost && (
             <InputNumber
-              placeholder="Standardwert"
+              placeholder={t('excel:import.defaultValue')}
               value={defaultLost}
               min={0}
               onChange={(val) => setDefaultLost(val ?? 0)}
@@ -517,8 +519,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         {/* Beschädigt */}
         <Col span={12}>
-          <p>Beschädigt:</p>
-          {damaged && <p>{`Beispiel: ${findExampleData(damaged)}`}</p>}
+          <p>{t('excel:fields.damaged')}</p>
+          {damaged && <p>{t('excel:import.example', { value: findExampleData(damaged) })}</p>}
         </Col>
         <Col span={12}>
           <ExcelImportSelect
@@ -528,7 +530,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
           />
           {!damaged && (
             <InputNumber
-              placeholder="Standardwert"
+              placeholder={t('excel:import.defaultValue')}
               value={defaultDamaged}
               min={0}
               onChange={(val) => setDefaultDamaged(val ?? 0)}
@@ -539,8 +541,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         {/* Gewicht in Kg */}
         <Col span={12}>
-          <p>Gewicht in Kg:</p>
-          {weightInKg && <p>{`Beispiel: ${findExampleData(weightInKg)}`}</p>}
+          <p>{t('excel:fields.weight')}</p>
+          {weightInKg && <p>{t('excel:import.example', { value: findExampleData(weightInKg) })}</p>}
         </Col>
         <Col span={12}>
           <ExcelImportSelect
@@ -550,7 +552,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
           />
           {!weightInKg && (
             <InputNumber
-              placeholder="Standardwert"
+              placeholder={t('excel:import.defaultValue')}
               value={defaultWeightInKg ?? undefined}
               min={0}
               onChange={(val) => setDefaultWeightInKg(val ?? null)}
@@ -561,8 +563,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         {/* Ist Verbrauchsmaterial */}
         <Col span={12}>
-          <p>Ist Verbrauchsmaterial:</p>
-          {consumables && <p>{`Beispiel: ${findExampleData(consumables)}`}</p>}
+          <p>{t('excel:fields.consumables')}</p>
+          {consumables && <p>{t('excel:import.example', { value: findExampleData(consumables) })}</p>}
         </Col>
         <Col span={12}>
           <ExcelImportSelect
@@ -576,16 +578,16 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 checked={defaultConsumables}
                 onChange={setDefaultConsumables}
               />{" "}
-              <span>{defaultConsumables ? "Ja" : "Nein"}</span>
+              <span>{defaultConsumables ? t('common:confirm.yes') : t('common:confirm.no')}</span>
             </div>
           )}
         </Col>
 
         {/* Kategorien */}
         <Col span={12}>
-          <p>Katergorien:</p>
+          <p>{t('excel:fields.categories')}</p>
           {categorieIds && (
-            <p>{`Beispiel: ${findExampleData(categorieIds)}`}</p>
+            <p>{t('excel:import.example', { value: findExampleData(categorieIds) })}</p>
           )}
         </Col>
         <Col span={12}>
@@ -597,7 +599,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
           {!categorieIds && (
             <Select
               mode="multiple"
-              placeholder="Standard-Kategorien"
+              placeholder={t('excel:fields.defaultCategories')}
               value={defaultCategorieIds}
               onChange={setDefaultCategorieIds}
               style={{ width: "100%", marginTop: 4 }}
@@ -613,8 +615,8 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         {/* Bilder */}
         <Col span={12}>
-          <p>Bilder:</p>
-          {imageUrls && <p>{`Beispiel: ${findExampleData(imageUrls)}`}</p>}
+          <p>{t('excel:fields.images')}</p>
+          {imageUrls && <p>{t('excel:import.example', { value: findExampleData(imageUrls) })}</p>}
         </Col>
         <Col span={12}>
           <ExcelImportSelect
@@ -624,7 +626,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
           />
           {!imageUrls && (
             <Input
-              placeholder="Standard-URLs (kommagetrennt)"
+              placeholder={t('excel:fields.defaultImageUrls')}
               value={defaultImageUrls ?? undefined}
               onChange={(e) => setDefaultImageUrls(e.target.value || null)}
               style={{ width: "100%", marginTop: 4 }}
@@ -634,9 +636,9 @@ export const ExcelImport = (props: ExcelImportProps) => {
 
         {/* Nur Intern ausleihbar */}
         <Col span={12}>
-          <p>Nur Intern ausleihbar:</p>
+          <p>{t('excel:fields.onlyLendInternal')}</p>
           {onlyLendInternal && (
-            <p>{`Beispiel: ${findExampleData(onlyLendInternal)}`}</p>
+            <p>{t('excel:import.example', { value: findExampleData(onlyLendInternal) })}</p>
           )}
         </Col>
         <Col span={12}>
@@ -651,7 +653,7 @@ export const ExcelImport = (props: ExcelImportProps) => {
                 checked={defaultOnlyLendInternal}
                 onChange={setDefaultOnlyLendInternal}
               />{" "}
-              <span>{defaultOnlyLendInternal ? "Ja" : "Nein"}</span>
+              <span>{defaultOnlyLendInternal ? t('common:confirm.yes') : t('common:confirm.no')}</span>
             </div>
           )}
         </Col>
@@ -670,6 +672,7 @@ export interface ExcelImportSelectProps {
 
 const ExcelImportSelect = (props: ExcelImportSelectProps) => {
   const { options, selected, setSelected } = props;
+  const { t } = useTranslation();
 
   const { Option } = Select;
 
@@ -677,7 +680,7 @@ const ExcelImportSelect = (props: ExcelImportSelectProps) => {
     <Select
       showSearch
       value={selected}
-      placeholder="Passendes Feld"
+      placeholder={t('excel:import.selectPlaceholder')}
       optionFilterProp="children"
       onChange={setSelected}
       filterOption={(input, option) => {
@@ -690,7 +693,7 @@ const ExcelImportSelect = (props: ExcelImportSelectProps) => {
       style={{ width: "100%" }}
     >
       <Option key="none" value={undefined}>
-        Nicht vorhanden
+        {t('excel:import.noneOption')}
       </Option>
       {options.map((o) => (
         <Option key={o} value={o}>

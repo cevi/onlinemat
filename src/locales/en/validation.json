@@ -1,0 +1,47 @@
+{
+  "default": "Validation error on field '${name}'",
+  "required": "'${name}' is required!",
+  "enum": "'${name}' must be one of [${enum}]",
+  "whitespace": "'${name}' cannot be empty",
+  "date": {
+    "format": "'${name}' is not a valid date format",
+    "parse": "'${name}' could not be parsed as a date",
+    "invalid": "'${name}' is an invalid date"
+  },
+  "types": {
+    "string": "'${name}' is not a valid ${type}",
+    "method": "'${name}' is not a valid ${type}",
+    "array": "'${name}' is not a valid ${type}",
+    "object": "'${name}' is not a valid ${type}",
+    "number": "'${name}' is not a valid ${type}",
+    "date": "'${name}' is not a valid ${type}",
+    "boolean": "'${name}' is not a valid ${type}",
+    "integer": "'${name}' is not a valid ${type}",
+    "float": "'${name}' is not a valid ${type}",
+    "regexp": "'${name}' is not a valid ${type}",
+    "email": "This is not a valid email address",
+    "url": "'${name}' is not a valid ${type}",
+    "hex": "'${name}' is not a valid ${type}"
+  },
+  "string": {
+    "len": "'${name}' must be exactly ${len} characters",
+    "min": "'${name}' must be at least ${min} characters",
+    "max": "'${name}' must not be longer than ${max} characters",
+    "range": "'${name}' must be between ${min} and ${max} characters"
+  },
+  "number": {
+    "len": "'${name}' must equal ${len}",
+    "min": "'${name}' cannot be less than ${min}",
+    "max": "'${name}' cannot be greater than ${max}",
+    "range": "'${name}' must be between ${min} and ${max}"
+  },
+  "array": {
+    "len": "'${name}' must be exactly ${len} in length",
+    "min": "'${name}' must not be shorter than ${min}",
+    "max": "'${name}' must not be longer than ${max}",
+    "range": "'${name}' must have a length between ${min} and ${max}"
+  },
+  "pattern": {
+    "mismatch": "'${name}' does not match pattern ${pattern}"
+  }
+}

@@ -12,6 +12,7 @@ import { useSearchParams } from 'react-router-dom';
 import { AbteilungenContext } from 'components/navigation/NavigationMenu';
 import { SearchOutlined } from '@ant-design/icons';
 import { Input } from 'antd';
+import { useTranslation } from 'react-i18next';
 
 interface SearchMaterial extends Material {
     abteilungId: string | undefined
@@ -20,6 +21,7 @@ interface SearchMaterial extends Material {
 const FEATURED_DISPLAY_COUNT = 6;
 
 export const SearchView = () => {
+    const { t } = useTranslation('search');
     const { isAuthenticated } = useAuth0();
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -62,7 +64,7 @@ export const SearchView = () => {
                 setAllLoading(false);
             } catch (err) {
                 setAllLoading(false);
-                console.error('Fehler beim Laden der Materialien', err);
+                console.error(t('search:error'), err);
             }
         };
         loadAll();
@@ -89,7 +91,7 @@ export const SearchView = () => {
                     label: (
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span>{mat.name}</span>
-                            <Tag color="blue" style={{ marginLeft: 8 }}>{abteilung?.name ?? 'Unbekannt'}</Tag>
+                            <Tag color="blue" style={{ marginLeft: 8 }}>{abteilung?.name ?? t('common:status.unknown')}</Tag>
                         </div>
                     ),
                     key: mat.id,
@@ -135,7 +137,7 @@ export const SearchView = () => {
                     <Card hoverable size="small">
                         <Card.Meta
                             title={mat.name}
-                            description={abteilung?.name ?? 'Unbekannte Abteilung'}
+                            description={abteilung?.name ?? t('search:unknownAbteilung')}
                         />
                     </Card>
                 </a>
@@ -144,9 +146,9 @@ export const SearchView = () => {
     };
 
     return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])} style={{ alignItems: 'center' }}>
-        <Typography.Title level={3}>Material Suche</Typography.Title>
+        <Typography.Title level={3}>{t('search:title')}</Typography.Title>
         <Typography.Paragraph type="secondary">
-            Suche nach Material, das von Abteilungen zum Ausleihen angeboten wird.
+            {t('search:description')}
         </Typography.Paragraph>
 
         <AutoComplete
@@ -157,8 +159,8 @@ export const SearchView = () => {
             style={{ maxWidth: 600, width: '100%', marginBottom: 24 }}
         >
             <Input.Search
-                placeholder='Nach Material suchen...'
-                enterButton='Suchen'
+                placeholder={t('search:placeholder')}
+                enterButton={t('common:buttons.search')}
                 size='large'
                 prefix={<SearchOutlined />}
                 onSearch={doSearch}
@@ -173,8 +175,8 @@ export const SearchView = () => {
             <>
                 <Typography.Title level={5}>
                     {results.length > 0
-                        ? `${results.length} Ergebnis${results.length !== 1 ? 'se' : ''} gefunden`
-                        : 'Keine Ergebnisse gefunden'}
+                        ? t('search:results.found', { count: results.length })
+                        : t('search:results.none')}
                 </Typography.Title>
                 <Row gutter={[16, 16]} style={{ maxWidth: 800 }}>
                     {results.map(renderResultItem)}
@@ -184,7 +186,7 @@ export const SearchView = () => {
 
         {!hasSearched && !allLoading && !allLoading && (
             <>
-                <Typography.Title level={5} style={{ marginTop: 16 }}>Vorschläge</Typography.Title>
+                <Typography.Title level={5} style={{ marginTop: 16 }}>{t('search:featured.title')}</Typography.Title>
                 <Row gutter={[16, 16]} style={{ maxWidth: 800 }}>
                     {featured.map(mat => {
                         const abteilung = findAbteilung(mat.abteilungId);
@@ -197,7 +199,7 @@ export const SearchView = () => {
                                     <Card hoverable size="small">
                                         <Card.Meta
                                             title={mat.name}
-                                            description={abteilung?.name ?? 'Unbekannte Abteilung'}
+                                            description={abteilung?.name ?? t('search:unknownAbteilung')}
                                         />
                                     </Card>
                                 </a>

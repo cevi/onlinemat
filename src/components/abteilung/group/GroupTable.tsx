@@ -7,6 +7,7 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { groupObjToList } from 'util/GroupUtil';
 import { dateFormat } from 'util/constants';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -20,10 +21,11 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
 
     const { abteilung, members, loading } = props;
 
+    const { t } = useTranslation();
 
     const columns = [
         {
-            title: 'Name',
+            title: t('group:table.name'),
             dataIndex: 'name',
             key: 'name',
             sorter: (a: Group, b: Group) => a.name.normalize().localeCompare(b.name.normalize()),
@@ -32,16 +34,16 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
             )
         },
         {
-            title: 'Typ',
+            title: t('group:table.type'),
             dataIndex: 'type',
             key: 'type',
             sorter: (a: Group, b: Group) => a.type.normalize().localeCompare(b.type.normalize()),
             render: (text: string, record: Group) => (
-                <p key={`type_${record.id}`}>{record.type === 'group' ? 'Gruppe' : 'Anlass'}</p>
+                <p key={`type_${record.id}`}>{record.type === 'group' ? t('group:table.typeGroup') : t('group:table.typeEvent')}</p>
             )
         },
         {
-            title: 'Erstellt',
+            title: t('group:table.createdAt'),
             dataIndex: 'createdAt',
             key: 'createdAt',
             sorter: (a: Group, b: Group) => a.createdAt.valueOf() - b.createdAt.valueOf(),
@@ -50,18 +52,18 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
             )
         },
         {
-            title: 'Personen',
+            title: t('group:table.members'),
             key: 'members',
             dataIndex: 'members',
             render: (text: string, record: Group) => (
                 <p key={`members_${record.id}`}>{record.members.map(m => {
                     const member = members.find(mem => mem.id === m);
-                    return member ? member.displayName : 'Unbekannt'
+                    return member ? member.displayName : t('common:status.unknown')
                 }).join(', ')}</p>
             )
         },
         {
-            title: 'Aktionen',
+            title: t('group:table.actions'),
             key: 'actions',
             dataIndex: 'id',
             render: (text: string, record: Group) => (
@@ -69,11 +71,11 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
                     <Can I='update' this={abteilung}>
                         <EditGroupButton group={record} members={members} abteilung={abteilung} />
                         <Popconfirm
-                            title='Möchtest du diese Gruppe wirklich löschen?'
-                            onConfirm={() => deleteGroup(abteilung, record)}
+                            title={t('group:delete.confirm')}
+                            onConfirm={() => deleteGroup(abteilung, record, t)}
                             onCancel={() => { }}
-                            okText='Ja'
-                            cancelText='Nein'
+                            okText={t('common:confirm.yes')}
+                            cancelText={t('common:confirm.no')}
                         >
                             <Button type='ghost' danger icon={<DeleteOutlined />} disabled={loading}/>
                         </Popconfirm>

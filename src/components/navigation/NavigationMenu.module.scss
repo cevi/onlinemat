@@ -37,3 +37,14 @@
 .logout {
     color: styles.$error-color !important;
 }
+
+.sider-content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 48px); // 48px = collapse trigger height
+}
+
+.sider-menu {
+    flex: 1;
+    overflow: auto;
+}

@@ -1,5 +1,6 @@
 import { useState, useContext, useMemo, useEffect } from 'react';
 import { Spin, message, Menu, Row, Col, Typography } from 'antd';
+import { useTranslation } from 'react-i18next';
 import type { MenuProps } from 'antd';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
@@ -51,6 +52,7 @@ export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart' | 
 
 export const AbteilungDetail = () => {
 
+    const { t } = useTranslation();
     const { abteilungSlugOrId, tab } = useParams<AbteilungDetailViewParams>();
     const navigate = useNavigate();
     const { state } = useLocation();
@@ -99,11 +101,11 @@ export const AbteilungDetail = () => {
                 if (result) {
                     setAbteilung(result);
                 } else {
-                    message.error(`Unbekannte Abteilung ${abteilungSlugOrId}`)
+                    message.error(t('abteilung:errors.unknown', { id: abteilungSlugOrId }))
                 }
 
             } else {
-                message.error(`Unbekannte Abteilung ${abteilungSlugOrId}`)
+                message.error(t('abteilung:errors.unknown', { id: abteilungSlugOrId }))
             }
         }
     }, [abteilungen, abteilungLoading, abteilungSlugOrId])
@@ -174,21 +176,21 @@ export const AbteilungDetail = () => {
 
     return <div className={classNames(appStyles['flex-grower'])}>
         <AbteilungDataProvider abteilung={abteilung}>
-            <Typography.Title level={3}>Abteilung {abteilung?.name}</Typography.Title>
+            <Typography.Title level={3}>{t('abteilung:detailTitle', { name: abteilung?.name })}</Typography.Title>
             <Menu
                 onClick={(e) => { navigateToMenu(e.key as AbteilungTab) }}
                 selectedKeys={[selectedMenu]}
                 mode='horizontal'
                 items={[
-                    { key: 'mat', icon: <ContainerOutlined />, label: 'Material' },
+                    { key: 'mat', icon: <ContainerOutlined />, label: t('abteilung:tabs.material') },
                     ...(windowSize[0] > 768 ? [
-                        { key: 'standort', icon: <HomeOutlined />, label: 'Standorte' },
-                        { key: 'category', icon: <PaperClipOutlined />, label: 'Kategorien' },
-                        { key: 'orders', icon: <UnorderedListOutlined />, label: 'Bestellungen' },
+                        { key: 'standort', icon: <HomeOutlined />, label: t('abteilung:tabs.standorte') },
+                        { key: 'category', icon: <PaperClipOutlined />, label: t('abteilung:tabs.kategorien') },
+                        { key: 'orders', icon: <UnorderedListOutlined />, label: t('abteilung:tabs.bestellungen') },
                         ...(canUpdate ? [
-                            { key: 'members', icon: <TeamOutlined />, label: 'Mitglieder' },
-                            { key: 'groups', icon: <TagsOutlined />, label: 'Gruppen' },
-                            { key: 'settings', icon: <SettingOutlined />, label: 'Einstellungen' },
+                            { key: 'members', icon: <TeamOutlined />, label: t('abteilung:tabs.mitglieder') },
+                            { key: 'groups', icon: <TagsOutlined />, label: t('abteilung:tabs.gruppen') },
+                            { key: 'settings', icon: <SettingOutlined />, label: t('abteilung:tabs.einstellungen') },
                         ] : []),
                     ] : []),
                     { key: 'cart', icon: <ShoppingCartOutlined />, label: getCartCount(cartItems), style: { marginLeft: 'auto' } },

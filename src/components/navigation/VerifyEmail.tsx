@@ -3,15 +3,17 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Button, Result } from 'antd';
 import { auth } from 'config/firebase/firebase';
 import { signOut } from 'firebase/auth';
+import { useTranslation } from 'react-i18next';
 
 export const VerifyEmail = () => {
+    const { t } = useTranslation('navigation');
 
     const { isLoading, logout, loginWithRedirect } = useAuth0();
 
     return <Result
         icon={<MailOutlined />}
-        title='Bitte bestätige deine Email'
-        subTitle='Du must deine Email bestätigen um das Onlinemat benutzen zu können. Bitte überprüfe auch deinen Spam-Ordner.'
+        title={t('navigation:verifyEmail.title')}
+        subTitle={t('navigation:verifyEmail.subtitle')}
         extra={[
             <Button
                 disabled={isLoading}
@@ -22,7 +24,7 @@ export const VerifyEmail = () => {
                     await logout();
                     loginWithRedirect();
                 }}
-            >Ich habe meine Email bestätigt</Button>
+            >{t('navigation:verifyEmail.confirmed')}</Button>
         ]}
     />
 }

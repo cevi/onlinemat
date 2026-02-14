@@ -1,0 +1,24 @@
+{
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "role": "Role"
+  },
+  "search": {
+    "placeholder": "Search for member"
+  },
+  "actions": {
+    "approve": "Accept as {{role}}",
+    "deny": "Deny",
+    "ban": "Ban",
+    "banTooltip": "The request will be denied and the user will not be able to submit a new request in the future",
+    "unban": "Unban user",
+    "remove": "Remove"
+  },
+  "roles": {
+    "guest": "Guest",
+    "member": "Member",
+    "matchef": "Material Chief",
+    "admin": "Admin"
+  }
+}

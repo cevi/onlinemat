@@ -8,6 +8,7 @@ import { Order } from "types/order.types";
 import { completeLostOrder } from "util/OrderUtil";
 import { MaterialsContext } from "../AbteilungDetails";
 import { OrderItemsDamaged } from "./OrderItemsDamaged";
+import { useTranslation } from 'react-i18next';
 
 export interface DamagedMaterialModalProps {
     abteilung: Abteilung
@@ -24,6 +25,7 @@ export const DamagedMaterialModal = (props: DamagedMaterialModalProps) => {
     const [damagedMaterialDetails, setDamagedMaterialDetails] = useState<DamagedMaterialDetails[]>([]);
 
     const user = useUser();
+    const { t } = useTranslation();
 
     //fetch materials
     const materialsContext = useContext(MaterialsContext);
@@ -52,21 +54,21 @@ export const DamagedMaterialModal = (props: DamagedMaterialModalProps) => {
 
     return <Modal
         open={showDamageModal}
-        title='Bestellung teilweise abschliessen'
+        title={t('order:damagedModal.title')}
         width={700}
         onOk={() => { }}
         onCancel={() => { }}
         footer={[
             <Button key='back' onClick={() => { setShowDamageModal(!showDamageModal) }}>
-                Abbrechen
+                {t('common:buttons.cancel')}
             </Button>,
-            <Button key='submit' type='primary' onClick={async () => { 
-                const success = await completeLostOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName, damagedMaterialDetails, materials) 
+            <Button key='submit' type='primary' onClick={async () => {
+                const success = await completeLostOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName, damagedMaterialDetails, materials)
                 if(success) {
                     setShowDamageModal(!showDamageModal)
                 }
                 }}>
-                Abschliessen
+                {t('order:damagedModal.submit')}
             </Button>
         ]}
     >

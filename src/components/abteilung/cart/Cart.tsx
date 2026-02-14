@@ -13,6 +13,7 @@ import { CreateOrder } from '../order/CreateOrder';
 import { functions } from 'config/firebase/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { getAvailableMatCount } from 'util/MaterialUtil';
+import { useTranslation } from 'react-i18next';
 
 export interface CartProps {
     abteilung: Abteilung
@@ -31,6 +32,7 @@ export const Cart = (props: CartProps) => {
     const [cookies, setCookie] = useCookies([cookieName]);
 
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     //fetch materials
     const materialsContext = useContext(MaterialsContext);
@@ -72,7 +74,7 @@ export const Cart = (props: CartProps) => {
         try {
             setOrderError(undefined)
             setOrderLoading(true)
-            
+
             const result = await httpsCallable(functions, 'createOrder')({ abteilungId: abteilung.id, order: orderToCreate });
             const orderId: string | undefined = result.data.id;
             const collisions: { [matId: string]: number } | undefined = result.data.collisions;
@@ -80,11 +82,11 @@ export const Cart = (props: CartProps) => {
                 setCreatedOrderId(orderId)
                 setCurrentStep(currentStep + 1)
                 changeCartAndCookie([])
-                message.success(`Bestellung erfolgreich erstellt`);
+                message.success(t('order:create.success'));
             }
 
             if(collisions) {
-                message.error(`Leider ist nicht alles Material verfügbar.`);
+                message.error(t('order:create.notAllAvailable'));
             }
 
             setOrderLoading(false)
@@ -94,8 +96,8 @@ export const Cart = (props: CartProps) => {
                 collisions
             };
         } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
-            setOrderError(`Es ist ein Fehler aufgetreten ${ex}`)
+            message.error(t('common:errors.generic', { error: ex }))
+            setOrderError(t('common:errors.generic', { error: ex }))
         }
         setOrderLoading(false)
 
@@ -122,17 +124,17 @@ export const Cart = (props: CartProps) => {
         const minStep = 0;
         const maxStep = 2;
         return <><Steps current={currentStep}>
-            <Step title='Material' description='Material auswählen' />
-            <Step title='Bestellen' description={orderError ? orderError : 'Bestellung aufgeben'} icon={orderLoading ? <LoadingOutlined /> : undefined} status={orderError ? 'error' : undefined}/>
-            <Step title='Abschliessen' description='Bestellung abschliessen' status={currentStep === maxStep ? 'finish' : undefined}/>
+            <Step title={t('order:cart.steps.material')} description={t('order:cart.steps.materialDescription')} />
+            <Step title={t('order:cart.steps.order')} description={orderError ? orderError : t('order:cart.steps.orderDescription')} icon={orderLoading ? <LoadingOutlined /> : undefined} status={orderError ? 'error' : undefined}/>
+            <Step title={t('order:cart.steps.finish')} description={t('order:cart.steps.finishDescription')} status={currentStep === maxStep ? 'finish' : undefined}/>
         </Steps>
-            {currentStep > minStep && currentStep < maxStep  && <Button disabled={orderLoading} onClick={() => setCurrentStep(0)}>Zurück</Button>}
-            {currentStep < maxStep - 1 && <Button disabled={orderLoading} type='primary' style={{ float: 'right' }} onClick={() => setCurrentStep(currentStep + 1)}>Weiter</Button>}
+            {currentStep > minStep && currentStep < maxStep  && <Button disabled={orderLoading} onClick={() => setCurrentStep(0)}>{t('common:buttons.back')}</Button>}
+            {currentStep < maxStep - 1 && <Button disabled={orderLoading} type='primary' style={{ float: 'right' }} onClick={() => setCurrentStep(currentStep + 1)}>{t('common:buttons.next')}</Button>}
             {currentStep === maxStep - 1 && <Button disabled={orderLoading || cartItemsMerged.length <= 0} type='primary' style={{ float: 'right' }} onClick={() => {
                 if(!createOrderRef || !createOrderRef.current) return;
                 //TODO: typescript
                 (createOrderRef.current as any).submitOrder()
-            }}>Bestellen</Button>}
+            }}>{t('order:cart.submitOrder')}</Button>}
         </>
     }
 
@@ -140,9 +142,9 @@ export const Cart = (props: CartProps) => {
     if (currentStep === 0) return <Row gutter={[16, 16]}>
         <Col span={24}>
             <Input.Search
-                placeholder='nach Material suchen'
+                placeholder={t('order:cart.searchPlaceholder')}
                 allowClear
-                enterButton='Suchen'
+                enterButton={t('common:buttons.search')}
                 size='large'
                 onSearch={(query) => setQuery(query)}
             />
@@ -153,13 +155,13 @@ export const Cart = (props: CartProps) => {
         </Col>
         <Col span={24}>
             <Popconfirm
-                title='Möchtest du deinen Warenkorb wirklich löschen?'
+                title={t('order:cart.deleteConfirm')}
                 onConfirm={() => changeCartAndCookie([])}
                 onCancel={() => { }}
-                okText='Ja'
-                cancelText='Nein'
+                okText={t('common:confirm.yes')}
+                cancelText={t('common:confirm.no')}
             >
-                <Button type='ghost' danger icon={<DeleteOutlined />}>Warenkorb löschen</Button>
+                <Button type='ghost' danger icon={<DeleteOutlined />}>{t('order:cart.deleteButton')}</Button>
             </Popconfirm>
         </Col>
         <Col span={24}>
@@ -179,23 +181,23 @@ export const Cart = (props: CartProps) => {
 
     if (currentStep === 2) return <><Result
         status='success'
-        title='Bestellung erfolgreich!'
-        subTitle={`Die Bestellung: ${createdOrderId} wurde erfolgreich erstellt`}
+        title={t('order:cart.success.title')}
+        subTitle={t('order:cart.success.subtitle', { orderId: createdOrderId })}
         extra={[
             <Button type='primary' key='backToAbteilung' onClick={()=> navigate(abteilungMatLink)}>
-                Zurück
+                {t('common:buttons.back')}
             </Button>,
-            <Button key='viewOrder' onClick={()=> navigate(`/abteilungen/${abteilung.slug || abteilung.id}/order/${createdOrderId}`)}>Bestellung ansehen</Button>,
+            <Button key='viewOrder' onClick={()=> navigate(`/abteilungen/${abteilung.slug || abteilung.id}/order/${createdOrderId}`)}>{t('order:cart.success.viewOrder')}</Button>,
         ]}
     />
         <ProgressBar />
     </>
 
     return <Result
-        title='Leider ist dein Warenkorb leer'
+        title={t('order:cart.empty.title')}
         extra={
             <Button type='primary' key='orderMat' onClick={() => navigate(abteilungMatLink)}>
-                Material bestellen
+                {t('order:cart.empty.orderMaterial')}
             </Button>
         }
     />

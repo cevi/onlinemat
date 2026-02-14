@@ -3,10 +3,11 @@ import { Button, Input, message, Modal, Form, Radio, Transfer } from 'antd';
 import { db } from 'config/firebase/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { abteilungenCategoryCollection, abteilungenCollection } from 'config/firebase/collections';
-import { validateMessages } from 'util/FormValdationMessages';
+import { getValidateMessages } from 'util/FormValdationMessages';
 import { Abteilung, AbteilungMember, AbteilungMemberUserData } from 'types/abteilung.type';
 import { Group } from 'types/group.types';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 export interface AddGroupProps {
     abteilung: Abteilung
@@ -18,6 +19,7 @@ export const AddGroup = (props: AddGroupProps) => {
 
     const { abteilung, members, onSuccess } = props;
 
+    const { t } = useTranslation();
     const [form] = Form.useForm<Group>();
 
     const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
@@ -43,17 +45,17 @@ export const AddGroup = (props: AddGroupProps) => {
             await updateDoc(doc(db, abteilungenCollection, abteilung.id), {
                 groups: groupToAdd
             })
-            message.success(`${form.getFieldValue('type') === 'group' ? 'Gruppe' : 'Anlass'} ${form.getFieldValue('name')} erfolgreich erstellt`);
+            message.success(t('group:add.success', { type: form.getFieldValue('type') === 'group' ? t('group:form.typeGroup') : t('group:form.typeEvent'), name: form.getFieldValue('name') }));
             setSelectedKeys([])
             setTargetKeys([])
             form.resetFields();
             if (onSuccess) {
                 onSuccess()
             } else {
-                message.error('Es ist leider ein Fehler aufgetreten')
+                message.error(t('common:errors.genericShort'))
             }
         } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+            message.error(t('common:errors.generic', { error: ex }))
         }
 
     }
@@ -61,7 +63,7 @@ export const AddGroup = (props: AddGroupProps) => {
     return <>
         <Form
             form={form}
-            validateMessages={validateMessages}
+            validateMessages={getValidateMessages()}
             onFinish={addGroup}
             initialValues={{
                 type: 'group'
@@ -69,7 +71,7 @@ export const AddGroup = (props: AddGroupProps) => {
         >
 
             <Form.Item
-                label='Name'
+                label={t('group:form.name')}
                 name='name'
                 rules={[
                     { required: true },
@@ -77,23 +79,23 @@ export const AddGroup = (props: AddGroupProps) => {
                 ]}
             >
                 <Input
-                    placeholder='Name'
+                    placeholder={t('group:form.namePlaceholder')}
                 />
             </Form.Item>
             <Form.Item
-                label='Type'
+                label={t('group:form.type')}
                 name='type'
                 rules={[
                     { required: true },
                 ]}
             >
                 <Radio.Group>
-                    <Radio value='group'>Gruppe</Radio>
-                    <Radio value='event'>Anlass</Radio>
+                    <Radio value='group'>{t('group:form.typeGroup')}</Radio>
+                    <Radio value='event'>{t('group:form.typeEvent')}</Radio>
                 </Radio.Group>
             </Form.Item>
             <Form.Item
-                label='Mitglieder'
+                label={t('group:form.members')}
                 name='members'
                 rules={[
                     { required: true },
@@ -102,7 +104,7 @@ export const AddGroup = (props: AddGroupProps) => {
                           if ((getFieldValue('members') as string[]).length >= 1) {
                             return Promise.resolve();
                           }
-                          return Promise.reject(new Error('Du must mindestens 1 Mitglied auswählen'));
+                          return Promise.reject(new Error(t('group:form.membersMin')));
                         },
                       }),
                 ]}
@@ -111,7 +113,7 @@ export const AddGroup = (props: AddGroupProps) => {
                     dataSource={members.map(m => {
                         return {...m, key: m.id}})
                     }
-                    
+
                     showSearch
                     targetKeys={targetKeys}
                     selectedKeys={selectedKeys}
@@ -128,7 +130,7 @@ export const AddGroup = (props: AddGroupProps) => {
             </Form.Item>
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                 <Button type='primary' htmlType='submit'>
-                    Gruppe/Anlass hinzufügen
+                    {t('group:add.submit')}
                 </Button>
             </Form.Item>
         </Form>
@@ -139,19 +141,20 @@ export const AddGroupButton = (props: AddGroupProps) => {
 
     const { abteilung, members } = props;
 
+    const { t } = useTranslation();
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     return <>
         <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }}>
-            Gruppe hinzufügen
+            {t('group:add.button')}
         </Button>
         <Modal
-            title='Gruppe/Anlass hinzufügen'
+            title={t('group:add.title')}
             open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>
-                    Abbrechen
+                    {t('common:buttons.cancel')}
                 </Button>,
             ]}
         >

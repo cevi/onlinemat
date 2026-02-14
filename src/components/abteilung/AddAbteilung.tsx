@@ -5,6 +5,7 @@ import { db } from 'config/firebase/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { abteilungenCollection, abteilungenMembersCollection } from 'config/firebase/collections';
 import { useUser } from 'hooks/use-user';
+import { useTranslation } from 'react-i18next';
 
 export interface AddAbteilungProps {
 }
@@ -12,6 +13,7 @@ export interface AddAbteilungProps {
 
 export const AddAbteilung = (props: AddAbteilungProps) => {
 
+    const { t } = useTranslation();
     const userState = useUser();
 
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -25,12 +27,12 @@ export const AddAbteilung = (props: AddAbteilungProps) => {
                 creatorId: userState.appUser?.userData?.id,
             })
             if(response.id) {
-                message.success(`Abteilung ${abteilungsName} erfolgreich erstellt`);
+                message.success(t('abteilung:add.success', { name: abteilungsName }));
             } else {
-                message.error('Es ist leider ein Fehler aufgetreten')
+                message.error(t('common:errors.genericShort'))
             }
         } catch(ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+            message.error(t('common:errors.generic', { error: ex }))
         }
         
         setAbteilungsName('')
@@ -39,13 +41,13 @@ export const AddAbteilung = (props: AddAbteilungProps) => {
 
     return <>
         <Button type='primary' onClick={()=>{setIsModalVisible(!isModalVisible)}}>
-            Abteilung hinzufügen
+            {t('abteilung:add.button')}
       </Button>
-        <Modal title='Abteilung erstellen' open={isModalVisible} onOk={addAbteilungToDB} onCancel={()=>{ setIsModalVisible(false) }}>
+        <Modal title={t('abteilung:add.title')} open={isModalVisible} onOk={addAbteilungToDB} onCancel={()=>{ setIsModalVisible(false) }}>
             <Input
                 value={abteilungsName}
                 onChange={(e)=> setAbteilungsName(e.currentTarget.value)}
-                placeholder='Name' />
+                placeholder={t('abteilung:add.namePlaceholder')} />
         </Modal>
     </>
 }

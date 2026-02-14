@@ -21,6 +21,7 @@ import { useUser } from 'hooks/use-user';
 import { CheckCircleOutlined, ClockCircleOutlined, DeleteOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
 import { DamagedMaterialModal } from './DamagedMaterialModal';
 import { Can } from 'config/casl/casl';
+import { useTranslation } from 'react-i18next';
 
 export interface OrderProps {
     abteilung: Abteilung
@@ -41,6 +42,7 @@ export const OrderView = (props: OrderProps) => {
 
     const user = useUser();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const [order, setOrder] = useState<Order | undefined>(undefined);
     const [orderLoading, setOrderLoading] = useState(false);
@@ -102,7 +104,7 @@ export const OrderView = (props: OrderProps) => {
             } as Order;
             setOrder(orderLoaded);
         }, (err) => {
-            message.error(`Es ist ein Fehler aufgetreten ${err}`)
+            message.error(t('common:errors.generic', { error: err }))
             console.error('Es ist ein Fehler aufgetreten', err)
         });
     }, [isAuthenticated]);
@@ -164,21 +166,21 @@ export const OrderView = (props: OrderProps) => {
         merged.push({
             timestamp: order.creationTime.toDate(),
             color: 'green',
-            text: `${` ${orderer ? orderer.displayName : order?.orderer}`} hat die Bestellung erstellt.`,
+            text: t('order:history.created', { name: orderer ? orderer.displayName : order?.orderer }),
             type: 'creation'
         })
         //startDate for order
         merged.push({
             timestamp: order.startDate.toDate(),
             color: order.startDate.isSameOrBefore(dayjs()) ? null : 'grey',
-            text: `Start der Bestellung`,
+            text: t('order:history.startDate'),
             type: 'startDate'
         })
         //endDate for order
         merged.push({
             timestamp: order.endDate.toDate(),
             color: order.endDate.isSameOrBefore(dayjs()) ? null : 'grey',
-            text: `Ende der Bestellung`,
+            text: t('order:history.endDate'),
             type: 'endDate'
         })
         return merged.sort((a: OrderHistory, b: OrderHistory) => a.timestamp.valueOf() - b.timestamp.valueOf());
@@ -193,37 +195,37 @@ export const OrderView = (props: OrderProps) => {
     const MaterialAction = () => {
         if (!order) return <></>;
         if (order.status === 'created') {
-            return <Tooltip placement='bottom' title='Bestätige das das Material bereit liegt.'>
+            return <Tooltip placement='bottom' title={t('order:actions.deliverTooltip')}>
                 <Button
                     type='primary'
                     onClick={() => deliverOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
                 >
-                    Ausgeben
+                    {t('order:actions.deliver')}
                 </Button>
             </Tooltip>;
         }
 
         //No mat was damged / lost
         if (order.status === 'delivered' && damagedMaterial.length <= 0) {
-            return <Tooltip placement='bottom' title='Bestätige das das Material vollständig zurückgegeben wurde.'>
+            return <Tooltip placement='bottom' title={t('order:actions.completeTooltip')}>
                 <Button
                     type='primary'
                     onClick={() => completeOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
                 >
-                    Abschliessen
+                    {t('order:actions.complete')}
                 </Button>
             </Tooltip>;
         }
 
         //Some mat is damaged /lost
         if (order.status === 'delivered') {
-            return <Tooltip placement='bottom' title='Bestätige das das Material teilweise beschädigt/unvollständig zurückgegeben wurde.'>
+            return <Tooltip placement='bottom' title={t('order:actions.completePartialTooltip')}>
                 <Button
                     type='ghost'
                     danger
                     onClick={() => setShowDamageModal(!showDamageModal)}
                 >
-                    Teilweise Abschliessen
+                    {t('order:actions.completePartial')}
                 </Button>
             </Tooltip>;
         }
@@ -231,23 +233,23 @@ export const OrderView = (props: OrderProps) => {
         
 
         if (order.status === 'completed' || order.status === 'completed-damaged') {
-            return <Tooltip placement='bottom' title='Der Status der Bestellung wird auf "erstellt" zurückgesetzt.'>
+            return <Tooltip placement='bottom' title={t('order:actions.resetTooltip')}>
                 <Popconfirm
-                    title='Der Status der Bestellung wird auf "erstellt" zurückgesetzt.'
+                    title={t('order:actions.resetConfirm')}
                     onConfirm={async () => {
                         await resetLostOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName, materials)
                         setDamagedMaterial([])
                     }}
                     onCancel={() => { }}
-                    okText='Ja'
-                    cancelText='Nein'
+                    okText={t('common:confirm.yes')}
+                    cancelText={t('common:confirm.no')}
                 >
                     <Button
                         type='ghost'
                         danger
                         icon={<UndoOutlined />}
                     >
-                        Zurücksetzen
+                        {t('order:actions.reset')}
                     </Button>
                 </Popconfirm>
 
@@ -261,7 +263,8 @@ export const OrderView = (props: OrderProps) => {
     const Weight = () => {
         if(!order) return <>Loading...</>
         const res = calculateTotalWeight(order, materials);
-        return <Tooltip key={`weight_${order.id}`} title='Das Gesamtgewicht kann nur genau berechnet werden, wenn auch alle Angaben vorhanden sind'>{`${res.totalWeight} Kg ${res.incompleteCount > 0 ? `${order.items.length - res.incompleteCount}/${order.items.length} Gewichtsangaben` : ''}`}</Tooltip>
+        const incompleteInfo = res.incompleteCount > 0 ? t('order:view.weightInfoIncomplete', { complete: order.items.length - res.incompleteCount, total: order.items.length }) : '';
+        return <Tooltip key={`weight_${order.id}`} title={t('order:view.weightTooltip')}>{t('order:view.weightInfo', { totalWeight: res.totalWeight, incompleteInfo })}</Tooltip>
     }
 
     if (orderLoading || matLoading) return <Spin />;
@@ -275,11 +278,11 @@ export const OrderView = (props: OrderProps) => {
                     <h1>{`${getGroupName(order?.groupId, abteilung, order?.customGroupName)} ${order?.startDate.format(dateFormat)}`}{order?.startDate.format(dateFormat) !== order?.endDate.format(dateFormat) && ` - ${order?.endDate.format(dateFormat)}`}</h1>
                 </Col>
                 <Col span={24}>
-                    <p><b>Besteller:</b>{` ${orderer ? orderer.displayName : order?.orderer}`}</p>
-                    <p><b>Von:</b>{` ${order?.startDate.format(dateFormatWithTime)}`}</p>
-                    <p><b>Bis:</b>{` ${order?.endDate.format(dateFormatWithTime)}`}</p>
-                    <p><b>{'Status '}</b><Tag color={getStatusColor(order)}>{getStatusName(order)}</Tag></p>
-                    <p><b>{'Gewicht '}</b><Weight/></p>
+                    <p><b>{t('order:view.orderer')}</b>{` ${orderer ? orderer.displayName : order?.orderer}`}</p>
+                    <p><b>{t('order:view.from')}</b>{` ${order?.startDate.format(dateFormatWithTime)}`}</p>
+                    <p><b>{t('order:view.to')}</b>{` ${order?.endDate.format(dateFormatWithTime)}`}</p>
+                    <p><b>{t('order:view.status')}</b><Tag color={getStatusColor(order)}>{getStatusName(order)}</Tag></p>
+                    <p><b>{t('order:view.weight')}</b><Weight/></p>
                 </Col>
                 <Col span={24}>
                     <div
@@ -333,18 +336,18 @@ export const OrderView = (props: OrderProps) => {
                             ...order,
                             abteilungId: abteilung.id
                         }) && order.status !== 'completed' ? <>
-                            <Form.Item label='Bemerkung'>
+                            <Form.Item label={t('order:view.comment')}>
                                 <Input.TextArea
                                     value={matChefComment}
                                     onChange={(e) => setMatchefComment(e.currentTarget.value)}
-                                    placeholder='Bemerkung hinzufügen'
+                                    placeholder={t('order:view.commentPlaceholder')}
                                 />
                             </Form.Item>
                             <Form.Item>
                                 <Button type='primary' onClick={async () => {
                                     await addCommentOrder(abteilung.id, order, matChefComment, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)
                                 }}>
-                                    Bemerkung speichern
+                                    {t('order:view.saveComment')}
                                 </Button>
                             </Form.Item>
 
@@ -364,20 +367,20 @@ export const OrderView = (props: OrderProps) => {
                         }}
                         >
                             <Popconfirm
-                                title='Möchtest du die Bestellung wirklich löschen?'
+                                title={t('order:view.deleteConfirm')}
                                 onConfirm={async () => {
                                     const res = await deleteOrder(abteilung, order, materials, user)
                                     if(!!res) {
                                         navigate(abteilungOrdersLink)
                                     }
-                                   
+
                                 }}
                                 onCancel={() => { }}
-                                okText='Ja'
-                                cancelText='Nein'
+                                okText={t('common:confirm.yes')}
+                                cancelText={t('common:confirm.no')}
                                 disabled={order.status === 'delivered'}
                             >
-                                <Button type='ghost' danger icon={<DeleteOutlined />} disabled={order.status === 'delivered'}>Löschen</Button>
+                                <Button type='ghost' danger icon={<DeleteOutlined />} disabled={order.status === 'delivered'}>{t('order:actions.delete')}</Button>
                             </Popconfirm>
                         </Can>
                         <div style={{marginLeft: '1%', marginRight: '1%'}}></div>

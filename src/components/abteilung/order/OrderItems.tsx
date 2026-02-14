@@ -1,6 +1,7 @@
 import { Avatar, Button, Checkbox, List, Tooltip } from 'antd'
 import { DetailedCartItem } from 'types/cart.types'
 import { DamagedMaterial } from 'types/material.types';
+import { useTranslation } from 'react-i18next';
 
 export interface OrderItemsProps {
     items: DetailedCartItem[]
@@ -15,6 +16,7 @@ export interface OrderItemsProps {
 export const OrderItems = (props: OrderItemsProps) => {
 
     const { items, collisions, showCheckBoxes, damagedMaterialsCheckboxes, damagedMaterials, setDamagedMaterialCheckboxes, updateOrderItemsByAvail } = props;
+    const { t } = useTranslation();
 
     return <><div
         id='scrollableDiv'
@@ -26,7 +28,7 @@ export const OrderItems = (props: OrderItemsProps) => {
     >
         <List
             itemLayout='horizontal'
-            header={<div>Material</div>}
+            header={<div>{t('order:items.header')}</div>}
             dataSource={items}
             renderItem={item => {
                 const damaged = damagedMaterials && damagedMaterials.find(mat => mat.id === item.matId)
@@ -40,13 +42,13 @@ export const OrderItems = (props: OrderItemsProps) => {
                         }
                         description={
                                 <span style={{ color: 'red' }}>
-                                    {collisions && item.matId in collisions ? (collisions[item.matId] === 0 ? `Leider nicht mehr verfügbar` : `Nur noch ${collisions[item.matId]} verfügbar`) : ''}
-                                    { damaged && `${damaged.count} x wurde ${damaged.type === 'damaged' ? 'beschädigt' : 'verloren'}` }
+                                    {collisions && item.matId in collisions ? (collisions[item.matId] === 0 ? t('order:items.notAvailable') : t('order:items.onlyAvailable', { count: collisions[item.matId] })) : ''}
+                                    { damaged && t(damaged.type === 'damaged' ? 'order:items.damaged' : 'order:items.lost', { count: damaged.count }) }
                                 </span>
                         }
                     />
                     {
-                        (!!showCheckBoxes && damagedMaterialsCheckboxes && setDamagedMaterialCheckboxes) && <Checkbox checked={damagedMaterialsCheckboxes.includes(item) ? true : false} onChange={(e)=>{setDamagedMaterialCheckboxes(e.target.checked ? [...damagedMaterialsCheckboxes, item] : damagedMaterialsCheckboxes.filter(d => d.matId !== item.matId))}}><Tooltip title='Material ist beschädigt oder wurde nicht zurückgegeben.'>Kaputt</Tooltip></Checkbox>
+                        (!!showCheckBoxes && damagedMaterialsCheckboxes && setDamagedMaterialCheckboxes) && <Checkbox checked={damagedMaterialsCheckboxes.includes(item) ? true : false} onChange={(e)=>{setDamagedMaterialCheckboxes(e.target.checked ? [...damagedMaterialsCheckboxes, item] : damagedMaterialsCheckboxes.filter(d => d.matId !== item.matId))}}><Tooltip title={t('order:items.damagedCheckboxTooltip')}>{t('order:items.damagedCheckbox')}</Tooltip></Checkbox>
                     }
                 </List.Item>
                 }}
@@ -58,7 +60,7 @@ export const OrderItems = (props: OrderItemsProps) => {
                             style={{ display: 'block', marginLeft: 'auto', marginRight: 0 }}
                             onClick={() => updateOrderItemsByAvail()}
                         >
-                            Anpassen
+                            {t('order:items.adjust')}
                         </Button>
     }
     </>

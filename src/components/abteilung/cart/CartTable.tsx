@@ -5,6 +5,7 @@ import { MaterialsContext} from '../AbteilungDetails';
 import { DeleteOutlined } from '@ant-design/icons';
 import { changeCountFromCart, removeFromCart } from 'util/CartUtil';
 import { CartItem, DetailedCartItem } from 'types/cart.types';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -17,11 +18,12 @@ export interface GroupImplTableProps {
 export const CartTableImpl = (props: GroupImplTableProps) => {
 
     const { abteilung, cartItems, changeCart } = props;
+    const { t } = useTranslation();
 
 
     const columns = [
         {
-            title: 'Name',
+            title: t('order:cart.table.name'),
             dataIndex: 'name',
             key: 'name',
             sorter: (a: DetailedCartItem, b: DetailedCartItem) => a.matId.normalize().localeCompare(b.matId.normalize()),
@@ -30,7 +32,7 @@ export const CartTableImpl = (props: GroupImplTableProps) => {
             )
         },
         {
-            title: 'Anzahl',
+            title: t('order:cart.table.count'),
             dataIndex: 'type',
             key: 'type',
             sorter: (a: DetailedCartItem, b: DetailedCartItem) => a.count - b.count,
@@ -41,7 +43,7 @@ export const CartTableImpl = (props: GroupImplTableProps) => {
             )
         },
         {
-            title: 'Aktionen',
+            title: t('order:cart.table.actions'),
             key: 'actions',
             dataIndex: 'matId',
             render: (text: string, record: DetailedCartItem) => (

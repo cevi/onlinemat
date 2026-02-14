@@ -21,15 +21,7 @@ import { AbteilungenContext } from "../../components/navigation/NavigationMenu";
 import generatedGitInfo from "generatedGitInfo.json";
 import { useNavigate } from "react-router-dom";
 import { role } from "types/user.type";
-
-const roleLabels: Record<string, string> = {
-  staff: "Staff",
-  admin: "Admin",
-  matchef: "Matchef",
-  member: "Mitglied",
-  guest: "Gast",
-  pending: "Angefragt",
-};
+import { useTranslation } from "react-i18next";
 
 const roleColors: Record<string, string> = {
   staff: "purple",
@@ -49,6 +41,7 @@ const rolePriority: Record<string, number> = {
 };
 
 export const ProfileView = () => {
+  const { t } = useTranslation('profile');
   const { user, isAuthenticated, isLoading } = useAuth0();
   const auth0User = {
     ...(user as any),
@@ -92,7 +85,7 @@ export const ProfileView = () => {
 
   const columns = [
     {
-      title: "Abteilung",
+      title: t('profile:myAbteilungen.abteilung'),
       dataIndex: "abteilungName",
       key: "abteilungName",
       render: (name: string, record: (typeof abteilungenRoles)[0]) => (
@@ -102,11 +95,11 @@ export const ProfileView = () => {
       ),
     },
     {
-      title: "Rolle",
+      title: t('profile:myAbteilungen.role'),
       dataIndex: "role",
       key: "role",
       render: (r: string) => (
-        <Tag color={roleColors[r] ?? "default"}>{roleLabels[r] ?? r}</Tag>
+        <Tag color={roleColors[r] ?? "default"}>{t(`common:roles.${r}`, r)}</Tag>
       ),
     },
   ];
@@ -152,7 +145,7 @@ export const ProfileView = () => {
               icon={<EditOutlined />}
               onClick={() => setEditing(true)}
             >
-              Bearbeiten
+              {t('common:buttons.edit')}
             </Button>
           )}
         </div>
@@ -174,33 +167,33 @@ export const ProfileView = () => {
               }}
             >
               <Button icon={<CloseOutlined />} onClick={() => setEditing(false)}>
-                Abbrechen
+                {t('common:buttons.cancel')}
               </Button>
               <Button
                 type="primary"
                 icon={<SaveOutlined />}
                 onClick={() => editRef.current?.saveEditProfile()}
               >
-                Speichern
+                {t('common:buttons.save')}
               </Button>
             </div>
           </>
         ) : (
           <Descriptions column={{ xs: 1, sm: 2 }} bordered size="small">
-            <Descriptions.Item label="Vorname">
+            <Descriptions.Item label={t('profile:details.firstName')}>
               {userData?.given_name}
             </Descriptions.Item>
-            <Descriptions.Item label="Nachname">
+            <Descriptions.Item label={t('profile:details.lastName')}>
               {userData?.family_name}
             </Descriptions.Item>
-            <Descriptions.Item label="Ceviname">
+            <Descriptions.Item label={t('profile:details.ceviName')}>
               {userData?.nickname}
             </Descriptions.Item>
-            <Descriptions.Item label="E-Mail">
+            <Descriptions.Item label={t('profile:details.email')}>
               {userData?.email}
             </Descriptions.Item>
             {userData?.defaultAbteilung && (
-              <Descriptions.Item label="Standard Abteilung" span={2}>
+              <Descriptions.Item label={t('profile:details.defaultAbteilung')} span={2}>
                 {abteilungen.find(
                   (a) =>
                     a.slug === userData.defaultAbteilung ||
@@ -213,7 +206,7 @@ export const ProfileView = () => {
       </Card>
 
       <Card
-        title="Meine Abteilungen"
+        title={t('profile:myAbteilungen.title')}
         style={{ marginTop: 16 }}
         loading={abteilungenLoading}
       >
@@ -221,7 +214,7 @@ export const ProfileView = () => {
           <Alert
             type="info"
             showIcon
-            message="Du hast als Staff-Mitglied Vollzugriff auf alle Abteilungen."
+            message={t('profile:myAbteilungen.staffFullAccess')}
           />
         ) : abteilungenRoles.length > 0 ? (
           <Table
@@ -232,7 +225,7 @@ export const ProfileView = () => {
           />
         ) : (
           <Typography.Text type="secondary">
-            Du bist noch keiner Abteilung beigetreten.
+            {t('profile:myAbteilungen.noAbteilungen')}
           </Typography.Text>
         )}
       </Card>
@@ -243,42 +236,42 @@ export const ProfileView = () => {
           items={[
             {
               key: "staff",
-              label: "Staff Debug Info",
+              label: t('profile:staffDebug.title'),
               children: (
                 <Descriptions column={1} size="small" bordered>
-                  <Descriptions.Item label="E-Mail verifiziert">
-                    {userData.email_verified ? "Ja" : "Nein"}
+                  <Descriptions.Item label={t('profile:staffDebug.emailVerified')}>
+                    {userData.email_verified ? t('common:confirm.yes') : t('common:confirm.no')}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Firebase Token">
+                  <Descriptions.Item label={t('profile:staffDebug.firebaseToken')}>
                     {auth0User["https://mat.cevi.tools/firebase_token"]
-                      ? "Ja"
-                      : "Nein"}
+                      ? t('common:confirm.yes')
+                      : t('common:confirm.no')}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Locale">
+                  <Descriptions.Item label={t('profile:staffDebug.locale')}>
                     {auth0User.locale}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Profilbild">
-                    {auth0User.picture ? "Ja" : "Nein"}
+                  <Descriptions.Item label={t('profile:staffDebug.profilePicture')}>
+                    {auth0User.picture ? t('common:confirm.yes') : t('common:confirm.no')}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Sub">
+                  <Descriptions.Item label={t('profile:staffDebug.sub')}>
                     {auth0User.sub}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Aktualisiert am">
+                  <Descriptions.Item label={t('profile:staffDebug.updatedAt')}>
                     {dayjs(auth0User.updated_at).format("L LT")}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Firebase User ID">
+                  <Descriptions.Item label={t('profile:staffDebug.firebaseUserId')}>
                     {userState.appUser?.firebaseUser?.uid ?? "-"}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Standard Abteilung">
+                  <Descriptions.Item label={t('profile:staffDebug.defaultAbteilung')}>
                     {userData.defaultAbteilung ?? "-"}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Staff">
-                    {userData.staff ? "Ja" : "Nein"}
+                  <Descriptions.Item label={t('profile:staffDebug.staff')}>
+                    {userData.staff ? t('common:confirm.yes') : t('common:confirm.no')}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Branch">
+                  <Descriptions.Item label={t('profile:staffDebug.branch')}>
                     <Tag>{generatedGitInfo.gitBranch}</Tag>
                   </Descriptions.Item>
-                  <Descriptions.Item label="Git Hash">
+                  <Descriptions.Item label={t('profile:staffDebug.gitHash')}>
                     <Tag>{generatedGitInfo.gitCommitHash}</Tag>
                   </Descriptions.Item>
                 </Descriptions>

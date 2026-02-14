@@ -1,0 +1,34 @@
+{
+  "add": {
+    "button": "Add location",
+    "title": "Add location",
+    "submit": "Add location",
+    "success": "Location {{name}} successfully created"
+  },
+  "edit": {
+    "title": "Edit location",
+    "submit": "Save changes",
+    "success": "Location {{name}} successfully edited"
+  },
+  "delete": {
+    "confirm": "Do you really want to delete {{name}}?",
+    "success": "Location {{name}} successfully deleted"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Location name",
+    "street": "Street",
+    "streetPlaceholder": "Street and number",
+    "city": "City",
+    "cityPlaceholder": "Postal code and city",
+    "coordinates": "Coordinates",
+    "coordinatesPlaceholder": "Coordinates"
+  },
+  "table": {
+    "name": "Name",
+    "street": "Street",
+    "city": "City",
+    "coordinates": "Coordinates",
+    "edit": "Edit"
+  }
+}

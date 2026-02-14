@@ -1,5 +1,6 @@
 import React, {forwardRef, useContext, useState} from 'react';
 import {Spin} from 'antd';
+import { useTranslation } from 'react-i18next';
 import {Material} from 'types/material.types';
 import {getAvailableMatCount} from 'util/MaterialUtil';
 import {CategorysContext, StandorteContext} from 'components/abteilung/AbteilungDetails';
@@ -13,6 +14,7 @@ export interface ViewMaterialProps {
 }
 
 export const ViewMaterial = forwardRef((props: ViewMaterialProps, ref) => {
+    const { t } = useTranslation();
 
     const {  material } = props;
 
@@ -32,19 +34,19 @@ export const ViewMaterial = forwardRef((props: ViewMaterialProps, ref) => {
             catLoading && standorteLoading ? <Spin /> : <>
 
                 <p className={classNames(styles['display-linebreak'])}>
-                    <b>Bemerkung:</b> {material?.comment}
+                    <b>{t('material:view.comment')}</b> {material?.comment}
                 </p>
                 <p>
-                    <b>Standort:</b> {displayStandortNames(standorte, material?.standort || [])}
+                    <b>{t('material:view.standort')}</b> {displayStandortNames(standorte, material?.standort || [])}
                 </p>
                 <p>
-                    <b>Verfügbar:</b> {getAvailableMatCount(material)}
+                    <b>{t('material:view.available')}</b> {getAvailableMatCount(material)}
                 </p>
                 <p>
-                    <b>Gewicht in Kg:</b> {material?.weightInKg}
+                    <b>{t('material:view.weight')}</b> {material?.weightInKg}
                 </p>
                 <p>
-                    <b>Kategorien:</b> {displayCategorieNames(categories, material?.categorieIds || [])}
+                    <b>{t('material:view.categories')}</b> {displayCategorieNames(categories, material?.categorieIds || [])}
                 </p>
                 <p>
                     <PicturesWall showRemove={false} imageUrls={material?.imageUrls ? material.imageUrls : []} />

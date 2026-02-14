@@ -1,10 +1,11 @@
 import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
 import {Button, Form, Input, message, Modal} from 'antd';
 import {EditOutlined} from '@ant-design/icons';
-import {validateMessages} from 'util/FormValdationMessages';
+import {getValidateMessages} from 'util/FormValdationMessages';
 import {Categorie} from "../../types/categorie.types";
 import {editCategory} from "../../util/CategoryUtil";
 import { EditFormHandle } from 'types/form.types';
+import { useTranslation } from 'react-i18next';
 
 export interface EditCategoryProps {
     abteilungId: string
@@ -26,6 +27,7 @@ export const EditCategory = forwardRef<EditFormHandle, EditCategoryProps>((props
     const { abteilungId, categoryId, category, onSuccess } = props;
 
     const [form] = Form.useForm<Categorie>();
+    const { t } = useTranslation();
 
     const prepareEditCategory = async () => {
         try {
@@ -42,10 +44,10 @@ export const EditCategory = forwardRef<EditFormHandle, EditCategoryProps>((props
             if (onSuccess) {
                 onSuccess()
             } else {
-                message.error('Es ist leider ein Fehler aufgetreten')
+                message.error(t('common:errors.genericShort'))
             }
         } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+            message.error(t('common:errors.generic', { error: ex }))
         }
 
     }
@@ -60,10 +62,10 @@ export const EditCategory = forwardRef<EditFormHandle, EditCategoryProps>((props
                     form.validateFields()
 
                 }}
-                validateMessages={validateMessages}
+                validateMessages={getValidateMessages()}
             >
                 <Form.Item
-                    label='Name'
+                    label={t('category:form.name')}
                     name='name'
                     rules={[
                         { required: true },
@@ -71,7 +73,7 @@ export const EditCategory = forwardRef<EditFormHandle, EditCategoryProps>((props
                     ]}
                 >
                     <Input
-                        placeholder='Name'
+                        placeholder={t('category:form.name')}
                     />
                 </Form.Item>
             </Form>
@@ -86,19 +88,20 @@ export const EditCategoryButton = (props: EditCategoryProps) => {
     const editCategoryRef = useRef<EditFormHandle>(null);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const { t } = useTranslation();
 
     return <>
         <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
         <Modal
-            title='Kategorie bearbeiten'
+            title={t('category:edit.title')}
             open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>
-                    Abbrechen
+                    {t('common:buttons.cancel')}
                 </Button>,
                 <Button key='save'  type='primary' onClick={() => { editCategoryRef.current?.save() }}>
-                    Änderungen speichern
+                    {t('category:edit.submit')}
                 </Button>
             ]}
         >

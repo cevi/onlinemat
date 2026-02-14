@@ -13,7 +13,8 @@ import { ability } from 'config/casl/ability';
 import { slugify } from 'util/FormUtil';
 import { Can } from 'config/casl/casl';
 import { DeleteOutlined } from '@ant-design/icons';
-import { validateMessages } from 'util/FormValdationMessages';
+import { getValidateMessages } from 'util/FormValdationMessages';
+import { useTranslation } from 'react-i18next';
 
 export interface AbteilungSettingsProps {
     abteilung: Abteilung
@@ -23,6 +24,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
     const { abteilung } = props;
 
+    const { t } = useTranslation();
     const navigate = useNavigate();
 
     const [form] = Form.useForm<Abteilung>();
@@ -59,7 +61,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                 } as Abteilung);
             }
            
-            message.success(`Änderungen erfolgreich gespeichert`);
+            message.success(t('abteilung:settings.saveSuccess'));
 
             //if slug changed, redirect to new url
             if (slugChanged && slug) {
@@ -67,7 +69,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
             }
 
         } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+            message.error(t('common:errors.generic', { error: ex }))
         }
         setUpdateLoading(false);
     }
@@ -78,7 +80,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
             const slug = form.getFieldsValue().slug;
             await httpsCallable(functions, 'updateSlug')({ abteilungId: abteilung.id, slug });
         } catch (ex) {
-            console.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+            console.error(t('common:errors.generic', { error: ex }))
             throw ex;
         }
     }
@@ -87,10 +89,10 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
         if (!ab) return;
         try {
             await deleteDoc(doc(db, abteilungenCollection, ab.id));
-            message.info(`${ab.name} erfolgreich gelöscht`)
+            message.info(t('abteilung:settings.deleteSuccess', { name: ab.name }))
             navigate('/')
         } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+            message.error(t('common:errors.generic', { error: ex }))
         }
     }
 
@@ -109,13 +111,13 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                 onFinish={updateAbteilung}
                 onFinishFailed={() => { }}
                 autoComplete='off'
-                validateMessages={validateMessages}
+                validateMessages={getValidateMessages()}
                 initialValues={abteilung}
             >
                 <Row gutter={[16, 24]}>
                     <Col span={8}>
                         <Form.Item
-                            label='Abteilungsname'
+                            label={t('abteilung:settings.name')}
                             name='name'
                             rules={[
                                 { required: true },
@@ -123,16 +125,16 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                             ]}
                         >
                             <Input
-                                placeholder='Abteilungsname'
+                                placeholder={t('abteilung:settings.namePlaceholder')}
                                 disabled={disabled || updateLoading}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item
-                            label='Slug'
+                            label={t('abteilung:settings.slug')}
                             name='slug'
-                            tooltip={'Url lesbarer Name'}
+                            tooltip={t('abteilung:settings.slugTooltip')}
                             rules={[
                                 { required: true },
                                 { type: 'string', min: 3 },
@@ -140,11 +142,11 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                                     validator: (rule: any, value: string, cb: (msg?: string) => void) => {
                                         //check for whitespaces
                                         if (value.includes(' ')) {
-                                            return cb('Der Slug darf keine Leerzeichen haben')
+                                            return cb(t('abteilung:settings.slugNoSpaces'))
                                         }
                                         //Check if contains upper case
                                         if (value.toLowerCase() !== value) {
-                                            return cb('Der Slug muss klein geschrieben werden')
+                                            return cb(t('abteilung:settings.slugLowercase'))
                                         }
 
                                         //OK
@@ -155,7 +157,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
                         >
                             <Input
-                                placeholder='Slug'
+                                placeholder={t('abteilung:settings.slugPlaceholder')}
                                 onChange={(val) => {form.setFieldsValue({ slug: slugify(val.currentTarget.value) }); setSlug(val.currentTarget.value)}}
                                 disabled={disabled || updateLoading}
                             />
@@ -163,21 +165,21 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                     </Col>
                     <Col span={8}>
                         <Form.Item
-                            label='Cevi DB Abteilungs ID'
+                            label={t('abteilung:settings.ceviDbId')}
                             name='ceviDBId'
                             rules={[
                                 { required: false }
                             ]}
                         >
                             <Input
-                                placeholder='Cevi DB Id'
+                                placeholder={t('abteilung:settings.ceviDbIdPlaceholder')}
                                 disabled={disabled || updateLoading}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item
-                            label='Cevi Logo Url'
+                            label={t('abteilung:settings.logoUrl')}
                             name='logoUrl'
                             rules={[
                                 { required: false },
@@ -186,21 +188,21 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                             ]}
                         >
                             <Input
-                                placeholder='Cevi Logo Url'
+                                placeholder={t('abteilung:settings.logoUrlPlaceholder')}
                                 disabled={disabled || updateLoading}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
                         <Form.Item
-                            label='Email'
+                            label={t('abteilung:settings.email')}
                             name='email'
                             rules={[
                                 { type: 'email' },
                             ]}
                         >
                             <Input
-                                placeholder='Email'
+                                placeholder={t('abteilung:settings.emailPlaceholder')}
                                 disabled={disabled || updateLoading}
                             />
                         </Form.Item>
@@ -208,17 +210,17 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                     <Can I='update' this={abteilung}>
                         <Col span={16}>
                             <Button style={{ marginRight: '10px' }} type='primary' htmlType='submit' disabled={updateLoading}>
-                                Speichern
+                                {t('abteilung:settings.save')}
                             </Button>
                             <Popconfirm
-                                title='Möchtest du diese Abteilung wirklich löschen?'
+                                title={t('abteilung:settings.deleteConfirm')}
                                 onConfirm={() => delteAbteilung(abteilung)}
                                 onCancel={() => { }}
-                                okText='Ja'
-                                cancelText='Nein'
+                                okText={t('common:confirm.yes')}
+                                cancelText={t('common:confirm.no')}
                             >
                                 <Button type='ghost' danger icon={<DeleteOutlined />} disabled={updateLoading}>
-                                    Abteilung Löschen
+                                    {t('abteilung:settings.delete')}
                                 </Button>
                             </Popconfirm>
                         </Col>

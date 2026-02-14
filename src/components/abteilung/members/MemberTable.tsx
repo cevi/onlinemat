@@ -6,6 +6,8 @@ import classNames from 'classnames';
 import moduleStyles from './MemberTable.module.scss'
 import { AddGroupButton } from '../group/AddGroup';
 import { MembersContext, MembersUserDataContext } from '../AbteilungDetails';
+import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 
 
@@ -15,20 +17,27 @@ export interface MemberImplTableProps {
     loading: boolean
 }
 
-export const roles = [{ key: 'guest', name: 'Gast' }, { key: 'member', name: 'Mitglied' }, { key: 'matchef', name: 'Matchef' }, { key: 'admin', name: 'Admin' }];
+export const getRoles = (t: TFunction) => [
+    { key: 'guest', name: t('member:roles.guest') },
+    { key: 'member', name: t('member:roles.member') },
+    { key: 'matchef', name: t('member:roles.matchef') },
+    { key: 'admin', name: t('member:roles.admin') },
+];
 
 
 export const MemberTableImpl = (props: MemberImplTableProps) => {
 
     const { abteilungId, loading, members } = props;
 
+    const { t } = useTranslation();
+    const roles = getRoles(t);
     const { Option } = Select;
 
     const renderActions = (record: AbteilungMemberUserData) => {
 
         if (record.banned && !!record.banned) {
             return <div key={`unban_div_${record.id}`} className={classNames(moduleStyles['actions'])}>
-                <Button key={`unban_${record.id}`} type='primary' onClick={() => unBanMember(abteilungId, record.userId)}>Benutzer entsperren</Button>
+                <Button key={`unban_${record.id}`} type='primary' onClick={() => unBanMember(abteilungId, record.userId)}>{t('member:actions.unban')}</Button>
             </div>
         }
 
@@ -36,10 +45,10 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
 
             //show approve / deny / ban
             return <div key={`member_action_div_${record.id}`} className={classNames(moduleStyles['actions'])}>
-                <Button key={`approve_${record.id}`} type='primary' onClick={() => approveMemberRequest(abteilungId, record.userId)}>{`als ${roles.find(r => r.key === record.role)?.name || record.role} Annehmen`}</Button>
-                <Button key={`deny_${record.id}`} type='dashed' danger onClick={() => denyMemberRequest(abteilungId, record.userId)}>Ablehnen</Button>
-                <Tooltip key={`ban_tooltip_${record.id}`} title='Die Anfrage wird abgelehnt und der Benutzer kann in Zukunft keinen neuen Antrag stellen'>
-                    <Button key={`ban_${record.id}`} type='primary' danger onClick={() => banMember(abteilungId, record.userId)}>Sperren</Button>
+                <Button key={`approve_${record.id}`} type='primary' onClick={() => approveMemberRequest(abteilungId, record.userId)}>{t('member:actions.approve', { role: roles.find(r => r.key === record.role)?.name || record.role })}</Button>
+                <Button key={`deny_${record.id}`} type='dashed' danger onClick={() => denyMemberRequest(abteilungId, record.userId)}>{t('member:actions.deny')}</Button>
+                <Tooltip key={`ban_tooltip_${record.id}`} title={t('member:actions.banTooltip')}>
+                    <Button key={`ban_${record.id}`} type='primary' danger onClick={() => banMember(abteilungId, record.userId)}>{t('member:actions.ban')}</Button>
                 </Tooltip>
 
             </div>
@@ -51,14 +60,14 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
                     roles.map(role => <Option key={`${record.userId}_role_${role.key}`} value={role.key}>{role.name}</Option>)
                 }
             </Select>
-            <Button key={`remove_action_${record.id}`} type='dashed' danger onClick={() => removeMember(abteilungId, record.userId)}>Entfernen</Button>
+            <Button key={`remove_action_${record.id}`} type='dashed' danger onClick={() => removeMember(abteilungId, record.userId)}>{t('member:actions.remove')}</Button>
         </div>
 
     }
 
     const columns = [
         {
-            title: 'Name',
+            title: t('member:table.name'),
             dataIndex: 'displayName',
             key: 'displayName',
             sorter: (a: AbteilungMemberUserData, b: AbteilungMemberUserData) => a.displayName.normalize().localeCompare(b.displayName.normalize()),
@@ -67,7 +76,7 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
             )
         },
         {
-            title: 'Email',
+            title: t('member:table.email'),
             dataIndex: 'email',
             key: 'email',
             sorter: (a: AbteilungMemberUserData, b: AbteilungMemberUserData) => a.email.normalize().localeCompare(b.email.normalize()),
@@ -76,7 +85,7 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
             )
         },
         {
-            title: 'Rolle',
+            title: t('member:table.role'),
             key: 'role',
             dataIndex: 'role',
             sorter: (a: AbteilungMemberUserData, b: AbteilungMemberUserData) => a.role.normalize().localeCompare(b.role.normalize()),

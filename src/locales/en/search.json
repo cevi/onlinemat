@@ -1,0 +1,16 @@
+{
+  "title": "Material Search",
+  "description": "Search for material offered for lending by departments.",
+  "placeholder": "Search for material...",
+  "button": "Search",
+  "results": {
+    "found_one": "{{count}} result found",
+    "found_other": "{{count}} results found",
+    "none": "No results found"
+  },
+  "featured": {
+    "title": "Suggestions"
+  },
+  "unknownAbteilung": "Unknown department",
+  "error": "Error loading materials"
+}

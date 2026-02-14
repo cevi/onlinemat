@@ -21,6 +21,8 @@ import {VerifyEmail} from './VerifyEmail';
 import { useParams } from "react-router-dom";
 import generatedGitInfo from 'generatedGitInfo.json';
 import { StatusPage } from 'components/status/Status';
+import { useTranslation } from 'react-i18next';
+import { LanguagePicker } from 'config/i18n/LanguagePicker';
 
 const {Header, Content, Footer, Sider} = Layout;
 
@@ -33,6 +35,7 @@ const NavigationMenu: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
     const {pathname} = useLocation();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const {user, isAuthenticated, isLoading, logout, loginWithRedirect} = useAuth0();
     const userState = useUser();
@@ -98,7 +101,7 @@ const NavigationMenu: React.FC = () => {
             .map(appRoute => ({
                 key: appRoute.key,
                 icon: appRoute.icon,
-                label: appRoute.displayName,
+                label: t(appRoute.displayName),
                 onClick: () => {
                     if (appRoute.key === '/' && userState.appUser?.userData?.defaultAbteilung) {
                         navigate(`abteilungen/${userState.appUser.userData.defaultAbteilung}`)
@@ -112,7 +115,7 @@ const NavigationMenu: React.FC = () => {
             routeItems.push({
                 key: 'login',
                 icon: <LoginOutlined/>,
-                label: 'Anmelden',
+                label: t('navigation:menu.login'),
                 onClick: () => loginWithRedirect(),
             });
         }
@@ -121,7 +124,7 @@ const NavigationMenu: React.FC = () => {
             routeItems.push({
                 key: 'logout',
                 icon: <LogoutOutlined/>,
-                label: 'Abmelden',
+                label: t('navigation:menu.logout'),
                 className: classNames(styles['logout']),
                 onClick: async () => {
                     await signOut(auth);
@@ -131,7 +134,7 @@ const NavigationMenu: React.FC = () => {
         }
 
         return routeItems;
-    }, [isLoading, isAuthenticated, filteredRoutes, userState.appUser?.userData?.defaultAbteilung]);
+    }, [isLoading, isAuthenticated, filteredRoutes, userState.appUser?.userData?.defaultAbteilung, t]);
 
     return (
         <AbteilungenContext.Provider value={{
@@ -145,23 +148,28 @@ const NavigationMenu: React.FC = () => {
                     onCollapse={setCollapsed}
                     breakpoint='lg'
                 >
-                    <Header className={classNames(styles['app-logo-container'])} onClick={() => navigate('/')}>
-                        <Typography.Title ellipsis className={classNames(styles['app-logo'])}>{collapsed ?
-                            <span>OM</span> : 'Onlinemat'}</Typography.Title>
-                    </Header>
-                    <Menu
-                        mode='inline'
-                        theme='dark'
-                        selectedKeys={calculateSelectedKeys()}
-                        selectable={false}
-                        items={menuItems}
-                    />
+                    <div className={classNames(styles['sider-content'])}>
+                        <div className={classNames(styles['sider-menu'])}>
+                            <Header className={classNames(styles['app-logo-container'])} onClick={() => navigate('/')}>
+                                <Typography.Title ellipsis className={classNames(styles['app-logo'])}>{collapsed ?
+                                    <span>OM</span> : 'Onlinemat'}</Typography.Title>
+                            </Header>
+                            <Menu
+                                mode='inline'
+                                theme='dark'
+                                selectedKeys={calculateSelectedKeys()}
+                                selectable={false}
+                                items={menuItems}
+                            />
+                        </div>
+                        <LanguagePicker collapsed={collapsed} />
+                    </div>
                 </Sider>
                 <Layout>
                     <Content style={{margin: '0 16px'}} className={classNames(appStyles['center-container-stretch'])}>
                         {
                             isLoading || loading ?
-                                <Spin tip='Lade...'>
+                                <Spin tip={t('common:status.loading')}>
                                     <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 100}}/>
                                 </Spin>
                                 :

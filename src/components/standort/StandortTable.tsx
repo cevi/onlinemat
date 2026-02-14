@@ -5,6 +5,7 @@ import {EditStandortButton} from "./EditStandort";
 import {DeleteOutlined} from "@ant-design/icons";
 import {deleteStandort} from "../../util/StandortUtil";
 import type {TableColumnsType} from "antd";
+import { useTranslation } from 'react-i18next';
 
 export interface StandortTableProps {
     abteilungId: string
@@ -15,33 +16,34 @@ export interface StandortTableProps {
 export const StandortTable = (props: StandortTableProps) => {
 
     const { abteilungId, standort } = props;
+    const { t } = useTranslation();
 
     const columns: TableColumnsType<Standort> = [
         {
-            title: 'Name',
+            title: t('standort:table.name'),
             key: 'name',
             dataIndex: 'name'
         },
         {
-            title: 'Strasse',
+            title: t('standort:table.street'),
             key: 'street',
             dataIndex: 'street',
             responsive: ['md']
         },
         {
-            title: 'Ort',
+            title: t('standort:table.city'),
             key: 'city',
             dataIndex: 'city',
             responsive: ['md']
         },
         {
-            title: 'Koordinaten',
+            title: t('standort:table.coordinates'),
             key: 'coordinates',
             dataIndex: 'coordinates',
             responsive: ['md']
         },
         {
-            title: 'Bearbeiten',
+            title: t('standort:table.edit'),
             key: 'edit',
             width: '10%',
             render: (text: string, record: Standort) => (
@@ -51,11 +53,11 @@ export const StandortTable = (props: StandortTableProps) => {
                     </Can>
                     <Can I='delete' this={{...record, abteilungId: abteilungId}}>
                        <Popconfirm
-                            title={`Möchtest du ${record.name} wirklich löschen?`}
+                            title={t('standort:delete.confirm', { name: record.name })}
                             onConfirm={() => deleteStandort(abteilungId, record)}
                             onCancel={() => { }}
-                            okText='Ja'
-                            cancelText='Nein'
+                            okText={t('common:confirm.yes')}
+                            cancelText={t('common:confirm.no')}
                         >
                             <Button type='ghost' danger icon={<DeleteOutlined />} />
                         </Popconfirm>

@@ -3,6 +3,7 @@ import { db } from "config/firebase/firebase";
 import { collection, doc, deleteDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { Material } from "types/material.types";
 import { firestoreOperation } from "./firestoreOperation";
+import i18n from "config/i18n/i18n";
 
 export const generateKeywords = (text: string) => {
     text = text.toLowerCase();
@@ -16,7 +17,7 @@ export const generateKeywords = (text: string) => {
 export const deleteMaterial = async (abteilungId: string, mat: Material) => {
     await firestoreOperation(
         () => deleteDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, mat.id)),
-        `Material ${mat.name} erfolgreich gelöscht`,
+        i18n.t('material:delete.success', { name: mat.name }),
     );
 }
 
@@ -24,7 +25,7 @@ export const editMaterial = async (abteilungId: string, material: Material) => {
     material.keywords = generateKeywords(material.name);
     await firestoreOperation(
         () => updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, material.id), material),
-        `Material ${material.name} erfolgreich bearbeitet`,
+        i18n.t('material:messages.editSuccess', { name: material.name }),
     );
 }
 
@@ -48,7 +49,7 @@ export const getAvailableMatString = (mat: Material | undefined): number | strin
         //max is 1 - lost/damaged
         maxCount = 1 - ((mat.damaged || 0) + (mat.lost || 0))
         if (maxCount === 1) {
-            return 'unbegrenzt';
+            return i18n.t('material:util.unlimited');
         }
     } else {
         maxCount = mat.count - ((mat.damaged || 0) + (mat.lost || 0))

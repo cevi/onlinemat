@@ -1,4 +1,5 @@
 import { message } from 'antd';
+import i18n from 'config/i18n/i18n';
 
 export async function firestoreOperation<T = void>(
     operation: () => Promise<T>,
@@ -11,8 +12,8 @@ export async function firestoreOperation<T = void>(
         }
         return result;
     } catch (ex) {
-        message.error(`Es ist ein Fehler aufgetreten: ${ex}`);
-        console.error('Es ist ein Fehler aufgetreten', ex);
+        message.error(i18n.t('common:errors.generic', { error: String(ex) }));
+        console.error('Error occurred', ex);
         return undefined;
     }
 }

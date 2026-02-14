@@ -4,6 +4,7 @@ import {DeleteOutlined} from "@ant-design/icons";
 import {Categorie} from "../../types/categorie.types";
 import {EditCategoryButton} from "./EditCategory";
 import {deleteCategory} from "../../util/CategoryUtil";
+import { useTranslation } from 'react-i18next';
 
 export interface CategoryTableProps {
     abteilungId: string
@@ -14,15 +15,16 @@ export interface CategoryTableProps {
 export const CategoryTable = (props: CategoryTableProps) => {
 
     const { abteilungId, category } = props;
+    const { t } = useTranslation();
 
     const columns = [
         {
-            title: 'Name',
+            title: t('category:table.name'),
             key: 'name',
             dataIndex: 'name'
         },
         {
-            title: 'Bearbeiten',
+            title: t('category:table.edit'),
             key: 'edit',
             width: '10%',
             render: (text: string, record: Categorie) => (
@@ -32,11 +34,11 @@ export const CategoryTable = (props: CategoryTableProps) => {
                     </Can>
                     <Can I='delete' this={{...record, abteilungId: abteilungId}}>
                        <Popconfirm
-                            title={`Möchtest du ${record.name} wirklich löschen?`}
+                            title={t('category:delete.confirm', { name: record.name })}
                             onConfirm={() => deleteCategory(abteilungId, record)}
                             onCancel={() => { }}
-                            okText='Ja'
-                            cancelText='Nein'
+                            okText={t('common:confirm.yes')}
+                            cancelText={t('common:confirm.no')}
                         >
                             <Button type='ghost' danger icon={<DeleteOutlined />} />
                         </Popconfirm>

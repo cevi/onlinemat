@@ -1,0 +1,25 @@
+{
+  "add": {
+    "button": "Kategorie hinzufügen",
+    "title": "Kategorie hinzufügen",
+    "submit": "Kategorie hinzufügen",
+    "success": "Kategorie {{name}} erfolgreich erstellt"
+  },
+  "edit": {
+    "title": "Kategorie bearbeiten",
+    "submit": "Änderungen speichern",
+    "success": "Kategorie {{name}} erfolgreich bearbeitet"
+  },
+  "delete": {
+    "confirm": "Möchtest du {{name}} wirklich löschen?",
+    "success": "Kategorie {{name}} erfolgreich gelöscht"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Kategoriename"
+  },
+  "table": {
+    "name": "Name",
+    "edit": "Bearbeiten"
+  }
+}

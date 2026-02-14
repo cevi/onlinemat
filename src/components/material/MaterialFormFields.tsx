@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { Button, Input, InputNumber, Select, Switch, Form } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { PicturesWall } from 'components/pictures/PictureWall';
 import { CategorysContext, StandorteContext } from 'components/abteilung/AbteilungDetails';
@@ -32,29 +33,30 @@ interface MaterialFormFieldsProps {
 }
 
 export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: MaterialFormFieldsProps) => {
+    const { t } = useTranslation();
     const { categories } = useContext(CategorysContext);
     const { standorte } = useContext(StandorteContext);
 
     return <>
         <Form.Item
-            label='Name'
+            label={t('material:form.name')}
             name='name'
             rules={[
                 { required: true },
                 { type: 'string', min: 1 },
             ]}
         >
-            <Input placeholder='Materialname' />
+            <Input placeholder={t('material:form.namePlaceholder')} />
         </Form.Item>
         <Form.Item
-            label='Bemerkung'
+            label={t('material:form.comment')}
             name='comment'
             rules={[{ required: false }]}
         >
-            <TextArea placeholder='Bemerkung' rows={4} />
+            <TextArea placeholder={t('material:form.commentPlaceholder')} rows={4} />
         </Form.Item>
         <Form.Item
-            label='Standort'
+            label={t('material:form.standort')}
             name='standort'
             rules={[{ required: false }]}
         >
@@ -62,13 +64,13 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
                 mode='multiple'
                 allowClear
                 style={{ width: '100%' }}
-                placeholder='Standort'
+                placeholder={t('material:form.standortPlaceholder')}
             >
                 {standorte.map(std => <Option key={std.id} value={std.id}>{std.name}</Option>)}
             </Select>
         </Form.Item>
         <Form.Item
-            label='Anzahl'
+            label={t('material:form.count')}
             name='count'
             rules={[
                 { required: true },
@@ -78,7 +80,7 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
             <InputNumber min={1} />
         </Form.Item>
         <Form.Item
-            label='Verloren'
+            label={t('material:form.lost')}
             name='lost'
             rules={[
                 { required: true },
@@ -88,7 +90,7 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
             <InputNumber min={0} max={maxCount.lost} />
         </Form.Item>
         <Form.Item
-            label='Beschädigt'
+            label={t('material:form.damaged')}
             name='damaged'
             rules={[
                 { required: true },
@@ -98,17 +100,17 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
             <InputNumber min={0} max={maxCount.damaged} />
         </Form.Item>
         <Form.Item>
-            {`Verfügbar: ${availCount}`}
+            {t('material:form.availableCount', { count: availCount })}
         </Form.Item>
         <Form.Item
-            label='Gewicht in Kg'
+            label={t('material:form.weight')}
             name='weightInKg'
             rules={[{ required: false }]}
         >
             <InputNumber />
         </Form.Item>
         <Form.Item
-            label='Ist Verbrauchsmaterial'
+            label={t('material:form.consumables')}
             name='consumables'
             valuePropName="checked"
             rules={[{ required: true }]}
@@ -116,7 +118,7 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
             <Switch />
         </Form.Item>
         <Form.Item
-            label='Darf nur von Internen ausgeliehen werden'
+            label={t('material:form.onlyLendInternal')}
             name='onlyLendInternal'
             valuePropName="checked"
             rules={[{ required: true }]}
@@ -124,7 +126,7 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
             <Switch />
         </Form.Item>
         <Form.Item
-            label='Kategorien'
+            label={t('material:form.categories')}
             name='categorieIds'
             rules={[{ required: false }]}
         >
@@ -132,7 +134,7 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
                 mode='multiple'
                 allowClear
                 style={{ width: '100%' }}
-                placeholder='Kategorien'
+                placeholder={t('material:form.categoriesPlaceholder')}
             >
                 {categories.map(cat => <Option key={cat.id} value={cat.id}>{cat.name}</Option>)}
             </Select>
@@ -143,7 +145,7 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
                     {fields.map((field, index) => (
                         <Form.Item
                             {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                            label={index === 0 ? 'Bilder Urls' : ''}
+                            label={index === 0 ? t('material:form.imageUrls') : ''}
                             required={false}
                             key={field.key}
                         >
@@ -158,7 +160,7 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
                                 ]}
                                 noStyle
                             >
-                                <Input placeholder='Material Bild Url' style={{ width: '90%' }} />
+                                <Input placeholder={t('material:form.imageUrlPlaceholder')} style={{ width: '90%' }} />
                             </Form.Item>
                             <MinusCircleOutlined
                                 className='dynamic-delete-button'
@@ -173,7 +175,7 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
                             style={{ width: '100%' }}
                             icon={<PlusOutlined />}
                         >
-                            Bild hinzufügen
+                            {t('material:form.addImage')}
                         </Button>
                     </Form.Item>
                 </>

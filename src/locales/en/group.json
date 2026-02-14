@@ -1,0 +1,35 @@
+{
+  "add": {
+    "button": "Add group",
+    "title": "Add group/event",
+    "submit": "Add group/event",
+    "success": "{{type}} {{name}} successfully created"
+  },
+  "edit": {
+    "title": "Edit group/event",
+    "submit": "Edit group/event",
+    "success": "{{type}} {{name}} successfully edited"
+  },
+  "delete": {
+    "confirm": "Do you really want to delete this group?",
+    "success": "{{type}} {{name}} successfully deleted"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Name",
+    "type": "Type",
+    "typeGroup": "Group",
+    "typeEvent": "Event",
+    "members": "Members",
+    "membersMin": "You must select at least 1 member"
+  },
+  "table": {
+    "name": "Name",
+    "type": "Type",
+    "typeGroup": "Group",
+    "typeEvent": "Event",
+    "createdAt": "Created",
+    "members": "Members",
+    "actions": "Actions"
+  }
+}

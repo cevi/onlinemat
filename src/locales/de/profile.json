@@ -1,0 +1,51 @@
+{
+  "title": "Profile",
+  "edit": "Bearbeiten",
+  "save": "Speichern",
+  "cancel": "Abbrechen",
+  "form": {
+    "firstName": "Vorname",
+    "firstNamePlaceholder": "Vorname",
+    "lastName": "Nachname",
+    "lastNamePlaceholder": "Nachname",
+    "fullName": "Vollständiger Name",
+    "fullNamePlaceholder": "Name",
+    "ceviName": "Ceviname",
+    "ceviNamePlaceholder": "Ceviname",
+    "email": "E-Mail",
+    "emailPlaceholder": "E-Mail",
+    "defaultAbteilung": "Standard Abteilung",
+    "defaultAbteilungPlaceholder": "Standard Abteilung"
+  },
+  "details": {
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "ceviName": "Ceviname",
+    "email": "E-Mail",
+    "defaultAbteilung": "Standard Abteilung"
+  },
+  "myAbteilungen": {
+    "title": "Meine Abteilungen",
+    "staffFullAccess": "Du hast als Staff-Mitglied Vollzugriff auf alle Abteilungen.",
+    "noAbteilungen": "Du bist noch keiner Abteilung beigetreten.",
+    "abteilung": "Abteilung",
+    "role": "Rolle"
+  },
+  "staffDebug": {
+    "title": "Staff Debug Info",
+    "emailVerified": "E-Mail verifiziert",
+    "firebaseToken": "Firebase Token",
+    "locale": "Locale",
+    "profilePicture": "Profilbild",
+    "sub": "Sub",
+    "updatedAt": "Aktualisiert am",
+    "firebaseUserId": "Firebase User ID",
+    "defaultAbteilung": "Standard Abteilung",
+    "staff": "Staff",
+    "branch": "Branch",
+    "gitHash": "Git Hash"
+  },
+  "messages": {
+    "editSuccess": "User {{name}} erfolgreich bearbeitet"
+  }
+}

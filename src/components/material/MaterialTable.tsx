@@ -1,5 +1,6 @@
 import {DeleteOutlined, ShoppingCartOutlined} from '@ant-design/icons';
 import { Button, Modal, Popconfirm, Table } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { Can } from 'config/casl/casl';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
@@ -24,6 +25,7 @@ export interface MaterialTablelProps {
 export const MaterialTable = (props: MaterialTablelProps) => {
 
     const { abteilungId, material, categorie, standort, addToCart } = props;
+    const { t } = useTranslation();
 
     const userState = useUser();
 
@@ -32,7 +34,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
 
     const columns = [
         {
-            title: 'Name',
+            title: t('material:table.name'),
             dataIndex: 'name',
             key: 'name',
             sorter: (a: Material, b: Material) => a.name.normalize().localeCompare(b.name.normalize()),
@@ -46,7 +48,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             }
         },
         {
-            title: 'Bemerkung',
+            title: t('material:table.comment'),
             dataIndex: 'comment',
             key: 'comment',
             sorter: (a: Material, b: Material) => a.comment.normalize().localeCompare(b.comment.normalize()),
@@ -55,7 +57,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             ),
         },
         {
-            title: 'Kategorie',
+            title: t('material:table.category'),
             dataIndex: 'categoryIds',
             key: 'categoryIds',
             filters: categorie.map(cat => {
@@ -70,7 +72,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             ),
         },
         {
-            title: 'Standort',
+            title: t('material:table.standort'),
             dataIndex: 'standortIds',
             key: 'standortIds',
             filters: standort.map(ort => {
@@ -85,7 +87,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             ),
         },
         {
-            title: 'Gewicht',
+            title: t('material:table.weight'),
             key: 'weightInKg',
             dataIndex: 'weightInKg',
             sorter: (a: Material, b: Material) => {
@@ -95,19 +97,19 @@ export const MaterialTable = (props: MaterialTablelProps) => {
                 return 0;
             },
             render: (text: string, record: Material) => (
-                <p key={`${record.id}_weightInKg`}>{record.weightInKg ? `${record.weightInKg} Kg` : '-'}</p>
+                <p key={`${record.id}_weightInKg`}>{record.weightInKg ? t('material:table.weightUnit', { weight: record.weightInKg }) : '-'}</p>
             ),
         },
         {
-            title: 'Verfügbar',
+            title: t('material:table.available'),
             key: 'count',
             render: (text: string, record: Material) => (
-                <p key={`${record.id}_count`}>{getAvailableMatString(record) + (!!record.consumables ? getAvailableMatCount(record) <= 0 ? '/unbegrenzt' : '' : `/${record.count}`)}</p>
+                <p key={`${record.id}_count`}>{getAvailableMatString(record) + (!!record.consumables ? getAvailableMatCount(record) <= 0 ? '/' + t('material:table.unlimited') : '' : `/${record.count}`)}</p>
             ),
             sorter: (a: Material, b: Material) => a.count - b.count
         },
         {
-            title: 'Warenkorb',
+            title: t('material:table.cart'),
             key: 'basket',
             render: (text: string, record: Material) => (
                 <div style={{display: 'flex', justifyContent: 'space-evenly'}}>
@@ -121,11 +123,11 @@ export const MaterialTable = (props: MaterialTablelProps) => {
                     </Can>
                     <Can I='delete' this={{...record, abteilungId: abteilungId}}>
                        <Popconfirm
-                            title={`Möchtest du ${record.name} wirklich löschen?`}
+                            title={t('material:delete.confirmSingle', { name: record.name })}
                             onConfirm={(event) => {event?.stopPropagation(); deleteMaterial(abteilungId, record)}}
                             onCancel={() => { }}
-                            okText='Ja'
-                            cancelText='Nein'
+                            okText={t('common:confirm.yes')}
+                            cancelText={t('common:confirm.no')}
                         >
                             <Button type='ghost' danger icon={<DeleteOutlined />} />
                         </Popconfirm>
@@ -151,7 +153,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
                     <Button key='back' onClick={() => {
                         setIsModalVisible(false);
                     }}>
-                        Abbrechen
+                        {t('common:buttons.cancel')}
                     </Button>
                 ]}
             >

@@ -1,0 +1,24 @@
+{
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "role": "Rolle"
+  },
+  "search": {
+    "placeholder": "nach Mitglied suchen"
+  },
+  "actions": {
+    "approve": "als {{role}} Annehmen",
+    "deny": "Ablehnen",
+    "ban": "Sperren",
+    "banTooltip": "Die Anfrage wird abgelehnt und der Benutzer kann in Zukunft keinen neuen Antrag stellen",
+    "unban": "Benutzer entsperren",
+    "remove": "Entfernen"
+  },
+  "roles": {
+    "guest": "Gast",
+    "member": "Mitglied",
+    "matchef": "Matchef",
+    "admin": "Admin"
+  }
+}

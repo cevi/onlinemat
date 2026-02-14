@@ -1,0 +1,32 @@
+{
+  "import": {
+    "title": "Import material",
+    "importAdd": "Import and add",
+    "importAddTooltip": "Existing material will be supplemented with the content of the Excel spreadsheet.",
+    "importReplace": "Import and replace",
+    "importReplaceTooltip": "Existing material will be deleted and replaced with the content of the Excel spreadsheet.",
+    "importReplaceConfirm": "Do you really want to delete all existing material of this department?",
+    "nameRequired": "You must assign the name of the material.",
+    "success": "Successfully imported {{imported}}/{{total}} materials.",
+    "selectPlaceholder": "Matching field",
+    "noneOption": "Not available",
+    "example": "Example: {{value}}",
+    "defaultValue": "Default value"
+  },
+  "fields": {
+    "name": "Name*:",
+    "comment": "Comment:",
+    "standort": "Location:",
+    "count": "Quantity:",
+    "lost": "Lost:",
+    "damaged": "Damaged:",
+    "weight": "Weight in kg:",
+    "consumables": "Is consumable:",
+    "categories": "Categories:",
+    "images": "Images:",
+    "onlyLendInternal": "Only lendable internally:",
+    "defaultStandort": "Default location",
+    "defaultCategories": "Default categories",
+    "defaultImageUrls": "Default URLs (comma-separated)"
+  }
+}

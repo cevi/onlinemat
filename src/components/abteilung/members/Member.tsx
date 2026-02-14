@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { AbteilungMemberUserData } from "types/abteilung.type";
 import { MembersContext, MembersUserDataContext } from "../AbteilungDetails";
 import { MemberTable } from "./MemberTable";
+import { useTranslation } from 'react-i18next';
 
 export interface MemberProps {
     abteilungId: string
@@ -10,6 +11,7 @@ export interface MemberProps {
 
 export const Member = (props: MemberProps) => {
     const { abteilungId } = props;
+    const { t } = useTranslation();
 
     //fetch members
     const membersContext = useContext(MembersContext);
@@ -35,9 +37,9 @@ export const Member = (props: MemberProps) => {
     return <Row gutter={[16, 16]}>
         <Col span={24}>
             <Input.Search
-                placeholder='nach Mitglied suchen'
+                placeholder={t('member:search.placeholder')}
                 allowClear
-                enterButton='Suchen'
+                enterButton={t('common:buttons.search')}
                 size='large'
                 onSearch={(query) => setQuery(query)}
             />

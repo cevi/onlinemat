@@ -8,24 +8,25 @@ import { Abteilung } from "types/abteilung.type";
 import { DamagedMaterial, DamagedMaterialDetails, Material } from "types/material.types";
 import { Order } from "types/order.types";
 import { firestoreOperation } from "./firestoreOperation";
+import i18n from "config/i18n/i18n";
 
 
 export const getStatusName = (order: Order | undefined): string => {
-    if (!order) return 'Lade...';
+    if (!order) return i18n.t('common:status.loading');
 
     switch (order.status) {
         case 'created':
-            return 'Erstellt';
+            return i18n.t('order:status.created');
         case 'delivered':
-            return 'Ausgegeben';
+            return i18n.t('order:status.delivered');
         case 'completed':
             if ((order.damagedMaterial || []).length > 0) {
-                return 'Abgeschlossen Verlust/Schaden';
+                return i18n.t('order:status.completedDamaged');
             }
-            return 'Abgeschlossen';
+            return i18n.t('order:status.completed');
     }
 
-    return 'Unbekannt';
+    return i18n.t('common:status.unknown');
 }
 
 export const getStatusColor = (order: Order | undefined): string | undefined => {
@@ -51,7 +52,7 @@ export const deliverOrder = async (abteilungId: string, order: Order, userName: 
         const orderHistory = order.history || [];
         orderHistory.push({
             timestamp: dayjs().toDate(),
-            text: `${userName} hat die Bestellung ausgegeben.`,
+            text: i18n.t('order:history.delivered', { name: userName }),
             color: 'green',
             type: 'delivered'
         });
@@ -60,7 +61,7 @@ export const deliverOrder = async (abteilungId: string, order: Order, userName: 
             history: orderHistory,
         } as Order);
         return true;
-    }, 'Bestellung erfolgreich ausgegeben.');
+    }, i18n.t('order:messages.deliverSuccess'));
     return result ?? false;
 }
 
@@ -70,7 +71,7 @@ export const completeOrder = async (abteilungId: string, order: Order, userName:
         const orderHistory = order.history || [];
         orderHistory.push({
             timestamp: dayjs().toDate(),
-            text: `${userName} hat die Bestellung abgeschlossen.`,
+            text: i18n.t('order:history.completed', { name: userName }),
             color: 'green',
             type: 'completed'
         });
@@ -79,7 +80,7 @@ export const completeOrder = async (abteilungId: string, order: Order, userName:
             history: orderHistory,
         } as Order);
         return true;
-    }, 'Bestellung erfolgreich abgeschlossen.');
+    }, i18n.t('order:messages.completeSuccess'));
     return result ?? false;
 }
 
@@ -89,7 +90,7 @@ export const resetOrder = async (abteilungId: string, order: Order, userName: st
         const orderHistory = order.history || [];
         orderHistory.push({
             timestamp: dayjs().toDate(),
-            text: `${userName} hat die Bestellung zurückgesetzt.`,
+            text: i18n.t('order:history.reset', { name: userName }),
             color: 'gray',
             type: 'reset'
         });
@@ -99,7 +100,7 @@ export const resetOrder = async (abteilungId: string, order: Order, userName: st
             damagedMaterial: order.damagedMaterial
         } as Order);
         return true;
-    }, 'Bestellung erfolgreich zurückgesetzt.');
+    }, i18n.t('order:messages.resetSuccess'));
     return result ?? false;
 }
 
@@ -132,7 +133,7 @@ export const completeLostOrder = async (abteilungId: string, order: Order, userN
 
         orderHistory.push({
             timestamp: dayjs().toDate(),
-            text: `${userName} hat die Bestellung mit Verlust/Schaden abgeschlossen.`,
+            text: i18n.t('order:history.completedDamaged', { name: userName }),
             color: 'red',
             type: 'completed-damaged'
         });
@@ -143,7 +144,7 @@ export const completeLostOrder = async (abteilungId: string, order: Order, userN
             damagedMaterial: slimDamagedMaterial
         } as Order);
         return true;
-    }, 'Bestellung erfolgreich mit Verlust/Schaden abgeschlossen.');
+    }, i18n.t('order:messages.completeDamagedSuccess'));
     return result ?? false;
 }
 
@@ -156,14 +157,14 @@ export const addCommentOrder = async (abteilungId: string, order: Order, comment
         if (comment) {
             orderHistory.push({
                 timestamp: dayjs().toDate(),
-                text: `${userName} hat eine Bemerkung hinzugefügt.`,
+                text: i18n.t('order:history.commentAdded', { name: userName }),
                 type: 'matchefComment',
                 color: 'red',
             });
         } else {
             orderHistory.push({
                 timestamp: dayjs().toDate(),
-                text: `${userName} hat eine Bemerkung entfernt.`,
+                text: i18n.t('order:history.commentRemoved', { name: userName }),
                 type: 'matchefComment',
                 color: 'grey'
             });
@@ -175,13 +176,13 @@ export const addCommentOrder = async (abteilungId: string, order: Order, comment
             history: orderHistory,
         } as Order);
         return true;
-    }, 'Bestellung erfolgreich kommentiert.');
+    }, i18n.t('order:messages.commentSuccess'));
     return result ?? false;
 }
 
 export const deleteOrder = async (abteilung: Abteilung, order: Order, materials: Material[], user: UserState): Promise<boolean> => {
     if (order.status === 'delivered') {
-        message.error(`Bestellung kann nicht gelöscht werden, wenn sie ${getStatusName(order)} ist.`);
+        message.error(i18n.t('order:messages.deleteErrorDelivered', { status: getStatusName(order) }));
         return false;
     }
     if (!user || !user.appUser || !user.appUser.userData) return false;
@@ -189,20 +190,20 @@ export const deleteOrder = async (abteilung: Abteilung, order: Order, materials:
     const isStaff = user.appUser.userData.staff ? user.appUser.userData.staff : false;
 
     if (!(abteilung.id in roles) && !isStaff) {
-        message.error(`Du hast keine Berchtigungen für diese Bestellung.`);
+        message.error(i18n.t('order:messages.deleteErrorNoPermission'));
         return false;
     }
 
     const role = roles[abteilung.id];
 
     if(role !== 'admin' && role !== 'matchef' && !isStaff && order.orderer !== user.appUser.userData.id) {
-        message.error(`Nur der Ersteller kann die Bestellung löschen.`);
+        message.error(i18n.t('order:messages.deleteErrorNotOwner'));
         return false;
     }
 
     if (order.status === 'completed') {
         if (role !== 'admin' && role !== 'matchef' && !isStaff) {
-            message.error(`Du kannst eine abgeschlossene Bestellung nicht löschen.`);
+            message.error(i18n.t('order:messages.deleteErrorCompleted'));
             return false;
         }
     }
@@ -213,7 +214,7 @@ export const deleteOrder = async (abteilung: Abteilung, order: Order, materials:
         }
         await deleteDoc(doc(db, abteilungenCollection, abteilung.id, abteilungenOrdersCollection, order.id));
         return true;
-    }, 'Die Bestellung wurde erfolgreich gelöscht.');
+    }, i18n.t('order:messages.deleteSuccess'));
     return result ?? false;
 }
 
