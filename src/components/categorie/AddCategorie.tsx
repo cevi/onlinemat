@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Input, message, Form } from 'antd';
-import Modal from 'antd/lib/modal/Modal';
+import { Button, Input, message, Modal, Form } from 'antd';
 import { db } from 'config/firebase/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { abteilungenCategoryCollection, abteilungenCollection } from 'config/firebase/collections';

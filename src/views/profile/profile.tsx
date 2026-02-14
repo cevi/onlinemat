@@ -1,10 +1,8 @@
 import React from "react";
 import classNames from "classnames";
 import appStyles from "styles.module.scss";
-import { Button, Card, Spin, Typography } from "antd";
+import { Avatar, Button, Card, Spin, Typography } from "antd";
 import { useAuth0 } from "@auth0/auth0-react";
-import Meta from "antd/lib/card/Meta";
-import Avatar from "antd/lib/avatar/avatar";
 import { Auth0User } from "types/auth0.types";
 import dayjs from "dayjs";
 import { useUser } from "hooks/use-user";
@@ -39,7 +37,7 @@ export const ProfileView = () => {
             loading={isLoading || userState.loading}
             style={{ width: "70%" }}
           >
-            <Meta
+            <Card.Meta
               avatar={
                 <Avatar
                   src={

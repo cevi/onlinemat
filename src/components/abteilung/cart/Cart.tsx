@@ -1,5 +1,5 @@
 import { DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
-import { Button, Col, message, Popconfirm, Result, Row, Steps } from 'antd';
+import { Button, Col, Input, message, Popconfirm, Result, Row, Steps } from 'antd';
 import dayjs from 'dayjs';
 import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router';
@@ -7,7 +7,6 @@ import { Abteilung } from 'types/abteilung.type';
 import { CartItem, DetailedCartItem } from 'types/cart.types';
 import { getCartName } from 'util/CartUtil';
 import { CartTable } from './CartTable';
-import Search from 'antd/lib/input/Search';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { MaterialsContext } from '../AbteilungDetails';
 import { CreateOrder } from '../order/CreateOrder';
@@ -140,7 +139,7 @@ export const Cart = (props: CartProps) => {
 
     if (currentStep === 0) return <Row gutter={[16, 16]}>
         <Col span={24}>
-            <Search
+            <Input.Search
                 placeholder='nach Material suchen'
                 allowClear
                 enterButton='Suchen'

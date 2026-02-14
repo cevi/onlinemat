@@ -4,7 +4,7 @@ import { Can } from 'config/casl/casl';
 import {EditStandortButton} from "./EditStandort";
 import {DeleteOutlined} from "@ant-design/icons";
 import {deleteStandort} from "../../util/StandortUtil";
-import {ColumnsType} from "antd/es/table";
+import type {TableColumnsType} from "antd";
 
 export interface StandortTableProps {
     abteilungId: string
@@ -16,7 +16,7 @@ export const StandortTable = (props: StandortTableProps) => {
 
     const { abteilungId, standort } = props;
 
-    const columns: ColumnsType<Standort> = [
+    const columns: TableColumnsType<Standort> = [
         {
             title: 'Name',
             key: 'name',

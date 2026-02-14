@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Select, message, Form, Spin } from 'antd';
-import Modal from 'antd/lib/modal/Modal';
+import { Button, Modal, Select, message, Form, Spin } from 'antd';
 import { functions } from 'config/firebase/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { validateMessages } from 'util/FormValdationMessages';

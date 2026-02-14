@@ -1,6 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Col, message, Row, Select } from 'antd';
-import Search from 'antd/lib/input/Search';
+import { Col, Input, message, Row, Select } from 'antd';
 import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
 import { db } from 'config/firebase/firebase';
 import { collection, query as firestoreQuery, where, onSnapshot } from 'firebase/firestore';
@@ -244,7 +243,7 @@ export const Orders = (props: OrdersProps) => {
         </Col>
         }
         <Col span={selectedGroups.length > 0 || userGroups.length > 0 ? 12 : 24}>
-            <Search
+            <Input.Search
                 placeholder='nach Bestellung suchen'
                 allowClear
                 enterButton='Suchen'

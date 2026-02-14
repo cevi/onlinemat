@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Button, Card, Col, Form, message, Popconfirm, Row, Spin, Tag, Timeline, Tooltip } from 'antd';
+import { Button, Card, Col, Form, Input, message, Popconfirm, Row, Spin, Tag, Timeline, Tooltip } from 'antd';
 import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
 import { db } from 'config/firebase/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
@@ -14,7 +14,6 @@ import { DetailedCartItem } from 'types/cart.types';
 import { MaterialsContext, MembersContext, MembersUserDataContext } from '../AbteilungDetails';
 import { getGroupName } from 'util/AbteilungUtil';
 import { addCommentOrder, calculateTotalWeight, completeOrder, deleteOrder, deliverOrder, getStatusColor, getStatusName, resetLostOrder, resetOrder } from 'util/OrderUtil';
-import TextArea from 'antd/lib/input/TextArea';
 import { ability } from 'config/casl/ability';
 import { OrderNotFound } from './OrderNotFound';
 import { useUser } from 'hooks/use-user';
@@ -334,7 +333,7 @@ export const OrderView = (props: OrderProps) => {
                             abteilungId: abteilung.id
                         }) && order.status !== 'completed' ? <>
                             <Form.Item label='Bemerkung'>
-                                <TextArea
+                                <Input.TextArea
                                     value={matChefComment}
                                     onChange={(e) => setMatchefComment(e.currentTarget.value)}
                                     placeholder='Bemerkung hinzufügen'

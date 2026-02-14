@@ -1,5 +1,4 @@
-import { Avatar, Button, List, Tooltip } from 'antd'
-import Checkbox from 'antd/lib/checkbox/Checkbox';
+import { Avatar, Button, Checkbox, List, Tooltip } from 'antd'
 import { DetailedCartItem } from 'types/cart.types'
 import { DamagedMaterial } from 'types/material.types';
 
