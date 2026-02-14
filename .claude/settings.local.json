@@ -6,6 +6,9 @@
       "Bash(yarn install:*)",
       "Bash(npx vite build:*)",
       "Bash(yarn audit:*)"
+      "Bash(npm ls:*)",
+      "Bash(node --version:*)",
+      "Bash(npm:*)"
     ]
   }
 }
