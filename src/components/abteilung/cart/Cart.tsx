@@ -111,7 +111,9 @@ export const Cart = (props: CartProps) => {
 
         setCookie(cookieName, items, {
             path: '/',
-            expires: expires.toDate()
+            expires: expires.toDate(),
+            secure: true,
+            sameSite: 'strict',
         });
 
         changeCart(items)

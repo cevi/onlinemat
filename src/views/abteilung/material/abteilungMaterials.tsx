@@ -97,7 +97,9 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
 
         setCookie(cookieName, localCart, {
             path: '/',
-            expires: expires.toDate()
+            expires: expires.toDate(),
+            secure: true,
+            sameSite: 'strict',
         });
 
         changeCart(localCart)
