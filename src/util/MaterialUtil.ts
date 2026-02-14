@@ -89,6 +89,9 @@ export const getAvailableMatCountToEdit = (mat: Material | undefined): { damged:
 }
 
 export const massImportMaterial = async (abteilungId: string, materials: Material[]): Promise<void> => {
+    if (materials.length > 500) {
+        throw new Error('Import limit exceeded: maximum 500 materials per import');
+    }
     const batch = writeBatch(db);
     materials.forEach(mat => {
         const insert = doc(collection(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection));
