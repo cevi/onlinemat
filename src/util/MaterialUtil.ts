@@ -1,11 +1,8 @@
-import { message } from "antd";
 import { abteilungenCollection, abteilungenMaterialsCollection } from "config/firebase/collections";
 import { db } from "config/firebase/firebase";
 import { collection, doc, deleteDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { Material } from "types/material.types";
-
-export const dateFormat = 'DD.MM.YYYY';
-export const dateFormatWithTime = 'DD.MM.YYYY HH:mm';
+import { firestoreOperation } from "./firestoreOperation";
 
 export const generateKeywords = (text: string) => {
     text = text.toLowerCase();
@@ -17,24 +14,18 @@ export const generateKeywords = (text: string) => {
 }
 
 export const deleteMaterial = async (abteilungId: string, mat: Material) => {
-    try {
-        await deleteDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, mat.id));
-        message.success(`Material ${mat.name} erfolgreich gelöscht`);
-    } catch (ex) {
-        message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
-    }
+    await firestoreOperation(
+        () => deleteDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, mat.id)),
+        `Material ${mat.name} erfolgreich gelöscht`,
+    );
 }
 
 export const editMaterial = async (abteilungId: string, material: Material) => {
-    try {
-        material.keywords = generateKeywords(material.name)
-
-        await updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, material.id), material);
-        message.success(`Material ${material.name} erfolgreich bearbeitet`);
-    } catch (ex) {
-        message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
-    }
-
+    material.keywords = generateKeywords(material.name);
+    await firestoreOperation(
+        () => updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, material.id), material),
+        `Material ${material.name} erfolgreich bearbeitet`,
+    );
 }
 
 export const getAvailableMatCount = (mat: Material | undefined): number => {
@@ -66,9 +57,9 @@ export const getAvailableMatString = (mat: Material | undefined): number | strin
     return maxCount;
 }
 
-export const getAvailableMatCountToEdit = (mat: Material | undefined): { damged: number, lost: number } => {
+export const getAvailableMatCountToEdit = (mat: Material | undefined): { damaged: number, lost: number } => {
     if (!mat) return {
-        damged: 0,
+        damaged: 0,
         lost: 0
     };
 
@@ -83,7 +74,7 @@ export const getAvailableMatCountToEdit = (mat: Material | undefined): { damged:
     }
 
     return {
-        damged: maxDamged,
+        damaged: maxDamged,
         lost: maxLost
     }
 }

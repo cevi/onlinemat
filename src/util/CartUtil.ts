@@ -4,7 +4,7 @@ export const getCartName = (abteilungId: string)=> {
     return `cart_${abteilungId}`;
 }
 
-export const cookieToCart = (cookieRaw: any, abteilungId: string): CartItem[] => {
+export const cookieToCart = (cookieRaw: CartItem[] | undefined, abteilungId: string): CartItem[] => {
     let cartItems: CartItem[] = [];
     if(cookieRaw) {
         cartItems = cookieRaw as CartItem[]

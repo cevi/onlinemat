@@ -1,10 +1,11 @@
 import { Reducer, AnyAction } from 'redux';
 import { handleActions, createAction } from 'redux-actions';
 import { Dispatch } from 'react';
+import { User } from 'firebase/auth';
 import { UserData } from 'types/user.type';
 
 export interface AppUser {
-    firebaseUser: firebase.default.User, 
+    firebaseUser: User,
     userData: UserData
 }
 
@@ -28,7 +29,7 @@ export const UserReducer: Reducer<UserState, AnyAction> = handleActions<UserStat
     })
 }, defaultState) as Reducer<UserState, AnyAction>;
 
-export const setUser = (user: firebase.default.User | null, userData: UserData | null) => {
+export const setUser = (user: User | null, userData: UserData | null) => {
     return async (dispatch: Dispatch<AnyAction>) => {
         if(!user || !userData) {
             dispatch(setUserInner(null));

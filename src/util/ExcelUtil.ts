@@ -5,7 +5,7 @@ import { Categorie } from 'types/categorie.types';
 import { ExcelJson } from 'types/excel.type';
 import { Material } from 'types/material.types';
 import * as XLSX from 'xlsx'
-import { dateFormat } from './MaterialUtil';
+import { dateFormat } from './constants';
 import {Standort} from "types/standort.types";
 
 

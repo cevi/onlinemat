@@ -2,19 +2,20 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Col, Input, message, Row, Select } from 'antd';
 import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
 import { db } from 'config/firebase/firebase';
-import { collection, query as firestoreQuery, where, onSnapshot } from 'firebase/firestore';
+import { collection, query as firestoreQuery, where } from 'firebase/firestore';
 import { useUser } from 'hooks/use-user';
 import dayjs from 'dayjs';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
 import { Group } from 'types/group.types';
 import { Order } from 'types/order.types';
 import { getGroupName } from 'util/AbteilungUtil';
 import { groupObjToList } from 'util/GroupUtil';
-import { dateFormatWithTime } from 'util/MaterialUtil';
+import { dateFormatWithTime } from 'util/constants';
 import { getStatusName } from 'util/OrderUtil';
 import { MembersContext, MembersUserDataContext } from '../AbteilungDetails';
 import { OrderTable } from './OrderTable';
+import { useFirestoreCollection } from 'hooks/useFirestoreCollection';
 
 export interface OrdersProps {
     abteilung: Abteilung
@@ -29,10 +30,7 @@ export const Orders = (props: OrdersProps) => {
 
     const { Option } = Select;
 
-    const [ordersByGroup, setOrdersByGroup] = useState<Order[]>([]);
-    const [ordersByOrderer, setOrdersByOrderer] = useState<Order[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
-    const [ordersLoading, setOrdersLoading] = useState(false);
 
     const [query, setQuery] = useState<string | undefined>(undefined);
     const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
@@ -54,17 +52,15 @@ export const Orders = (props: OrdersProps) => {
 
     const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: 'Loading...' }) }));
 
+    const uid = user.appUser?.userData?.id;
+    const roles = user.appUser?.userData?.roles || {};
+    const userRole = abteilung ? roles[abteilung.id] as (AbteilungMember['role'] | 'pending') : undefined;
+    const isStaff = user.appUser?.userData?.staff || false;
+    const isAdminOrMatchef = userRole === 'admin' || userRole === 'matchef' || isStaff;
+
     useEffect(() => {
-        if (!isAuthenticated || !abteilung || !user.appUser || !user.appUser.userData) return;
-        const uid = user.appUser.userData.id;
-        const roles = user.appUser.userData.roles || {};
-        const userRole = roles[abteilung.id] as (AbteilungMember['role'] | 'pending');
-        const isStaff = user.appUser.userData.staff ? user.appUser.userData.staff : false
-
-        if (userRole === 'admin' || userRole === 'matchef' || isStaff) {
-            return;
-        }
-
+        if (!isAuthenticated || !abteilung || !uid) return;
+        if (isAdminOrMatchef) return;
 
         const groupsWithUser = groupObjToList(abteilung.groups).filter(group => group.members.includes(uid)).sort((a: Group, b: Group) => b.createdAt.valueOf() - a.createdAt.valueOf());
         setUserGroups(groupsWithUser)
@@ -76,93 +72,49 @@ export const Orders = (props: OrdersProps) => {
 
     }, [abteilung])
 
-    let ordersByGroupListener: () => void;
+    const orderTransform = (data: Record<string, unknown>, id: string) => ({
+        ...(data as unknown as Order),
+        __caslSubjectType__: 'Order',
+        id,
+        startDate: dayjs((data.startDate as { toDate: () => Date }).toDate()),
+        endDate: dayjs((data.endDate as { toDate: () => Date }).toDate()),
+        creationTime: dayjs((data.creationTime as { toDate: () => Date }).toDate()),
+    } as Order);
 
     //fetch orders based on role
-    useEffect(() => {
-        if (!isAuthenticated || !abteilung || !user.appUser || !user.appUser.userData) return;
-        const roles = user.appUser.userData.roles || {};
-
-        const uid = user.appUser.userData.id;
-        const userRole = roles[abteilung.id] as (AbteilungMember['role'] | 'pending');
-        const isStaff = user.appUser.userData.staff ? user.appUser.userData.staff : false
-        setOrdersLoading(true);
-        let ordersRef;
-
-        //check if user can see all orders
+    const ordersQuery = useMemo(() => {
+        if (!abteilung || !uid) return null;
         const ordersCollectionRef = collection(db, abteilungenCollection, abteilung.id, abteilungenOrdersCollection);
-        if (userRole !== 'admin' && userRole !== 'matchef' && !isStaff) {
-            ordersRef = firestoreQuery(ordersCollectionRef, where('orderer', '==', uid))
-        } else {
-            ordersRef = ordersCollectionRef;
+        if (!isAdminOrMatchef) {
+            return firestoreQuery(ordersCollectionRef, where('orderer', '==', uid));
         }
+        return ordersCollectionRef;
+    }, [abteilung, uid, isAdminOrMatchef]);
 
-        return onSnapshot(ordersRef, (snap) => {
-            setOrdersLoading(false);
-            const ordersLoaded = snap.docs.flatMap(doc => {
+    const { data: ordersByOrderer, loading: ordersLoading1 } = useFirestoreCollection<Order>({
+        ref: ordersQuery,
+        enabled: isAuthenticated && !!abteilung && !!user.appUser?.userData,
+        transform: orderTransform,
+        deps: [isAuthenticated, ordersQuery],
+    });
 
-                return {
-                    ...doc.data() as Order,
-                    __caslSubjectType__: 'Order',
-                    id: doc.id,
-                    startDate: dayjs(doc.data().startDate.toDate()),
-                    endDate: dayjs(doc.data().endDate.toDate()),
-                    creationTime: dayjs(doc.data().creationTime.toDate())
-                } as Order;
-            });
-            setOrdersByOrderer(ordersLoaded);
-        }, (err) => {
-            message.error(`Es ist ein Fehler aufgetreten ${err}`)
-            console.error('Es ist ein Fehler aufgetreten', err)
-        });
-    }, [isAuthenticated]);
-
-    //fetch orders based on uid
-    useEffect(() => {
-        if (!isAuthenticated || !abteilung || !user.appUser || !user.appUser.userData) return;
-        const roles = user.appUser.userData.roles || {};
-
-        const userRole = roles[abteilung.id] as (AbteilungMember['role'] | 'pending');
-        const isStaff = user.appUser.userData.staff ? user.appUser.userData.staff : false
-        setOrdersLoading(true);
-        let ordersRef;
-
+    //fetch orders based on group membership
+    const groupOrdersQuery = useMemo(() => {
+        if (!abteilung || isAdminOrMatchef) return null;
         const groupsToCheck = selectedGroups.map(group => group.id);
+        if (groupsToCheck.length === 0) return null;
+        const ordersCollectionRef = collection(db, abteilungenCollection, abteilung.id, abteilungenOrdersCollection);
+        return firestoreQuery(ordersCollectionRef, where('groupId', 'in', groupsToCheck));
+    }, [abteilung, isAdminOrMatchef, selectedGroups]);
 
-        //check if user can see all orders
-        const ordersCollectionRef2 = collection(db, abteilungenCollection, abteilung.id, abteilungenOrdersCollection);
-        if (userRole !== 'admin' && userRole !== 'matchef' && !isStaff && groupsToCheck.length > 0) {
-            ordersRef = firestoreQuery(ordersCollectionRef2, where('groupId', 'in', groupsToCheck))
-        }
+    const { data: ordersByGroup, loading: ordersLoading2 } = useFirestoreCollection<Order>({
+        ref: groupOrdersQuery,
+        enabled: isAuthenticated && !!groupOrdersQuery,
+        transform: orderTransform,
+        deps: [isAuthenticated, groupOrdersQuery],
+    });
 
-        if (!ordersRef) {
-            if (ordersByGroupListener) {
-                ordersByGroupListener()
-            }
-            setOrdersByGroup([])
-            setOrdersLoading(false);
-            return;
-        }
-
-        ordersByGroupListener = onSnapshot(ordersRef, (snap) => {
-            setOrdersLoading(false);
-            const ordersLoaded = snap.docs.flatMap(doc => {
-
-                return {
-                    ...doc.data() as Order,
-                    __caslSubjectType__: 'Order',
-                    id: doc.id,
-                    startDate: dayjs(doc.data().startDate.toDate()),
-                    endDate: dayjs(doc.data().endDate.toDate()),
-                    creationTime: dayjs(doc.data().creationTime.toDate())
-                } as Order;
-            });
-            setOrdersByGroup(ordersLoaded);
-        }, (err) => {
-            message.error(`Es ist ein Fehler aufgetreten ${err}`)
-            console.error('Es ist ein Fehler aufgetreten', err)
-        });
-    }, [isAuthenticated, selectedGroups]);
+    const ordersLoading = ordersLoading1 || ordersLoading2;
 
     useEffect(() => {
         if (ordersLoading || membersLoading || userDataLoading) return;

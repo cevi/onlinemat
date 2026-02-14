@@ -3,7 +3,7 @@ import { Abteilung, AbteilungMemberUserData } from 'types/abteilung.type';
 import { Can } from 'config/casl/casl';
 import { DeleteOutlined } from '@ant-design/icons';
 import { Order } from 'types/order.types';
-import { dateFormatWithTime } from 'util/MaterialUtil';
+import { dateFormatWithTime } from 'util/constants';
 import { getStatusColor, getStatusName } from 'util/OrderUtil';
 import { useNavigate } from 'react-router';
 

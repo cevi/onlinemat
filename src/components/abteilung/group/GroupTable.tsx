@@ -5,7 +5,7 @@ import { Can } from 'config/casl/casl';
 import { deleteGroup, EditGroupButton } from './EditGroup';
 import { DeleteOutlined } from '@ant-design/icons';
 import { groupObjToList } from 'util/GroupUtil';
-import { dateFormat } from 'util/MaterialUtil';
+import { dateFormat } from 'util/constants';
 import dayjs from 'dayjs';
 
 

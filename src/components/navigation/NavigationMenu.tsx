@@ -2,13 +2,13 @@ import React, {createContext, useEffect, useMemo, useState} from 'react';
 import styles from './NavigationMenu.module.scss';
 import appStyles from 'styles.module.scss';
 import classNames from 'classnames';
-import {Layout, Menu, message, Spin, Tag, Typography} from 'antd';
+import {Layout, Menu, Spin, Tag, Typography} from 'antd';
 import type {MenuProps} from 'antd';
 import {AppRoute, AppRoutes, HomeRoute} from 'routes';
 import {Route, Routes, useLocation, useNavigate} from 'react-router';
 import {auth, db} from 'config/firebase/firebase';
 import {signOut} from 'firebase/auth';
-import {collection, onSnapshot} from 'firebase/firestore';
+import {collection} from 'firebase/firestore';
 import {LoginOutlined, LogoutOutlined} from '@ant-design/icons';
 import {useAuth0, withAuthenticationRequired} from '@auth0/auth0-react';
 import {useUser} from 'hooks/use-user';
@@ -16,6 +16,7 @@ import {NotFoundView} from './NotFound';
 import {Abteilung} from 'types/abteilung.type';
 import {abteilungenCollection} from 'config/firebase/collections';
 import {setGroupDates} from 'util/GroupUtil';
+import {useFirestoreCollection} from 'hooks/useFirestoreCollection';
 import {VerifyEmail} from './VerifyEmail';
 import { useParams } from "react-router-dom";
 import generatedGitInfo from 'generatedGitInfo.json';
@@ -38,9 +39,6 @@ const NavigationMenu: React.FC = () => {
 
     const { showAll } = useParams();
 
-    const [loading, setLoading] = useState(false);
-    const [abteilungen, setAbteilungen] = useState<Abteilung[]>([]);
-
     //if user has defaultAbteilung navigate to the Abteilung
     useEffect(() => {
         if (isAuthenticated && userState.appUser?.userData?.defaultAbteilung) {
@@ -49,25 +47,17 @@ const NavigationMenu: React.FC = () => {
     },[isAuthenticated, userState])
 
     //fetch all abteilungen
-    useEffect(() => {
-        if (!isAuthenticated || !userState.appUser?.firebaseUser) return;
-        setLoading(true);
-        return onSnapshot(collection(db, abteilungenCollection), snap => {
-            setLoading(false);
-            const abteilungenLoaded = snap.docs.flatMap(doc => {
-                return {
-                    ...doc.data(),
-                    groups: setGroupDates(doc.data().groups),
-                    __caslSubjectType__: 'Abteilung',
-                    id: doc.id
-                } as Abteilung;
-            });
-            setAbteilungen(abteilungenLoaded);
-        }, (err) => {
-            message.error(`Es ist ein Fehler aufgetreten ${err}`)
-            console.error('Es ist ein Fehler aufgetreten', err)
-        });
-    }, [isAuthenticated, userState]);
+    const { data: abteilungen, loading } = useFirestoreCollection<Abteilung>({
+        ref: collection(db, abteilungenCollection),
+        enabled: isAuthenticated && !!userState.appUser?.firebaseUser,
+        transform: (data, id) => ({
+            ...data,
+            groups: setGroupDates(data.groups as Abteilung['groups']),
+            __caslSubjectType__: 'Abteilung',
+            id,
+        } as Abteilung),
+        deps: [isAuthenticated, userState],
+    });
 
 
     const isStaff = userState.appUser?.userData.staff || false;

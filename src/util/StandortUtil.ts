@@ -1,30 +1,24 @@
-import { message } from "antd";
 import {
     abteilungenCollection,
-    abteilungenMaterialsCollection,
     abteilungenStandortCollection
 } from "config/firebase/collections";
 import { db } from "config/firebase/firebase";
 import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
-import { Material } from "types/material.types";
 import {Standort} from "../types/standort.types";
+import { firestoreOperation } from "./firestoreOperation";
 
 
 
 export const deleteStandort = async (abteilungId: string, standort: Standort) => {
-    try {
-        await deleteDoc(doc(db, abteilungenCollection, abteilungId, abteilungenStandortCollection, standort.id));
-        message.success(`Standort ${standort.name} erfolgreich gelöscht`);
-    } catch (ex) {
-        message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
-    }
+    await firestoreOperation(
+        () => deleteDoc(doc(db, abteilungenCollection, abteilungId, abteilungenStandortCollection, standort.id)),
+        `Standort ${standort.name} erfolgreich gelöscht`,
+    );
 }
 
 export const editStandort = async (abteilungId: string, standort: Standort) => {
-    try {
-        await updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenStandortCollection, standort.id), standort);
-        message.success(`Standort ${standort.name} erfolgreich bearbeitet`);
-    } catch (ex) {
-        message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
-    }
+    await firestoreOperation(
+        () => updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenStandortCollection, standort.id), standort),
+        `Standort ${standort.name} erfolgreich bearbeitet`,
+    );
 }

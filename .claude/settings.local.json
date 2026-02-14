@@ -6,7 +6,10 @@
       "Bash(yarn install:*)",
       "Bash(npx vite build:*)",
       "Bash(yarn audit:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(yarn list:*)",
+      "Bash(yarn build:*)",
+      "Bash(npx vitest run:*)"
     ]
   }
 }

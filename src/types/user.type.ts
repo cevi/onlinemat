@@ -9,7 +9,7 @@ export interface UserData {
   nickname: string;
   name: string;
   email_verified?: boolean;
-  user_metadata?: any;
+  user_metadata?: Record<string, unknown>;
   staff?: boolean;
   defaultAbteilung?: string;
   roles: { [abteilungId: string]: role };

@@ -4,6 +4,7 @@ import {EditOutlined} from '@ant-design/icons';
 import {validateMessages} from 'util/FormValdationMessages';
 import {Categorie} from "../../types/categorie.types";
 import {editCategory} from "../../util/CategoryUtil";
+import { EditFormHandle } from 'types/form.types';
 
 export interface EditCategoryProps {
     abteilungId: string
@@ -12,11 +13,11 @@ export interface EditCategoryProps {
     onSuccess?: () => void
 }
 
-export const EditCategory = forwardRef((props: EditCategoryProps, ref) => {
+export const EditCategory = forwardRef<EditFormHandle, EditCategoryProps>((props, ref) => {
     useImperativeHandle(
         ref,
         () => ({
-            saveEditCategory() {
+            save() {
                 prepareEditCategory();
             }
         }),
@@ -82,7 +83,7 @@ export const EditCategoryButton = (props: EditCategoryProps) => {
 
     const { abteilungId, categoryId, category } = props;
 
-    const editCategoryRef = useRef();
+    const editCategoryRef = useRef<EditFormHandle>(null);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -96,11 +97,7 @@ export const EditCategoryButton = (props: EditCategoryProps) => {
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>
                     Abbrechen
                 </Button>,
-                <Button key='save'  type='primary' onClick={() => { 
-                    if(!editCategoryRef || !editCategoryRef.current) return;
-                    //TODO: typescript
-                    (editCategoryRef.current as any).saveEditCategory() }}
-                >
+                <Button key='save'  type='primary' onClick={() => { editCategoryRef.current?.save() }}>
                     Änderungen speichern
                 </Button>
             ]}

@@ -33,14 +33,10 @@
     "xlsx": "^0.18.0"
   },
   "devDependencies": {
-    "@types/classnames": "^2.2.9",
-    "@types/jest": "^24.9.1",
     "@types/node": "^22",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-redux": "^7.1.7",
-    "@types/react-router": "^5.1.4",
-    "@types/react-router-dom": "^5.3.3",
     "@types/redux-actions": "^2.6.1",
     "@vitejs/plugin-react": "^5.1.4",
     "jsdom": "^28.0.0",

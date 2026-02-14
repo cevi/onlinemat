@@ -4,6 +4,7 @@ import {EditOutlined} from '@ant-design/icons';
 import {validateMessages} from 'util/FormValdationMessages';
 import {Standort} from "../../types/standort.types";
 import {editStandort} from "../../util/StandortUtil";
+import { EditFormHandle } from 'types/form.types';
 
 export interface EditStandortProps {
     abteilungId: string
@@ -12,11 +13,11 @@ export interface EditStandortProps {
     onSuccess?: () => void
 }
 
-export const EditStandort = forwardRef((props: EditStandortProps, ref) => {
+export const EditStandort = forwardRef<EditFormHandle, EditStandortProps>((props, ref) => {
     useImperativeHandle(
         ref,
         () => ({
-            saveEditStandort() {
+            save() {
                 prepareEditStandort();
             }
         }),
@@ -118,7 +119,7 @@ export const EditStandortButton = (props: EditStandortProps) => {
 
     const { abteilungId, standortId, standort } = props;
 
-    const editStandortRef = useRef();
+    const editStandortRef = useRef<EditFormHandle>(null);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -132,11 +133,7 @@ export const EditStandortButton = (props: EditStandortProps) => {
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>
                     Abbrechen
                 </Button>,
-                <Button key='save'  type='primary' onClick={() => { 
-                    if(!editStandortRef || !editStandortRef.current) return;
-                    //TODO: typescript
-                    (editStandortRef.current as any).saveEditStandort() }}
-                >
+                <Button key='save'  type='primary' onClick={() => { editStandortRef.current?.save() }}>
                     Änderungen speichern
                 </Button>
             ]}
