@@ -18,6 +18,7 @@ import dayjs from "dayjs";
 import { useUser } from "hooks/use-user";
 import { EditProfile } from "../../components/profile/EditProfile";
 import { AbteilungenContext } from "../../components/navigation/NavigationMenu";
+import generatedGitInfo from "generatedGitInfo.json";
 import { useNavigate } from "react-router-dom";
 import { role } from "types/user.type";
 
@@ -273,6 +274,12 @@ export const ProfileView = () => {
                   </Descriptions.Item>
                   <Descriptions.Item label="Staff">
                     {userData.staff ? "Ja" : "Nein"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Branch">
+                    <Tag>{generatedGitInfo.gitBranch}</Tag>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Git Hash">
+                    <Tag>{generatedGitInfo.gitCommitHash}</Tag>
                   </Descriptions.Item>
                 </Descriptions>
               ),

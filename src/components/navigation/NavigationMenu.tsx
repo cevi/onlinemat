@@ -39,12 +39,12 @@ const NavigationMenu: React.FC = () => {
 
     const { showAll } = useParams();
 
-    //if user has defaultAbteilung navigate to the Abteilung
+    //if user has defaultAbteilung navigate to the Abteilung (only from the home page)
     useEffect(() => {
-        if (isAuthenticated && userState.appUser?.userData?.defaultAbteilung) {
+        if (isAuthenticated && userState.appUser?.userData?.defaultAbteilung && pathname === '/') {
             navigate(`/abteilungen/${userState.appUser.userData.defaultAbteilung}`);
         }
-    },[isAuthenticated, userState])
+    },[isAuthenticated, userState, pathname])
 
     //fetch all abteilungen
     const { data: abteilungen, loading } = useFirestoreCollection<Abteilung>({
