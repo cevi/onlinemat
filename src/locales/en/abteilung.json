@@ -18,7 +18,8 @@
     "button": "Add department",
     "title": "Create department",
     "namePlaceholder": "Name",
-    "success": "Department {{name}} successfully created"
+    "success": "Department {{name}} successfully created",
+    "duplicateWarning": "A department with the name \"{{name}}\" already exists. Are you sure you want to create a new one, or would you like to ask to join the existing one?"
   },
   "noAccess": {
     "title": "You do not have permission for this department",

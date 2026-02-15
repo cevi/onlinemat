@@ -18,7 +18,8 @@
     "button": "Abteilung hinzufügen",
     "title": "Abteilung erstellen",
     "namePlaceholder": "Name",
-    "success": "Abteilung {{name}} erfolgreich erstellt"
+    "success": "Abteilung {{name}} erfolgreich erstellt",
+    "duplicateWarning": "Eine Abteilung mit dem Namen \"{{name}}\" existiert bereits. Möchtest du wirklich eine neue erstellen, oder möchtest du der bestehenden beitreten?"
   },
   "noAccess": {
     "title": "Du hast keine Berechtigungen für diese Abteilung",
