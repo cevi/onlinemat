@@ -151,7 +151,7 @@ export const Cart = (props: CartProps) => {
         </Col>
 
         <Col span={24}>
-            <CartTable abteilung={abteilung} cartItems={query ? cartItemsMerged.filter(item => item.name.toLowerCase().includes(query.toLowerCase())) : cartItemsMerged} changeCart={changeCartAndCookie} />
+            <CartTable abteilung={abteilung} cartItems={query ? cartItemsMerged.filter(item => item.name.toLowerCase().includes(query.toLowerCase())) : cartItemsMerged} allCartItems={cartItemsMerged} changeCart={changeCartAndCookie} />
         </Col>
         <Col span={24}>
             <Popconfirm

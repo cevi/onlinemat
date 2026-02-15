@@ -12,12 +12,13 @@ import { useTranslation } from 'react-i18next';
 export interface GroupImplTableProps {
     abteilung: Abteilung
     cartItems: DetailedCartItem[]
+    allCartItems: DetailedCartItem[]
     changeCart: (cart: CartItem[]) => void
 }
 
 export const CartTableImpl = (props: GroupImplTableProps) => {
 
-    const { abteilung, cartItems, changeCart } = props;
+    const { abteilung, cartItems, allCartItems, changeCart } = props;
     const { t } = useTranslation();
 
 
@@ -38,7 +39,7 @@ export const CartTableImpl = (props: GroupImplTableProps) => {
             sorter: (a: DetailedCartItem, b: DetailedCartItem) => a.count - b.count,
             render: (text: string, record: DetailedCartItem) => (
                 <InputNumber key={`count_${record.matId}`} min={1} max={record.maxCount} defaultValue={record.count} onChange={(value)=>{
-                    changeCart(changeCountFromCart(cartItems, record, value))
+                    changeCart(changeCountFromCart(allCartItems, record, value))
                 }} />
             )
         },
@@ -47,7 +48,7 @@ export const CartTableImpl = (props: GroupImplTableProps) => {
             key: 'actions',
             dataIndex: 'matId',
             render: (text: string, record: DetailedCartItem) => (
-                <Button type='ghost' danger icon={<DeleteOutlined />} onClick={()=> changeCart(removeFromCart(cartItems, record))}/>
+                <Button type='ghost' danger icon={<DeleteOutlined />} onClick={()=> changeCart(removeFromCart(allCartItems, record))}/>
             )
         }
     ];
@@ -60,12 +61,13 @@ export const CartTableImpl = (props: GroupImplTableProps) => {
 export interface CartTableProps {
     abteilung: Abteilung
     cartItems: DetailedCartItem[]
+    allCartItems: DetailedCartItem[]
     changeCart: (cart: CartItem[]) => void
 }
 
 export const CartTable = (props: CartTableProps) => {
 
-    const { cartItems, abteilung, changeCart } = props;
+    const { cartItems, allCartItems, abteilung, changeCart } = props;
 
-    return <CartTableImpl abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
+    return <CartTableImpl abteilung={abteilung} cartItems={cartItems} allCartItems={allCartItems} changeCart={changeCart} />
 }
