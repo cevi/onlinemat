@@ -47,6 +47,13 @@
       "staff": "Staff",
       "actions": "Actions"
     },
+    "syncDisplayNames": {
+      "button": "Sync display names",
+      "success": "Sync complete: {{updated}} updated, {{skipped}} skipped",
+      "warning": "Sync completed with errors",
+      "permissionError": "Only staff members can use this function",
+      "error": "Sync failed"
+    },
     "addToAbteilung": {
       "button": "Add user to department",
       "title": "Add user to department",

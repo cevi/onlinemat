@@ -41,9 +41,9 @@ export const AbteilungDataProvider = ({ abteilung, children }: AbteilungDataProv
 
     const { data: members, loading: membersLoading } = useFirestoreCollection<AbteilungMember>({
         ref: collection(db, abteilungenCollection, abteilung.id, abteilungenMembersCollection),
-        enabled: isAuthenticated && canUpdate,
+        enabled: isAuthenticated && canRead,
         transform: (data, id) => ({ ...data, __caslSubjectType__: 'AbteilungMember', userId: id } as AbteilungMember),
-        deps: [isAuthenticated, abteilung, canUpdate],
+        deps: [isAuthenticated, abteilung, canRead],
     });
 
     const { data: categories, loading: catLoading } = useFirestoreCollection<Categorie>({
@@ -69,27 +69,39 @@ export const AbteilungDataProvider = ({ abteilung, children }: AbteilungDataProv
 
     //fetch user data from members if user has access
     useEffect(() => {
-        if (!isAuthenticated || !canUpdate) return;
+        if (!isAuthenticated || !canRead) return;
         const loadUser = async () => {
             setUserDataLoading(true);
-            const promises: Promise<UserData>[] = [];
-            const localUserData = userData;
+            const localUserData: { [uid: string]: UserData } = {};
+
+            // Build basic userData from member displayNames (available to all members)
             members.forEach(member => {
-                const uid = member.userId;
-                if (!userData[uid]) {
+                localUserData[member.userId] = {
+                    __caslSubjectType__: 'UserData',
+                    id: member.userId,
+                    displayName: member.displayName || member.userId,
+                } as UserData;
+            });
+
+            // For admins/staff, fetch full user data from users collection
+            if (canUpdate) {
+                const promises: Promise<UserData>[] = [];
+                members.forEach(member => {
+                    const uid = member.userId;
                     const userDoc = getDoc(doc(db, usersCollection, uid)).then((d) => ({
                         ...d.data(),
                         __caslSubjectType__: 'UserData',
                         id: d.id
                     } as UserData));
                     promises.push(userDoc);
-                }
-            });
+                });
 
-            const values = await Promise.all(promises);
-            values.forEach(val => {
-                localUserData[val.id] = val;
-            });
+                const values = await Promise.all(promises);
+                values.forEach(val => {
+                    localUserData[val.id] = val;
+                });
+            }
+
             setUserData(localUserData);
             setUserDataLoading(false);
         };

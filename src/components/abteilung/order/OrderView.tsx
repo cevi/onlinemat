@@ -137,7 +137,7 @@ export const OrderView = (props: OrderProps) => {
             }
             setDetailedHistory(mergeHistory(order?.history))
         }
-    }, [membersLoading, userDataLoading, order])
+    }, [membersLoading, userDataLoading, order, orderer?.displayName])
 
     const getDotIcon = (icon: OrderHistory['type'], color?: string | null) => {
         if (!icon) return undefined;

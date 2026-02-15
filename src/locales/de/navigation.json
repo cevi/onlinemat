@@ -47,6 +47,13 @@
       "staff": "Staff",
       "actions": "Aktionen"
     },
+    "syncDisplayNames": {
+      "button": "Namen synchronisieren",
+      "success": "Sync abgeschlossen: {{updated}} aktualisiert, {{skipped}} übersprungen",
+      "warning": "Sync abgeschlossen mit Fehlern",
+      "permissionError": "Nur Staff-Mitglieder können diese Funktion ausführen",
+      "error": "Sync fehlgeschlagen"
+    },
     "addToAbteilung": {
       "button": "Benutzer zu Abteilung hinzufügen",
       "title": "Benutzer zu Abteilung hinzufügen",

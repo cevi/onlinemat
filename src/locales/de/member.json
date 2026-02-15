@@ -15,6 +15,13 @@
     "unban": "Benutzer entsperren",
     "remove": "Entfernen"
   },
+  "syncDisplayNames": {
+    "button": "Namen synchronisieren",
+    "success": "Sync abgeschlossen: {{updated}} aktualisiert, {{skipped}} übersprungen",
+    "warning": "Sync abgeschlossen mit Fehlern",
+    "permissionError": "Nur Staff-Mitglieder können diese Funktion ausführen",
+    "error": "Sync fehlgeschlagen"
+  },
   "roles": {
     "guest": "Gast",
     "member": "Mitglied",
