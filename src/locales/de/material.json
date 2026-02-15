@@ -53,7 +53,8 @@
     "available": "Verfügbar",
     "cart": "Warenkorb",
     "weightUnit": "{{weight}} Kg",
-    "unlimited": "unbegrenzt"
+    "unlimited": "unbegrenzt",
+    "uncategorized": "Nicht kategorisiert"
   },
   "search": {
     "placeholder": "nach Material suchen"

@@ -53,7 +53,8 @@
     "available": "Available",
     "cart": "Cart",
     "weightUnit": "{{weight}} kg",
-    "unlimited": "unlimited"
+    "unlimited": "unlimited",
+    "uncategorized": "Uncategorized"
   },
   "search": {
     "placeholder": "Search for material"

@@ -60,12 +60,13 @@ export const MaterialTable = (props: MaterialTablelProps) => {
             title: t('material:table.category'),
             dataIndex: 'categoryIds',
             key: 'categoryIds',
-            filters: categorie.map(cat => {
-                return {
+            filters: [
+                ...categorie.map(cat => ({
                     text: cat.name,
                     value: cat.id
-                }
-            }),
+                })),
+                { text: t('material:table.uncategorized'), value: '__uncategorized__' }
+            ],
             onFilter: (value: any, record: Material) => filterCategorie(value, record),
             render: (text: string, record: Material) => (
                 <p key={`${record.id}_category`}>{displayCategorieNames(categorie, record.categorieIds || [])}</p>
@@ -165,6 +166,10 @@ export const MaterialTable = (props: MaterialTablelProps) => {
 }
 
 export const filterCategorie = (value: any, record: Material): boolean => {
+    if (value === '__uncategorized__') {
+        return !record.categorieIds || record.categorieIds.length === 0;
+    }
+
     let result: boolean = false;
 
     if (record.categorieIds) {
