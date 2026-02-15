@@ -41,7 +41,9 @@
     "completePartialTooltip": "Bestätige das das Material teilweise beschädigt/unvollständig zurückgegeben wurde.",
     "reset": "Zurücksetzen",
     "resetConfirm": "Der Status der Bestellung wird auf \"erstellt\" zurückgesetzt.",
-    "resetTooltip": "Der Status der Bestellung wird auf \"erstellt\" zurückgesetzt."
+    "resetTooltip": "Der Status der Bestellung wird auf \"erstellt\" zurückgesetzt.",
+    "copyToCart": "In Warenkorb kopieren",
+    "copyToCartTooltip": "Material in den Warenkorb kopieren"
   },
   "create": {
     "date": "Datum",
@@ -122,6 +124,15 @@
   "edit": {
     "addMaterialPlaceholder": "Material hinzufügen...",
     "available": "verfügbar"
+  },
+  "copyToCart": {
+    "confirmTitle": "Warenkorb ist nicht leer",
+    "confirmContent": "Dein Warenkorb enthält bereits Material. Wie möchtest du fortfahren?",
+    "replace": "Ersetzen",
+    "merge": "Zusammenführen",
+    "successCopy": "Material wurde in den Warenkorb kopiert.",
+    "successReplace": "Warenkorb wurde ersetzt.",
+    "successMerge": "Material wurde zum Warenkorb hinzugefügt."
   },
   "cart": {
     "steps": {

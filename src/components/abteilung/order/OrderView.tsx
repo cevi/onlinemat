@@ -22,13 +22,18 @@ import { addCommentOrder, calculateTotalWeight, completeOrder, deleteOrder, deli
 import { ability } from 'config/casl/ability';
 import { OrderNotFound } from './OrderNotFound';
 import { useUser } from 'hooks/use-user';
-import { CheckCircleOutlined, ClockCircleOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, ClockCircleOutlined, CopyOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
 import { DamagedMaterialModal } from './DamagedMaterialModal';
 import { Can } from 'config/casl/casl';
 import { useTranslation } from 'react-i18next';
+import { useCookies } from 'react-cookie';
+import { getCartName, replaceCart, mergeCart } from 'util/CartUtil';
+import { CopyToCartModal } from './CopyToCartModal';
 
 export interface OrderProps {
     abteilung: Abteilung
+    cartItems: CartItem[]
+    changeCart: (cart: CartItem[]) => void
 }
 
 export type OrderViewParams = {
@@ -38,7 +43,7 @@ export type OrderViewParams = {
 
 export const OrderView = (props: OrderProps) => {
 
-    const { abteilung } = props;
+    const { abteilung, cartItems, changeCart } = props;
 
     const { orderId } = useParams<OrderViewParams>();
 
@@ -98,6 +103,11 @@ export const OrderView = (props: OrderProps) => {
     const [editLoading, setEditLoading] = useState(false);
     const [editCollisions, setEditCollisions] = useState<{ [matId: string]: number } | undefined>(undefined);
     const [materialSearchQuery, setMaterialSearchQuery] = useState('');
+
+    // Copy to cart state
+    const cookieName = getCartName(abteilung.id);
+    const [, setCookie] = useCookies([cookieName]);
+    const [copyModalOpen, setCopyModalOpen] = useState(false);
 
     const customGroupId = 'custom';
 
@@ -232,6 +242,41 @@ export const OrderView = (props: OrderProps) => {
         });
         setEditItems(newItems);
         setEditCollisions(undefined);
+    };
+
+    // Copy to cart handlers
+    const copyToCartAndNavigate = (items: CartItem[]) => {
+        const expires = dayjs().add(24, 'hours');
+        setCookie(cookieName, items, { path: '/', expires: expires.toDate() });
+        changeCart(items);
+        navigate(`/abteilungen/${abteilung.slug || abteilung.id}/cart`, { state: items });
+    };
+
+    const handleCopyToCart = () => {
+        if (!order) return;
+        if (cartItems.length === 0) {
+            const newItems = replaceCart(order.items);
+            message.success(t('order:copyToCart.successCopy'));
+            copyToCartAndNavigate(newItems);
+        } else {
+            setCopyModalOpen(true);
+        }
+    };
+
+    const handleReplace = () => {
+        if (!order) return;
+        const newItems = replaceCart(order.items);
+        message.success(t('order:copyToCart.successReplace'));
+        setCopyModalOpen(false);
+        copyToCartAndNavigate(newItems);
+    };
+
+    const handleMerge = () => {
+        if (!order) return;
+        const newItems = mergeCart(cartItems, order.items);
+        message.success(t('order:copyToCart.successMerge'));
+        setCopyModalOpen(false);
+        copyToCartAndNavigate(newItems);
     };
 
     // Auto-exit edit mode if order status changes while editing
@@ -649,6 +694,11 @@ export const OrderView = (props: OrderProps) => {
                             </>
                         ) : (
                             <>
+                                <Tooltip title={t('order:actions.copyToCartTooltip')}>
+                                    <Button icon={<CopyOutlined />} onClick={handleCopyToCart} style={{marginRight: '1%'}}>
+                                        {t('order:actions.copyToCart')}
+                                    </Button>
+                                </Tooltip>
                                 {canEditOrder && (
                                     <Button icon={<EditOutlined />} onClick={enterEditMode} style={{marginRight: '1%'}}>
                                         {t('common:buttons.edit')}
@@ -689,6 +739,12 @@ export const OrderView = (props: OrderProps) => {
                     </div>
                 </Col>
                 <DamagedMaterialModal abteilung={abteilung} order={order} damagedMaterial={damagedMaterial} showDamageModal={showDamageModal} setShowDamageModal={setShowDamageModal} />
+                <CopyToCartModal
+                    open={copyModalOpen}
+                    onReplace={handleReplace}
+                    onMerge={handleMerge}
+                    onCancel={() => setCopyModalOpen(false)}
+                />
             </Row>
         </Col>
     </Row>

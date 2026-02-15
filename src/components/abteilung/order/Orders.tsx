@@ -16,14 +16,17 @@ import { getStatusName } from 'util/OrderUtil';
 import { MembersContext, MembersUserDataContext } from '../AbteilungDetails';
 import { OrderTable } from './OrderTable';
 import { useFirestoreCollection } from 'hooks/useFirestoreCollection';
+import { CartItem } from 'types/cart.types';
 
 export interface OrdersProps {
     abteilung: Abteilung
+    cartItems: CartItem[]
+    changeCart: (cart: CartItem[]) => void
 }
 
 export const Orders = (props: OrdersProps) => {
 
-    const { abteilung } = props;
+    const { abteilung, cartItems, changeCart } = props;
 
     const { isAuthenticated } = useAuth0();
     const user = useUser()
@@ -204,7 +207,7 @@ export const Orders = (props: OrdersProps) => {
             />
         </Col>
         <Col span={24}>
-            <OrderTable abteilung={abteilung} orders={query ? filteredOrders : orders} loading={ordersLoading || userDataLoading || membersLoading} members={membersMerged} />
+            <OrderTable abteilung={abteilung} orders={query ? filteredOrders : orders} loading={ordersLoading || userDataLoading || membersLoading} members={membersMerged} cartItems={cartItems} changeCart={changeCart} />
         </Col>
     </Row>
 }

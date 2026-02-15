@@ -72,7 +72,7 @@ export const AbteilungDetail = () => {
     const [selectedMenu] = useState<AbteilungTab>(initTab);
 
     const [cookies] = useCookies();
-    const [cartItems, setCartItems] = useState<CartItem[]>(state as CartItem[] || []);
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
     const canUpdate = useMemo(() => ability.can('update', { __caslSubjectType__: 'Abteilung', id: abteilung?.id } as Abteilung), [abteilung]);
 
@@ -152,9 +152,9 @@ export const AbteilungDetail = () => {
                 case 'cart':
                     return <Cart abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
                 case 'orders':
-                    return <Orders abteilung={abteilung} />
+                    return <Orders abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
                 case 'order':
-                    return <OrderView abteilung={abteilung} />
+                    return <OrderView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
                 case 'standort':
                     return <AbteilungStandorteView abteilung={abteilung} />
                 case 'category':

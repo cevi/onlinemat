@@ -41,7 +41,9 @@
     "completePartialTooltip": "Confirm that the material was returned partially damaged/incomplete.",
     "reset": "Reset",
     "resetConfirm": "The order status will be reset to \"created\".",
-    "resetTooltip": "The order status will be reset to \"created\"."
+    "resetTooltip": "The order status will be reset to \"created\".",
+    "copyToCart": "Copy to cart",
+    "copyToCartTooltip": "Copy materials to cart"
   },
   "create": {
     "date": "Date",
@@ -122,6 +124,15 @@
   "edit": {
     "addMaterialPlaceholder": "Add material...",
     "available": "available"
+  },
+  "copyToCart": {
+    "confirmTitle": "Cart is not empty",
+    "confirmContent": "Your cart already contains materials. How would you like to proceed?",
+    "replace": "Replace",
+    "merge": "Merge",
+    "successCopy": "Materials have been copied to the cart.",
+    "successReplace": "Cart has been replaced.",
+    "successMerge": "Materials have been added to the cart."
   },
   "cart": {
     "steps": {

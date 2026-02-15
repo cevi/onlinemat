@@ -49,6 +49,15 @@ export const Cart = (props: CartProps) => {
     const [currentStep, setCurrentStep] = useState<number>(cartItems.length <= 0 ? -1 : 0);
     const [query, setQuery] = useState<string | undefined>(undefined);
 
+    // Sync currentStep when cartItems changes (e.g. loaded from cookie after mount)
+    useEffect(() => {
+        if (currentStep === -1 && cartItems.length > 0) {
+            setCurrentStep(0);
+        } else if (currentStep === 0 && cartItems.length === 0) {
+            setCurrentStep(-1);
+        }
+    }, [cartItems]);
+
     const [createdOrderId, setCreatedOrderId] = useState<string | undefined>(undefined);
     const [orderLoading, setOrderLoading] = useState<boolean>(false);
     const [orderError, setOrderError] = useState<string | undefined>(undefined);
