@@ -37,7 +37,7 @@
     "availableCount": "Available: {{count}}",
     "weight": "Weight in kg",
     "consumables": "Is consumable",
-    "onlyLendInternal": "May only be lent to internal members",
+    "onlyLendInternal": "Hide in search for users outside this department",
     "categories": "Categories",
     "categoriesPlaceholder": "Categories",
     "imageUrls": "Image URLs",

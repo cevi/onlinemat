@@ -42,6 +42,14 @@ export const SearchView = () => {
         return abteilungen.find(ab => ab.id === abteilungId);
     };
 
+    // Filter out materials from Abteilungen that disabled search visibility
+    const visibleSearchable = useMemo(() => {
+        return allSearchable.filter(mat => {
+            const ab = findAbteilung(mat.abteilungId);
+            return ab?.searchVisible !== false;
+        });
+    }, [allSearchable, abteilungen]);
+
     // Load all searchable materials on mount for autocomplete + featured
     useEffect(() => {
         if (!isAuthenticated) return;
@@ -73,10 +81,10 @@ export const SearchView = () => {
 
     // Featured: random selection from loaded materials
     const featured = useMemo(() => {
-        if (allSearchable.length === 0) return [];
-        const shuffled = [...allSearchable].sort(() => Math.random() - 0.5);
+        if (visibleSearchable.length === 0) return [];
+        const shuffled = [...visibleSearchable].sort(() => Math.random() - 0.5);
         return shuffled.slice(0, FEATURED_DISPLAY_COUNT);
-    }, [allSearchable]);
+    }, [visibleSearchable]);
 
     // Autocomplete options: deduplicated by material name, max 10 unique names
     // Hide options once a search has been executed to prevent feedback loop
@@ -84,7 +92,7 @@ export const SearchView = () => {
         if (hasSearched) return [];
         const term = query.trim().toLowerCase();
         if (!term) return [];
-        const filtered = allSearchable.filter(mat => mat.name.toLowerCase().includes(term));
+        const filtered = visibleSearchable.filter(mat => mat.name.toLowerCase().includes(term));
 
         // Group by material name (case-insensitive)
         const grouped = new Map<string, { name: string; abteilungIds: Set<string> }>();
@@ -118,7 +126,7 @@ export const SearchView = () => {
                 key: `suggestion_${index}`,
             };
         });
-    }, [query, allSearchable, abteilungen, hasSearched]);
+    }, [query, visibleSearchable, abteilungen, hasSearched]);
 
     // Handle typing in autocomplete — resets search mode so suggestions reappear
     const handleSearchInput = (value: string) => {
@@ -142,23 +150,23 @@ export const SearchView = () => {
         }
         setHasSearched(true);
 
-        const filtered = allSearchable.filter(mat =>
+        const filtered = visibleSearchable.filter(mat =>
             mat.name.toLowerCase().includes(normalized)
         );
         setResults(filtered);
 
         const matchedAbteilungen = abteilungen.filter(ab =>
-            ab.name.toLowerCase().includes(normalized)
+            ab.searchVisible !== false && ab.name.toLowerCase().includes(normalized)
         );
         setAbteilungResults(matchedAbteilungen);
     };
 
     // Run initial search if URL has query param
     useEffect(() => {
-        if (initQuery && allSearchable.length > 0) {
+        if (initQuery && visibleSearchable.length > 0) {
             doSearch(initQuery);
         }
-    }, [allSearchable]);
+    }, [visibleSearchable]);
 
     const getAbteilungMatLink = (ab: Abteilung) =>
         `/abteilungen/${ab.slug || ab.id}/mat?q=${encodeURIComponent(query)}`;

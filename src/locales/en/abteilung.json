@@ -46,6 +46,8 @@
     "logoUrlPlaceholder": "Cevi Logo URL",
     "email": "Email",
     "emailPlaceholder": "Email",
+    "searchVisible": "Visible in search",
+    "searchVisibleDescription": "When disabled, materials from this department will not appear in the global search. This can also be set per material.",
     "save": "Save",
     "delete": "Delete Department",
     "deleteConfirm": "Do you really want to delete this department?",

@@ -10,6 +10,7 @@ export interface Abteilung {
     logoUrl?: string
     groups: { [id: string]: Group }
     email?: string
+    searchVisible?: boolean
 }
 
 

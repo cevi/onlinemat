@@ -37,7 +37,7 @@
     "availableCount": "Verfügbar: {{count}}",
     "weight": "Gewicht in Kg",
     "consumables": "Ist Verbrauchsmaterial",
-    "onlyLendInternal": "Darf nur von Internen ausgeliehen werden",
+    "onlyLendInternal": "In der Suche für externe Benutzer ausblenden",
     "categories": "Kategorien",
     "categoriesPlaceholder": "Kategorien",
     "imageUrls": "Bilder Urls",

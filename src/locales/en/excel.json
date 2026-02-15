@@ -24,7 +24,7 @@
     "consumables": "Is consumable:",
     "categories": "Categories:",
     "images": "Images:",
-    "onlyLendInternal": "Only lendable internally:",
+    "onlyLendInternal": "Hide for external users:",
     "defaultStandort": "Default location",
     "defaultCategories": "Default categories",
     "defaultImageUrls": "Default URLs (comma-separated)"

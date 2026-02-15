@@ -46,6 +46,8 @@
     "logoUrlPlaceholder": "Cevi Logo Url",
     "email": "Email",
     "emailPlaceholder": "Email",
+    "searchVisible": "In Suche sichtbar",
+    "searchVisibleDescription": "Wenn deaktiviert, werden die Materialien dieser Abteilung nicht in der globalen Suche angezeigt. Diese Einstellung kann auch pro Material gesetzt werden.",
     "save": "Speichern",
     "delete": "Abteilung Löschen",
     "deleteConfirm": "Möchtest du diese Abteilung wirklich löschen?",

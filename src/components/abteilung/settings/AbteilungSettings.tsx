@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { Button, Col, Form, Image, Input, message, Popconfirm, Row, Upload } from 'antd';
+import { Button, Col, Form, Image, Input, message, Popconfirm, Row, Switch, Typography, Upload } from 'antd';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
 import { useNavigate } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
@@ -33,7 +33,25 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
     const [slug, setSlug] = useState<string>(abteilung.slug);
 
     const disabled = ability.cannot('update', 'Abteilung');
-    
+    const canToggleSearch = ability.can('update', { __caslSubjectType__: 'Material' as const, abteilungId: abteilung.id });
+
+    const [searchVisible, setSearchVisible] = useState<boolean>(abteilung.searchVisible !== false);
+    const [searchVisibleLoading, setSearchVisibleLoading] = useState(false);
+
+    const toggleSearchVisible = async (checked: boolean) => {
+        try {
+            setSearchVisibleLoading(true);
+            await updateDoc(doc(db, abteilungenCollection, abteilung.id), {
+                searchVisible: checked
+            });
+            setSearchVisible(checked);
+            message.success(t('abteilung:settings.saveSuccess'));
+        } catch (ex) {
+            message.error(t('common:errors.generic', { error: ex }));
+        } finally {
+            setSearchVisibleLoading(false);
+        }
+    };
 
     const updateAbteilung = async () => {
         if (!abteilung) return;
@@ -105,6 +123,24 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
             />
         </div>
         <div style={{ flex: 1 }}>
+            {canToggleSearch && (
+                <Row style={{ marginBottom: 24 }}>
+                    <Col span={24}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <Switch
+                                checked={searchVisible}
+                                onChange={toggleSearchVisible}
+                                loading={searchVisibleLoading}
+                            />
+                            <div>
+                                <Typography.Text strong>{t('abteilung:settings.searchVisible')}</Typography.Text>
+                                <br />
+                                <Typography.Text type="secondary">{t('abteilung:settings.searchVisibleDescription')}</Typography.Text>
+                            </div>
+                        </div>
+                    </Col>
+                </Row>
+            )}
             <Form
                 form={form}
                 layout='vertical'

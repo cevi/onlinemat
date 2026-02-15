@@ -24,7 +24,7 @@
     "consumables": "Ist Verbrauchsmaterial:",
     "categories": "Katergorien:",
     "images": "Bilder:",
-    "onlyLendInternal": "Nur Intern ausleihbar:",
+    "onlyLendInternal": "Für externe Benutzer ausblenden:",
     "defaultStandort": "Standard-Standort",
     "defaultCategories": "Standard-Kategorien",
     "defaultImageUrls": "Standard-URLs (kommagetrennt)"
