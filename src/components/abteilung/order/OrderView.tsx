@@ -2,7 +2,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Button, Card, Col, Form, Input, message, Popconfirm, Row, Spin, Tag, Timeline, Tooltip } from 'antd';
 import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
 import { db } from 'config/firebase/firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import dayjs from 'dayjs';
 import { useContext, useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
@@ -12,7 +12,7 @@ import { dateFormat, dateFormatWithTime } from 'util/constants';
 import { getAvailableMatCount } from 'util/MaterialUtil';
 import { OrderItems } from './OrderItems';
 import { DetailedCartItem } from 'types/cart.types';
-import { MaterialsContext, MembersContext, MembersUserDataContext } from '../AbteilungDetails';
+import { CategorysContext, MaterialsContext, MembersContext, MembersUserDataContext, StandorteContext } from '../AbteilungDetails';
 import { getGroupName } from 'util/AbteilungUtil';
 import { addCommentOrder, calculateTotalWeight, completeOrder, deleteOrder, deliverOrder, getStatusColor, getStatusName, resetLostOrder, resetOrder } from 'util/OrderUtil';
 import { ability } from 'config/casl/ability';
@@ -54,6 +54,10 @@ export const OrderView = (props: OrderProps) => {
     const materials = materialsContext.materials;
     const matLoading = materialsContext.loading;
 
+    //fetch categories & standorte
+    const { categories } = useContext(CategorysContext);
+    const { standorte } = useContext(StandorteContext);
+
     //fetch members
     const membersContext = useContext(MembersContext);
 
@@ -78,6 +82,15 @@ export const OrderView = (props: OrderProps) => {
 
     const [damagedMaterial, setDamagedMaterial] = useState<DetailedCartItem[]>([]);
     const [showDamageModal, setShowDamageModal] = useState<boolean>(false);
+
+    const togglePreparedItem = async (matId: string) => {
+        if (!order || !orderId) return;
+        const orderRef = doc(db, abteilungenCollection, abteilung.id, abteilungenOrdersCollection, orderId);
+        const isPrepared = order.preparedItems?.includes(matId);
+        await updateDoc(orderRef, {
+            preparedItems: isPrepared ? arrayRemove(matId) : arrayUnion(matId)
+        });
+    };
 
     //fetch order
     useEffect(() => {
@@ -120,12 +133,16 @@ export const OrderView = (props: OrderProps) => {
                 name: mat?.name || (matLoading ? t('common:status.loading') : t('material:util.deleted')),
                 maxCount,
                 imageUrls: mat && mat.imageUrls || [],
+                comment: mat?.comment || undefined,
+                weightInKg: mat?.weightInKg,
+                standortNames: mat?.standort?.map(id => standorte.find(s => s.id === id)?.name).filter((n): n is string => !!n),
+                categorieNames: mat?.categorieIds?.map(id => categories.find(c => c.id === id)?.name).filter((n): n is string => !!n),
                 __caslSubjectType__: 'DetailedCartItem'
             }
             localItemsMerged.push(mergedItem);
         })
         setCartItemsMerged(localItemsMerged);
-    }, [order, materials])
+    }, [order, materials, standorte, categories])
 
 
 
@@ -321,6 +338,13 @@ export const OrderView = (props: OrderProps) => {
                         damagedMaterials={order.damagedMaterial || undefined}
                         damagedMaterialsCheckboxes={damagedMaterial}
                         setDamagedMaterialCheckboxes={setDamagedMaterial}
+
+                        showPrepareCheckboxes={ability.can('deliver', {
+                            ...order,
+                            abteilungId: abteilung.id
+                        }) && order.status === 'created'}
+                        preparedItems={order.preparedItems || []}
+                        onTogglePrepared={togglePreparedItem}
                     />
                 </Col>
                 <Col span={24}>

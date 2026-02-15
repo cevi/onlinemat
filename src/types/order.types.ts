@@ -18,6 +18,7 @@ export interface Order {
     customGroupName?: string
     matchefComment?: string
     damagedMaterial?: DamagedMaterial[] | null
+    preparedItems?: string[]
 }
 
 export interface OrderHistory {

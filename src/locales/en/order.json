@@ -64,7 +64,13 @@
     "lost": "{{count}} x was lost",
     "damagedCheckbox": "Damaged",
     "damagedCheckboxTooltip": "Material is damaged or was not returned.",
-    "adjust": "Adjust"
+    "adjust": "Adjust",
+    "prepared": "Prepared",
+    "showDetails": "Details",
+    "standort": "Location: {{names}}",
+    "categories": "Categories: {{names}}",
+    "commentLabel": "Comment: {{comment}}",
+    "weightLabel": "Weight: {{weight}} kg"
   },
   "itemsDamaged": {
     "header": "Damaged / Lost Material",

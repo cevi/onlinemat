@@ -64,7 +64,13 @@
     "lost": "{{count}} x wurde verloren",
     "damagedCheckbox": "Kaputt",
     "damagedCheckboxTooltip": "Material ist beschädigt oder wurde nicht zurückgegeben.",
-    "adjust": "Anpassen"
+    "adjust": "Anpassen",
+    "prepared": "Bereitgestellt",
+    "showDetails": "Details",
+    "standort": "Standort: {{names}}",
+    "categories": "Kategorien: {{names}}",
+    "commentLabel": "Bemerkung: {{comment}}",
+    "weightLabel": "Gewicht: {{weight}} Kg"
   },
   "itemsDamaged": {
     "header": "Beschädigtes / Verlorenes Material",

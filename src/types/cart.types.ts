@@ -11,4 +11,8 @@ export interface DetailedCartItem extends Omit<CartItem, '__caslSubjectType__'> 
     name: string
     imageUrls?: string[]
     maxCount: number
+    comment?: string
+    weightInKg?: number
+    standortNames?: string[]
+    categorieNames?: string[]
 }

@@ -8,7 +8,7 @@ import { CartItem, DetailedCartItem } from 'types/cart.types';
 import { getCartName } from 'util/CartUtil';
 import { CartTable } from './CartTable';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { MaterialsContext } from '../AbteilungDetails';
+import { CategorysContext, MaterialsContext, StandorteContext } from '../AbteilungDetails';
 import { CreateOrder } from '../order/CreateOrder';
 import { functions } from 'config/firebase/firebase';
 import { httpsCallable } from 'firebase/functions';
@@ -36,6 +36,8 @@ export const Cart = (props: CartProps) => {
 
     //fetch materials
     const materialsContext = useContext(MaterialsContext);
+    const { categories } = useContext(CategorysContext);
+    const { standorte } = useContext(StandorteContext);
 
     const materials = materialsContext.materials;
     const matLoading = materialsContext.loading;
@@ -58,17 +60,23 @@ export const Cart = (props: CartProps) => {
         cartItems.forEach(item => {
             const mat = materials.find(m => m.id === item.matId);
             const maxCount = getAvailableMatCount(mat);
+            const standortNames = mat?.standort?.map(sId => standorte.find(s => s.id === sId)?.name).filter((n): n is string => !!n) || [];
+            const categorieNames = mat?.categorieIds?.map(cId => categories.find(c => c.id === cId)?.name).filter((n): n is string => !!n) || [];
             const mergedItem: DetailedCartItem = {
                 ...item,
                 name: mat && mat.name || 'Loading...',
                 maxCount,
                 imageUrls: mat && mat.imageUrls || [],
+                comment: mat?.comment,
+                weightInKg: mat?.weightInKg,
+                standortNames,
+                categorieNames,
                 __caslSubjectType__: 'DetailedCartItem'
             }
             localItemsMerged.push(mergedItem);
         })
         setCartItemsMerged(localItemsMerged);
-    }, [cartItems, materials])
+    }, [cartItems, materials, categories, standorte])
 
     const createOrder = async (orderToCreate: any): Promise<{orderId: string | undefined, collisions: { [matId: string]: number } | undefined}> => {
         try {
