@@ -93,7 +93,8 @@
     "completedDamaged": "{{name}} hat die Bestellung mit Verlust/Schaden abgeschlossen.",
     "reset": "{{name}} hat die Bestellung zurückgesetzt.",
     "commentAdded": "{{name}} hat eine Bemerkung hinzugefügt.",
-    "commentRemoved": "{{name}} hat eine Bemerkung entfernt."
+    "commentRemoved": "{{name}} hat eine Bemerkung entfernt.",
+    "edited": "{{name}} hat die Bestellung bearbeitet."
   },
   "messages": {
     "deliverSuccess": "Bestellung erfolgreich ausgegeben.",
@@ -105,13 +106,22 @@
     "deleteErrorDelivered": "Bestellung kann nicht gelöscht werden, wenn sie {{status}} ist.",
     "deleteErrorNoPermission": "Du hast keine Berchtigungen für diese Bestellung.",
     "deleteErrorNotOwner": "Nur der Ersteller kann die Bestellung löschen.",
-    "deleteErrorCompleted": "Du kannst eine abgeschlossene Bestellung nicht löschen."
+    "deleteErrorCompleted": "Du kannst eine abgeschlossene Bestellung nicht löschen.",
+    "editSuccess": "Bestellung erfolgreich aktualisiert.",
+    "editNotAllAvailable": "Leider ist nicht alles Material verfügbar.",
+    "editEmptyItems": "Die Bestellung muss mindestens ein Material enthalten.",
+    "editCannotEdit": "Diese Bestellung kann nicht mehr bearbeitet werden.",
+    "editMaterialNotAvailable": "{{name}} ist zur Zeit nicht verfügbar."
   },
   "search": {
     "placeholder": "nach Bestellung suchen",
     "groupPlaceholder": "Gruppe / Anlass auswählen",
     "maxGroups": "Es können leider nur 10 Gruppen / Anlässe gleichzeitig ausgewählt werden",
     "groupNotFound": "Gruppe/Anlass {{id}} konnte nicht gefunden werden"
+  },
+  "edit": {
+    "addMaterialPlaceholder": "Material hinzufügen...",
+    "available": "verfügbar"
   },
   "cart": {
     "steps": {

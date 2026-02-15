@@ -1,24 +1,28 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Button, Card, Col, Form, Input, message, Popconfirm, Row, Spin, Tag, Timeline, Tooltip } from 'antd';
+import { AutoComplete, Button, Card, Col, DatePicker, Form, Input, message, Popconfirm, Row, Select, Spin, Tag, Timeline, Tooltip } from 'antd';
 import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
-import { db } from 'config/firebase/firebase';
+import { db, functions } from 'config/firebase/firebase';
 import { doc, onSnapshot, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
-import dayjs from 'dayjs';
+import { httpsCallable } from 'firebase/functions';
+import dayjs, { Dayjs } from 'dayjs';
 import { useContext, useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
 import { Order, OrderHistory } from 'types/order.types';
+import { CartItem, DetailedCartItem } from 'types/cart.types';
+import { Material } from 'types/material.types';
 import { dateFormat, dateFormatWithTime } from 'util/constants';
 import { getAvailableMatCount } from 'util/MaterialUtil';
 import { OrderItems } from './OrderItems';
-import { DetailedCartItem } from 'types/cart.types';
+import { CartTable } from '../cart/CartTable';
 import { CategorysContext, MaterialsContext, MembersContext, MembersUserDataContext, StandorteContext } from '../AbteilungDetails';
 import { getGroupName } from 'util/AbteilungUtil';
+import { groupObjToList } from 'util/GroupUtil';
 import { addCommentOrder, calculateTotalWeight, completeOrder, deleteOrder, deliverOrder, getStatusColor, getStatusName, resetLostOrder, resetOrder } from 'util/OrderUtil';
 import { ability } from 'config/casl/ability';
 import { OrderNotFound } from './OrderNotFound';
 import { useUser } from 'hooks/use-user';
-import { CheckCircleOutlined, ClockCircleOutlined, DeleteOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, ClockCircleOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
 import { DamagedMaterialModal } from './DamagedMaterialModal';
 import { Can } from 'config/casl/casl';
 import { useTranslation } from 'react-i18next';
@@ -82,6 +86,161 @@ export const OrderView = (props: OrderProps) => {
 
     const [damagedMaterial, setDamagedMaterial] = useState<DetailedCartItem[]>([]);
     const [showDamageModal, setShowDamageModal] = useState<boolean>(false);
+
+    // Edit mode state
+    const [isEditing, setIsEditing] = useState(false);
+    const [editItems, setEditItems] = useState<DetailedCartItem[]>([]);
+    const [editStartDate, setEditStartDate] = useState<Dayjs | null>(null);
+    const [editEndDate, setEditEndDate] = useState<Dayjs | null>(null);
+    const [editComment, setEditComment] = useState<string>('');
+    const [editGroupId, setEditGroupId] = useState<string | undefined>(undefined);
+    const [editCustomGroupName, setEditCustomGroupName] = useState<string>('');
+    const [editLoading, setEditLoading] = useState(false);
+    const [editCollisions, setEditCollisions] = useState<{ [matId: string]: number } | undefined>(undefined);
+    const [materialSearchQuery, setMaterialSearchQuery] = useState('');
+
+    const customGroupId = 'custom';
+
+    const canEditOrder = order && order.status === 'created' && (
+        order.orderer === user?.appUser?.userData?.id
+        || ability.can('update', { ...order, abteilungId: abteilung.id })
+    );
+
+    const userGroups = (() => {
+        const isStaff = user?.appUser?.userData?.staff || false;
+        const list = groupObjToList(abteilung.groups);
+        if (isStaff) return list.sort((a, b) => a.name.localeCompare(b.name));
+        const uid = user?.appUser?.firebaseUser?.uid;
+        if (!uid) return [];
+        return list.filter(g => g.members.includes(uid)).sort((a, b) => a.name.localeCompare(b.name));
+    })();
+
+    const enterEditMode = () => {
+        if (!order) return;
+        setEditItems([...cartItemsMerged]);
+        setEditStartDate(order.startDate);
+        setEditEndDate(order.endDate);
+        setEditComment(order.comment || '');
+        setEditGroupId(order.groupId || customGroupId);
+        setEditCustomGroupName(order.customGroupName || '');
+        setEditCollisions(undefined);
+        setMaterialSearchQuery('');
+        setIsEditing(true);
+    };
+
+    const cancelEdit = () => {
+        setIsEditing(false);
+        setEditCollisions(undefined);
+        setMaterialSearchQuery('');
+    };
+
+    const saveEdit = async () => {
+        if (!order || !editStartDate || !editEndDate) return;
+        if (editItems.length <= 0) {
+            message.error(t('order:messages.editEmptyItems'));
+            return;
+        }
+        setEditLoading(true);
+        try {
+            const orderItems = editItems.map(i => ({ count: i.count, matId: i.matId }));
+            const result = await httpsCallable(functions, 'updateOrder')({
+                abteilungId: abteilung.id,
+                orderId: order.id,
+                order: {
+                    startDate: editStartDate.second(0).toISOString(),
+                    endDate: editEndDate.second(0).toISOString(),
+                    items: orderItems,
+                    comment: editComment || null,
+                    groupId: editGroupId === customGroupId ? null : editGroupId,
+                    customGroupName: editGroupId === customGroupId ? editCustomGroupName || null : null,
+                }
+            });
+            const data = result.data as { success?: boolean; collisions?: { [matId: string]: number } };
+            if (data.collisions) {
+                setEditCollisions(data.collisions);
+                message.error(t('order:messages.editNotAllAvailable'));
+            } else {
+                message.success(t('order:messages.editSuccess'));
+                setIsEditing(false);
+                setEditCollisions(undefined);
+            }
+        } catch (ex: any) {
+            const code = ex?.code;
+            const errorMessage = ex?.message;
+            if (code === 'functions/failed-precondition') {
+                message.error(errorMessage || t('order:messages.editCannotEdit'));
+                cancelEdit();
+            } else if (code === 'functions/permission-denied') {
+                message.error(errorMessage || t('order:messages.deleteErrorNoPermission'));
+            } else {
+                message.error(errorMessage || t('common:errors.generic', { error: ex }));
+            }
+        }
+        setEditLoading(false);
+    };
+
+    const enrichCartItem = (item: CartItem, mat: Material | undefined): DetailedCartItem => {
+        const maxCount = getAvailableMatCount(mat);
+        return {
+            ...item,
+            __caslSubjectType__: 'DetailedCartItem',
+            name: mat?.name || t('material:util.deleted'),
+            maxCount,
+            imageUrls: mat?.imageUrls || [],
+            comment: mat?.comment || undefined,
+            weightInKg: mat?.weightInKg,
+            standortNames: mat?.standort?.map(id => standorte.find(s => s.id === id)?.name).filter((n): n is string => !!n),
+            categorieNames: mat?.categorieIds?.map(id => categories.find(c => c.id === id)?.name).filter((n): n is string => !!n),
+        };
+    };
+
+    const editChangeCart = (newItems: CartItem[]) => {
+        const merged: DetailedCartItem[] = newItems.map(item => {
+            const existing = editItems.find(e => e.matId === item.matId);
+            if (existing) return { ...existing, count: item.count };
+            const mat = materials.find(m => m.id === item.matId);
+            return enrichCartItem(item, mat);
+        }).filter(item => item.count > 0);
+        setEditItems(merged);
+    };
+
+    const addMaterialToEdit = (mat: Material) => {
+        const existing = editItems.find(e => e.matId === mat.id);
+        const maxCount = getAvailableMatCount(mat);
+        if (existing) {
+            const newCount = Math.min(existing.count + 1, maxCount);
+            setEditItems(editItems.map(e => e.matId === mat.id ? { ...e, count: newCount } : e));
+        } else if (maxCount > 0) {
+            setEditItems([...editItems, enrichCartItem({ __caslSubjectType__: 'CartItem', matId: mat.id, count: 1 }, mat)]);
+        } else {
+            message.warning(t('order:messages.editMaterialNotAvailable', { name: mat.name }));
+        }
+        setMaterialSearchQuery('');
+    };
+
+    const updateEditItemsByAvail = () => {
+        let newItems = [...editItems];
+        editItems.forEach(item => {
+            if (editCollisions && item.matId in editCollisions) {
+                const avail = editCollisions[item.matId];
+                if (avail <= 0) {
+                    newItems = newItems.filter(i => i.matId !== item.matId);
+                } else {
+                    newItems = newItems.map(i => i.matId === item.matId ? { ...i, count: avail, maxCount: avail } : i);
+                }
+            }
+        });
+        setEditItems(newItems);
+        setEditCollisions(undefined);
+    };
+
+    // Auto-exit edit mode if order status changes while editing
+    useEffect(() => {
+        if (isEditing && order && order.status !== 'created') {
+            message.warning(t('order:messages.editCannotEdit'));
+            cancelEdit();
+        }
+    }, [order?.status]);
 
     const togglePreparedItem = async (matId: string) => {
         if (!order || !orderId) return;
@@ -173,6 +332,8 @@ export const OrderView = (props: OrderProps) => {
                 return <ExclamationCircleOutlined style={{ fontSize: '16px' }} color={colorToSet} />
             case 'reset':
                 return <UndoOutlined style={{ fontSize: '16px' }} color={colorToSet} />
+            case 'edited':
+                return <EditOutlined style={{ fontSize: '16px' }} color={colorToSet} />
         }
     }
 
@@ -293,14 +454,67 @@ export const OrderView = (props: OrderProps) => {
         <Col span={7}>
             <Row gutter={[16, 16]}>
                 <Col span={24}>
-                    <h1>{`${getGroupName(order?.groupId, abteilung, order?.customGroupName)} ${order?.startDate.format(dateFormat)}`}{order?.startDate.format(dateFormat) !== order?.endDate.format(dateFormat) && ` - ${order?.endDate.format(dateFormat)}`}</h1>
+                    {isEditing ? (
+                        <h1>{t('common:buttons.edit')}</h1>
+                    ) : (
+                        <h1>{`${getGroupName(order?.groupId, abteilung, order?.customGroupName)} ${order?.startDate.format(dateFormat)}`}{order?.startDate.format(dateFormat) !== order?.endDate.format(dateFormat) && ` - ${order?.endDate.format(dateFormat)}`}</h1>
+                    )}
                 </Col>
                 <Col span={24}>
-                    <p><b>{t('order:view.orderer')}</b>{` ${orderer ? orderer.displayName : order?.orderer}`}</p>
-                    <p><b>{t('order:view.from')}</b>{` ${order?.startDate.format(dateFormatWithTime)}`}</p>
-                    <p><b>{t('order:view.to')}</b>{` ${order?.endDate.format(dateFormatWithTime)}`}</p>
-                    <p><b>{t('order:view.status')}</b><Tag color={getStatusColor(order)}>{getStatusName(order)}</Tag></p>
-                    <p><b>{t('order:view.weight')}</b><Weight/></p>
+                    {isEditing ? (
+                        <>
+                            <p><b>{t('order:view.orderer')}</b>{` ${orderer ? orderer.displayName : order?.orderer}`}</p>
+                            <Form.Item label={t('order:create.date')}>
+                                <DatePicker.RangePicker
+                                    value={[editStartDate, editEndDate]}
+                                    minuteStep={10}
+                                    onCalendarChange={(values: any[]) => {
+                                        if (!values || values.length < 2) return;
+                                        if (values[0]) setEditStartDate(values[0]);
+                                        if (values[1]) setEditEndDate(values[1]);
+                                    }}
+                                    format={dateFormatWithTime}
+                                    showTime={{ format: 'HH:mm' }}
+                                />
+                            </Form.Item>
+                            <Form.Item label={t('order:create.group')}>
+                                <Select
+                                    showSearch
+                                    value={editGroupId}
+                                    onChange={(val) => setEditGroupId(val)}
+                                    optionFilterProp="children"
+                                >
+                                    <Select.OptGroup label={t('order:create.groupLabel')}>
+                                        {userGroups.filter(g => g.type === 'group').map(g => (
+                                            <Select.Option key={`edit_group_${g.id}`} value={g.id}>{g.name}</Select.Option>
+                                        ))}
+                                    </Select.OptGroup>
+                                    <Select.OptGroup label={t('order:create.eventLabel')}>
+                                        {userGroups.filter(g => g.type === 'event').map(g => (
+                                            <Select.Option key={`edit_event_${g.id}`} value={g.id}>{g.name}</Select.Option>
+                                        ))}
+                                    </Select.OptGroup>
+                                    <Select.OptGroup label={t('order:create.otherLabel')}>
+                                        <Select.Option key='edit_custom' value={customGroupId}>{t('order:create.otherOption')}</Select.Option>
+                                    </Select.OptGroup>
+                                </Select>
+                            </Form.Item>
+                            {editGroupId === customGroupId && (
+                                <Form.Item label={t('order:create.customGroupName')}>
+                                    <Input value={editCustomGroupName} onChange={(e) => setEditCustomGroupName(e.target.value)} />
+                                </Form.Item>
+                            )}
+                            <p><b>{t('order:view.status')}</b><Tag color={getStatusColor(order)}>{getStatusName(order)}</Tag></p>
+                        </>
+                    ) : (
+                        <>
+                            <p><b>{t('order:view.orderer')}</b>{` ${orderer ? orderer.displayName : order?.orderer}`}</p>
+                            <p><b>{t('order:view.from')}</b>{` ${order?.startDate.format(dateFormatWithTime)}`}</p>
+                            <p><b>{t('order:view.to')}</b>{` ${order?.endDate.format(dateFormatWithTime)}`}</p>
+                            <p><b>{t('order:view.status')}</b><Tag color={getStatusColor(order)}>{getStatusName(order)}</Tag></p>
+                            <p><b>{t('order:view.weight')}</b><Weight/></p>
+                        </>
+                    )}
                 </Col>
                 <Col span={24}>
                     <style>{`.order-timeline .ant-timeline-item-head-custom { background: transparent; }`}</style>
@@ -330,31 +544,69 @@ export const OrderView = (props: OrderProps) => {
         <Col offset={1} span={16}>
             <Row gutter={[16, 16]}>
                 <Col span={24}>
-                    <OrderItems items={cartItemsMerged} showCheckBoxes={ability.can('deliver', {
-                        ...order,
-                        abteilungId: abteilung.id
-                    }) && order.status === 'delivered'}
-
-                        damagedMaterials={order.damagedMaterial || undefined}
-                        damagedMaterialsCheckboxes={damagedMaterial}
-                        setDamagedMaterialCheckboxes={setDamagedMaterial}
-
-                        showPrepareCheckboxes={ability.can('deliver', {
+                    {isEditing ? (
+                        <>
+                            <CartTable
+                                abteilung={abteilung}
+                                cartItems={editItems}
+                                allCartItems={editItems}
+                                changeCart={editChangeCart}
+                            />
+                            {editCollisions && (
+                                <OrderItems items={editItems} collisions={editCollisions} updateOrderItemsByAvail={updateEditItemsByAvail} />
+                            )}
+                            <AutoComplete
+                                style={{ width: '100%', marginTop: 8 }}
+                                placeholder={t('order:edit.addMaterialPlaceholder')}
+                                value={materialSearchQuery}
+                                onChange={setMaterialSearchQuery}
+                                options={materialSearchQuery.length > 0 ? materials
+                                    .filter(m => m.name.toLowerCase().includes(materialSearchQuery.toLowerCase()) && !editItems.find(e => e.matId === m.id))
+                                    .slice(0, 10)
+                                    .map(m => ({ value: m.id, label: `${m.name} (${getAvailableMatCount(m)} ${t('order:edit.available')})` })) : []}
+                                onSelect={(matId: string) => {
+                                    const mat = materials.find(m => m.id === matId);
+                                    if (mat) addMaterialToEdit(mat);
+                                }}
+                            />
+                        </>
+                    ) : (
+                        <OrderItems items={cartItemsMerged} showCheckBoxes={ability.can('deliver', {
                             ...order,
                             abteilungId: abteilung.id
-                        }) && order.status === 'created'}
-                        preparedItems={order.preparedItems || []}
-                        onTogglePrepared={togglePreparedItem}
-                    />
+                        }) && order.status === 'delivered'}
+
+                            damagedMaterials={order.damagedMaterial || undefined}
+                            damagedMaterialsCheckboxes={damagedMaterial}
+                            setDamagedMaterialCheckboxes={setDamagedMaterial}
+
+                            showPrepareCheckboxes={ability.can('deliver', {
+                                ...order,
+                                abteilungId: abteilung.id
+                            }) && order.status === 'created' && !isEditing}
+                            preparedItems={order.preparedItems || []}
+                            onTogglePrepared={togglePreparedItem}
+                        />
+                    )}
                 </Col>
                 <Col span={24}>
-                    {order?.comment && <Card size="small" title={orderer ? orderer.displayName : order?.orderer}>
-                        <p>{order?.comment}</p>
-                        <small>{order?.creationTime.format(dateFormatWithTime)}</small>
-                    </Card>}
+                    {isEditing ? (
+                        <Form.Item label={t('order:create.comment')}>
+                            <Input.TextArea
+                                value={editComment}
+                                onChange={(e) => setEditComment(e.currentTarget.value)}
+                                rows={3}
+                            />
+                        </Form.Item>
+                    ) : (
+                        order?.comment && <Card size="small" title={orderer ? orderer.displayName : order?.orderer}>
+                            <p>{order?.comment}</p>
+                            <small>{order?.creationTime.format(dateFormatWithTime)}</small>
+                        </Card>
+                    )}
 
 
-                    {
+                    {!isEditing && (
                         //Comment option for admin / matchef
                         ability.can('deliver', {
                             ...order,
@@ -377,44 +629,63 @@ export const OrderView = (props: OrderProps) => {
 
                         </>
                             :
-                            order?.matchefComment && <Card size="small" title={getMatchefInfo()?.text.split('hat')[0] || 'Matchef'}>
+                            !isEditing && order?.matchefComment && <Card size="small" title={getMatchefInfo()?.text.split('hat')[0] || 'Matchef'}>
                                 <p>{order?.matchefComment}</p>
                                 <small>{dayjs(getMatchefInfo()?.timestamp).format(dateFormatWithTime)}</small>
                             </Card>
-                    }
+                    )}
                 </Col>
                 <Col span={24}>
                     <div style={{display: 'flex', justifyContent: 'right'}}>
-                        <Can I='delete' this={{
-                            ...order,
-                            abteilungId: abteilung.id
-                        }}
-                        >
-                            <Popconfirm
-                                title={t('order:view.deleteConfirm')}
-                                onConfirm={async () => {
-                                    const res = await deleteOrder(abteilung, order, materials, user)
-                                    if(!!res) {
-                                        navigate(abteilungOrdersLink)
-                                    }
-
+                        {isEditing ? (
+                            <>
+                                <Button onClick={cancelEdit} disabled={editLoading}>
+                                    {t('common:buttons.cancel')}
+                                </Button>
+                                <div style={{marginLeft: '1%', marginRight: '1%'}}></div>
+                                <Button type='primary' onClick={saveEdit} loading={editLoading} disabled={editItems.length <= 0}>
+                                    {t('common:buttons.save')}
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                {canEditOrder && (
+                                    <Button icon={<EditOutlined />} onClick={enterEditMode} style={{marginRight: '1%'}}>
+                                        {t('common:buttons.edit')}
+                                    </Button>
+                                )}
+                                <Can I='delete' this={{
+                                    ...order,
+                                    abteilungId: abteilung.id
                                 }}
-                                onCancel={() => { }}
-                                okText={t('common:confirm.yes')}
-                                cancelText={t('common:confirm.no')}
-                                disabled={order.status === 'delivered'}
-                            >
-                                <Button type='ghost' danger icon={<DeleteOutlined />} disabled={order.status === 'delivered'}>{t('order:actions.delete')}</Button>
-                            </Popconfirm>
-                        </Can>
-                        <div style={{marginLeft: '1%', marginRight: '1%'}}></div>
-                        <Can I='deliver' this={{
-                            ...order,
-                            abteilungId: abteilung.id
-                        }}
-                        >
-                            <MaterialAction />
-                        </Can>
+                                >
+                                    <Popconfirm
+                                        title={t('order:view.deleteConfirm')}
+                                        onConfirm={async () => {
+                                            const res = await deleteOrder(abteilung, order, materials, user)
+                                            if(!!res) {
+                                                navigate(abteilungOrdersLink)
+                                            }
+
+                                        }}
+                                        onCancel={() => { }}
+                                        okText={t('common:confirm.yes')}
+                                        cancelText={t('common:confirm.no')}
+                                        disabled={order.status === 'delivered'}
+                                    >
+                                        <Button type='ghost' danger icon={<DeleteOutlined />} disabled={order.status === 'delivered'}>{t('order:actions.delete')}</Button>
+                                    </Popconfirm>
+                                </Can>
+                                <div style={{marginLeft: '1%', marginRight: '1%'}}></div>
+                                <Can I='deliver' this={{
+                                    ...order,
+                                    abteilungId: abteilung.id
+                                }}
+                                >
+                                    <MaterialAction />
+                                </Can>
+                            </>
+                        )}
                     </div>
                 </Col>
                 <DamagedMaterialModal abteilung={abteilung} order={order} damagedMaterial={damagedMaterial} showDamageModal={showDamageModal} setShowDamageModal={setShowDamageModal} />
