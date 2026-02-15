@@ -65,6 +65,7 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
                 allowClear
                 style={{ width: '100%' }}
                 placeholder={t('material:form.standortPlaceholder')}
+                optionFilterProp="children"
             >
                 {standorte.map(std => <Option key={std.id} value={std.id}>{std.name}</Option>)}
             </Select>
@@ -135,6 +136,7 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
                 allowClear
                 style={{ width: '100%' }}
                 placeholder={t('material:form.categoriesPlaceholder')}
+                optionFilterProp="children"
             >
                 {categories.map(cat => <Option key={cat.id} value={cat.id}>{cat.name}</Option>)}
             </Select>
