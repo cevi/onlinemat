@@ -27,9 +27,23 @@
   "home": {
     "title": "Home",
     "appName": "Onlinemat",
-    "description": "Dies ist die Webseite vom Cevi Onlinemat",
+    "description": "Das Onlinemat ist die Materialverwaltungs- und Ausleihplattform für alle Jungscharen und Cevi-Abteilungen. Durchstöbere das verfügbare Material deiner Abteilung und reserviere es direkt online. Jede Abteilung verwaltet ihr eigenes Material, ihre Standorte und Mitglieder. Du suchst etwas, das deine Abteilung nicht hat? Über die Suche findest du Material von anderen Abteilungen, die das Ausleihen ermöglicht haben.",
     "dashboard": "Onlinemat Dashboard",
-    "welcome": "Willkommen {{name}}, du kannst jetzt loslegen."
+    "welcome": "Willkommen {{name}}, du kannst jetzt loslegen.",
+    "features": {
+      "browse": {
+        "title": "Material durchstöbern",
+        "description": "Entdecke das verfügbare Material deiner Abteilung - von Zelten über Kochutensilien bis hin zu Spielmaterial."
+      },
+      "reserve": {
+        "title": "Online reservieren",
+        "description": "Reserviere Material mit wenigen Klicks direkt online und behalte den Überblick über deine Bestellungen."
+      },
+      "search": {
+        "title": "Abteilungsübergreifend suchen",
+        "description": "Finde Material von anderen Abteilungen, die das Ausleihen ermöglicht haben - ideal wenn dir etwas fehlt."
+      }
+    }
   },
   "login": {
     "button": "Anmelden"

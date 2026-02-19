@@ -128,7 +128,7 @@ export const SearchView = () => {
         });
     }, [query, visibleSearchable, abteilungen, hasSearched]);
 
-    // Handle typing in autocomplete — resets search mode so suggestions reappear
+    // Handle typing in autocomplete - resets search mode so suggestions reappear
     const handleSearchInput = (value: string) => {
         setQuery(value);
         if (hasSearched) setHasSearched(false);

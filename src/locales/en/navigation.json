@@ -27,9 +27,23 @@
   "home": {
     "title": "Home",
     "appName": "Onlinemat",
-    "description": "This is the website of Cevi Onlinemat",
+    "description": "Onlinemat is the material management and lending platform for all Jungschar groups and Cevi departments. Browse the available materials in your department and reserve them directly online. Each department manages its own materials, locations, and members. Looking for something your department doesn't have? Use the search to find materials from other departments that have enabled sharing.",
     "dashboard": "Onlinemat Dashboard",
-    "welcome": "Welcome {{name}}, you can get started now."
+    "welcome": "Welcome {{name}}, you can get started now.",
+    "features": {
+      "browse": {
+        "title": "Browse materials",
+        "description": "Discover the available materials in your department - from tents to cooking gear to games and more."
+      },
+      "reserve": {
+        "title": "Reserve online",
+        "description": "Reserve materials with just a few clicks and keep track of your orders at any time."
+      },
+      "search": {
+        "title": "Cross-department search",
+        "description": "Find materials from other departments that have enabled sharing - perfect when you need something extra."
+      }
+    }
   },
   "login": {
     "button": "Log in"
