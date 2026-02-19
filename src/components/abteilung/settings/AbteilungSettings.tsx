@@ -4,10 +4,11 @@ import ceviLogoImage from 'assets/onlinemat_logo.png';
 import { useNavigate } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
 import { useContext, useState } from 'react';
-import { db, functions } from 'config/firebase/firebase';
+import { auth, db, functions } from 'config/firebase/firebase';
 import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
-import { abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
+import { abteilungenCollection, abteilungenMembersCollection } from 'config/firebase/collections';
+import { MembersContext } from 'contexts/AbteilungContexts';
 import moduleStyles from '../Abteilung.module.scss'
 import { ability } from 'config/casl/ability';
 import { slugify } from 'util/FormUtil';
@@ -37,6 +38,30 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
     const [searchVisible, setSearchVisible] = useState<boolean>(abteilung.searchVisible !== false);
     const [searchVisibleLoading, setSearchVisibleLoading] = useState(false);
+
+    const uid = auth.currentUser?.uid;
+    const { members } = useContext(MembersContext);
+    const currentMember = members.find(m => m.userId === uid);
+    const isAdmin = currentMember?.role === 'admin';
+
+    const [notifyOnNewOrder, setNotifyOnNewOrder] = useState<boolean>(currentMember?.notifyOnNewOrder === true);
+    const [notifyLoading, setNotifyLoading] = useState(false);
+
+    const toggleNotifyOnNewOrder = async (checked: boolean) => {
+        if (!uid) return;
+        try {
+            setNotifyLoading(true);
+            await updateDoc(doc(db, abteilungenCollection, abteilung.id, abteilungenMembersCollection, uid), {
+                notifyOnNewOrder: checked
+            });
+            setNotifyOnNewOrder(checked);
+            message.success(t('abteilung:settings.saveSuccess'));
+        } catch (ex) {
+            message.error(t('common:errors.generic', { error: ex }));
+        } finally {
+            setNotifyLoading(false);
+        }
+    };
 
     const toggleSearchVisible = async (checked: boolean) => {
         try {
@@ -136,6 +161,24 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                                 <Typography.Text strong>{t('abteilung:settings.searchVisible')}</Typography.Text>
                                 <br />
                                 <Typography.Text type="secondary">{t('abteilung:settings.searchVisibleDescription')}</Typography.Text>
+                            </div>
+                        </div>
+                    </Col>
+                </Row>
+            )}
+            {isAdmin && (
+                <Row style={{ marginBottom: 24 }}>
+                    <Col span={24}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <Switch
+                                checked={notifyOnNewOrder}
+                                onChange={toggleNotifyOnNewOrder}
+                                loading={notifyLoading}
+                            />
+                            <div>
+                                <Typography.Text strong>{t('abteilung:settings.notifyOnNewOrder')}</Typography.Text>
+                                <br />
+                                <Typography.Text type="secondary">{t('abteilung:settings.notifyOnNewOrderDescription')}</Typography.Text>
                             </div>
                         </div>
                     </Col>

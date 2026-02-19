@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { AutoComplete, Button, Card, Col, DatePicker, Form, Input, message, Popconfirm, Row, Select, Spin, Tag, Timeline, Tooltip } from 'antd';
+import { AutoComplete, Button, Card, Col, DatePicker, Form, Input, message, Popconfirm, Row, Select, Spin, Tag, Timeline, Tooltip, Typography } from 'antd';
 import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
 import { db, functions } from 'config/firebase/firebase';
 import { doc, onSnapshot, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
@@ -644,40 +644,60 @@ export const OrderView = (props: OrderProps) => {
                             />
                         </Form.Item>
                     ) : (
-                        order?.comment && <Card size="small" title={orderer ? orderer.displayName : order?.orderer}>
-                            <p>{order?.comment}</p>
-                            <small>{order?.creationTime.format(dateFormatWithTime)}</small>
-                        </Card>
+                        order?.comment && (
+                            <Card size="small" title={t('order:view.ordererComment')} style={{ marginBottom: 16 }}>
+                                <p style={{ margin: 0 }}>{order.comment}</p>
+                            </Card>
+                        )
                     )}
 
-
                     {!isEditing && (
-                        //Comment option for admin / matchef
                         ability.can('deliver', {
                             ...order,
                             abteilungId: abteilung.id
-                        }) && order.status !== 'completed' ? <>
-                            <Form.Item label={t('order:view.comment')}>
+                        }) && order.status !== 'completed' ? (
+                            <Card size="small" title={t('order:view.comment')} style={{ marginBottom: 16 }}>
                                 <Input.TextArea
                                     value={matChefComment}
                                     onChange={(e) => setMatchefComment(e.currentTarget.value)}
                                     placeholder={t('order:view.commentPlaceholder')}
+                                    rows={3}
+                                    style={{ marginBottom: 8 }}
                                 />
-                            </Form.Item>
-                            <Form.Item>
-                                <Button type='primary' onClick={async () => {
-                                    await addCommentOrder(abteilung.id, order, matChefComment, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)
-                                }}>
-                                    {t('order:view.saveComment')}
-                                </Button>
-                            </Form.Item>
-
-                        </>
-                            :
-                            !isEditing && order?.matchefComment && <Card size="small" title={getMatchefInfo()?.text.split('hat')[0] || 'Matchef'}>
-                                <p>{order?.matchefComment}</p>
-                                <small>{dayjs(getMatchefInfo()?.timestamp).format(dateFormatWithTime)}</small>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                                        {t('order:view.commentHint')}
+                                    </Typography.Text>
+                                    <Button type='primary' onClick={async () => {
+                                        await addCommentOrder(abteilung.id, order, matChefComment, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)
+                                    }}>
+                                        {t('order:view.saveComment')}
+                                    </Button>
+                                </div>
+                                {getMatchefInfo() && (
+                                    <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 8 }}>
+                                        {t('order:view.lastEditedBy', {
+                                            name: getMatchefInfo()?.text.split(/ hat /)[0] || '',
+                                            date: dayjs(getMatchefInfo()?.timestamp).format(dateFormatWithTime)
+                                        })}
+                                    </Typography.Text>
+                                )}
                             </Card>
+                        ) : (
+                            !isEditing && order?.matchefComment && (
+                                <Card size="small" title={t('order:view.comment')} style={{ marginBottom: 16 }}>
+                                    <p style={{ margin: 0 }}>{order.matchefComment}</p>
+                                    {getMatchefInfo() && (
+                                        <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 8 }}>
+                                            {t('order:view.lastEditedBy', {
+                                                name: getMatchefInfo()?.text.split(/ hat /)[0] || '',
+                                                date: dayjs(getMatchefInfo()?.timestamp).format(dateFormatWithTime)
+                                            })}
+                                        </Typography.Text>
+                                    )}
+                                </Card>
+                            )
+                        )
                     )}
                 </Col>
                 <Col span={24}>
