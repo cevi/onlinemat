@@ -11,8 +11,8 @@
     "approve": "als {{role}} Annehmen",
     "deny": "Ablehnen",
     "ban": "Sperren",
-    "banTooltip": "Die Anfrage wird abgelehnt und der Benutzer kann in Zukunft keinen neuen Antrag stellen",
-    "unban": "Benutzer entsperren",
+    "banTooltip": "Die Anfrage wird abgelehnt und es kann in Zukunft kein neuer Antrag gestellt werden",
+    "unban": "Entsperren",
     "remove": "Entfernen"
   },
   "syncDisplayNames": {
@@ -25,7 +25,7 @@
   "roles": {
     "guest": "Gast",
     "member": "Mitglied",
-    "matchef": "Matchef",
+    "matchef": "Matverantwortung",
     "admin": "Admin",
     "banned": "Gesperrt",
     "pending": "Ausstehend"

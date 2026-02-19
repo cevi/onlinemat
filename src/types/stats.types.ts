@@ -25,6 +25,13 @@ export interface MonthlyOrderStat {
     count: number;
 }
 
+export interface ReleaseNoteStat {
+    id: string;
+    title: string;
+    createdAt: Timestamp;
+    readCount: number;
+}
+
 export interface StatsData {
     generatedAt: Timestamp;
     totalUsers: number;
@@ -33,4 +40,5 @@ export interface StatsData {
     abteilungen: AbteilungStat[];
     activeUsers: ActiveUserStat[];
     ordersOverTime: MonthlyOrderStat[];
+    releaseNoteStats: ReleaseNoteStat[];
 }

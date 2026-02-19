@@ -8,7 +8,7 @@ import { useIsMobile } from 'hooks/useIsMobile';
 
 const roleLabels: Record<string, string> = {
     admin: "Admin",
-    matchef: "Matchef",
+    matchef: "Matverantwortung",
     member: "Mitglied",
     guest: "Gast",
     pending: "Angefragt",

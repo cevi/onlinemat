@@ -11,7 +11,7 @@ import classNames from 'classnames';
 
 import { db, functions } from 'config/firebase/firebase';
 import { statsCollection } from 'config/firebase/collections';
-import { StatsData, AbteilungStat, ActiveUserStat } from 'types/stats.types';
+import { StatsData, AbteilungStat, ActiveUserStat, ReleaseNoteStat } from 'types/stats.types';
 import { useIsMobile } from 'hooks/useIsMobile';
 import appStyles from 'styles.module.scss';
 
@@ -133,6 +133,35 @@ export const StatsView: React.FC = () => {
         },
     ];
 
+    const releaseNotesColumns = [
+        {
+            title: t('stats:releaseNotesTable.noteTitle'),
+            dataIndex: 'title',
+            key: 'title',
+        },
+        {
+            title: t('stats:releaseNotesTable.createdAt'),
+            key: 'createdAt',
+            render: (_: unknown, record: ReleaseNoteStat) =>
+                record.createdAt?.toDate
+                    ? dayjs(record.createdAt.toDate()).format('DD.MM.YYYY')
+                    : '-',
+            sorter: (a: ReleaseNoteStat, b: ReleaseNoteStat) => {
+                const aTime = a.createdAt?.toMillis?.() || 0;
+                const bTime = b.createdAt?.toMillis?.() || 0;
+                return aTime - bTime;
+            },
+            defaultSortOrder: 'descend' as const,
+        },
+        {
+            title: t('stats:releaseNotesTable.readCount'),
+            key: 'readCount',
+            render: (_: unknown, record: ReleaseNoteStat) =>
+                `${record.readCount} / ${stats.totalUsers}`,
+            sorter: (a: ReleaseNoteStat, b: ReleaseNoteStat) => a.readCount - b.readCount,
+        },
+    ];
+
     const usersColumns = [
         {
             title: t('stats:usersTable.name'),
@@ -219,6 +248,17 @@ export const StatsView: React.FC = () => {
                     columns={usersColumns}
                     rowKey="id"
                     pagination={{ pageSize: 20 }}
+                    scroll={{ x: true }}
+                    size={isMobile ? 'small' : 'middle'}
+                />
+            </Card>
+
+            <Card title={t('stats:releaseNotesTable.title')} style={{ marginTop: 16 }}>
+                <Table
+                    dataSource={stats.releaseNoteStats}
+                    columns={releaseNotesColumns}
+                    rowKey="id"
+                    pagination={false}
                     scroll={{ x: true }}
                     size={isMobile ? 'small' : 'middle'}
                 />

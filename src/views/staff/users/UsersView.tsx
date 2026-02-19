@@ -80,12 +80,12 @@ export const UsersView = () => {
     }, [isAuthenticated]);
 
     return <div className={classNames(appStyles['flex-grower'])}>
-        <Typography.Title level={isMobile ? 4 : 3}>Benutzer</Typography.Title>
+        <Typography.Title level={isMobile ? 4 : 3}>{t('navigation:users.title')}</Typography.Title>
 
         <div className={classNames(appStyles['flex-grower'])}>
             <Row gutter={[16, 12]} align='middle' style={{ marginBottom: 12 }}>
                 <Col>
-                    <Statistic title='Benutzer' value={users.length} />
+                    <Statistic title={t('navigation:users.statisticUsers')} value={users.length} />
                 </Col>
                 <Col>
                     <Statistic title='Staff' value={users.filter(u => u.staff).length} />
@@ -103,7 +103,7 @@ export const UsersView = () => {
             </Row>
 
             <Search
-                placeholder='nach Benutzern suchen'
+                placeholder={t('navigation:users.searchPlaceholder')}
                 allowClear
                 enterButton='Suchen'
                 size={isMobile ? 'middle' : 'large'}

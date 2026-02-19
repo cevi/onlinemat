@@ -30,5 +30,11 @@
         "orders": "Orders",
         "lastLogin": "Last Login",
         "abteilungen": "Departments"
+    },
+    "releaseNotesTable": {
+        "title": "Release Notes",
+        "noteTitle": "Title",
+        "createdAt": "Created At",
+        "readCount": "Read"
     }
 }

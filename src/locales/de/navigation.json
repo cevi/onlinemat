@@ -5,7 +5,7 @@
     "search": "Suchen",
     "abteilungen": "Abteilungen",
     "abteilungenDetails": "Abteilungen Details",
-    "users": "Benutzer",
+    "users": "Nutzende",
     "stats": "Statistiken",
     "profile": "Profile"
   },
@@ -54,9 +54,9 @@
     "gitHash": "Git Hash"
   },
   "users": {
-    "title": "Benutzer",
-    "searchPlaceholder": "nach Benutzern suchen",
-    "statisticUsers": "Benutzer",
+    "title": "Nutzende",
+    "searchPlaceholder": "nach Nutzenden suchen",
+    "statisticUsers": "Nutzende",
     "statisticStaff": "Staff",
     "table": {
       "name": "Name",
@@ -73,15 +73,15 @@
       "error": "Sync fehlgeschlagen"
     },
     "addToAbteilung": {
-      "button": "Benutzer zu Abteilung hinzufügen",
-      "title": "Benutzer zu Abteilung hinzufügen",
+      "button": "Nutzende zu Abteilung hinzufügen",
+      "title": "Nutzende zu Abteilung hinzufügen",
       "submit": "Zu Abteilung hinzufügen",
       "abteilungLabel": "Abteilung",
       "abteilungPlaceholder": "Abteilung",
       "roleLabel": "Rolle",
-      "alreadyMember": "Dieser Benutzer ist bereits mitglied dieser Abteilung",
-      "error": "Der Benutzer konnte nicht zur Abteilung hinzugefügt werden!",
-      "success": "Der Benutzer wurde erfolgreich zur Abteilung hinzugefügt"
+      "alreadyMember": "Bereits Mitglied dieser Abteilung",
+      "error": "Konnte nicht zur Abteilung hinzugefügt werden!",
+      "success": "Erfolgreich zur Abteilung hinzugefügt"
     }
   }
 }

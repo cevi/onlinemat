@@ -6,7 +6,7 @@
     "refreshError": "Aktualisierung fehlgeschlagen",
     "noData": "Keine Statistiken vorhanden. Bitte aktualisiere die Statistiken.",
     "cards": {
-        "totalUsers": "Benutzer",
+        "totalUsers": "Nutzende",
         "totalAbteilungen": "Abteilungen",
         "totalOrders": "Bestellungen"
     },
@@ -24,11 +24,17 @@
         "statusBreakdown": "Status"
     },
     "usersTable": {
-        "title": "Aktivste Benutzer",
+        "title": "Aktivste Nutzende",
         "name": "Name",
         "email": "Email",
         "orders": "Bestellungen",
         "lastLogin": "Letzter Login",
         "abteilungen": "Abteilungen"
+    },
+    "releaseNotesTable": {
+        "title": "Release Notes",
+        "noteTitle": "Titel",
+        "createdAt": "Erstellt am",
+        "readCount": "Gelesen"
     }
 }
