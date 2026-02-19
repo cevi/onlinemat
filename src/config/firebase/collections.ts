@@ -12,3 +12,6 @@ export const usersCollection = 'users';
 
 //Release Notes
 export const releaseNotesCollection = 'releaseNotes';
+
+//Stats
+export const statsCollection = 'stats';
