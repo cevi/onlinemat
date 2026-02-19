@@ -10,6 +10,7 @@ import {auth, db} from 'config/firebase/firebase';
 import {signOut} from 'firebase/auth';
 import {collection, query, where, orderBy, doc, updateDoc} from 'firebase/firestore';
 import {LoginOutlined, LogoutOutlined} from '@ant-design/icons';
+import {Button} from 'antd';
 import {useAuth0, withAuthenticationRequired} from '@auth0/auth0-react';
 import {useUser} from 'hooks/use-user';
 import {NotFoundView} from './NotFound';
@@ -216,7 +217,15 @@ const NavigationMenu: React.FC = () => {
         }}>
             <MobileNavContext.Provider value={mobileNavContextValue}>
                 <Layout style={{minHeight: '100vh'}}>
-                    {!isMobile && (
+                    {!isAuthenticated && !isLoading && (
+                        <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '8px 16px', gap: 8}}>
+                            <LanguagePicker theme="light" />
+                            <Button type="primary" icon={<LoginOutlined />} onClick={() => loginWithRedirect()}>
+                                {t('navigation:menu.login')}
+                            </Button>
+                        </div>
+                    )}
+                    {isAuthenticated && !isMobile && (
                         <Sider
                             theme='dark'
                             collapsible
@@ -242,7 +251,7 @@ const NavigationMenu: React.FC = () => {
                             </div>
                         </Sider>
                     )}
-                    {isMobile && (
+                    {isAuthenticated && isMobile && (
                         <MobileDrawer
                             open={drawerOpen}
                             onClose={() => setDrawerOpen(false)}
@@ -311,7 +320,7 @@ const NavigationMenu: React.FC = () => {
                             </Footer>
                         )}
                     </Layout>
-                    {isMobile && (
+                    {isAuthenticated && isMobile && (
                         <BottomNav onMenuClick={() => setDrawerOpen(true)} />
                     )}
                 </Layout>

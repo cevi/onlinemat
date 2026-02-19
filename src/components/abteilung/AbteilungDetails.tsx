@@ -1,5 +1,5 @@
 import { useState, useContext, useMemo, useEffect } from 'react';
-import { Spin, message, Menu, Row, Col, Typography } from 'antd';
+import { Badge, Spin, message, Menu, Row, Col, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { MenuProps } from 'antd';
 import classNames from 'classnames';
@@ -44,6 +44,19 @@ export {
     MaterialsContext,
     InvitationsContext,
 } from 'contexts/AbteilungContexts';
+import { MembersContext } from 'contexts/AbteilungContexts';
+
+/** Rendered inside AbteilungDataProvider to consume MembersContext for the badge count. */
+const MembersTabLabel = () => {
+    const { t } = useTranslation();
+    const { members } = useContext(MembersContext);
+    const pendingCount = members.filter(m => !m.approved && !m.banned).length;
+    return (
+        <Badge count={pendingCount} size="small" offset={[6, -2]}>
+            <span>{t('abteilung:tabs.mitglieder')}</span>
+        </Badge>
+    );
+};
 
 export type AbteilungDetailViewParams = {
     abteilungSlugOrId: string;
@@ -216,7 +229,7 @@ export const AbteilungDetail = () => {
                         { key: 'orders', icon: <UnorderedListOutlined />, label: t('abteilung:tabs.bestellungen') },
                         { key: 'groups', icon: <TagsOutlined />, label: t('abteilung:tabs.gruppen') },
                         ...(canUpdate ? [
-                            { key: 'members', icon: <TeamOutlined />, label: t('abteilung:tabs.mitglieder') },
+                            { key: 'members', icon: <TeamOutlined />, label: <MembersTabLabel /> },
                             { key: 'settings', icon: <SettingOutlined />, label: t('abteilung:tabs.einstellungen') },
                         ] : []),
                     ] : []),

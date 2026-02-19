@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { Card, Col, Result, Row, Typography } from 'antd';
-import { AppstoreOutlined, CalendarOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Card, Col, Result, Row, Typography } from 'antd';
+import { AppstoreOutlined, CalendarOutlined, LoginOutlined, SearchOutlined } from '@ant-design/icons';
 import { useAuth0 } from '@auth0/auth0-react';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
 import { useTranslation } from 'react-i18next';
@@ -14,12 +14,12 @@ const features = [
 
 export const HomeView = () => {
     const { t } = useTranslation('navigation');
-    const { user, isAuthenticated  } = useAuth0();
+    const { user, isAuthenticated, loginWithRedirect  } = useAuth0();
 
     const backgroundStyle = isAuthenticated ? {backgroundImage:`url(${ceviLogoImage})`,backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundSize: '20%', backgroundPositionY: '25%'} : {};
 
     return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])} style={backgroundStyle}>
-        <Typography.Title level={3}>{t('navigation:home.title')}</Typography.Title>
+        {isAuthenticated && <Typography.Title level={3}>{t('navigation:home.title')}</Typography.Title>}
 
         {
             !isAuthenticated && <div className={classNames(appStyles['flex-grower'], appStyles['center-container'])}>
@@ -29,6 +29,9 @@ export const HomeView = () => {
                     <Typography.Paragraph style={{fontSize: 16, maxWidth: 600}}>
                         {t('navigation:home.description')}
                     </Typography.Paragraph>
+                    <Button type="primary" size="large" icon={<LoginOutlined />} onClick={() => loginWithRedirect()} style={{marginTop: 8}}>
+                        {t('navigation:menu.login')}
+                    </Button>
                     <Row gutter={[24, 24]} style={{marginTop: 32, width: '100%'}}>
                         {features.map(({key, icon}) => (
                             <Col xs={24} sm={8} key={key}>
