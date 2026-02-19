@@ -10,6 +10,10 @@
       "Bash(yarn list:*)",
       "Bash(yarn build:*)",
       "Bash(npx vitest run:*)"
+      "Bash(yarn audit:*)"
+      "Bash(npm ls:*)",
+      "Bash(node --version:*)",
+      "Bash(npm:*)"
     ]
   }
 }

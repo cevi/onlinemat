@@ -297,18 +297,22 @@ export const ExcelImport = (props: ExcelImportProps) => {
         matStandortIds.push(placeholderName);
       }
 
+      // Validate and sanitize material data
+      const sanitizedName = matName.trim().slice(0, 200);
+      if (!sanitizedName) continue;
+
       const matToAdd = {
-        name: matName,
-        comment: matComment,
-        count: matCount,
-        lost: matLost,
-        damaged: matDamaged,
-        weightInKg: matWeightInKg,
-        consumables: matConsumablest,
+        name: sanitizedName,
+        comment: matComment ? matComment.trim().slice(0, 1000) : null,
+        count: Number.isFinite(matCount) && matCount >= 0 ? Math.floor(matCount) : 1,
+        lost: Number.isFinite(matLost) && matLost >= 0 ? Math.floor(matLost) : 0,
+        damaged: Number.isFinite(matDamaged) && matDamaged >= 0 ? Math.floor(matDamaged) : 0,
+        weightInKg: matWeightInKg !== null && Number.isFinite(matWeightInKg) ? matWeightInKg : null,
+        consumables: Boolean(matConsumablest),
         categorieIds: materialCategorieIds,
-        imageUrls: matImageUrls,
+        imageUrls: matImageUrls.filter(url => url.startsWith('https://') || url.startsWith('http://')),
         standort: matStandortIds,
-        onlyLendInternal: matonlyLendInternal,
+        onlyLendInternal: Boolean(matonlyLendInternal),
       } as Material;
 
       material.push(matToAdd);
