@@ -1,4 +1,4 @@
-import { Table, Button, Popconfirm } from 'antd';
+import { Table, Button, Popconfirm, Space } from 'antd';
 import { Abteilung, AbteilungMemberUserData } from 'types/abteilung.type';
 import { Group } from 'types/group.types';
 import { ability } from 'config/casl/ability';
@@ -69,7 +69,7 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
             key: 'actions',
             dataIndex: 'id',
             render: (text: string, record: Group) => (
-                <>
+                <Space>
                     <EditGroupButton group={record} members={members} abteilung={abteilung} />
                     <Popconfirm
                         title={t('group:delete.confirm')}
@@ -80,7 +80,7 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
                     >
                         <Button type='ghost' danger icon={<DeleteOutlined />} disabled={loading}/>
                     </Popconfirm>
-                </>
+                </Space>
             )
         }] : []),
     ];
