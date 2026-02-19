@@ -26,6 +26,8 @@
     "guest": "Gast",
     "member": "Mitglied",
     "matchef": "Matchef",
-    "admin": "Admin"
+    "admin": "Admin",
+    "banned": "Gesperrt",
+    "pending": "Ausstehend"
   }
 }

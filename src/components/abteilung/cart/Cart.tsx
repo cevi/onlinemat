@@ -14,6 +14,7 @@ import { functions } from 'config/firebase/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { getAvailableMatCount } from 'util/MaterialUtil';
 import { useTranslation } from 'react-i18next';
+import { useIsMobile } from 'hooks/useIsMobile';
 
 export interface CartProps {
     abteilung: Abteilung
@@ -26,6 +27,7 @@ export const Cart = (props: CartProps) => {
     const { abteilung, cartItems, changeCart } = props;
 
     const { Step } = Steps;
+    const isMobile = useIsMobile();
 
     const cookieName = getCartName(abteilung.id);
 
@@ -142,18 +144,24 @@ export const Cart = (props: CartProps) => {
     const ProgressBar = () => {
         const minStep = 0;
         const maxStep = 2;
-        return <><Steps current={currentStep}>
-            <Step title={t('order:cart.steps.material')} description={t('order:cart.steps.materialDescription')} />
-            <Step title={t('order:cart.steps.order')} description={orderError ? orderError : t('order:cart.steps.orderDescription')} icon={orderLoading ? <LoadingOutlined /> : undefined} status={orderError ? 'error' : undefined}/>
-            <Step title={t('order:cart.steps.finish')} description={t('order:cart.steps.finishDescription')} status={currentStep === maxStep ? 'finish' : undefined}/>
+        return <><Steps current={currentStep} size={isMobile ? 'small' : 'default'}>
+            <Step title={t('order:cart.steps.material')} description={isMobile ? undefined : t('order:cart.steps.materialDescription')} />
+            <Step title={t('order:cart.steps.order')} description={isMobile ? undefined : (orderError ? orderError : t('order:cart.steps.orderDescription'))} icon={orderLoading ? <LoadingOutlined /> : undefined} status={orderError ? 'error' : undefined}/>
+            <Step title={t('order:cart.steps.finish')} description={isMobile ? undefined : t('order:cart.steps.finishDescription')} status={currentStep === maxStep ? 'finish' : undefined}/>
         </Steps>
-            {currentStep > minStep && currentStep < maxStep  && <Button disabled={orderLoading} onClick={() => setCurrentStep(0)}>{t('common:buttons.back')}</Button>}
-            {currentStep < maxStep - 1 && <Button disabled={orderLoading} type='primary' style={{ float: 'right' }} onClick={() => setCurrentStep(currentStep + 1)}>{t('common:buttons.next')}</Button>}
-            {currentStep === maxStep - 1 && <Button disabled={orderLoading || cartItemsMerged.length <= 0} type='primary' style={{ float: 'right' }} onClick={() => {
-                if(!createOrderRef || !createOrderRef.current) return;
-                //TODO: typescript
-                (createOrderRef.current as any).submitOrder()
-            }}>{t('order:cart.submitOrder')}</Button>}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12 }}>
+                <div>
+                    {currentStep > minStep && currentStep < maxStep  && <Button disabled={orderLoading} onClick={() => setCurrentStep(0)}>{t('common:buttons.back')}</Button>}
+                </div>
+                <div>
+                    {currentStep < maxStep - 1 && <Button disabled={orderLoading} type='primary' onClick={() => setCurrentStep(currentStep + 1)}>{t('common:buttons.next')}</Button>}
+                    {currentStep === maxStep - 1 && <Button disabled={orderLoading || cartItemsMerged.length <= 0} type='primary' onClick={() => {
+                        if(!createOrderRef || !createOrderRef.current) return;
+                        //TODO: typescript
+                        (createOrderRef.current as any).submitOrder()
+                    }}>{t('order:cart.submitOrder')}</Button>}
+                </div>
+            </div>
         </>
     }
 

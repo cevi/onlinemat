@@ -56,6 +56,12 @@
     "unlimited": "unbegrenzt",
     "uncategorized": "Nicht kategorisiert"
   },
+  "filter": {
+    "title": "Filter",
+    "category": "Kategorie wählen",
+    "standort": "Standort wählen",
+    "availableOnly": "Nur verfügbare"
+  },
   "search": {
     "placeholder": "nach Material suchen"
   },

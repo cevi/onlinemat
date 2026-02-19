@@ -48,6 +48,8 @@
     "emailPlaceholder": "Email",
     "searchVisible": "Visible in search",
     "searchVisibleDescription": "When disabled, materials from this department will not appear in the global search. This can also be set per material.",
+    "notifyOnNewOrder": "Email on new order",
+    "notifyOnNewOrderDescription": "You will receive an email notification when a new order is created or edited.",
     "save": "Save",
     "delete": "Delete Department",
     "deleteConfirm": "Do you really want to delete this department?",

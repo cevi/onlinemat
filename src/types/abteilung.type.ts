@@ -21,6 +21,7 @@ export interface AbteilungMember {
     approved: boolean
     banned?: boolean
     displayName?: string
+    notifyOnNewOrder?: boolean
 }
 
 export interface AbteilungMemberUserData extends Omit<AbteilungMember, '__caslSubjectType__'>, Omit<UserData, '__caslSubjectType__'> {

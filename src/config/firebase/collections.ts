@@ -8,3 +8,6 @@ export const abteilungenStandortCollection = 'standorte';
 
 //User
 export const usersCollection = 'users';
+
+//Release Notes
+export const releaseNotesCollection = 'releaseNotes';

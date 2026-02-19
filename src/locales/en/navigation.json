@@ -12,6 +12,9 @@
     "login": "Log in",
     "logout": "Log out"
   },
+  "bottomNav": {
+    "menu": "Menu"
+  },
   "notFound": {
     "title": "Page not found",
     "backToHome": "Back to home page"

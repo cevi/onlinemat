@@ -21,6 +21,7 @@
     "typeGroup": "Gruppe",
     "typeEvent": "Anlass",
     "members": "Mitglieder",
+    "membersPlaceholder": "Mitglieder auswählen...",
     "membersMin": "Du must mindestens 1 Mitglied auswählen"
   },
   "table": {

@@ -48,6 +48,8 @@
     "emailPlaceholder": "Email",
     "searchVisible": "In Suche sichtbar",
     "searchVisibleDescription": "Wenn deaktiviert, werden die Materialien dieser Abteilung nicht in der globalen Suche angezeigt. Diese Einstellung kann auch pro Material gesetzt werden.",
+    "notifyOnNewOrder": "E-Mail bei neuer Bestellung",
+    "notifyOnNewOrderDescription": "Du erhältst eine E-Mail-Benachrichtigung, wenn eine neue Bestellung erstellt oder bearbeitet wird.",
     "save": "Speichern",
     "delete": "Abteilung Löschen",
     "deleteConfirm": "Möchtest du diese Abteilung wirklich löschen?",

@@ -24,9 +24,12 @@
     "weightTooltip": "Das Gesamtgewicht kann nur genau berechnet werden, wenn auch alle Angaben vorhanden sind",
     "weightInfo": "{{totalWeight}} Kg {{incompleteInfo}}",
     "weightInfoIncomplete": "{{complete}}/{{total}} Gewichtsangaben",
+    "ordererComment": "Kommentar des Bestellers",
     "comment": "Bemerkung",
-    "commentPlaceholder": "Bemerkung hinzufügen",
+    "commentPlaceholder": "Bemerkung hinzufügen oder bearbeiten...",
+    "commentHint": "Diese Bemerkung ist für den Besteller sichtbar.",
     "saveComment": "Bemerkung speichern",
+    "lastEditedBy": "Zuletzt bearbeitet von {{name}} am {{date}}",
     "deleteConfirm": "Möchtest du die Bestellung wirklich löschen?",
     "notFound": "Die Bestellung {{orderId}} konnte nicht gefunden werden."
   },

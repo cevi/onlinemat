@@ -47,6 +47,10 @@ $box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.15); // major shadow for layers
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
-        margin-top: 10%;
+        margin-top: 5%;
+    }
+
+    .center-container-stretch {
+        padding-bottom: 72px; // 56px bottom nav + 16px spacing
     }
 }

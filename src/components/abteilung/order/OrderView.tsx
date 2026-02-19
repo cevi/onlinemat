@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { AutoComplete, Button, Card, Col, DatePicker, Form, Input, message, Popconfirm, Row, Select, Spin, Tag, Timeline, Tooltip } from 'antd';
+import { AutoComplete, Button, Card, Col, Collapse, DatePicker, Form, Input, message, Popconfirm, Row, Select, Spin, Tag, Timeline, Tooltip, Typography } from 'antd';
 import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
 import { db, functions } from 'config/firebase/firebase';
 import { doc, onSnapshot, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { useCookies } from 'react-cookie';
 import { getCartName, replaceCart, mergeCart } from 'util/CartUtil';
 import { CopyToCartModal } from './CopyToCartModal';
+import { useIsMobile } from 'hooks/useIsMobile';
 
 export interface OrderProps {
     abteilung: Abteilung
@@ -52,6 +53,7 @@ export const OrderView = (props: OrderProps) => {
     const user = useUser();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const isMobile = useIsMobile();
 
     const [order, setOrder] = useState<Order | undefined>(undefined);
     const [orderLoading, setOrderLoading] = useState(false);
@@ -111,9 +113,16 @@ export const OrderView = (props: OrderProps) => {
 
     const customGroupId = 'custom';
 
+    const uid = user?.appUser?.firebaseUser?.uid;
+    const isInOrderGroup = !!(
+        uid && order?.groupId &&
+        abteilung.groups[order.groupId]?.members?.includes(uid)
+    );
+
     const canEditOrder = order && order.status === 'created' && (
         order.orderer === user?.appUser?.userData?.id
         || ability.can('update', { ...order, abteilungId: abteilung.id })
+        || isInOrderGroup
     );
 
     const userGroups = (() => {
@@ -495,8 +504,34 @@ export const OrderView = (props: OrderProps) => {
 
     if (!order) return <OrderNotFound abteilung={abteilung} orderId={orderId} />
 
+    const timelineContent = (
+        <>
+            <style>{`.order-timeline .ant-timeline-item-head-custom { background: transparent; }`}</style>
+            <div
+                id='scrollableDiv'
+                style={{
+                    maxHeight: 500,
+                    overflow: 'auto',
+                    padding: '10px 16px 0 0',
+                }}
+            >
+                <Timeline
+                    className='order-timeline'
+                    mode='left'
+                    items={detailedHistory.map((orderHistory, index) => ({
+                        key: `history_${index}`,
+                        label: dayjs(orderHistory.timestamp).format(dateFormatWithTime),
+                        color: orderHistory.color || undefined,
+                        dot: getDotIcon(orderHistory.type, orderHistory.color),
+                        children: orderHistory.text,
+                    }))}
+                />
+            </div>
+        </>
+    );
+
     return <Row gutter={[16, 16]}>
-        <Col span={7}>
+        <Col xs={24} lg={7}>
             <Row gutter={[16, 16]}>
                 <Col span={24}>
                     {isEditing ? (
@@ -520,6 +555,7 @@ export const OrderView = (props: OrderProps) => {
                                     }}
                                     format={dateFormatWithTime}
                                     showTime={{ format: 'HH:mm' }}
+                                    style={isMobile ? { width: '100%' } : undefined}
                                 />
                             </Form.Item>
                             <Form.Item label={t('order:create.group')}>
@@ -561,32 +597,14 @@ export const OrderView = (props: OrderProps) => {
                         </>
                     )}
                 </Col>
-                <Col span={24}>
-                    <style>{`.order-timeline .ant-timeline-item-head-custom { background: transparent; }`}</style>
-                    <div
-                        id='scrollableDiv'
-                        style={{
-                            maxHeight: 500,
-                            overflow: 'auto',
-                            padding: '10px 16px 0 0',
-                        }}
-                    >
-                        <Timeline
-                            className='order-timeline'
-                            mode='left'
-                            items={detailedHistory.map((orderHistory, index) => ({
-                                key: `history_${index}`,
-                                label: dayjs(orderHistory.timestamp).format(dateFormatWithTime),
-                                color: orderHistory.color || undefined,
-                                dot: getDotIcon(orderHistory.type, orderHistory.color),
-                                children: orderHistory.text,
-                            }))}
-                        />
-                    </div>
-                </Col>
+                {!isMobile && (
+                    <Col span={24}>
+                        {timelineContent}
+                    </Col>
+                )}
             </Row>
         </Col>
-        <Col offset={1} span={16}>
+        <Col xs={24} lg={{ offset: 1, span: 16 }}>
             <Row gutter={[16, 16]}>
                 <Col span={24}>
                     {isEditing ? (
@@ -644,50 +662,69 @@ export const OrderView = (props: OrderProps) => {
                             />
                         </Form.Item>
                     ) : (
-                        order?.comment && <Card size="small" title={orderer ? orderer.displayName : order?.orderer}>
-                            <p>{order?.comment}</p>
-                            <small>{order?.creationTime.format(dateFormatWithTime)}</small>
-                        </Card>
+                        order?.comment && (
+                            <Card size="small" title={t('order:view.ordererComment')} style={{ marginBottom: 16 }}>
+                                <p style={{ margin: 0 }}>{order.comment}</p>
+                            </Card>
+                        )
                     )}
 
-
                     {!isEditing && (
-                        //Comment option for admin / matchef
                         ability.can('deliver', {
                             ...order,
                             abteilungId: abteilung.id
-                        }) && order.status !== 'completed' ? <>
-                            <Form.Item label={t('order:view.comment')}>
+                        }) && order.status !== 'completed' ? (
+                            <Card size="small" title={t('order:view.comment')} style={{ marginBottom: 16 }}>
                                 <Input.TextArea
                                     value={matChefComment}
                                     onChange={(e) => setMatchefComment(e.currentTarget.value)}
                                     placeholder={t('order:view.commentPlaceholder')}
+                                    rows={3}
+                                    style={{ marginBottom: 8 }}
                                 />
-                            </Form.Item>
-                            <Form.Item>
-                                <Button type='primary' onClick={async () => {
-                                    await addCommentOrder(abteilung.id, order, matChefComment, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)
-                                }}>
-                                    {t('order:view.saveComment')}
-                                </Button>
-                            </Form.Item>
-
-                        </>
-                            :
-                            !isEditing && order?.matchefComment && <Card size="small" title={getMatchefInfo()?.text.split('hat')[0] || 'Matchef'}>
-                                <p>{order?.matchefComment}</p>
-                                <small>{dayjs(getMatchefInfo()?.timestamp).format(dateFormatWithTime)}</small>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                                        {t('order:view.commentHint')}
+                                    </Typography.Text>
+                                    <Button type='primary' onClick={async () => {
+                                        await addCommentOrder(abteilung.id, order, matChefComment, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)
+                                    }}>
+                                        {t('order:view.saveComment')}
+                                    </Button>
+                                </div>
+                                {getMatchefInfo() && (
+                                    <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 8 }}>
+                                        {t('order:view.lastEditedBy', {
+                                            name: getMatchefInfo()?.text.split(/ hat /)[0] || '',
+                                            date: dayjs(getMatchefInfo()?.timestamp).format(dateFormatWithTime)
+                                        })}
+                                    </Typography.Text>
+                                )}
                             </Card>
+                        ) : (
+                            !isEditing && order?.matchefComment && (
+                                <Card size="small" title={t('order:view.comment')} style={{ marginBottom: 16 }}>
+                                    <p style={{ margin: 0 }}>{order.matchefComment}</p>
+                                    {getMatchefInfo() && (
+                                        <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 8 }}>
+                                            {t('order:view.lastEditedBy', {
+                                                name: getMatchefInfo()?.text.split(/ hat /)[0] || '',
+                                                date: dayjs(getMatchefInfo()?.timestamp).format(dateFormatWithTime)
+                                            })}
+                                        </Typography.Text>
+                                    )}
+                                </Card>
+                            )
+                        )
                     )}
                 </Col>
                 <Col span={24}>
-                    <div style={{display: 'flex', justifyContent: 'right'}}>
+                    <div style={{display: 'flex', justifyContent: 'right', flexWrap: 'wrap', gap: 8}}>
                         {isEditing ? (
                             <>
                                 <Button onClick={cancelEdit} disabled={editLoading}>
                                     {t('common:buttons.cancel')}
                                 </Button>
-                                <div style={{marginLeft: '1%', marginRight: '1%'}}></div>
                                 <Button type='primary' onClick={saveEdit} loading={editLoading} disabled={editItems.length <= 0}>
                                     {t('common:buttons.save')}
                                 </Button>
@@ -695,13 +732,13 @@ export const OrderView = (props: OrderProps) => {
                         ) : (
                             <>
                                 <Tooltip title={t('order:actions.copyToCartTooltip')}>
-                                    <Button icon={<CopyOutlined />} onClick={handleCopyToCart} style={{marginRight: '1%'}}>
-                                        {t('order:actions.copyToCart')}
+                                    <Button icon={<CopyOutlined />} onClick={handleCopyToCart}>
+                                        {!isMobile && t('order:actions.copyToCart')}
                                     </Button>
                                 </Tooltip>
                                 {canEditOrder && (
-                                    <Button icon={<EditOutlined />} onClick={enterEditMode} style={{marginRight: '1%'}}>
-                                        {t('common:buttons.edit')}
+                                    <Button icon={<EditOutlined />} onClick={enterEditMode}>
+                                        {!isMobile && t('common:buttons.edit')}
                                     </Button>
                                 )}
                                 <Can I='delete' this={{
@@ -723,10 +760,9 @@ export const OrderView = (props: OrderProps) => {
                                         cancelText={t('common:confirm.no')}
                                         disabled={order.status === 'delivered'}
                                     >
-                                        <Button type='ghost' danger icon={<DeleteOutlined />} disabled={order.status === 'delivered'}>{t('order:actions.delete')}</Button>
+                                        <Button type='ghost' danger icon={<DeleteOutlined />} disabled={order.status === 'delivered'}>{!isMobile && t('order:actions.delete')}</Button>
                                     </Popconfirm>
                                 </Can>
-                                <div style={{marginLeft: '1%', marginRight: '1%'}}></div>
                                 <Can I='deliver' this={{
                                     ...order,
                                     abteilungId: abteilung.id
@@ -747,6 +783,18 @@ export const OrderView = (props: OrderProps) => {
                 />
             </Row>
         </Col>
+        {isMobile && (
+            <Col span={24}>
+                <Collapse
+                    size="small"
+                    items={[{
+                        key: 'timeline',
+                        label: t('order:view.history', 'Verlauf'),
+                        children: timelineContent,
+                    }]}
+                />
+            </Col>
+        )}
     </Row>
 
 

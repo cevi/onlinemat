@@ -1,5 +1,5 @@
 import React from 'react';
-import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined, GlobalOutlined, SearchOutlined } from '@ant-design/icons'
+import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined, GlobalOutlined, SearchOutlined, NotificationOutlined } from '@ant-design/icons'
 import { HomeView } from 'views/home/home';
 import { LoginView } from 'views/login/login';
 import { ProfileView } from 'views/profile/profile';
@@ -8,6 +8,8 @@ import { AbteilungenView } from 'views/abteilung/abteilungen';
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 import { AbteilungDetail } from 'components/abteilung/AbteilungDetails';
 import { SearchView } from 'views/search/search';
+import { ReleaseNotesView } from 'views/releaseNotes/ReleaseNotesView';
+import { ReleaseNoteEditorView } from 'views/releaseNotes/ReleaseNoteEditorView';
 
 
 export interface AppRoute {
@@ -119,5 +121,36 @@ export const AppRoutes: AppRoute[] = [
         exact: true,
         view: ProfileView,
         element: <ProfileView/>
+    },
+    {
+        key: '/release-notes',
+        displayName: 'releaseNote:title',
+        icon: <NotificationOutlined />,
+        showInMenue: true,
+        private: true,
+        staffOnly: true,
+        exact: true,
+        view: ReleaseNotesView,
+        element: <ReleaseNotesView/>
+    },
+    {
+        key: '/release-notes/new',
+        displayName: 'releaseNote:newButton',
+        showInMenue: false,
+        private: true,
+        staffOnly: true,
+        exact: true,
+        view: ReleaseNoteEditorView,
+        element: <ReleaseNoteEditorView/>
+    },
+    {
+        key: '/release-notes/:id/edit',
+        displayName: 'releaseNote:editButton',
+        showInMenue: false,
+        private: true,
+        staffOnly: true,
+        exact: true,
+        view: ReleaseNoteEditorView,
+        element: <ReleaseNoteEditorView/>
     }
 ]

@@ -11,6 +11,7 @@ import { AbteilungMember } from 'types/user.type';
 export interface EditAbteilungMemberProps {
     uid: string
     onSuccess?: () => void
+    size?: 'small' | 'middle' | 'large'
 }
 
 export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
@@ -101,13 +102,13 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
 }
 
 export const AddUserToAbteilungButton = (props: EditAbteilungMemberProps) => {
-    const {uid} = props;
+    const {uid, size} = props;
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const { t } = useTranslation();
 
     return <>
-        <Button type='primary' onClick={() => setIsModalVisible(!isModalVisible)}>
+        <Button type='primary' size={size} onClick={() => setIsModalVisible(!isModalVisible)}>
             {t('navigation:users.addToAbteilung.button')}
         </Button>
         <Modal
