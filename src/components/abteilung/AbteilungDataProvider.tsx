@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
 import { db } from 'config/firebase/firebase';
-import { collection, doc, getDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, query, where } from 'firebase/firestore';
 import {
     abteilungenCategoryCollection,
     abteilungenCollection,
+    abteilungenInvitationsCollection,
     abteilungenMaterialsCollection,
     abteilungenMembersCollection,
     abteilungenStandortCollection,
@@ -17,12 +18,14 @@ import { UserData } from 'types/user.type';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
 import { Standort } from 'types/standort.types';
+import { Invitation } from 'types/invitation.types';
 import {
     MembersContext,
     MembersUserDataContext,
     CategorysContext,
     StandorteContext,
     MaterialsContext,
+    InvitationsContext,
 } from 'contexts/AbteilungContexts';
 
 interface AbteilungDataProviderProps {
@@ -65,6 +68,18 @@ export const AbteilungDataProvider = ({ abteilung, children }: AbteilungDataProv
         enabled: isAuthenticated && canRead,
         transform: (data, id) => ({ ...data, __caslSubjectType__: 'Material', id } as Material),
         deps: [isAuthenticated, abteilung, canRead],
+    });
+
+    const { data: invitations, loading: invitationsLoading } = useFirestoreCollection<Invitation>({
+        ref: canUpdate
+            ? query(
+                collection(db, abteilungenCollection, abteilung.id, abteilungenInvitationsCollection),
+                where('status', '==', 'pending')
+            )
+            : null,
+        enabled: isAuthenticated && canUpdate,
+        transform: (data, id) => ({ ...data, __caslSubjectType__: 'Invitation', id } as Invitation),
+        deps: [isAuthenticated, abteilung, canUpdate],
     });
 
     //fetch user data from members if user has access
@@ -115,7 +130,9 @@ export const AbteilungDataProvider = ({ abteilung, children }: AbteilungDataProv
                 <CategorysContext.Provider value={{ categories, loading: catLoading }}>
                     <MaterialsContext.Provider value={{ materials, loading: matLoading }}>
                         <StandorteContext.Provider value={{ standorte, loading: standorteLoading }}>
-                            {children}
+                            <InvitationsContext.Provider value={{ invitations, loading: invitationsLoading }}>
+                                {children}
+                            </InvitationsContext.Provider>
                         </StandorteContext.Provider>
                     </MaterialsContext.Provider>
                 </CategorysContext.Provider>

@@ -29,5 +29,32 @@
     "admin": "Admin",
     "banned": "Banned",
     "pending": "Pending"
+  },
+  "invite": {
+    "button": "Invite",
+    "title": "Invite members",
+    "emailLabel": "Email addresses",
+    "emailPlaceholder": "Enter email addresses...",
+    "emailHelp": "Separate multiple email addresses with commas or newlines",
+    "roleLabel": "Role",
+    "groupLabel": "Groups/Events",
+    "groupPlaceholder": "Select groups or events (optional)",
+    "submit": "Send invitations",
+    "success": "{{count}} invitation(s) sent successfully",
+    "partialSuccess": "{{created}} sent, {{skipped}} skipped (already member or invited)",
+    "error": "Failed to send invitations",
+    "permissionError": "Only admins can send invitations",
+    "pendingTitle": "Pending invitations",
+    "revoke": "Revoke",
+    "revoked": "Invitation revoked",
+    "revokeError": "Failed to revoke invitation",
+    "noEmail": "Please enter at least one email address",
+    "table": {
+      "email": "Email",
+      "role": "Role",
+      "groups": "Groups",
+      "invitedAt": "Invited on",
+      "actions": "Actions"
+    }
   }
 }

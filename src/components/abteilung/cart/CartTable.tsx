@@ -91,7 +91,7 @@ export const CartTableImpl = (props: GroupImplTableProps) => {
             key: 'actions',
             dataIndex: 'matId',
             render: (text: string, record: DetailedCartItem) => (
-                <Button type='ghost' danger icon={<DeleteOutlined />} onClick={()=> changeCart(removeFromCart(allCartItems, record))}/>
+                <Button type='dashed' danger icon={<DeleteOutlined />} onClick={()=> changeCart(removeFromCart(allCartItems, record))}/>
             )
         }
     ];

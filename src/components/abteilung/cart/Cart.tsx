@@ -188,7 +188,7 @@ export const Cart = (props: CartProps) => {
                 okText={t('common:confirm.yes')}
                 cancelText={t('common:confirm.no')}
             >
-                <Button type='ghost' danger icon={<DeleteOutlined />}>{t('order:cart.deleteButton')}</Button>
+                <Button type='dashed' danger icon={<DeleteOutlined />}>{t('order:cart.deleteButton')}</Button>
             </Popconfirm>
         </Col>
         <Col span={24}>

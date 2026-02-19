@@ -42,6 +42,7 @@ export {
     CategorysContext,
     StandorteContext,
     MaterialsContext,
+    InvitationsContext,
 } from 'contexts/AbteilungContexts';
 
 export type AbteilungDetailViewParams = {
@@ -144,7 +145,7 @@ export const AbteilungDetail = () => {
             case 'mat':
                 return <AbteilungMaterialView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
             case 'members':
-                return <Member abteilungId={abteilung.id} />
+                return <Member abteilung={abteilung} />
             case 'groups':
                 return <Group abteilung={abteilung} />
             case 'settings':

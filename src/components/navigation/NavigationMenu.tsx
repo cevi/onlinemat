@@ -126,6 +126,8 @@ const NavigationMenu: React.FC = () => {
         return [matchedKey]
     }
 
+    const emailVerified = user?.email_verified ?? true;
+
     const menuItems: MenuProps['items'] = useMemo(() => {
         if (isLoading) {
             return [{
@@ -134,7 +136,12 @@ const NavigationMenu: React.FC = () => {
             }];
         }
 
-        const routeItems: MenuProps['items'] = [HomeRoute, ...filteredRoutes]
+        // When email is not verified, only show Home + Logout
+        const visibleRoutes = isAuthenticated && !emailVerified
+            ? [HomeRoute]
+            : [HomeRoute, ...filteredRoutes];
+
+        const routeItems: MenuProps['items'] = visibleRoutes
             .filter(appRoute => appRoute.showInMenue)
             .map(appRoute => ({
                 key: appRoute.key,
@@ -172,7 +179,7 @@ const NavigationMenu: React.FC = () => {
         }
 
         return routeItems;
-    }, [isLoading, isAuthenticated, filteredRoutes, userState.appUser?.userData?.defaultAbteilung, t]);
+    }, [isLoading, isAuthenticated, emailVerified, filteredRoutes, userState.appUser?.userData?.defaultAbteilung, t]);
 
     const mobileNavContextValue = useMemo(() => ({
         abteilungMenuItems,

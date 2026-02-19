@@ -130,7 +130,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
                             okText={t('common:confirm.yes')}
                             cancelText={t('common:confirm.no')}
                         >
-                            <Button type='ghost' danger icon={<DeleteOutlined />} />
+                            <Button type='dashed' danger icon={<DeleteOutlined />} />
                         </Popconfirm>
                     </Can>
                 </div>

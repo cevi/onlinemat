@@ -53,6 +53,11 @@ export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) 
     can('delete', 'Order');
     can('deliver', 'Order');
 
+    //Invitation
+    can('create', 'Invitation');
+    can('read', 'Invitation');
+    can('delete', 'Invitation');
+
   } else {
     //add roles based on abteilung
 
@@ -91,6 +96,11 @@ export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) 
           can('update', 'Order', { abteilungId: abteilungId });
           can('delete', 'Order', { abteilungId: abteilungId });
           can('deliver', 'Order', { abteilungId: abteilungId });
+
+          //Invitation
+          can('create', 'Invitation', { abteilungId: abteilungId });
+          can('read', 'Invitation', { abteilungId: abteilungId });
+          can('delete', 'Invitation', { abteilungId: abteilungId });
 
           break;
 

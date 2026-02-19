@@ -394,7 +394,7 @@ export const OrderView = (props: OrderProps) => {
     const mergeHistory = (history: OrderHistory[]): OrderHistory[] => {
         
         if (!order) return [];
-        const merged = [...history] || [];
+        const merged = [...history];
         //order creation
         merged.push({
             timestamp: order.creationTime.toDate(),
@@ -454,7 +454,7 @@ export const OrderView = (props: OrderProps) => {
         if (order.status === 'delivered') {
             return <Tooltip placement='bottom' title={t('order:actions.completePartialTooltip')}>
                 <Button
-                    type='ghost'
+                    type='dashed'
                     danger
                     onClick={() => setShowDamageModal(!showDamageModal)}
                 >
@@ -478,7 +478,7 @@ export const OrderView = (props: OrderProps) => {
                     cancelText={t('common:confirm.no')}
                 >
                     <Button
-                        type='ghost'
+                        type='dashed'
                         danger
                         icon={<UndoOutlined />}
                     >
@@ -760,7 +760,7 @@ export const OrderView = (props: OrderProps) => {
                                         cancelText={t('common:confirm.no')}
                                         disabled={order.status === 'delivered'}
                                     >
-                                        <Button type='ghost' danger icon={<DeleteOutlined />} disabled={order.status === 'delivered'}>{!isMobile && t('order:actions.delete')}</Button>
+                                        <Button type='dashed' danger icon={<DeleteOutlined />} disabled={order.status === 'delivered'}>{!isMobile && t('order:actions.delete')}</Button>
                                     </Popconfirm>
                                 </Can>
                                 <Can I='deliver' this={{
