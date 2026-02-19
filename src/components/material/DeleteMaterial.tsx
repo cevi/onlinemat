@@ -36,7 +36,7 @@ export const DeleteMaterialButton = (props: DeleteMaterialProps) => {
             okText={t('common:confirm.yes')}
             cancelText={t('common:confirm.no')}
         >
-        <Button type='ghost' danger icon={<DeleteOutlined />} disabled={updateLoading}>
+        <Button type='dashed' danger icon={<DeleteOutlined />} disabled={updateLoading}>
             {t('material:delete.button')}
         </Button>     
         </Popconfirm>

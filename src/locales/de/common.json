@@ -19,7 +19,7 @@
   },
   "roles": {
     "admin": "Admin",
-    "matchef": "Matchef",
+    "matchef": "Matverantwortung",
     "member": "Mitglied",
     "guest": "Gast",
     "pending": "Angefragt",

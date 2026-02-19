@@ -25,6 +25,7 @@
     "title": "Du hast keine Berechtigungen für diese Abteilung",
     "emailHint": "Oder schreibe eine email an "
   },
+  "guestBanner": "Du bist als Gast in dieser Abteilung. Du kannst Material bestellen, aber für vollen Zugang kannst du eine Mitgliedschaft beantragen.",
   "join": {
     "button": "Beitreten",
     "title": "Abteilung {{name}} beitreten",

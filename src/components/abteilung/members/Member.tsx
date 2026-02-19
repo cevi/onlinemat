@@ -1,8 +1,10 @@
-import { Button, Col, Input, message, Row } from "antd";
+import { Button, Col, Input, message, Row, Typography } from "antd";
 import { useContext, useEffect, useState } from "react";
-import { AbteilungMemberUserData } from "types/abteilung.type";
-import { MembersContext, MembersUserDataContext } from "../AbteilungDetails";
+import { Abteilung, AbteilungMemberUserData } from "types/abteilung.type";
+import { MembersContext, MembersUserDataContext, InvitationsContext } from "../AbteilungDetails";
 import { MemberTable } from "./MemberTable";
+import { InviteMembersButton } from "./InviteMembers";
+import { PendingInvitationsTable } from "./PendingInvitationsTable";
 import { useTranslation } from 'react-i18next';
 import { useUser } from 'hooks/use-user';
 import { functions } from 'config/firebase/firebase';
@@ -10,11 +12,12 @@ import { httpsCallable } from 'firebase/functions';
 import { SyncOutlined } from '@ant-design/icons';
 
 export interface MemberProps {
-    abteilungId: string
+    abteilung: Abteilung
 }
 
 export const Member = (props: MemberProps) => {
-    const { abteilungId } = props;
+    const { abteilung } = props;
+    const abteilungId = abteilung.id;
     const { t } = useTranslation();
     const user = useUser();
 
@@ -29,6 +32,9 @@ export const Member = (props: MemberProps) => {
 
     const userData = membersUserDataContext.userData;
     const userDataLoading = membersUserDataContext.loading;
+
+    //fetch invitations
+    const { invitations, loading: invitationsLoading } = useContext(InvitationsContext);
 
     const [memberMerged, setMemberMerged] = useState<AbteilungMemberUserData[]>([]);
 
@@ -63,14 +69,16 @@ export const Member = (props: MemberProps) => {
     };
 
     return <Row gutter={[16, 16]}>
-        <Col span={24}>
+        <Col span={24} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <Input.Search
                 placeholder={t('member:search.placeholder')}
                 allowClear
                 enterButton={t('common:buttons.search')}
                 size='large'
                 onSearch={(query) => setQuery(query)}
+                style={{ flex: 1, minWidth: 200 }}
             />
+            <InviteMembersButton abteilung={abteilung} />
         </Col>
         {isStaff && (
             <Col span={24}>
@@ -81,6 +89,17 @@ export const Member = (props: MemberProps) => {
                 >
                     {t('member:syncDisplayNames.button')}
                 </Button>
+            </Col>
+        )}
+        {invitations.length > 0 && (
+            <Col span={24}>
+                <Typography.Title level={5}>{t('member:invite.pendingTitle')}</Typography.Title>
+                <PendingInvitationsTable
+                    abteilungId={abteilungId}
+                    invitations={invitations}
+                    loading={invitationsLoading}
+                    groups={abteilung.groups}
+                />
             </Col>
         )}
         <Col span={24}>

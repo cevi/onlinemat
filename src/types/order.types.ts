@@ -11,7 +11,7 @@ export interface Order {
     items: CartItem[]
     orderer: string
     creationTime: Dayjs
-    status: 'created' | 'delivered' | 'completed'
+    status: 'pending' | 'created' | 'delivered' | 'completed' | 'rejected'
     history: OrderHistory[]
     comment?: string
     groupId?: string
@@ -19,11 +19,14 @@ export interface Order {
     matchefComment?: string
     damagedMaterial?: DamagedMaterial[] | null
     preparedItems?: string[]
+    pfand?: number
+    price?: number
+    rejectionReason?: string
 }
 
 export interface OrderHistory {
     color: string | null
     timestamp: Date
     text: string
-    type: 'creation' | 'matchefComment' | 'startDate' | 'endDate' | 'delivered' | 'completed' | 'reset' | 'completed-damaged' | 'edited' | null
+    type: 'creation' | 'matchefComment' | 'startDate' | 'endDate' | 'delivered' | 'completed' | 'reset' | 'completed-damaged' | 'edited' | 'approved' | 'rejected' | null
 }

@@ -24,5 +24,6 @@
     "name": "Name",
     "found_one": "{{count}} department found",
     "found_other": "{{count}} departments found"
-  }
+  },
+  "orderButton": "Order"
 }

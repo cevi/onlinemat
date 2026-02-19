@@ -1,10 +1,12 @@
 {
   "status": {
     "loading": "Loading...",
+    "pending": "Pending",
     "created": "Created",
     "delivered": "Delivered",
     "completed": "Completed",
     "completedDamaged": "Completed with loss/damage",
+    "rejected": "Rejected",
     "unknown": "Unknown"
   },
   "table": {
@@ -31,7 +33,12 @@
     "saveComment": "Save remark",
     "lastEditedBy": "Last edited by {{name}} on {{date}}",
     "deleteConfirm": "Do you really want to delete this order?",
-    "notFound": "The order {{orderId}} could not be found."
+    "notFound": "The order {{orderId}} could not be found.",
+    "pendingBanner": "This order is awaiting approval.",
+    "rejectedBanner": "This order was rejected.",
+    "rejectionReason": "Reason: {{reason}}",
+    "pfand": "Deposit:",
+    "price": "Price:"
   },
   "actions": {
     "open": "Open",
@@ -46,7 +53,11 @@
     "resetConfirm": "The order status will be reset to \"created\".",
     "resetTooltip": "The order status will be reset to \"created\".",
     "copyToCart": "Copy to cart",
-    "copyToCartTooltip": "Copy materials to cart"
+    "copyToCartTooltip": "Copy materials to cart",
+    "approve": "Approve",
+    "approveTooltip": "Approve order",
+    "reject": "Reject",
+    "rejectTooltip": "Reject order"
   },
   "create": {
     "date": "Date",
@@ -56,9 +67,11 @@
     "otherLabel": "Other",
     "otherOption": "Other",
     "customGroupName": "Label",
+    "customGroupNamePlaceholder": "e.g. Sample Department",
     "comment": "Comment",
     "emptyCart": "Your cart is empty",
     "success": "Order successfully created",
+    "successPending": "Order submitted – awaiting approval",
     "notAllAvailable": "Unfortunately, not all material is available."
   },
   "items": {
@@ -99,7 +112,9 @@
     "reset": "{{name}} reset the order.",
     "commentAdded": "{{name}} added a comment.",
     "commentRemoved": "{{name}} removed a comment.",
-    "edited": "{{name}} edited the order."
+    "edited": "{{name}} edited the order.",
+    "approved": "{{name}} approved the order.",
+    "rejected": "{{name}} rejected the order."
   },
   "messages": {
     "deliverSuccess": "Order successfully delivered.",
@@ -116,13 +131,30 @@
     "editNotAllAvailable": "Unfortunately, not all material is available.",
     "editEmptyItems": "The order must contain at least one material.",
     "editCannotEdit": "This order can no longer be edited.",
-    "editMaterialNotAvailable": "{{name}} is currently not available."
+    "editMaterialNotAvailable": "{{name}} is currently not available.",
+    "approveSuccess": "Order has been approved.",
+    "approveNotAllAvailable": "Unfortunately, not all material is available.",
+    "rejectSuccess": "Order has been rejected."
   },
   "search": {
     "placeholder": "Search for order",
     "groupPlaceholder": "Select group / event",
     "maxGroups": "Unfortunately, only 10 groups / events can be selected at the same time",
     "groupNotFound": "Group/Event {{id}} could not be found"
+  },
+  "approveModal": {
+    "title": "Approve order",
+    "pfand": "Deposit (CHF)",
+    "pfandHint": "Deposit, refunded after return",
+    "price": "Price (CHF)",
+    "priceHint": "Fee for the rental",
+    "confirm": "Approve"
+  },
+  "rejectModal": {
+    "title": "Reject order",
+    "reason": "Reason",
+    "reasonPlaceholder": "Reason for rejection...",
+    "confirm": "Reject"
   },
   "edit": {
     "addMaterialPlaceholder": "Add material...",
@@ -153,6 +185,8 @@
     "success": {
       "title": "Order successful!",
       "subtitle": "The order: {{orderId}} was successfully created",
+      "pendingTitle": "Order submitted!",
+      "pendingSubtitle": "Your order {{orderId}} was successfully created and is awaiting approval by the material manager.",
       "viewOrder": "View order"
     },
     "empty": {

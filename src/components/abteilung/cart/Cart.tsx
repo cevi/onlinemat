@@ -7,7 +7,7 @@ import { Abteilung } from 'types/abteilung.type';
 import { CartItem, DetailedCartItem } from 'types/cart.types';
 import { getCartName } from 'util/CartUtil';
 import { CartTable } from './CartTable';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { CategorysContext, MaterialsContext, StandorteContext } from '../AbteilungDetails';
 import { CreateOrder } from '../order/CreateOrder';
 import { functions } from 'config/firebase/firebase';
@@ -15,6 +15,7 @@ import { httpsCallable } from 'firebase/functions';
 import { getAvailableMatCount } from 'util/MaterialUtil';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from 'hooks/useIsMobile';
+import { useUser } from 'hooks/use-user';
 
 export interface CartProps {
     abteilung: Abteilung
@@ -35,6 +36,8 @@ export const Cart = (props: CartProps) => {
 
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const userState = useUser();
+    const isGuest = useMemo(() => userState.appUser?.userData?.roles?.[abteilung.id] === 'guest', [abteilung, userState.appUser?.userData]);
 
     //fetch materials
     const materialsContext = useContext(MaterialsContext);
@@ -101,7 +104,7 @@ export const Cart = (props: CartProps) => {
                 setCreatedOrderId(orderId)
                 setCurrentStep(currentStep + 1)
                 changeCartAndCookie([])
-                message.success(t('order:create.success'));
+                message.success(isGuest ? t('order:create.successPending') : t('order:create.success'));
             }
 
             if(collisions) {
@@ -188,7 +191,7 @@ export const Cart = (props: CartProps) => {
                 okText={t('common:confirm.yes')}
                 cancelText={t('common:confirm.no')}
             >
-                <Button type='ghost' danger icon={<DeleteOutlined />}>{t('order:cart.deleteButton')}</Button>
+                <Button type='dashed' danger icon={<DeleteOutlined />}>{t('order:cart.deleteButton')}</Button>
             </Popconfirm>
         </Col>
         <Col span={24}>
@@ -207,9 +210,9 @@ export const Cart = (props: CartProps) => {
     </Row>
 
     if (currentStep === 2) return <><Result
-        status='success'
-        title={t('order:cart.success.title')}
-        subTitle={t('order:cart.success.subtitle', { orderId: createdOrderId })}
+        status={isGuest ? 'info' : 'success'}
+        title={isGuest ? t('order:cart.success.pendingTitle') : t('order:cart.success.title')}
+        subTitle={isGuest ? t('order:cart.success.pendingSubtitle', { orderId: createdOrderId }) : t('order:cart.success.subtitle', { orderId: createdOrderId })}
         extra={[
             <Button type='primary' key='backToAbteilung' onClick={()=> navigate(abteilungMatLink)}>
                 {t('common:buttons.back')}

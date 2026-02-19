@@ -5,9 +5,13 @@ export const abteilungenCategoryCollection = 'categories';
 export const abteilungenMembersCollection = 'members';
 export const abteilungenOrdersCollection = 'orders';
 export const abteilungenStandortCollection = 'standorte';
+export const abteilungenInvitationsCollection = 'invitations';
 
 //User
 export const usersCollection = 'users';
 
 //Release Notes
 export const releaseNotesCollection = 'releaseNotes';
+
+//Stats
+export const statsCollection = 'stats';

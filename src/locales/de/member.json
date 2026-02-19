@@ -11,8 +11,8 @@
     "approve": "als {{role}} Annehmen",
     "deny": "Ablehnen",
     "ban": "Sperren",
-    "banTooltip": "Die Anfrage wird abgelehnt und der Benutzer kann in Zukunft keinen neuen Antrag stellen",
-    "unban": "Benutzer entsperren",
+    "banTooltip": "Die Anfrage wird abgelehnt und es kann in Zukunft kein neuer Antrag gestellt werden",
+    "unban": "Entsperren",
     "remove": "Entfernen"
   },
   "syncDisplayNames": {
@@ -25,9 +25,36 @@
   "roles": {
     "guest": "Gast",
     "member": "Mitglied",
-    "matchef": "Matchef",
+    "matchef": "Matverantwortung",
     "admin": "Admin",
     "banned": "Gesperrt",
     "pending": "Ausstehend"
+  },
+  "invite": {
+    "button": "Einladen",
+    "title": "Mitglieder einladen",
+    "emailLabel": "E-Mail-Adressen",
+    "emailPlaceholder": "E-Mail-Adressen eingeben...",
+    "emailHelp": "Mehrere E-Mail-Adressen durch Komma oder Zeilenumbruch getrennt eingeben",
+    "roleLabel": "Rolle",
+    "groupLabel": "Gruppen/Anlässe",
+    "groupPlaceholder": "Gruppen oder Anlässe auswählen (optional)",
+    "submit": "Einladungen senden",
+    "success": "{{count}} Einladung(en) erfolgreich gesendet",
+    "partialSuccess": "{{created}} gesendet, {{skipped}} übersprungen (bereits Mitglied oder eingeladen)",
+    "error": "Einladungen konnten nicht gesendet werden",
+    "permissionError": "Nur Admins können Einladungen senden",
+    "pendingTitle": "Ausstehende Einladungen",
+    "revoke": "Widerrufen",
+    "revoked": "Einladung widerrufen",
+    "revokeError": "Einladung konnte nicht widerrufen werden",
+    "noEmail": "Bitte mindestens eine E-Mail-Adresse eingeben",
+    "table": {
+      "email": "E-Mail",
+      "role": "Rolle",
+      "groups": "Gruppen",
+      "invitedAt": "Eingeladen am",
+      "actions": "Aktionen"
+    }
   }
 }

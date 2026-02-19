@@ -53,7 +53,7 @@ export const Orders = (props: OrdersProps) => {
     const userDataLoading = membersUserDataContext.loading;
 
 
-    const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: 'Loading...' }) }));
+    const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { id: member.userId, displayName: member.displayName || member.userId }) }));
 
     const uid = user.appUser?.userData?.id;
     const roles = user.appUser?.userData?.roles || {};

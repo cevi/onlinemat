@@ -3,6 +3,7 @@ import { createMongoAbility, MongoAbility, InferSubjects } from '@casl/ability';
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
 import { Categorie } from 'types/categorie.types';
 import { Group } from 'types/group.types';
+import { Invitation } from 'types/invitation.types';
 import { Material } from 'types/material.types';
 import { Order } from 'types/order.types';
 import { UserData } from 'types/user.type';
@@ -17,6 +18,7 @@ export type Subjects =  InferSubjects<Abteilung
 | Order & { abteilungId: string }
 | Group & { abteilungId: string }
     | Standort & { abteilungId: string }
+    | Invitation & { abteilungId: string }
     | UserData
 | AbteilungMember>
 | 'users';

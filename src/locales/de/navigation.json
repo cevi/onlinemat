@@ -5,7 +5,8 @@
     "search": "Suchen",
     "abteilungen": "Abteilungen",
     "abteilungenDetails": "Abteilungen Details",
-    "users": "Benutzer",
+    "users": "Nutzende",
+    "stats": "Statistiken",
     "profile": "Profile"
   },
   "menu": {
@@ -27,9 +28,23 @@
   "home": {
     "title": "Home",
     "appName": "Onlinemat",
-    "description": "Dies ist die Webseite vom Cevi Onlinemat",
+    "description": "Das Onlinemat ist die Materialverwaltungs- und Ausleihplattform für alle Jungscharen und Cevi-Abteilungen. Durchstöbere das verfügbare Material deiner Abteilung und reserviere es direkt online. Jede Abteilung verwaltet ihr eigenes Material, ihre Standorte und Mitglieder. Du suchst etwas, das deine Abteilung nicht hat? Über die Suche findest du Material von anderen Abteilungen, die das Ausleihen ermöglicht haben.",
     "dashboard": "Onlinemat Dashboard",
-    "welcome": "Willkommen {{name}}, du kannst jetzt loslegen."
+    "welcome": "Willkommen {{name}}, du kannst jetzt loslegen.",
+    "features": {
+      "browse": {
+        "title": "Material durchstöbern",
+        "description": "Entdecke das verfügbare Material deiner Abteilung - von Zelten über Kochutensilien bis hin zu Spielmaterial."
+      },
+      "reserve": {
+        "title": "Online reservieren",
+        "description": "Reserviere Material mit wenigen Klicks direkt online und behalte den Überblick über deine Bestellungen."
+      },
+      "search": {
+        "title": "Abteilungsübergreifend suchen",
+        "description": "Finde Material von anderen Abteilungen, die das Ausleihen ermöglicht haben - ideal wenn dir etwas fehlt."
+      }
+    }
   },
   "login": {
     "button": "Anmelden"
@@ -39,9 +54,9 @@
     "gitHash": "Git Hash"
   },
   "users": {
-    "title": "Benutzer",
-    "searchPlaceholder": "nach Benutzern suchen",
-    "statisticUsers": "Benutzer",
+    "title": "Nutzende",
+    "searchPlaceholder": "nach Nutzenden suchen",
+    "statisticUsers": "Nutzende",
     "statisticStaff": "Staff",
     "table": {
       "name": "Name",
@@ -58,15 +73,15 @@
       "error": "Sync fehlgeschlagen"
     },
     "addToAbteilung": {
-      "button": "Benutzer zu Abteilung hinzufügen",
-      "title": "Benutzer zu Abteilung hinzufügen",
+      "button": "Nutzende zu Abteilung hinzufügen",
+      "title": "Nutzende zu Abteilung hinzufügen",
       "submit": "Zu Abteilung hinzufügen",
       "abteilungLabel": "Abteilung",
       "abteilungPlaceholder": "Abteilung",
       "roleLabel": "Rolle",
-      "alreadyMember": "Dieser Benutzer ist bereits mitglied dieser Abteilung",
-      "error": "Der Benutzer konnte nicht zur Abteilung hinzugefügt werden!",
-      "success": "Der Benutzer wurde erfolgreich zur Abteilung hinzugefügt"
+      "alreadyMember": "Bereits Mitglied dieser Abteilung",
+      "error": "Konnte nicht zur Abteilung hinzugefügt werden!",
+      "success": "Erfolgreich zur Abteilung hinzugefügt"
     }
   }
 }

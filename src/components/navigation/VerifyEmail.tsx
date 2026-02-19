@@ -3,10 +3,12 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Button, Result } from 'antd';
 import { auth } from 'config/firebase/firebase';
 import { signOut } from 'firebase/auth';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const VerifyEmail = () => {
     const { t } = useTranslation('navigation');
+    const [loading, setLoading] = useState(false);
 
     const { isLoading, logout, loginWithRedirect } = useAuth0();
 
@@ -17,9 +19,11 @@ export const VerifyEmail = () => {
         extra={[
             <Button
                 disabled={isLoading}
+                loading={loading}
                 key='reload'
                 type='primary'
                 onClick={async () => {
+                    setLoading(true);
                     await signOut(auth);
                     await logout();
                     loginWithRedirect();

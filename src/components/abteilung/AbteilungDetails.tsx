@@ -1,5 +1,5 @@
 import { useState, useContext, useMemo, useEffect } from 'react';
-import { Spin, message, Menu, Row, Col, Typography } from 'antd';
+import { Alert, Badge, Spin, message, Menu, Row, Col, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { MenuProps } from 'antd';
 import classNames from 'classnames';
@@ -19,13 +19,22 @@ import {
     UnorderedListOutlined
 } from '@ant-design/icons';
 import { ability } from 'config/casl/ability';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from 'config/firebase/firebase';
+import { collection, query as firestoreQuery, where } from 'firebase/firestore';
+import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
+import { useFirestoreCollection } from 'hooks/useFirestoreCollection';
+import { useAuth0 } from '@auth0/auth0-react';
+import { Order } from 'types/order.types';
 import { AbteilungenContext } from 'components/navigation/NavigationMenu';
+import { useUser } from 'hooks/use-user';
 import { useIsMobile } from 'hooks/useIsMobile';
 import { MobileNavContext } from 'contexts/MobileNavContext';
 
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 import { AbteilungSettings } from './settings/AbteilungSettings';
 import { NoAccessToAbteilung } from './AbteilungNoAccess';
+import { JoinAbteilungButton } from './join/JoinAbteilung';
 import { Cart } from './cart/Cart';
 import { Group } from './group/Group';
 import { Member } from './members/Member';
@@ -42,7 +51,48 @@ export {
     CategorysContext,
     StandorteContext,
     MaterialsContext,
+    InvitationsContext,
 } from 'contexts/AbteilungContexts';
+import { MembersContext } from 'contexts/AbteilungContexts';
+
+/** Rendered inside AbteilungDataProvider to consume MembersContext for the badge count. */
+const MembersTabLabel = () => {
+    const { t } = useTranslation();
+    const { members } = useContext(MembersContext);
+    const pendingCount = members.filter(m => !m.approved && !m.banned).length;
+    return (
+        <Badge count={pendingCount} size="small" offset={[6, -2]}>
+            <span>{t('abteilung:tabs.mitglieder')}</span>
+        </Badge>
+    );
+};
+
+/** Rendered inside AbteilungDataProvider. Shows badge with pending order count for admin/matchef. */
+const PendingOrdersBadge = ({ abteilungId }: { abteilungId: string }) => {
+    const { t } = useTranslation();
+    const { isAuthenticated } = useAuth0();
+
+    const pendingQuery = useMemo(() => {
+        if (!abteilungId) return null;
+        return firestoreQuery(
+            collection(db, abteilungenCollection, abteilungId, abteilungenOrdersCollection),
+            where('status', '==', 'pending')
+        );
+    }, [abteilungId]);
+
+    const { data: pendingOrders } = useFirestoreCollection<Order>({
+        ref: pendingQuery,
+        enabled: isAuthenticated && !!pendingQuery,
+        transform: (data, id) => ({ ...data, id } as Order),
+        deps: [isAuthenticated, pendingQuery],
+    });
+
+    return (
+        <Badge count={pendingOrders.length} size="small" offset={[6, -2]}>
+            <span>{t('abteilung:tabs.bestellungen')}</span>
+        </Badge>
+    );
+};
 
 export type AbteilungDetailViewParams = {
     abteilungSlugOrId: string;
@@ -74,7 +124,17 @@ export const AbteilungDetail = () => {
     const [cookies] = useCookies();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
+    // Auto-join as guest for searchVisible Abteilungen
+    const [autoJoinLoading, setAutoJoinLoading] = useState(false);
+    const [autoJoinError, setAutoJoinError] = useState(false);
+
     const canUpdate = useMemo(() => ability.can('update', { __caslSubjectType__: 'Abteilung', id: abteilung?.id } as Abteilung), [abteilung]);
+
+    const userState = useUser();
+    const isGuest = useMemo(() => {
+        if (!abteilung) return false;
+        return userState.appUser?.userData?.roles?.[abteilung.id] === 'guest';
+    }, [abteilung, userState.appUser?.userData]);
 
     //force rerender if cart changed
     const changeCart = (cartToChange: CartItem[]) => {
@@ -111,6 +171,32 @@ export const AbteilungDetail = () => {
         }
     }, [abteilungen, abteilungLoading, abteilungSlugOrId])
 
+    // Auto-join as guest when navigating to a searchVisible Abteilung without access
+    useEffect(() => {
+        if (!abteilung) return;
+        if (ability.can('read', abteilung)) return;
+        if (abteilung.searchVisible === false) return;
+        if (autoJoinLoading || autoJoinError) return;
+
+        const doJoin = async () => {
+            setAutoJoinLoading(true);
+            try {
+                const result = await httpsCallable(functions, 'joinAsGuest')({ abteilungId: abteilung.id });
+                const data = result.data as { alreadyMember?: boolean; joined?: boolean };
+                if (data.alreadyMember) {
+                    // Already a member but can't read (e.g. pending) — fall back to no-access
+                    setAutoJoinError(true);
+                }
+                // If joined, the onSnapshot cascade will update CASL and re-render
+            } catch (err) {
+                console.error('Auto-join as guest failed', err);
+                setAutoJoinError(true);
+            }
+            setAutoJoinLoading(false);
+        };
+        doJoin();
+    }, [abteilung]);
+
     const navigateToMenu = (selectedMenu: AbteilungTab) => {
         if (!abteilung) return;
         navigate(`/abteilungen/${abteilung.slug || abteilung.id}/${selectedMenu}`, {
@@ -137,6 +223,10 @@ export const AbteilungDetail = () => {
         if (!abteilung) return;
 
         if (ability.cannot('read', abteilung)) {
+            // SearchVisible Abteilungen: show spinner while auto-join is in progress
+            if (abteilung.searchVisible !== false && !autoJoinError) {
+                return <Spin />;
+            }
             return <NoAccessToAbteilung abteilung={abteilung} />
         }
 
@@ -144,7 +234,7 @@ export const AbteilungDetail = () => {
             case 'mat':
                 return <AbteilungMaterialView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
             case 'members':
-                return <Member abteilungId={abteilung.id} />
+                return <Member abteilung={abteilung} />
             case 'groups':
                 return <Group abteilung={abteilung} />
             case 'settings':
@@ -177,10 +267,14 @@ export const AbteilungDetail = () => {
         }
 
         const items: MenuProps['items'] = [
-            { key: 'standort', icon: <HomeOutlined />, label: t('abteilung:tabs.standorte'), onClick: () => navigateToMenu('standort') },
-            { key: 'category', icon: <PaperClipOutlined />, label: t('abteilung:tabs.kategorien'), onClick: () => navigateToMenu('category') },
-            { key: 'orders', icon: <UnorderedListOutlined />, label: t('abteilung:tabs.bestellungen'), onClick: () => navigateToMenu('orders') },
-            { key: 'groups', icon: <TagsOutlined />, label: t('abteilung:tabs.gruppen'), onClick: () => navigateToMenu('groups') },
+            ...(!isGuest ? [
+                { key: 'standort', icon: <HomeOutlined />, label: t('abteilung:tabs.standorte'), onClick: () => navigateToMenu('standort') },
+                { key: 'category', icon: <PaperClipOutlined />, label: t('abteilung:tabs.kategorien'), onClick: () => navigateToMenu('category') },
+            ] : []),
+            { key: 'orders', icon: <UnorderedListOutlined />, label: canUpdate ? <PendingOrdersBadge abteilungId={abteilung.id} /> : t('abteilung:tabs.bestellungen'), onClick: () => navigateToMenu('orders') },
+            ...(!isGuest ? [
+                { key: 'groups', icon: <TagsOutlined />, label: t('abteilung:tabs.gruppen'), onClick: () => navigateToMenu('groups') },
+            ] : []),
             ...(canUpdate ? [
                 { key: 'members', icon: <TeamOutlined />, label: t('abteilung:tabs.mitglieder'), onClick: () => navigateToMenu('members') },
                 { key: 'settings', icon: <SettingOutlined />, label: t('abteilung:tabs.einstellungen'), onClick: () => navigateToMenu('settings') },
@@ -196,13 +290,22 @@ export const AbteilungDetail = () => {
             setAbteilungSelectedKey('');
             setAbteilungName('');
         };
-    }, [abteilung, isMobile, canUpdate, selectedMenu, t]);
+    }, [abteilung, isMobile, canUpdate, isGuest, selectedMenu, t]);
 
     if (abteilungLoading || !abteilung) return <Spin />
 
     return <div className={classNames(appStyles['flex-grower'])}>
         <AbteilungDataProvider abteilung={abteilung}>
             <Typography.Title level={3}>{t('abteilung:detailTitle', { name: abteilung?.name })}</Typography.Title>
+            {isGuest && (
+                <Alert
+                    type="info"
+                    showIcon
+                    message={t('abteilung:guestBanner')}
+                    action={<JoinAbteilungButton abteilungId={abteilung.id} abteilungName={abteilung.name} />}
+                    style={{ marginBottom: 16 }}
+                />
+            )}
             <Menu
                 onClick={(e) => { navigateToMenu(e.key as AbteilungTab) }}
                 selectedKeys={[selectedMenu]}
@@ -210,12 +313,16 @@ export const AbteilungDetail = () => {
                 items={[
                     { key: 'mat', icon: <ContainerOutlined />, label: t('abteilung:tabs.material') },
                     ...(!isMobile ? [
-                        { key: 'standort', icon: <HomeOutlined />, label: t('abteilung:tabs.standorte') },
-                        { key: 'category', icon: <PaperClipOutlined />, label: t('abteilung:tabs.kategorien') },
-                        { key: 'orders', icon: <UnorderedListOutlined />, label: t('abteilung:tabs.bestellungen') },
-                        { key: 'groups', icon: <TagsOutlined />, label: t('abteilung:tabs.gruppen') },
+                        ...(!isGuest ? [
+                            { key: 'standort', icon: <HomeOutlined />, label: t('abteilung:tabs.standorte') },
+                            { key: 'category', icon: <PaperClipOutlined />, label: t('abteilung:tabs.kategorien') },
+                        ] : []),
+                        { key: 'orders', icon: <UnorderedListOutlined />, label: canUpdate ? <PendingOrdersBadge abteilungId={abteilung.id} /> : t('abteilung:tabs.bestellungen') },
+                        ...(!isGuest ? [
+                            { key: 'groups', icon: <TagsOutlined />, label: t('abteilung:tabs.gruppen') },
+                        ] : []),
                         ...(canUpdate ? [
-                            { key: 'members', icon: <TeamOutlined />, label: t('abteilung:tabs.mitglieder') },
+                            { key: 'members', icon: <TeamOutlined />, label: <MembersTabLabel /> },
                             { key: 'settings', icon: <SettingOutlined />, label: t('abteilung:tabs.einstellungen') },
                         ] : []),
                     ] : []),

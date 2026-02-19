@@ -19,7 +19,7 @@
   },
   "roles": {
     "admin": "Admin",
-    "matchef": "Material Chief",
+    "matchef": "Material Manager",
     "member": "Member",
     "guest": "Guest",
     "pending": "Pending",

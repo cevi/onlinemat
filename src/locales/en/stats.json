@@ -1,0 +1,40 @@
+{
+    "title": "Statistics",
+    "generatedAt": "Last updated: {{date}}",
+    "refresh": "Refresh",
+    "refreshSuccess": "Statistics updated",
+    "refreshError": "Refresh failed",
+    "noData": "No statistics available. Please refresh the statistics.",
+    "cards": {
+        "totalUsers": "Users",
+        "totalAbteilungen": "Departments",
+        "totalOrders": "Orders"
+    },
+    "chart": {
+        "ordersOverTime": "Orders per Month",
+        "orders": "Orders"
+    },
+    "abteilungenTable": {
+        "title": "Departments",
+        "name": "Name",
+        "members": "Members",
+        "orders": "Orders",
+        "lastOrder": "Last Order",
+        "roleBreakdown": "Roles",
+        "statusBreakdown": "Status"
+    },
+    "usersTable": {
+        "title": "Most Active Users",
+        "name": "Name",
+        "email": "Email",
+        "orders": "Orders",
+        "lastLogin": "Last Login",
+        "abteilungen": "Departments"
+    },
+    "releaseNotesTable": {
+        "title": "Release Notes",
+        "noteTitle": "Title",
+        "createdAt": "Created At",
+        "readCount": "Read"
+    }
+}

@@ -1,22 +1,24 @@
 {
   "status": {
     "loading": "Lade...",
+    "pending": "Ausstehend",
     "created": "Erstellt",
     "delivered": "Ausgegeben",
     "completed": "Abgeschlossen",
     "completedDamaged": "Abgeschlossen Verlust/Schaden",
+    "rejected": "Abgelehnt",
     "unknown": "Unbekannt"
   },
   "table": {
     "status": "Status",
     "group": "Gruppe / Anlass",
-    "orderer": "Besteller",
+    "orderer": "Bestellt von",
     "startDate": "Start Datum",
     "endDate": "End Datum",
     "action": "Aktion"
   },
   "view": {
-    "orderer": "Besteller:",
+    "orderer": "Bestellt von:",
     "from": "Von:",
     "to": "Bis:",
     "status": "Status ",
@@ -24,14 +26,19 @@
     "weightTooltip": "Das Gesamtgewicht kann nur genau berechnet werden, wenn auch alle Angaben vorhanden sind",
     "weightInfo": "{{totalWeight}} Kg {{incompleteInfo}}",
     "weightInfoIncomplete": "{{complete}}/{{total}} Gewichtsangaben",
-    "ordererComment": "Kommentar des Bestellers",
+    "ordererComment": "Kommentar zur Bestellung",
     "comment": "Bemerkung",
     "commentPlaceholder": "Bemerkung hinzufügen oder bearbeiten...",
-    "commentHint": "Diese Bemerkung ist für den Besteller sichtbar.",
+    "commentHint": "Diese Bemerkung ist für die bestellende Person sichtbar.",
     "saveComment": "Bemerkung speichern",
     "lastEditedBy": "Zuletzt bearbeitet von {{name}} am {{date}}",
     "deleteConfirm": "Möchtest du die Bestellung wirklich löschen?",
-    "notFound": "Die Bestellung {{orderId}} konnte nicht gefunden werden."
+    "notFound": "Die Bestellung {{orderId}} konnte nicht gefunden werden.",
+    "pendingBanner": "Diese Bestellung wartet auf Genehmigung.",
+    "rejectedBanner": "Diese Bestellung wurde abgelehnt.",
+    "rejectionReason": "Begründung: {{reason}}",
+    "pfand": "Pfand:",
+    "price": "Preis:"
   },
   "actions": {
     "open": "Öffnen",
@@ -46,7 +53,11 @@
     "resetConfirm": "Der Status der Bestellung wird auf \"erstellt\" zurückgesetzt.",
     "resetTooltip": "Der Status der Bestellung wird auf \"erstellt\" zurückgesetzt.",
     "copyToCart": "In Warenkorb kopieren",
-    "copyToCartTooltip": "Material in den Warenkorb kopieren"
+    "copyToCartTooltip": "Material in den Warenkorb kopieren",
+    "approve": "Genehmigen",
+    "approveTooltip": "Bestellung genehmigen",
+    "reject": "Ablehnen",
+    "rejectTooltip": "Bestellung ablehnen"
   },
   "create": {
     "date": "Datum",
@@ -56,9 +67,11 @@
     "otherLabel": "Andere",
     "otherOption": "Andere",
     "customGroupName": "Bezeichnung",
+    "customGroupNamePlaceholder": "z.B. Muster Abteilung",
     "comment": "Bemerkung",
     "emptyCart": "Dein Warenkorb ist leer",
     "success": "Bestellung erfolgreich erstellt",
+    "successPending": "Bestellung eingereicht – wartet auf Genehmigung",
     "notAllAvailable": "Leider ist nicht alles Material verfügbar."
   },
   "items": {
@@ -99,7 +112,9 @@
     "reset": "{{name}} hat die Bestellung zurückgesetzt.",
     "commentAdded": "{{name}} hat eine Bemerkung hinzugefügt.",
     "commentRemoved": "{{name}} hat eine Bemerkung entfernt.",
-    "edited": "{{name}} hat die Bestellung bearbeitet."
+    "edited": "{{name}} hat die Bestellung bearbeitet.",
+    "approved": "{{name}} hat die Bestellung genehmigt.",
+    "rejected": "{{name}} hat die Bestellung abgelehnt."
   },
   "messages": {
     "deliverSuccess": "Bestellung erfolgreich ausgegeben.",
@@ -110,19 +125,36 @@
     "deleteSuccess": "Die Bestellung wurde erfolgreich gelöscht.",
     "deleteErrorDelivered": "Bestellung kann nicht gelöscht werden, wenn sie {{status}} ist.",
     "deleteErrorNoPermission": "Du hast keine Berchtigungen für diese Bestellung.",
-    "deleteErrorNotOwner": "Nur der Ersteller kann die Bestellung löschen.",
+    "deleteErrorNotOwner": "Nur wer die Bestellung erstellt hat, kann sie löschen.",
     "deleteErrorCompleted": "Du kannst eine abgeschlossene Bestellung nicht löschen.",
     "editSuccess": "Bestellung erfolgreich aktualisiert.",
     "editNotAllAvailable": "Leider ist nicht alles Material verfügbar.",
     "editEmptyItems": "Die Bestellung muss mindestens ein Material enthalten.",
     "editCannotEdit": "Diese Bestellung kann nicht mehr bearbeitet werden.",
-    "editMaterialNotAvailable": "{{name}} ist zur Zeit nicht verfügbar."
+    "editMaterialNotAvailable": "{{name}} ist zur Zeit nicht verfügbar.",
+    "approveSuccess": "Bestellung wurde genehmigt.",
+    "approveNotAllAvailable": "Leider ist nicht alles Material verfügbar.",
+    "rejectSuccess": "Bestellung wurde abgelehnt."
   },
   "search": {
     "placeholder": "nach Bestellung suchen",
     "groupPlaceholder": "Gruppe / Anlass auswählen",
     "maxGroups": "Es können leider nur 10 Gruppen / Anlässe gleichzeitig ausgewählt werden",
     "groupNotFound": "Gruppe/Anlass {{id}} konnte nicht gefunden werden"
+  },
+  "approveModal": {
+    "title": "Bestellung genehmigen",
+    "pfand": "Pfand (CHF)",
+    "pfandHint": "Kaution, wird nach Rückgabe zurückerstattet",
+    "price": "Preis (CHF)",
+    "priceHint": "Gebühr für die Ausleihe",
+    "confirm": "Genehmigen"
+  },
+  "rejectModal": {
+    "title": "Bestellung ablehnen",
+    "reason": "Begründung",
+    "reasonPlaceholder": "Grund für die Ablehnung...",
+    "confirm": "Ablehnen"
   },
   "edit": {
     "addMaterialPlaceholder": "Material hinzufügen...",
@@ -153,6 +185,8 @@
     "success": {
       "title": "Bestellung erfolgreich!",
       "subtitle": "Die Bestellung: {{orderId}} wurde erfolgreich erstellt",
+      "pendingTitle": "Bestellung eingereicht!",
+      "pendingSubtitle": "Deine Bestellung {{orderId}} wurde erfolgreich erstellt und wartet auf Genehmigung durch die Matverantwortung.",
       "viewOrder": "Bestellung ansehen"
     },
     "empty": {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined, GlobalOutlined, SearchOutlined, NotificationOutlined } from '@ant-design/icons'
+import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined, GlobalOutlined, SearchOutlined, NotificationOutlined, BarChartOutlined } from '@ant-design/icons'
 import { HomeView } from 'views/home/home';
 import { LoginView } from 'views/login/login';
 import { ProfileView } from 'views/profile/profile';
@@ -10,6 +10,7 @@ import { AbteilungDetail } from 'components/abteilung/AbteilungDetails';
 import { SearchView } from 'views/search/search';
 import { ReleaseNotesView } from 'views/releaseNotes/ReleaseNotesView';
 import { ReleaseNoteEditorView } from 'views/releaseNotes/ReleaseNoteEditorView';
+import { StatsView } from 'views/staff/stats/StatsView';
 
 
 export interface AppRoute {
@@ -110,6 +111,18 @@ export const AppRoutes: AppRoute[] = [
         exact: true,
         view: UsersView,
         element: <UsersView/>
+    },
+    {
+        key: '/stats',
+        displayName: 'navigation:routes.stats',
+        icon: <BarChartOutlined />,
+        public: false,
+        private: true,
+        staffOnly: true,
+        showInMenue: true,
+        exact: true,
+        view: StatsView,
+        element: <StatsView/>
     },
     {
         key: '/profile',

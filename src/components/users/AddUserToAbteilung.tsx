@@ -1,7 +1,7 @@
 import {Button, Form, message, Modal, Select, Spin} from "antd";
 import {db} from "../../config/firebase/firebase";
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import {abteilungenCollection, abteilungenMembersCollection} from "../../config/firebase/collections";
+import {abteilungenCollection, abteilungenMembersCollection, usersCollection} from "../../config/firebase/collections";
 import React, {useContext, useState} from "react";
 import {AbteilungenContext} from "../navigation/NavigationMenu";
 import {getRoles} from "../abteilung/members/MemberTable";
@@ -27,26 +27,45 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
     const abtielungenLoading = abteilungenContext.loading;
 
     const addUserToAbteilung = async () => {
-        const userRef = doc(db, abteilungenCollection, form.getFieldValue('abteilung'), abteilungenMembersCollection, uid)
-        const memberDoc = await getDoc(userRef);
-        if (memberDoc.exists()) {
-            message.error(t('navigation:users.addToAbteilung.alreadyMember'));
-        } else {
-            const member: AbteilungMember = {
-                userId: uid,
-                role: form.getFieldValue('role'),
-                approved: true,
+        const abteilungId = form.getFieldValue('abteilung');
+        const role = form.getFieldValue('role');
+        const memberRef = doc(db, abteilungenCollection, abteilungId, abteilungenMembersCollection, uid);
+
+        // Check if already a member (may fail with permission error if staff is not a member of this abteilung)
+        try {
+            const memberDoc = await getDoc(memberRef);
+            if (memberDoc.exists()) {
+                message.error(t('navigation:users.addToAbteilung.alreadyMember'));
+                return;
             }
-            await setDoc(doc(db, abteilungenCollection, form.getFieldValue('abteilung'), abteilungenMembersCollection, uid), member)
-                .then(() => {
-                    if (onSuccess) {
-                        onSuccess();
-                    }
-                })
-                .catch(() => {
-                    message.error(t('navigation:users.addToAbteilung.error'))
-                })
+        } catch {
+            // Permission error reading member doc — proceed with creation
         }
+
+        // Fetch user profile for displayName and email
+        const userDoc = await getDoc(doc(db, usersCollection, uid)).catch(() => null);
+        const userProfile = userDoc?.data();
+        const displayName = userProfile?.displayName || '';
+
+        const member: any = {
+            userId: uid,
+            role,
+            approved: true,
+            displayName,
+        };
+        if (role === 'guest') {
+            member.email = userProfile?.email || '';
+        }
+
+        await setDoc(memberRef, member)
+            .then(() => {
+                if (onSuccess) {
+                    onSuccess();
+                }
+            })
+            .catch(() => {
+                message.error(t('navigation:users.addToAbteilung.error'))
+            })
     }
 
     return <>
