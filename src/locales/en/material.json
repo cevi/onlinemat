@@ -1,0 +1,78 @@
+{
+  "add": {
+    "button": "Add material",
+    "title": "Add material",
+    "submit": "Add material",
+    "success": "Material {{name}} successfully created"
+  },
+  "edit": {
+    "title": "Edit material",
+    "submit": "Save changes"
+  },
+  "delete": {
+    "button": "Delete Material",
+    "confirmAll": "Do you really want to delete all material of this department?",
+    "confirmSingle": "Do you really want to delete {{name}}?",
+    "successAll": "All material of {{name}} was successfully deleted",
+    "success": "Material {{name}} successfully deleted"
+  },
+  "view": {
+    "comment": "Comment:",
+    "standort": "Location:",
+    "available": "Available:",
+    "weight": "Weight in kg:",
+    "categories": "Categories:",
+    "noPictures": "No pictures available"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Material name",
+    "comment": "Comment",
+    "commentPlaceholder": "Comment",
+    "standort": "Location",
+    "standortPlaceholder": "Location",
+    "count": "Quantity",
+    "lost": "Lost",
+    "damaged": "Damaged",
+    "availableCount": "Available: {{count}}",
+    "weight": "Weight in kg",
+    "consumables": "Is consumable",
+    "onlyLendInternal": "Hide in search for users outside this department",
+    "categories": "Categories",
+    "categoriesPlaceholder": "Categories",
+    "imageUrls": "Image URLs",
+    "imageUrlPlaceholder": "Material image URL",
+    "addImage": "Add image"
+  },
+  "table": {
+    "name": "Name",
+    "comment": "Comment",
+    "category": "Category",
+    "standort": "Location",
+    "weight": "Weight",
+    "available": "Available",
+    "cart": "Cart",
+    "weightUnit": "{{weight}} kg",
+    "unlimited": "unlimited",
+    "uncategorized": "Uncategorized"
+  },
+  "search": {
+    "placeholder": "Search for material"
+  },
+  "export": {
+    "button": "Excel export"
+  },
+  "import": {
+    "button": "Excel Import",
+    "fileError": "Unfortunately, an error occurred while reading the file"
+  },
+  "messages": {
+    "editSuccess": "Material {{name}} successfully edited",
+    "maxCountReached": "The maximum quantity of {{name}} is already in your cart.",
+    "notAvailable": "{{name}} is currently not available."
+  },
+  "util": {
+    "unlimited": "unlimited",
+    "deleted": "Deleted material"
+  }
+}

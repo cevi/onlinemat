@@ -1,0 +1,48 @@
+{
+  "buttons": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "open": "Öffnen",
+    "search": "Suchen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "saveChanges": "Änderungen speichern",
+    "login": "Anmelden",
+    "logout": "Abmelden"
+  },
+  "confirm": {
+    "yes": "Ja",
+    "no": "Nein"
+  },
+  "roles": {
+    "admin": "Admin",
+    "matchef": "Matchef",
+    "member": "Mitglied",
+    "guest": "Gast",
+    "pending": "Angefragt",
+    "staff": "Staff"
+  },
+  "status": {
+    "loading": "Lade...",
+    "unknown": "Unbekannt"
+  },
+  "errors": {
+    "generic": "Es ist ein Fehler aufgetreten: {{error}}",
+    "genericShort": "Es ist leider ein Fehler aufgetreten"
+  },
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "actions": "Aktionen",
+    "role": "Rolle"
+  },
+  "footer": {
+    "designedBy": "Designed by",
+    "contact": "Contact"
+  },
+  "appName": "Onlinemat",
+  "appNameShort": "OM"
+}

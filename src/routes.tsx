@@ -29,7 +29,7 @@ export interface AppRoute {
 
 export const HomeRoute: AppRoute = {
     key: '/',
-    displayName: 'Home',
+    displayName: 'navigation:routes.home',
     icon: <HomeOutlined />,
     showInMenue: true,
     exact: true,
@@ -40,7 +40,7 @@ export const HomeRoute: AppRoute = {
 export const AppRoutes: AppRoute[] = [
     {
         key: '/login',
-        displayName: 'Login',
+        displayName: 'navigation:routes.login',
         icon: <LoginOutlined />,
         public: true,
         showInMenue: false,
@@ -50,7 +50,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/suche',
-        displayName: 'Suchen',
+        displayName: 'navigation:routes.search',
         icon: <SearchOutlined />,
         public: false,
         private: true,
@@ -61,7 +61,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/abteilungen',
-        displayName: 'Abteilungen',
+        displayName: 'navigation:routes.abteilungen',
         icon: <GlobalOutlined />,
         public: false,
         private: true,
@@ -72,7 +72,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/abteilungen/:abteilungSlugOrId',
-        displayName: 'Abteilungen Details',
+        displayName: 'navigation:routes.abteilungenDetails',
         showInMenue: false,
         private: true,
         exact: true,
@@ -81,7 +81,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/abteilungen/:abteilungSlugOrId/:tab',
-        displayName: 'Abteilungen Details',
+        displayName: 'navigation:routes.abteilungenDetails',
         showInMenue: false,
         private: true,
         exact: true,
@@ -90,7 +90,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/abteilungen/:abteilungSlugOrId/:tab/:orderId',
-        displayName: 'Abteilungen Details',
+        displayName: 'navigation:routes.abteilungenDetails',
         showInMenue: false,
         private: true,
         exact: true,
@@ -99,7 +99,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/users',
-        displayName: 'Benutzer',
+        displayName: 'navigation:routes.users',
         icon: <TeamOutlined />,
         public: false,
         private: true,
@@ -111,7 +111,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/profile',
-        displayName: 'Profile',
+        displayName: 'navigation:routes.profile',
         icon: <UserOutlined />,
         public: false,
         private: true,

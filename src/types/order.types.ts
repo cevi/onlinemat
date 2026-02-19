@@ -18,11 +18,12 @@ export interface Order {
     customGroupName?: string
     matchefComment?: string
     damagedMaterial?: DamagedMaterial[] | null
+    preparedItems?: string[]
 }
 
 export interface OrderHistory {
     color: string | null
     timestamp: Date
     text: string
-    type: 'creation' | 'matchefComment' | 'startDate' | 'endDate' | 'delivered' | 'completed' | 'reset' | 'completed-damaged' | null
+    type: 'creation' | 'matchefComment' | 'startDate' | 'endDate' | 'delivered' | 'completed' | 'reset' | 'completed-damaged' | 'edited' | null
 }

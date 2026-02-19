@@ -4,7 +4,7 @@ export const getCartName = (abteilungId: string)=> {
     return `cart_${abteilungId}`;
 }
 
-export const cookieToCart = (cookieRaw: any, abteilungId: string): CartItem[] => {
+export const cookieToCart = (cookieRaw: CartItem[] | undefined, abteilungId: string): CartItem[] => {
     let cartItems: CartItem[] = [];
     if(cookieRaw) {
         cartItems = cookieRaw as CartItem[]
@@ -36,3 +36,25 @@ export const changeCountFromCart = (cartItems: DetailedCartItem[], item: Detaile
         matId: i.matId
     } as CartItem));
 }
+
+export const replaceCart = (orderItems: CartItem[]): CartItem[] => {
+    return orderItems.map(item => ({
+        __caslSubjectType__: 'CartItem' as const,
+        matId: item.matId,
+        count: item.count,
+    }));
+};
+
+export const mergeCart = (existingCart: CartItem[], orderItems: CartItem[]): CartItem[] => {
+    const merged = [...existingCart];
+    orderItems.forEach(orderItem => {
+        if (!merged.find(ci => ci.matId === orderItem.matId)) {
+            merged.push({
+                __caslSubjectType__: 'CartItem' as const,
+                matId: orderItem.matId,
+                count: orderItem.count,
+            });
+        }
+    });
+    return merged;
+};

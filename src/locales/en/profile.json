@@ -1,0 +1,51 @@
+{
+  "title": "Profile",
+  "edit": "Edit",
+  "save": "Save",
+  "cancel": "Cancel",
+  "form": {
+    "firstName": "First Name",
+    "firstNamePlaceholder": "First Name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Last Name",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Name",
+    "ceviName": "Cevi Name",
+    "ceviNamePlaceholder": "Cevi Name",
+    "email": "Email",
+    "emailPlaceholder": "Email",
+    "defaultAbteilung": "Default Department",
+    "defaultAbteilungPlaceholder": "Default Department"
+  },
+  "details": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "ceviName": "Cevi Name",
+    "email": "Email",
+    "defaultAbteilung": "Default Department"
+  },
+  "myAbteilungen": {
+    "title": "My Departments",
+    "staffFullAccess": "As a staff member, you have full access to all departments.",
+    "noAbteilungen": "You have not joined any department yet.",
+    "abteilung": "Department",
+    "role": "Role"
+  },
+  "staffDebug": {
+    "title": "Staff Debug Info",
+    "emailVerified": "Email Verified",
+    "firebaseToken": "Firebase Token",
+    "locale": "Locale",
+    "profilePicture": "Profile Picture",
+    "sub": "Sub",
+    "updatedAt": "Updated at",
+    "firebaseUserId": "Firebase User ID",
+    "defaultAbteilung": "Default Department",
+    "staff": "Staff",
+    "branch": "Branch",
+    "gitHash": "Git Hash"
+  },
+  "messages": {
+    "editSuccess": "User {{name}} successfully edited"
+  }
+}

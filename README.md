@@ -23,7 +23,7 @@ Happy Coding!
 
 **The Application won't start**
 Don't forget to create the `.env` file with all the keys and values in it.
-For that just copy the `.env.example` file, rename it to `.env`, and add the missing secrets.
+Copy the `.env.example` file to `.env` and add the missing secrets.
 Note: environment variables use the `VITE_` prefix (e.g. `VITE_FIREBASE_API_KEY`).
 To get the `.env` values for the dev instance, please contact onlinemat@cevi.tools
 

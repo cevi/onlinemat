@@ -1,17 +1,15 @@
 import { UserData, UserDataUpdate } from "../../types/user.type";
-import React, {
+import {
   forwardRef,
   useContext,
   useImperativeHandle,
-  useRef,
-  useState,
 } from "react";
-import { AutoComplete, Button, Form, Input, Modal, Select, message } from "antd";
+import { Col, Form, Input, Row, Select, message } from "antd";
 import { editUserData } from "../../util/UserUtil";
 import { useUser } from "../../hooks/use-user";
-import { validateMessages } from "../../util/FormValdationMessages";
-import { EditOutlined } from "@ant-design/icons";
+import { getValidateMessages } from "../../util/FormValdationMessages";
 import { AbteilungenContext } from "../navigation/NavigationMenu";
+import { useTranslation } from 'react-i18next';
 
 export interface EditProfileProps {
   userId: string | undefined;
@@ -20,175 +18,136 @@ export interface EditProfileProps {
 }
 
 export const EditProfile = forwardRef((props: EditProfileProps, ref) => {
+  const { userId, userData, onSuccess } = props;
+
+  const [form] = Form.useForm<UserDataUpdate>();
+  const userState = useUser();
+  const { t } = useTranslation();
+
+  const abteilungenContext = useContext(AbteilungenContext);
+  const abteilungen = abteilungenContext.abteilungen;
+
   useImperativeHandle(ref, () => ({
     saveEditProfile() {
       prepareEditProfile();
     },
   }));
 
-  const { userId, userData, onSuccess } = props;
-
-  const [form] = Form.useForm<UserDataUpdate>();
-
-  const userState = useUser();
-
-  const abteilungenContext = useContext(AbteilungenContext);
-  const abteilungen = abteilungenContext.abteilungen;
-
   const prepareEditProfile = async () => {
     try {
       await form.validateFields();
     } catch (validation) {
-      //form is not valid
       return;
     }
     try {
-      const userData = form.getFieldsValue()
-      await editUserData(userState.appUser?.firebaseUser?.uid, userData);
+      const formData = form.getFieldsValue();
+      await editUserData(userState.appUser?.firebaseUser?.uid, formData);
       if (onSuccess) {
         onSuccess();
       } else {
-        message.error("Es ist leider ein Fehler aufgetreten");
+        message.error(t('common:errors.genericShort'));
       }
     } catch (ex) {
-      message.error(`Es ist ein Fehler aufgetreten: ${ex}`);
+      message.error(t('common:errors.generic', { error: ex }));
     }
   };
 
-
-  const filterOption = (input: string, option?: { label: string; value: string }) =>
-  (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+  const filterOption = (
+    input: string,
+    option?: { label: string; value: string }
+  ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
   return (
-    <>
-      {
-        <Form
-          form={form}
-          initialValues={userData}
-          onValuesChange={() => {
-            const tempUserData = form.getFieldsValue() as UserDataUpdate;
-            form.validateFields();
-          }}
-          validateMessages={validateMessages}
-        >
+    <Form
+      form={form}
+      initialValues={userData}
+      layout="vertical"
+      validateMessages={getValidateMessages()}
+    >
+      <Row gutter={16}>
+        <Col xs={24} sm={12}>
           <Form.Item
-            label="Vollständiger Name"
-            name="name"
-            rules={[{ required: true }, { type: "string", min: 1 }]}
-          >
-            <Input placeholder="Name" />
-          </Form.Item>
-          <Form.Item
-            label="Vorname"
+            label={t('profile:form.firstName')}
             name="given_name"
             rules={[{ required: true }, { type: "string", min: 1 }]}
           >
-            <Input placeholder="Vorname" />
+            <Input placeholder={t('profile:form.firstNamePlaceholder')} />
           </Form.Item>
+        </Col>
+        <Col xs={24} sm={12}>
           <Form.Item
-            label="Nachname"
+            label={t('profile:form.lastName')}
             name="family_name"
             rules={[{ required: true }, { type: "string", min: 1 }]}
           >
-            <Input placeholder="Nachname" />
+            <Input placeholder={t('profile:form.lastNamePlaceholder')} />
           </Form.Item>
+        </Col>
+      </Row>
+      <Row gutter={16}>
+        <Col xs={24} sm={12}>
           <Form.Item
-            label="Nickname"
+            label={t('profile:form.fullName')}
+            name="name"
+            rules={[{ required: true }, { type: "string", min: 1 }]}
+          >
+            <Input placeholder={t('profile:form.fullNamePlaceholder')} />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={12}>
+          <Form.Item
+            label={t('profile:form.ceviName')}
             name="nickname"
             rules={[{ required: true }, { type: "string", min: 1 }]}
           >
-            <Input placeholder="Nickname" />
+            <Input placeholder={t('profile:form.ceviNamePlaceholder')} />
           </Form.Item>
+        </Col>
+      </Row>
+      <Row gutter={16}>
+        <Col xs={24} sm={12}>
           <Form.Item
-            label="Email"
+            label={t('profile:form.email')}
             name="email"
             rules={[{ required: true }, { type: "string", min: 1 }]}
           >
-            <Input placeholder="Email" />
+            <Input placeholder={t('profile:form.emailPlaceholder')} />
           </Form.Item>
+        </Col>
+        <Col xs={24} sm={12}>
           <Form.Item
-            label="Standard Abteilung"
+            label={t('profile:form.defaultAbteilung')}
             name="defaultAbteilung"
-            rules={[{ type: "string", min: 1 }]}
+            rules={[{ type: "string" }]}
           >
             <Select
               showSearch
-              placeholder="Standard Abteilung"
+              allowClear
+              placeholder={t('profile:form.defaultAbteilungPlaceholder')}
               optionFilterProp="children"
               filterOption={filterOption}
-              options={[{label: 'Keine Abteilung', value: null} as any, ...abteilungen.filter(a => {
-                if(userState.appUser?.userData.staff) return true
-
-                const userRoles = userState.appUser?.userData.roles || {}
-                for(const abteilungId of Object.keys(userRoles)) {
-                    if(abteilungId === a.id && userRoles[abteilungId] !== 'pending') return true
-                }
-                return false
-              }).map((a) => {
-                return {
-                    value: a.slug || a.id,
-                    label: a.name,
-                }
-              }).sort((a,b) => a.label.localeCompare(b.label))]}
+              options={abteilungen
+                .filter((a) => {
+                  if (userState.appUser?.userData.staff) return true;
+                  const userRoles = userState.appUser?.userData.roles || {};
+                  for (const abteilungId of Object.keys(userRoles)) {
+                    if (
+                      abteilungId === a.id &&
+                      userRoles[abteilungId] !== "pending"
+                    )
+                      return true;
+                  }
+                  return false;
+                })
+                .map((a) => ({
+                  value: a.slug || a.id,
+                  label: a.name,
+                }))
+                .sort((a, b) => a.label.localeCompare(b.label))}
             />
           </Form.Item>
-        </Form>
-      }
-    </>
+        </Col>
+      </Row>
+    </Form>
   );
 });
-
-export const EditProfileButton = (props: EditProfileProps) => {
-  const { userId, userData } = props;
-  const editProfileRef = useRef();
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  return (
-    <>
-      <Button
-        type="primary"
-        onClick={() => {
-          setIsModalVisible(!isModalVisible);
-        }}
-        icon={<EditOutlined />}
-      />
-      <Modal
-        title="Profil bearbeiten"
-        open={isModalVisible}
-        onCancel={() => {
-          setIsModalVisible(false);
-        }}
-        footer={[
-          <Button
-            key="back"
-            onClick={() => {
-              setIsModalVisible(false);
-            }}
-          >
-            Abbrechen
-          </Button>,
-          <Button
-            key="save"
-            type="primary"
-            onClick={() => {
-              if (!editProfileRef || !editProfileRef.current) return;
-              //TODO: typescript
-              (editProfileRef.current as any).saveEditProfile();
-            }}
-          >
-            Änderungen speichern
-          </Button>,
-        ]}
-      >
-        <EditProfile
-          ref={editProfileRef}
-          userId={userId}
-          userData={userData}
-          onSuccess={() => {
-            setIsModalVisible(false);
-          }}
-        />
-      </Modal>
-    </>
-  );
-};

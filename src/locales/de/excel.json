@@ -1,0 +1,32 @@
+{
+  "import": {
+    "title": "Material importieren",
+    "importAdd": "Importieren hinzufügen",
+    "importAddTooltip": "Bestehendes Material wird mit dem Inhalt der Excel-Tabelle ergänzt.",
+    "importReplace": "Importieren ersetzen",
+    "importReplaceTooltip": "Bestehendes Material wird gelöscht und mit dem Inhalt der Excel-Tabelle ersetzt.",
+    "importReplaceConfirm": "Möchtest du wirklich alles bestehendes Material dieser Abteilung löschen?",
+    "nameRequired": "Du musst den Namen des Materials zuordnen.",
+    "success": "Es wurden erfolgreich {{imported}}/{{total}} Materialien importiert.",
+    "selectPlaceholder": "Passendes Feld",
+    "noneOption": "Nicht vorhanden",
+    "example": "Beispiel: {{value}}",
+    "defaultValue": "Standardwert"
+  },
+  "fields": {
+    "name": "Name*:",
+    "comment": "Bemerkung:",
+    "standort": "Standort:",
+    "count": "Anzahl:",
+    "lost": "Verloren:",
+    "damaged": "Beschädigt:",
+    "weight": "Gewicht in Kg:",
+    "consumables": "Ist Verbrauchsmaterial:",
+    "categories": "Katergorien:",
+    "images": "Bilder:",
+    "onlyLendInternal": "Für externe Benutzer ausblenden:",
+    "defaultStandort": "Standard-Standort",
+    "defaultCategories": "Standard-Kategorien",
+    "defaultImageUrls": "Standard-URLs (kommagetrennt)"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "open": "Open",
+    "search": "Search",
+    "back": "Back",
+    "next": "Next",
+    "saveChanges": "Save changes",
+    "login": "Log in",
+    "logout": "Log out"
+  },
+  "confirm": {
+    "yes": "Yes",
+    "no": "No"
+  },
+  "roles": {
+    "admin": "Admin",
+    "matchef": "Material Chief",
+    "member": "Member",
+    "guest": "Guest",
+    "pending": "Pending",
+    "staff": "Staff"
+  },
+  "status": {
+    "loading": "Loading...",
+    "unknown": "Unknown"
+  },
+  "errors": {
+    "generic": "An error occurred: {{error}}",
+    "genericShort": "Unfortunately, an error occurred"
+  },
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "actions": "Actions",
+    "role": "Role"
+  },
+  "footer": {
+    "designedBy": "Designed by",
+    "contact": "Contact"
+  },
+  "appName": "Onlinemat",
+  "appNameShort": "OM"
+}

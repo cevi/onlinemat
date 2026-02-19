@@ -1,0 +1,31 @@
+{
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "role": "Role"
+  },
+  "search": {
+    "placeholder": "Search for member"
+  },
+  "actions": {
+    "approve": "Accept as {{role}}",
+    "deny": "Deny",
+    "ban": "Ban",
+    "banTooltip": "The request will be denied and the user will not be able to submit a new request in the future",
+    "unban": "Unban user",
+    "remove": "Remove"
+  },
+  "syncDisplayNames": {
+    "button": "Sync display names",
+    "success": "Sync complete: {{updated}} updated, {{skipped}} skipped",
+    "warning": "Sync completed with errors",
+    "permissionError": "Only staff members can use this function",
+    "error": "Sync failed"
+  },
+  "roles": {
+    "guest": "Guest",
+    "member": "Member",
+    "matchef": "Material Chief",
+    "admin": "Admin"
+  }
+}

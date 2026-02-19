@@ -1,0 +1,34 @@
+{
+  "add": {
+    "button": "Standort hinzufügen",
+    "title": "Standort hinzufügen",
+    "submit": "Standort hinzufügen",
+    "success": "Standort {{name}} erfolgreich erstellt"
+  },
+  "edit": {
+    "title": "Stadort bearbeiten",
+    "submit": "Änderungen speichern",
+    "success": "Standort {{name}} erfolgreich bearbeitet"
+  },
+  "delete": {
+    "confirm": "Möchtest du {{name}} wirklich löschen?",
+    "success": "Standort {{name}} erfolgreich gelöscht"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Standortname",
+    "street": "Strasse",
+    "streetPlaceholder": "Strasse und Nummer",
+    "city": "Ort",
+    "cityPlaceholder": "PLZ und Ort",
+    "coordinates": "Koordinaten",
+    "coordinatesPlaceholder": "Koordinaten"
+  },
+  "table": {
+    "name": "Name",
+    "street": "Strasse",
+    "city": "Ort",
+    "coordinates": "Koordinaten",
+    "edit": "Bearbeiten"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "add": {
+    "button": "Gruppe hinzufügen",
+    "title": "Gruppe/Anlass hinzufügen",
+    "submit": "Gruppe/Anlass hinzufügen",
+    "success": "{{type}} {{name}} erfolgreich erstellt"
+  },
+  "edit": {
+    "title": "Gruppe/Anlass bearbeiten",
+    "submit": "Gruppe/Anlass bearbeiten",
+    "success": "{{type}} {{name}} erfolgreich bearbeitet"
+  },
+  "delete": {
+    "confirm": "Möchtest du diese Gruppe wirklich löschen?",
+    "success": "{{type}} {{name}} erfolgreich gelöscht"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Name",
+    "type": "Type",
+    "typeGroup": "Gruppe",
+    "typeEvent": "Anlass",
+    "members": "Mitglieder",
+    "membersMin": "Du must mindestens 1 Mitglied auswählen"
+  },
+  "table": {
+    "name": "Name",
+    "type": "Typ",
+    "typeGroup": "Gruppe",
+    "typeEvent": "Anlass",
+    "createdAt": "Erstellt",
+    "members": "Personen",
+    "actions": "Aktionen"
+  }
+}

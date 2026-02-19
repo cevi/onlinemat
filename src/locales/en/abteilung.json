@@ -1,0 +1,63 @@
+{
+  "title": "Departments",
+  "detailTitle": "Department {{name}}",
+  "tabs": {
+    "material": "Material",
+    "standorte": "Locations",
+    "kategorien": "Categories",
+    "bestellungen": "Orders",
+    "mitglieder": "Members",
+    "gruppen": "Groups",
+    "einstellungen": "Settings"
+  },
+  "card": {
+    "details": "Details",
+    "pending": "Pending"
+  },
+  "add": {
+    "button": "Add department",
+    "title": "Create department",
+    "namePlaceholder": "Name",
+    "success": "Department {{name}} successfully created",
+    "duplicateWarning": "A department with the name \"{{name}}\" already exists. Are you sure you want to create a new one, or would you like to ask to join the existing one?"
+  },
+  "noAccess": {
+    "title": "You do not have permission for this department",
+    "emailHint": "Or send an email to "
+  },
+  "join": {
+    "button": "Join",
+    "title": "Join department {{name}}",
+    "roleLabel": "Role",
+    "submit": "Request to join",
+    "success": "Request to {{name}} successfully sent"
+  },
+  "settings": {
+    "name": "Department name",
+    "namePlaceholder": "Department name",
+    "slug": "Slug",
+    "slugPlaceholder": "Slug",
+    "slugTooltip": "URL-friendly name",
+    "slugNoSpaces": "The slug must not contain spaces",
+    "slugLowercase": "The slug must be lowercase",
+    "ceviDbId": "Cevi DB Department ID",
+    "ceviDbIdPlaceholder": "Cevi DB ID",
+    "logoUrl": "Cevi Logo URL",
+    "logoUrlPlaceholder": "Cevi Logo URL",
+    "email": "Email",
+    "emailPlaceholder": "Email",
+    "searchVisible": "Visible in search",
+    "searchVisibleDescription": "When disabled, materials from this department will not appear in the global search. This can also be set per material.",
+    "save": "Save",
+    "delete": "Delete Department",
+    "deleteConfirm": "Do you really want to delete this department?",
+    "saveSuccess": "Changes saved successfully",
+    "deleteSuccess": "{{name}} successfully deleted"
+  },
+  "search": {
+    "placeholder": "Search department..."
+  },
+  "errors": {
+    "unknown": "Unknown department {{id}}"
+  }
+}

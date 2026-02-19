@@ -5,6 +5,11 @@
       "Bash(npx yarn:*)",
       "Bash(yarn install:*)",
       "Bash(npx vite build:*)",
+      "Bash(yarn audit:*)",
+      "Bash(npx tsc:*)",
+      "Bash(yarn list:*)",
+      "Bash(yarn build:*)",
+      "Bash(npx vitest run:*)"
       "Bash(yarn audit:*)"
       "Bash(npm ls:*)",
       "Bash(node --version:*)",

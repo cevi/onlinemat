@@ -6,10 +6,11 @@ import { Abteilung } from 'types/abteilung.type';
 import { CartItem, DetailedCartItem } from 'types/cart.types';
 import { Group } from 'types/group.types';
 import { Order } from 'types/order.types';
-import { validateMessages } from 'util/FormValdationMessages';
+import { getValidateMessages } from 'util/FormValdationMessages';
 import { groupObjToList } from 'util/GroupUtil';
-import { dateFormatWithTime } from 'util/MaterialUtil';
+import { dateFormatWithTime } from 'util/constants';
 import { OrderItems } from './OrderItems';
+import { useTranslation } from 'react-i18next';
 
 export interface CreateOrderProps {
     abteilung: Abteilung
@@ -34,6 +35,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
 
     const [form] = Form.useForm<Order>();
     const userState = useUser();
+    const { t } = useTranslation();
 
     const { RangePicker } = DatePicker as any;
     const { TextArea } = Input;
@@ -111,7 +113,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
         if (!startDate || !endDate) return;
 
         if (items.length <= 0) {
-            message.error('Dein Warenkorb ist leer');
+            message.error(t('order:create.emptyCart'));
             return;
         }
 
@@ -181,12 +183,12 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
         <Col span={12}>
             <Form
                 form={form}
-                validateMessages={validateMessages}
+                validateMessages={getValidateMessages()}
             >
                 <Row gutter={[16, 16]}>
                     <Col span={24}>
                         <Form.Item
-                            label='Datum'
+                            label={t('order:create.date')}
                             rules={[
                                 { required: true },
                             ]}
@@ -211,7 +213,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                     </Col>
                     <Col span={18}>
                         <Form.Item
-                            label='Gruppe / Anlass'
+                            label={t('order:create.group')}
                             name='groupId'
                             rules={[
                                 { required: true },
@@ -221,22 +223,22 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                                 showSearch
                                 onChange={(val) => setSelectedGroup(val)}
                             >
-                                <OptGroup label='Gruppe'>
+                                <OptGroup label={t('order:create.groupLabel')}>
                                     {
                                         userGroups.filter(g => g.type === 'group').map(g => {
                                             return <Option key={`group_option_${g.id}`} value={g.id}>{g.name}</Option>
                                         })
                                     }
                                 </OptGroup>
-                                <OptGroup label='Anlass'>
+                                <OptGroup label={t('order:create.eventLabel')}>
                                     {
                                         userGroups.filter(g => g.type === 'event').map(g => {
                                             return <Option key={`event_option_${g.id}`} value={g.id}>{g.name}</Option>
                                         })
                                     }
                                 </OptGroup>
-                                <OptGroup label='Andere'>
-                                    <Option key='custom_option_custom' value={customGroupId}>Andere</Option>
+                                <OptGroup label={t('order:create.otherLabel')}>
+                                    <Option key='custom_option_custom' value={customGroupId}>{t('order:create.otherOption')}</Option>
                                 </OptGroup>
                             </Select>
                         </Form.Item>
@@ -244,7 +246,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                     {
                         selectedGroup === customGroupId && <Col span={18}>
                             <Form.Item
-                                label='Bezeichnung'
+                                label={t('order:create.customGroupName')}
                                 name='customGroupName'
                                 rules={[
                                     { required: selectedGroup === customGroupId },
@@ -256,7 +258,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                     }
                     <Col span={18}>
                         <Form.Item
-                            label='Bemerkung'
+                            label={t('order:create.comment')}
                             name='comment'
                             rules={[
                                 { required: false },

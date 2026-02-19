@@ -6,8 +6,9 @@ import {
   abteilungenCollection,
   abteilungenStandortCollection,
 } from "config/firebase/collections";
-import { validateMessages } from "util/FormValdationMessages";
+import { getValidateMessages } from "util/FormValdationMessages";
 import { Standort } from "types/standort.types";
+import { useTranslation } from 'react-i18next';
 
 export interface AddStandortProps {
   abteilungId: string;
@@ -18,23 +19,24 @@ export const AddStandort = (props: AddStandortProps) => {
   const { abteilungId, onSuccess } = props;
 
   const [form] = Form.useForm<Standort>();
+  const { t } = useTranslation();
 
   const addStandort = async () => {
     try {
       const response = await addDoc(collection(db, abteilungenCollection, abteilungId, abteilungenStandortCollection), form.getFieldsValue() as Standort);
       if (response.id) {
         message.success(
-          `Standort ${form.getFieldValue("name")} erfolgreich erstellt`
+          t('standort:add.success', { name: form.getFieldValue("name") })
         );
         form.resetFields();
         if (onSuccess) {
           onSuccess();
         }
       } else {
-        message.error("Es ist leider ein Fehler aufgetreten");
+        message.error(t('common:errors.genericShort'));
       }
     } catch (ex) {
-      message.error(`Es ist ein Fehler aufgetreten: ${ex}`);
+      message.error(t('common:errors.generic', { error: ex }));
       console.error(ex);
     }
   };
@@ -43,7 +45,7 @@ export const AddStandort = (props: AddStandortProps) => {
     <>
       <Form
         form={form}
-        validateMessages={validateMessages}
+        validateMessages={getValidateMessages()}
         initialValues={{
           city: null,
           coordinates: null,
@@ -52,28 +54,28 @@ export const AddStandort = (props: AddStandortProps) => {
         onFinish={addStandort}
       >
         <Form.Item
-          label="Name"
+          label={t('standort:form.name')}
           name="name"
           rules={[{ required: true }, { type: "string", min: 1 }]}
         >
-          <Input placeholder="Standortname" />
+          <Input placeholder={t('standort:form.namePlaceholder')} />
         </Form.Item>
-        <Form.Item label="Strasse" name="street" rules={[{ required: false }]}>
-          <Input placeholder="Strasse und Nummer" />
+        <Form.Item label={t('standort:form.street')} name="street" rules={[{ required: false }]}>
+          <Input placeholder={t('standort:form.streetPlaceholder')} />
         </Form.Item>
-        <Form.Item label="Ort" name="city" rules={[{ required: false }]}>
-          <Input placeholder="PLZ und Ort" />
+        <Form.Item label={t('standort:form.city')} name="city" rules={[{ required: false }]}>
+          <Input placeholder={t('standort:form.cityPlaceholder')} />
         </Form.Item>
         <Form.Item
-          label="Koordinaten"
+          label={t('standort:form.coordinates')}
           name="coordinates"
           rules={[{ required: false }]}
         >
-          <Input placeholder="Koordinaten" />
+          <Input placeholder={t('standort:form.coordinatesPlaceholder')} />
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Button type="primary" htmlType="submit">
-            Standort hinzufügen
+            {t('standort:add.submit')}
           </Button>
         </Form.Item>
       </Form>
@@ -85,6 +87,7 @@ export const AddStandortButton = (props: AddStandortProps) => {
   const { abteilungId } = props;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <>
@@ -94,10 +97,10 @@ export const AddStandortButton = (props: AddStandortProps) => {
           setIsModalVisible(!isModalVisible);
         }}
       >
-        Standort hinzufügen
+        {t('standort:add.button')}
       </Button>
       <Modal
-        title="Standort hinzufügen"
+        title={t('standort:add.title')}
         open={isModalVisible}
         onCancel={() => {
           setIsModalVisible(false);
@@ -109,7 +112,7 @@ export const AddStandortButton = (props: AddStandortProps) => {
               setIsModalVisible(false);
             }}
           >
-            Abbrechen
+            {t('common:buttons.cancel')}
           </Button>,
         ]}
       >

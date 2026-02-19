@@ -1,0 +1,63 @@
+{
+  "title": "Abteilungen",
+  "detailTitle": "Abteilung {{name}}",
+  "tabs": {
+    "material": "Material",
+    "standorte": "Standorte",
+    "kategorien": "Kategorien",
+    "bestellungen": "Bestellungen",
+    "mitglieder": "Mitglieder",
+    "gruppen": "Gruppen",
+    "einstellungen": "Einstellungen"
+  },
+  "card": {
+    "details": "Details",
+    "pending": "Angefragt"
+  },
+  "add": {
+    "button": "Abteilung hinzufügen",
+    "title": "Abteilung erstellen",
+    "namePlaceholder": "Name",
+    "success": "Abteilung {{name}} erfolgreich erstellt",
+    "duplicateWarning": "Eine Abteilung mit dem Namen \"{{name}}\" existiert bereits. Möchtest du wirklich eine neue erstellen, oder möchtest du der bestehenden beitreten?"
+  },
+  "noAccess": {
+    "title": "Du hast keine Berechtigungen für diese Abteilung",
+    "emailHint": "Oder schreibe eine email an "
+  },
+  "join": {
+    "button": "Beitreten",
+    "title": "Abteilung {{name}} beitreten",
+    "roleLabel": "Rolle",
+    "submit": "Beitritt anfragen",
+    "success": "Anfrage an {{name}} erfolgreich gesendet"
+  },
+  "settings": {
+    "name": "Abteilungsname",
+    "namePlaceholder": "Abteilungsname",
+    "slug": "Slug",
+    "slugPlaceholder": "Slug",
+    "slugTooltip": "Url lesbarer Name",
+    "slugNoSpaces": "Der Slug darf keine Leerzeichen haben",
+    "slugLowercase": "Der Slug muss klein geschrieben werden",
+    "ceviDbId": "Cevi DB Abteilungs ID",
+    "ceviDbIdPlaceholder": "Cevi DB Id",
+    "logoUrl": "Cevi Logo Url",
+    "logoUrlPlaceholder": "Cevi Logo Url",
+    "email": "Email",
+    "emailPlaceholder": "Email",
+    "searchVisible": "In Suche sichtbar",
+    "searchVisibleDescription": "Wenn deaktiviert, werden die Materialien dieser Abteilung nicht in der globalen Suche angezeigt. Diese Einstellung kann auch pro Material gesetzt werden.",
+    "save": "Speichern",
+    "delete": "Abteilung Löschen",
+    "deleteConfirm": "Möchtest du diese Abteilung wirklich löschen?",
+    "saveSuccess": "Änderungen erfolgreich gespeichert",
+    "deleteSuccess": "{{name}} erfolgreich gelöscht"
+  },
+  "search": {
+    "placeholder": "Abteilung suchen..."
+  },
+  "errors": {
+    "unknown": "Unbekannte Abteilung {{id}}"
+  }
+}

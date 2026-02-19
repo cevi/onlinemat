@@ -2,13 +2,13 @@ import React, {createContext, useEffect, useMemo, useState} from 'react';
 import styles from './NavigationMenu.module.scss';
 import appStyles from 'styles.module.scss';
 import classNames from 'classnames';
-import {Layout, Menu, message, Spin, Tag, Typography} from 'antd';
+import {Layout, Menu, Spin, Tag, Typography} from 'antd';
 import type {MenuProps} from 'antd';
 import {AppRoute, AppRoutes, HomeRoute} from 'routes';
 import {Route, Routes, useLocation, useNavigate} from 'react-router';
 import {auth, db} from 'config/firebase/firebase';
 import {signOut} from 'firebase/auth';
-import {collection, onSnapshot} from 'firebase/firestore';
+import {collection} from 'firebase/firestore';
 import {LoginOutlined, LogoutOutlined} from '@ant-design/icons';
 import {useAuth0, withAuthenticationRequired} from '@auth0/auth0-react';
 import {useUser} from 'hooks/use-user';
@@ -16,10 +16,13 @@ import {NotFoundView} from './NotFound';
 import {Abteilung} from 'types/abteilung.type';
 import {abteilungenCollection} from 'config/firebase/collections';
 import {setGroupDates} from 'util/GroupUtil';
+import {useFirestoreCollection} from 'hooks/useFirestoreCollection';
 import {VerifyEmail} from './VerifyEmail';
 import { useParams } from "react-router-dom";
 import generatedGitInfo from 'generatedGitInfo.json';
 import { StatusPage } from 'components/status/Status';
+import { useTranslation } from 'react-i18next';
+import { LanguagePicker } from 'config/i18n/LanguagePicker';
 
 const {Header, Content, Footer, Sider} = Layout;
 
@@ -32,42 +35,32 @@ const NavigationMenu: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
     const {pathname} = useLocation();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const {user, isAuthenticated, isLoading, logout, loginWithRedirect} = useAuth0();
     const userState = useUser();
 
     const { showAll } = useParams();
 
-    const [loading, setLoading] = useState(false);
-    const [abteilungen, setAbteilungen] = useState<Abteilung[]>([]);
-
-    //if user has defaultAbteilung navigate to the Abteilung
+    //if user has defaultAbteilung navigate to the Abteilung (only from the home page)
     useEffect(() => {
-        if (isAuthenticated && userState.appUser?.userData?.defaultAbteilung) {
+        if (isAuthenticated && userState.appUser?.userData?.defaultAbteilung && pathname === '/') {
             navigate(`/abteilungen/${userState.appUser.userData.defaultAbteilung}`);
         }
-    },[isAuthenticated, userState])
+    },[isAuthenticated, userState, pathname])
 
     //fetch all abteilungen
-    useEffect(() => {
-        if (!isAuthenticated || !userState.appUser?.firebaseUser) return;
-        setLoading(true);
-        return onSnapshot(collection(db, abteilungenCollection), snap => {
-            setLoading(false);
-            const abteilungenLoaded = snap.docs.flatMap(doc => {
-                return {
-                    ...doc.data(),
-                    groups: setGroupDates(doc.data().groups),
-                    __caslSubjectType__: 'Abteilung',
-                    id: doc.id
-                } as Abteilung;
-            });
-            setAbteilungen(abteilungenLoaded);
-        }, (err) => {
-            message.error(`Es ist ein Fehler aufgetreten ${err}`)
-            console.error('Es ist ein Fehler aufgetreten', err)
-        });
-    }, [isAuthenticated, userState]);
+    const { data: abteilungen, loading } = useFirestoreCollection<Abteilung>({
+        ref: collection(db, abteilungenCollection),
+        enabled: isAuthenticated && !!userState.appUser?.firebaseUser,
+        transform: (data, id) => ({
+            ...data,
+            groups: setGroupDates(data.groups as Abteilung['groups']),
+            __caslSubjectType__: 'Abteilung',
+            id,
+        } as Abteilung),
+        deps: [isAuthenticated, userState],
+    });
 
 
     const isStaff = userState.appUser?.userData.staff || false;
@@ -108,7 +101,7 @@ const NavigationMenu: React.FC = () => {
             .map(appRoute => ({
                 key: appRoute.key,
                 icon: appRoute.icon,
-                label: appRoute.displayName,
+                label: t(appRoute.displayName),
                 onClick: () => {
                     if (appRoute.key === '/' && userState.appUser?.userData?.defaultAbteilung) {
                         navigate(`abteilungen/${userState.appUser.userData.defaultAbteilung}`)
@@ -122,7 +115,7 @@ const NavigationMenu: React.FC = () => {
             routeItems.push({
                 key: 'login',
                 icon: <LoginOutlined/>,
-                label: 'Anmelden',
+                label: t('navigation:menu.login'),
                 onClick: () => loginWithRedirect(),
             });
         }
@@ -131,7 +124,7 @@ const NavigationMenu: React.FC = () => {
             routeItems.push({
                 key: 'logout',
                 icon: <LogoutOutlined/>,
-                label: 'Abmelden',
+                label: t('navigation:menu.logout'),
                 className: classNames(styles['logout']),
                 onClick: async () => {
                     await signOut(auth);
@@ -141,7 +134,7 @@ const NavigationMenu: React.FC = () => {
         }
 
         return routeItems;
-    }, [isLoading, isAuthenticated, filteredRoutes, userState.appUser?.userData?.defaultAbteilung]);
+    }, [isLoading, isAuthenticated, filteredRoutes, userState.appUser?.userData?.defaultAbteilung, t]);
 
     return (
         <AbteilungenContext.Provider value={{
@@ -155,23 +148,28 @@ const NavigationMenu: React.FC = () => {
                     onCollapse={setCollapsed}
                     breakpoint='lg'
                 >
-                    <Header className={classNames(styles['app-logo-container'])} onClick={() => navigate('/')}>
-                        <Typography.Title ellipsis className={classNames(styles['app-logo'])}>{collapsed ?
-                            <span>OM</span> : 'Onlinemat'}</Typography.Title>
-                    </Header>
-                    <Menu
-                        mode='inline'
-                        theme='dark'
-                        selectedKeys={calculateSelectedKeys()}
-                        selectable={false}
-                        items={menuItems}
-                    />
+                    <div className={classNames(styles['sider-content'])}>
+                        <div className={classNames(styles['sider-menu'])}>
+                            <Header className={classNames(styles['app-logo-container'])} onClick={() => navigate('/')}>
+                                <Typography.Title ellipsis className={classNames(styles['app-logo'])}>{collapsed ?
+                                    <span>OM</span> : 'Onlinemat'}</Typography.Title>
+                            </Header>
+                            <Menu
+                                mode='inline'
+                                theme='dark'
+                                selectedKeys={calculateSelectedKeys()}
+                                selectable={false}
+                                items={menuItems}
+                            />
+                        </div>
+                        <LanguagePicker collapsed={collapsed} />
+                    </div>
                 </Sider>
                 <Layout>
                     <Content style={{margin: '0 16px'}} className={classNames(appStyles['center-container-stretch'])}>
                         {
                             isLoading || loading ?
-                                <Spin tip='Lade...'>
+                                <Spin tip={t('common:status.loading')}>
                                     <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 100}}/>
                                 </Spin>
                                 :

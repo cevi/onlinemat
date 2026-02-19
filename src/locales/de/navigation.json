@@ -1,0 +1,69 @@
+{
+  "routes": {
+    "home": "Home",
+    "login": "Login",
+    "search": "Suchen",
+    "abteilungen": "Abteilungen",
+    "abteilungenDetails": "Abteilungen Details",
+    "users": "Benutzer",
+    "profile": "Profile"
+  },
+  "menu": {
+    "login": "Anmelden",
+    "logout": "Abmelden"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "backToHome": "Zurück zur Startseite"
+  },
+  "verifyEmail": {
+    "title": "Bitte bestätige deine Email",
+    "subtitle": "Du must deine Email bestätigen um das Onlinemat benutzen zu können. Bitte überprüfe auch deinen Spam-Ordner.",
+    "confirmed": "Ich habe meine Email bestätigt"
+  },
+  "home": {
+    "title": "Home",
+    "appName": "Onlinemat",
+    "description": "Dies ist die Webseite vom Cevi Onlinemat",
+    "dashboard": "Onlinemat Dashboard",
+    "welcome": "Willkommen {{name}}, du kannst jetzt loslegen."
+  },
+  "login": {
+    "button": "Anmelden"
+  },
+  "status": {
+    "branch": "Branch",
+    "gitHash": "Git Hash"
+  },
+  "users": {
+    "title": "Benutzer",
+    "searchPlaceholder": "nach Benutzern suchen",
+    "statisticUsers": "Benutzer",
+    "statisticStaff": "Staff",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "abteilungen": "Abteilungen",
+      "staff": "Staff",
+      "actions": "Aktionen"
+    },
+    "syncDisplayNames": {
+      "button": "Namen synchronisieren",
+      "success": "Sync abgeschlossen: {{updated}} aktualisiert, {{skipped}} übersprungen",
+      "warning": "Sync abgeschlossen mit Fehlern",
+      "permissionError": "Nur Staff-Mitglieder können diese Funktion ausführen",
+      "error": "Sync fehlgeschlagen"
+    },
+    "addToAbteilung": {
+      "button": "Benutzer zu Abteilung hinzufügen",
+      "title": "Benutzer zu Abteilung hinzufügen",
+      "submit": "Zu Abteilung hinzufügen",
+      "abteilungLabel": "Abteilung",
+      "abteilungPlaceholder": "Abteilung",
+      "roleLabel": "Rolle",
+      "alreadyMember": "Dieser Benutzer ist bereits mitglied dieser Abteilung",
+      "error": "Der Benutzer konnte nicht zur Abteilung hinzugefügt werden!",
+      "success": "Der Benutzer wurde erfolgreich zur Abteilung hinzugefügt"
+    }
+  }
+}

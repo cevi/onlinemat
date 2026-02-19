@@ -1,14 +1,47 @@
-import React from "react";
-import classNames from "classnames";
-import appStyles from "styles.module.scss";
-import { Avatar, Button, Card, Spin, Typography } from "antd";
+import { useContext, useMemo, useRef, useState } from "react";
+import {
+  Avatar,
+  Button,
+  Card,
+  Collapse,
+  Descriptions,
+  Alert,
+  Spin,
+  Table,
+  Tag,
+  Typography,
+} from "antd";
+import { EditOutlined, CloseOutlined, SaveOutlined } from "@ant-design/icons";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Auth0User } from "types/auth0.types";
 import dayjs from "dayjs";
 import { useUser } from "hooks/use-user";
-import { EditProfileButton } from "../../components/profile/EditProfile";
+import { EditProfile } from "../../components/profile/EditProfile";
+import { AbteilungenContext } from "../../components/navigation/NavigationMenu";
+import generatedGitInfo from "generatedGitInfo.json";
+import { useNavigate } from "react-router-dom";
+import { role } from "types/user.type";
+import { useTranslation } from "react-i18next";
+
+const roleColors: Record<string, string> = {
+  staff: "purple",
+  admin: "red",
+  matchef: "orange",
+  member: "green",
+  guest: "blue",
+  pending: "geekblue",
+};
+
+const rolePriority: Record<string, number> = {
+  admin: 0,
+  matchef: 1,
+  member: 2,
+  guest: 3,
+  pending: 4,
+};
 
 export const ProfileView = () => {
+  const { t } = useTranslation('profile');
   const { user, isAuthenticated, isLoading } = useAuth0();
   const auth0User = {
     ...(user as any),
@@ -16,94 +49,236 @@ export const ProfileView = () => {
   } as Auth0User;
 
   const userState = useUser();
+  const navigate = useNavigate();
+  const { abteilungen, loading: abteilungenLoading } =
+    useContext(AbteilungenContext);
+
+  const [editing, setEditing] = useState(false);
+  const editRef = useRef<{ saveEditProfile: () => void }>(null);
+
+  const userData = userState.appUser?.userData;
+
+  const isStaff = !!userData?.staff;
+
+  const abteilungenRoles = useMemo(() => {
+    if (!userData?.roles) return [];
+
+    return Object.entries(userData.roles)
+      .map(([abteilungId, userRole]) => {
+        const abteilung = abteilungen.find(
+          (a) => a.id === abteilungId || a.slug === abteilungId
+        );
+        return {
+          key: abteilungId,
+          abteilungId,
+          abteilungName: abteilung?.name ?? abteilungId,
+          abteilungSlug: abteilung?.slug ?? abteilungId,
+          role: userRole as role,
+        };
+      })
+      .sort(
+        (a, b) =>
+          (rolePriority[a.role] ?? 99) - (rolePriority[b.role] ?? 99) ||
+          a.abteilungName.localeCompare(b.abteilungName)
+      );
+  }, [userData?.roles, abteilungen, isStaff]);
+
+  const columns = [
+    {
+      title: t('profile:myAbteilungen.abteilung'),
+      dataIndex: "abteilungName",
+      key: "abteilungName",
+      render: (name: string, record: (typeof abteilungenRoles)[0]) => (
+        <a onClick={() => navigate(`/abteilungen/${record.abteilungSlug}`)}>
+          {name}
+        </a>
+      ),
+    },
+    {
+      title: t('profile:myAbteilungen.role'),
+      dataIndex: "role",
+      key: "role",
+      render: (r: string) => (
+        <Tag color={roleColors[r] ?? "default"}>{t(`common:roles.${r}`, r)}</Tag>
+      ),
+    },
+  ];
+
+  if (userState.loading || isLoading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (!user || !isAuthenticated) return null;
 
   return (
-    <div
-      className={classNames(
-        appStyles["flex-grower"],
-        appStyles["center-container-stretch"]
-      )}
-    >
-      <Typography.Title level={3}>Profile</Typography.Title>
-      {userState.loading && <Spin size="large" />}
-      {!!user && isAuthenticated && (
+    <div style={{ maxWidth: 960, margin: "0 auto", padding: "24px 16px" }}>
+      <Card>
         <div
-          className={classNames(
-            appStyles["flex-grower"],
-            appStyles["center-container"]
-          )}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+            marginBottom: 24,
+          }}
         >
-          <Card
-            loading={isLoading || userState.loading}
-            style={{ width: "70%" }}
-          >
-            <Card.Meta
-              avatar={
-                <Avatar
-                  src={
-                    user.picture
-                      ? user.picture
-                      : "https://static.asianetnews.com/img/default-user-avatar.png"
-                  }
-                />
-              }
-              title={userState.appUser?.userData.displayName}
-              description={userState.appUser?.userData.email}
-            />
-            
-            <p>Name: {userState.appUser?.userData.name}</p>
-            <p>Vorname: {userState.appUser?.userData.given_name}</p>
-            <p>Nachname: {userState.appUser?.userData.family_name}</p>
-            <p>Ceviname: {userState.appUser?.userData.nickname}</p>
-            <p>Email: {userState.appUser?.userData.email}</p>
-            {userState.appUser?.userData.staff && (
-              <>
-              {/* nerd stuff, only for staff users */}
-                <p>
-                  Email is Verified:{" "}
-                  {userState.appUser?.userData.email_verified ? "Ja" : "Nein"}
-                </p>
-                <p>
-                  Firebase Token:{" "}
-                  {auth0User["https://mat.cevi.tools/firebase_token"]
-                    ? "Ja"
-                    : "Nein"}
-                </p>
-                <p>Locale: {auth0User.locale}</p>
-                <p>Picture: {auth0User.picture ? "Ja" : "Nein"}</p>
-                <p>Sub: {auth0User.sub}</p>
-                <p>Updated at: {dayjs(auth0User.updated_at).format("L LT")}</p>
-                <p>
-                  Firebase User ID:{" "}
-                  {(userState.appUser && userState.appUser.firebaseUser.uid) ||
-                    "-"}
-                </p>
-                <p>
-                  Default Abteilung:{" "}
-                  {userState.appUser?.userData.defaultAbteilung}
-                </p>
-                <p>
-                  Staff: {userState.appUser?.userData?.staff ? "Ja" : "Nein"}
-                </p>
-              </>
+          <Avatar size={72} src={user.picture} style={{ flexShrink: 0 }}>
+            {userData?.given_name?.[0]}
+            {userData?.family_name?.[0]}
+          </Avatar>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <Typography.Title level={3} style={{ margin: 0 }}>
+              {userData?.displayName ?? userData?.name}
+            </Typography.Title>
+            {userData?.nickname && (
+              <Typography.Text type="secondary">
+                &laquo;{userData.nickname}&raquo;
+              </Typography.Text>
             )}
-          </Card>
-          {/* {userState.appUser?.userData?.staff && (
+          </div>
+          {!editing && (
             <Button
-              danger
               type="primary"
-              onClick={() => {
-                throw Error("forced error");
+              icon={<EditOutlined />}
+              onClick={() => setEditing(true)}
+            >
+              {t('common:buttons.edit')}
+            </Button>
+          )}
+        </div>
+
+        {editing ? (
+          <>
+            <EditProfile
+              ref={editRef}
+              userId={userData?.id}
+              userData={userData}
+              onSuccess={() => setEditing(false)}
+            />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 8,
+                marginTop: 16,
               }}
             >
-              Crash
-            </Button>
-          )} */}
-          <EditProfileButton
-            userId={userState.appUser?.userData?.id}
-            userData={userState.appUser?.userData}
+              <Button icon={<CloseOutlined />} onClick={() => setEditing(false)}>
+                {t('common:buttons.cancel')}
+              </Button>
+              <Button
+                type="primary"
+                icon={<SaveOutlined />}
+                onClick={() => editRef.current?.saveEditProfile()}
+              >
+                {t('common:buttons.save')}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <Descriptions column={{ xs: 1, sm: 2 }} bordered size="small">
+            <Descriptions.Item label={t('profile:details.firstName')}>
+              {userData?.given_name}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('profile:details.lastName')}>
+              {userData?.family_name}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('profile:details.ceviName')}>
+              {userData?.nickname}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('profile:details.email')}>
+              {userData?.email}
+            </Descriptions.Item>
+            {userData?.defaultAbteilung && (
+              <Descriptions.Item label={t('profile:details.defaultAbteilung')} span={2}>
+                {abteilungen.find(
+                  (a) =>
+                    a.slug === userData.defaultAbteilung ||
+                    a.id === userData.defaultAbteilung
+                )?.name ?? userData.defaultAbteilung}
+              </Descriptions.Item>
+            )}
+          </Descriptions>
+        )}
+      </Card>
+
+      <Card
+        title={t('profile:myAbteilungen.title')}
+        style={{ marginTop: 16 }}
+        loading={abteilungenLoading}
+      >
+        {isStaff ? (
+          <Alert
+            type="info"
+            showIcon
+            message={t('profile:myAbteilungen.staffFullAccess')}
           />
-        </div>
+        ) : abteilungenRoles.length > 0 ? (
+          <Table
+            dataSource={abteilungenRoles}
+            columns={columns}
+            pagination={false}
+            size="small"
+          />
+        ) : (
+          <Typography.Text type="secondary">
+            {t('profile:myAbteilungen.noAbteilungen')}
+          </Typography.Text>
+        )}
+      </Card>
+
+      {userData?.staff && (
+        <Collapse
+          style={{ marginTop: 16 }}
+          items={[
+            {
+              key: "staff",
+              label: t('profile:staffDebug.title'),
+              children: (
+                <Descriptions column={1} size="small" bordered>
+                  <Descriptions.Item label={t('profile:staffDebug.emailVerified')}>
+                    {userData.email_verified ? t('common:confirm.yes') : t('common:confirm.no')}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('profile:staffDebug.firebaseToken')}>
+                    {auth0User["https://mat.cevi.tools/firebase_token"]
+                      ? t('common:confirm.yes')
+                      : t('common:confirm.no')}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('profile:staffDebug.locale')}>
+                    {auth0User.locale}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('profile:staffDebug.profilePicture')}>
+                    {auth0User.picture ? t('common:confirm.yes') : t('common:confirm.no')}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('profile:staffDebug.sub')}>
+                    {auth0User.sub}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('profile:staffDebug.updatedAt')}>
+                    {dayjs(auth0User.updated_at).format("L LT")}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('profile:staffDebug.firebaseUserId')}>
+                    {userState.appUser?.firebaseUser?.uid ?? "-"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('profile:staffDebug.defaultAbteilung')}>
+                    {userData.defaultAbteilung ?? "-"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('profile:staffDebug.staff')}>
+                    {userData.staff ? t('common:confirm.yes') : t('common:confirm.no')}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('profile:staffDebug.branch')}>
+                    <Tag>{generatedGitInfo.gitBranch}</Tag>
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('profile:staffDebug.gitHash')}>
+                    <Tag>{generatedGitInfo.gitCommitHash}</Tag>
+                  </Descriptions.Item>
+                </Descriptions>
+              ),
+            },
+          ]}
+        />
       )}
     </div>
   );

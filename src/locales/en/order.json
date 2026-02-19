@@ -1,0 +1,165 @@
+{
+  "status": {
+    "loading": "Loading...",
+    "created": "Created",
+    "delivered": "Delivered",
+    "completed": "Completed",
+    "completedDamaged": "Completed with loss/damage",
+    "unknown": "Unknown"
+  },
+  "table": {
+    "status": "Status",
+    "group": "Group / Event",
+    "orderer": "Orderer",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "action": "Action"
+  },
+  "view": {
+    "orderer": "Orderer:",
+    "from": "From:",
+    "to": "To:",
+    "status": "Status ",
+    "weight": "Weight ",
+    "weightTooltip": "The total weight can only be calculated accurately if all data is available",
+    "weightInfo": "{{totalWeight}} kg {{incompleteInfo}}",
+    "weightInfoIncomplete": "{{complete}}/{{total}} weight entries",
+    "comment": "Comment",
+    "commentPlaceholder": "Add a comment",
+    "saveComment": "Save comment",
+    "deleteConfirm": "Do you really want to delete this order?",
+    "notFound": "The order {{orderId}} could not be found."
+  },
+  "actions": {
+    "open": "Open",
+    "delete": "Delete",
+    "deliver": "Deliver",
+    "deliverTooltip": "Confirm that the material is ready for pickup.",
+    "complete": "Complete",
+    "completeTooltip": "Confirm that the material has been fully returned.",
+    "completePartial": "Partially Complete",
+    "completePartialTooltip": "Confirm that the material was returned partially damaged/incomplete.",
+    "reset": "Reset",
+    "resetConfirm": "The order status will be reset to \"created\".",
+    "resetTooltip": "The order status will be reset to \"created\".",
+    "copyToCart": "Copy to cart",
+    "copyToCartTooltip": "Copy materials to cart"
+  },
+  "create": {
+    "date": "Date",
+    "group": "Group / Event",
+    "groupLabel": "Group",
+    "eventLabel": "Event",
+    "otherLabel": "Other",
+    "otherOption": "Other",
+    "customGroupName": "Label",
+    "comment": "Comment",
+    "emptyCart": "Your cart is empty",
+    "success": "Order successfully created",
+    "notAllAvailable": "Unfortunately, not all material is available."
+  },
+  "items": {
+    "header": "Material",
+    "notAvailable": "Unfortunately no longer available",
+    "onlyAvailable": "Only {{count}} left available",
+    "damaged": "{{count}} x was damaged",
+    "lost": "{{count}} x was lost",
+    "damagedCheckbox": "Damaged",
+    "damagedCheckboxTooltip": "Material is damaged or was not returned.",
+    "adjust": "Adjust",
+    "prepared": "Prepared",
+    "showDetails": "Details",
+    "standort": "Location: {{names}}",
+    "categories": "Categories: {{names}}",
+    "commentLabel": "Comment: {{comment}}",
+    "weightLabel": "Weight: {{weight}} kg"
+  },
+  "itemsDamaged": {
+    "header": "Damaged / Lost Material",
+    "count": "Quantity",
+    "damaged": "Damaged",
+    "damagedTooltip": "Material will be marked as damaged.",
+    "lost": "Lost",
+    "lostTooltip": "Material will be marked as lost."
+  },
+  "damagedModal": {
+    "title": "Partially complete order",
+    "submit": "Complete"
+  },
+  "history": {
+    "created": "{{name}} created the order.",
+    "startDate": "Start of the order",
+    "endDate": "End of the order",
+    "delivered": "{{name}} delivered the order.",
+    "completed": "{{name}} completed the order.",
+    "completedDamaged": "{{name}} completed the order with loss/damage.",
+    "reset": "{{name}} reset the order.",
+    "commentAdded": "{{name}} added a comment.",
+    "commentRemoved": "{{name}} removed a comment.",
+    "edited": "{{name}} edited the order."
+  },
+  "messages": {
+    "deliverSuccess": "Order successfully delivered.",
+    "completeSuccess": "Order successfully completed.",
+    "completeDamagedSuccess": "Order successfully completed with loss/damage.",
+    "resetSuccess": "Order successfully reset.",
+    "commentSuccess": "Order successfully commented.",
+    "deleteSuccess": "The order was successfully deleted.",
+    "deleteErrorDelivered": "Order cannot be deleted when it is {{status}}.",
+    "deleteErrorNoPermission": "You do not have permission for this order.",
+    "deleteErrorNotOwner": "Only the creator can delete the order.",
+    "deleteErrorCompleted": "You cannot delete a completed order.",
+    "editSuccess": "Order successfully updated.",
+    "editNotAllAvailable": "Unfortunately, not all material is available.",
+    "editEmptyItems": "The order must contain at least one material.",
+    "editCannotEdit": "This order can no longer be edited.",
+    "editMaterialNotAvailable": "{{name}} is currently not available."
+  },
+  "search": {
+    "placeholder": "Search for order",
+    "groupPlaceholder": "Select group / event",
+    "maxGroups": "Unfortunately, only 10 groups / events can be selected at the same time",
+    "groupNotFound": "Group/Event {{id}} could not be found"
+  },
+  "edit": {
+    "addMaterialPlaceholder": "Add material...",
+    "available": "available"
+  },
+  "copyToCart": {
+    "confirmTitle": "Cart is not empty",
+    "confirmContent": "Your cart already contains materials. How would you like to proceed?",
+    "replace": "Replace",
+    "merge": "Merge",
+    "successCopy": "Materials have been copied to the cart.",
+    "successReplace": "Cart has been replaced.",
+    "successMerge": "Materials have been added to the cart."
+  },
+  "cart": {
+    "steps": {
+      "material": "Material",
+      "materialDescription": "Select material",
+      "order": "Order",
+      "orderDescription": "Place order",
+      "finish": "Finish",
+      "finishDescription": "Complete order"
+    },
+    "searchPlaceholder": "Search for material",
+    "deleteConfirm": "Do you really want to clear your cart?",
+    "deleteButton": "Clear cart",
+    "submitOrder": "Order",
+    "success": {
+      "title": "Order successful!",
+      "subtitle": "The order: {{orderId}} was successfully created",
+      "viewOrder": "View order"
+    },
+    "empty": {
+      "title": "Your cart is empty",
+      "orderMaterial": "Order material"
+    },
+    "table": {
+      "name": "Name",
+      "count": "Quantity",
+      "actions": "Actions"
+    }
+  }
+}

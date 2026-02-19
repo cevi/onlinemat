@@ -1,0 +1,78 @@
+{
+  "add": {
+    "button": "Material hinzufügen",
+    "title": "Material hinzufügen",
+    "submit": "Material hinzufügen",
+    "success": "Material {{name}} erfolgreich erstellt"
+  },
+  "edit": {
+    "title": "Material bearbeiten",
+    "submit": "Änderungen speichern"
+  },
+  "delete": {
+    "button": "Material Löschen",
+    "confirmAll": "Möchtest du wirklich alles Material dieser Abteilung löschen?",
+    "confirmSingle": "Möchtest du {{name}} wirklich löschen?",
+    "successAll": "Alles Material von {{name}} wurde erfolgreich gelöscht",
+    "success": "Material {{name}} erfolgreich gelöscht"
+  },
+  "view": {
+    "comment": "Bemerkung:",
+    "standort": "Standort:",
+    "available": "Verfügbar:",
+    "weight": "Gewicht in Kg:",
+    "categories": "Kategorien:",
+    "noPictures": "Keine Bilder vorhanden"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Materialname",
+    "comment": "Bemerkung",
+    "commentPlaceholder": "Bemerkung",
+    "standort": "Standort",
+    "standortPlaceholder": "Standort",
+    "count": "Anzahl",
+    "lost": "Verloren",
+    "damaged": "Beschädigt",
+    "availableCount": "Verfügbar: {{count}}",
+    "weight": "Gewicht in Kg",
+    "consumables": "Ist Verbrauchsmaterial",
+    "onlyLendInternal": "In der Suche für externe Benutzer ausblenden",
+    "categories": "Kategorien",
+    "categoriesPlaceholder": "Kategorien",
+    "imageUrls": "Bilder Urls",
+    "imageUrlPlaceholder": "Material Bild Url",
+    "addImage": "Bild hinzufügen"
+  },
+  "table": {
+    "name": "Name",
+    "comment": "Bemerkung",
+    "category": "Kategorie",
+    "standort": "Standort",
+    "weight": "Gewicht",
+    "available": "Verfügbar",
+    "cart": "Warenkorb",
+    "weightUnit": "{{weight}} Kg",
+    "unlimited": "unbegrenzt",
+    "uncategorized": "Nicht kategorisiert"
+  },
+  "search": {
+    "placeholder": "nach Material suchen"
+  },
+  "export": {
+    "button": "Excel export"
+  },
+  "import": {
+    "button": "Excel Import",
+    "fileError": "Leider ist ein Fehler beim lesen der Datei aufgetreten 2"
+  },
+  "messages": {
+    "editSuccess": "Material {{name}} erfolgreich bearbeitet",
+    "maxCountReached": "Die maximale Stückzahl von {{name}} befindet sich bereits in deinem Warenkorb.",
+    "notAvailable": "{{name}} ist zur Zeit leider nicht verfügbar."
+  },
+  "util": {
+    "unlimited": "unbegrenzt",
+    "deleted": "Gelöschtes Material"
+  }
+}

@@ -1,13 +1,16 @@
-import { Col, Input, message, Row, Statistic, Typography } from 'antd';
+import { Button, Col, Input, message, Row, Statistic, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { UserTable } from 'components/users/UserTable';
-import { db } from 'config/firebase/firebase';
+import { db, functions } from 'config/firebase/firebase';
 import { collection, doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { usersCollection } from 'config/firebase/collections';
 import { UserData } from 'types/user.type';
 import { useAuth0 } from '@auth0/auth0-react';
+import { SyncOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 
 export interface AbteilungDetailProps {
@@ -21,13 +24,36 @@ export type AbteilungDetailViewParams = {
 export const UsersView = () => {
 
     const { isAuthenticated } = useAuth0();
+    const { t } = useTranslation();
 
     const { Search } = Input;
 
     const [usersLoading, setUsersLoading] = useState(false);
+    const [syncLoading, setSyncLoading] = useState(false);
 
     const [users, setUsers] = useState<UserData[]>([]);
     const [query, setQuery] = useState<string | undefined>(undefined);
+
+    const syncAllDisplayNames = async () => {
+        try {
+            setSyncLoading(true);
+            const result = await httpsCallable<object, { updated: number; skipped: number; errors: string[] }>(functions, 'syncDisplayNames')({});
+            const { updated, skipped, errors } = result.data;
+            if (errors && errors.length > 0) {
+                message.warning(`${t('navigation:users.syncDisplayNames.warning')}: ${errors.join(', ')}`);
+            } else {
+                message.success(t('navigation:users.syncDisplayNames.success', { updated, skipped }));
+            }
+        } catch (ex: any) {
+            if (ex?.code === 'functions/permission-denied') {
+                message.error(t('navigation:users.syncDisplayNames.permissionError'));
+            } else {
+                message.error(t('navigation:users.syncDisplayNames.error'));
+            }
+        } finally {
+            setSyncLoading(false);
+        }
+    };
 
     //fetch users
     useEffect(() => {
@@ -45,6 +71,7 @@ export const UsersView = () => {
             });
             setUsers(usersLoaded);
         }, (err) => {
+            if ((err as any).code === 'permission-denied') return;
             message.error(`Es ist ein Fehler aufgetreten ${err}`)
             console.error('Es ist ein Fehler aufgetreten', err)
         });
@@ -54,9 +81,21 @@ export const UsersView = () => {
         <Typography.Title level={3}>Benutzer</Typography.Title>
 
         <div className={classNames(appStyles['flex-grower'])}>
-            <Row>
-                <Col span={12}>
+            <Row gutter={16} align='middle'>
+                <Col>
                     <Statistic title='Benutzer' value={users.length} />
+                </Col>
+                <Col>
+                    <Statistic title='Staff' value={users.filter(u => u.staff).length} />
+                </Col>
+                <Col>
+                    <Button
+                        icon={<SyncOutlined />}
+                        loading={syncLoading}
+                        onClick={syncAllDisplayNames}
+                    >
+                        {t('navigation:users.syncDisplayNames.button')}
+                    </Button>
                 </Col>
             </Row>
 

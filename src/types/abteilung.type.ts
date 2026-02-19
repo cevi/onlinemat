@@ -10,6 +10,7 @@ export interface Abteilung {
     logoUrl?: string
     groups: { [id: string]: Group }
     email?: string
+    searchVisible?: boolean
 }
 
 
@@ -19,6 +20,7 @@ export interface AbteilungMember {
     role: 'guest' | 'member' | 'matchef' | 'admin'
     approved: boolean
     banned?: boolean
+    displayName?: string
 }
 
 export interface AbteilungMemberUserData extends Omit<AbteilungMember, '__caslSubjectType__'>, Omit<UserData, '__caslSubjectType__'> {
