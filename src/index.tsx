@@ -24,8 +24,15 @@ const store = configureStore();
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DNS,
   integrations: [Sentry.browserTracingIntegration()],
-  tracesSampleRate: 1.0,
+  tracesSampleRate: import.meta.env.DEV ? 1.0 : 0.2,
   beforeSend(event) {
+    // Strip sensitive data before sending to Sentry
+    if (event.request) {
+      delete event.request.cookies;
+      if (event.request.headers) {
+        delete event.request.headers["Authorization"];
+      }
+    }
     if (event.exception) {
       Sentry.showReportDialog({ eventId: event.event_id });
     }

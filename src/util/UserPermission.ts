@@ -1,11 +1,11 @@
-import { AbilityBuilder, Ability } from '@casl/ability';
-import { Abilities, AppAbility } from 'config/casl/ability';
+import { AbilityBuilder, createMongoAbility, MongoAbility } from '@casl/ability';
+import { Abilities } from 'config/casl/ability';
 import { AbteilungMember } from 'types/abteilung.type';
 import { UserData } from 'types/user.type';
 
 
-export const updateAbility = (ability: Ability<Abilities>, user: UserData) => {
-  const { can, cannot, rules } = new AbilityBuilder(AppAbility);
+export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) => {
+  const { can, cannot, rules } = new AbilityBuilder<MongoAbility<Abilities>>(createMongoAbility);
 
   if (!!user.staff) {
 

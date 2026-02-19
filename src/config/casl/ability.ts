@@ -1,4 +1,4 @@
-import { Ability, AbilityClass, InferSubjects } from '@casl/ability';
+import { createMongoAbility, MongoAbility, InferSubjects } from '@casl/ability';
 
 import { Abteilung, AbteilungMember } from 'types/abteilung.type';
 import { Categorie } from 'types/categorie.types';
@@ -11,9 +11,9 @@ import {Standort} from "types/standort.types";
 export type Actions = 'create' | 'read' | 'update' | 'delete' | 'deliver';
 
 
-export type Subjects =  InferSubjects<Abteilung 
-| Material & { abteilungId: string }  
-| Categorie & { abteilungId: string } 
+export type Subjects =  InferSubjects<Abteilung
+| Material & { abteilungId: string }
+| Categorie & { abteilungId: string }
 | Order & { abteilungId: string }
 | Group & { abteilungId: string }
     | Standort & { abteilungId: string }
@@ -28,7 +28,6 @@ export interface AbteilungEntityCasl {
 }
 
 export type Abilities = [Actions, Subjects];
-export type AppAbility = Ability<Abilities>
-export const AppAbility = Ability as AbilityClass<AppAbility>;
+export type AppAbility = MongoAbility<Abilities>;
 
-export const ability = new Ability<Abilities>();
+export const ability = createMongoAbility<Abilities>();

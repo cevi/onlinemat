@@ -72,7 +72,8 @@ export const AbteilungDetail = (props: AbteilungDetailProps) => {
     const navigate = useNavigate();
     const { state } = useLocation();
 
-    const initTab: AbteilungTab = tab as AbteilungTab || 'mat';
+    const validTabs: AbteilungTab[] = ['mat', 'settings', 'members', 'groups', 'cart', 'orders', 'order', 'standort', 'category'];
+    const initTab: AbteilungTab = validTabs.includes(tab as AbteilungTab) ? (tab as AbteilungTab) : 'mat';
 
     const abteilungenContext = useContext(AbteilungenContext);
     const abteilungen = abteilungenContext.abteilungen;
