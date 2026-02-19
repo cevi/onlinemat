@@ -14,6 +14,7 @@ import {
 import { useFirestoreCollection } from 'hooks/useFirestoreCollection';
 import { ability } from 'config/casl/ability';
 import { useAuth0 } from '@auth0/auth0-react';
+import { useUser } from 'hooks/use-user';
 import { UserData } from 'types/user.type';
 import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
@@ -35,9 +36,10 @@ interface AbteilungDataProviderProps {
 
 export const AbteilungDataProvider = ({ abteilung, children }: AbteilungDataProviderProps) => {
     const { isAuthenticated } = useAuth0();
+    const userState = useUser();
 
-    const canUpdate = useMemo(() => ability.can('update', { __caslSubjectType__: 'Abteilung', id: abteilung.id } as Abteilung), [abteilung]);
-    const canRead = useMemo(() => ability.can('read', { __caslSubjectType__: 'Abteilung', id: abteilung.id } as Abteilung), [abteilung]);
+    const canUpdate = useMemo(() => ability.can('update', { __caslSubjectType__: 'Abteilung', id: abteilung.id } as Abteilung), [abteilung, userState.appUser?.userData]);
+    const canRead = useMemo(() => ability.can('read', { __caslSubjectType__: 'Abteilung', id: abteilung.id } as Abteilung), [abteilung, userState.appUser?.userData]);
 
     const [userData, setUserData] = useState<{ [uid: string]: UserData }>({});
     const [userDataLoading, setUserDataLoading] = useState(false);
@@ -89,31 +91,39 @@ export const AbteilungDataProvider = ({ abteilung, children }: AbteilungDataProv
             setUserDataLoading(true);
             const localUserData: { [uid: string]: UserData } = {};
 
-            // Build basic userData from member displayNames (available to all members)
+            // Build basic userData from member displayNames and emails (available to all members)
             members.forEach(member => {
                 localUserData[member.userId] = {
                     __caslSubjectType__: 'UserData',
                     id: member.userId,
                     displayName: member.displayName || member.userId,
+                    email: member.email || '',
                 } as UserData;
             });
 
             // For admins/staff, fetch full user data from users collection
             if (canUpdate) {
-                const promises: Promise<UserData>[] = [];
-                members.forEach(member => {
+                const promises = members.map(member => {
                     const uid = member.userId;
-                    const userDoc = getDoc(doc(db, usersCollection, uid)).then((d) => ({
-                        ...d.data(),
-                        __caslSubjectType__: 'UserData',
-                        id: d.id
-                    } as UserData));
-                    promises.push(userDoc);
+                    return getDoc(doc(db, usersCollection, uid))
+                        .then((d) => ({
+                            ...d.data(),
+                            __caslSubjectType__: 'UserData',
+                            id: d.id
+                        } as UserData))
+                        .catch(() => null);
                 });
 
-                const values = await Promise.all(promises);
-                values.forEach(val => {
-                    localUserData[val.id] = val;
+                const results = await Promise.all(promises);
+                results.forEach(val => {
+                    if (!val) return;
+                    const memberFallback = localUserData[val.id];
+                    localUserData[val.id] = {
+                        ...memberFallback,
+                        ...val,
+                        displayName: val.displayName || memberFallback?.displayName || val.id,
+                        email: val.email || memberFallback?.email || '',
+                    };
                 });
             }
 
@@ -122,7 +132,7 @@ export const AbteilungDataProvider = ({ abteilung, children }: AbteilungDataProv
         };
 
         loadUser();
-    }, [members]);
+    }, [members, canUpdate, canRead, isAuthenticated]);
 
     return (
         <MembersContext.Provider value={{ members, loading: membersLoading }}>

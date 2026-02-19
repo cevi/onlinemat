@@ -25,6 +25,7 @@
     "title": "You do not have permission for this department",
     "emailHint": "Or send an email to "
   },
+  "guestBanner": "You are a guest in this department. You can order material, but for full access you can request membership.",
   "join": {
     "button": "Join",
     "title": "Join department {{name}}",

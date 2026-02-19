@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { AutoComplete, Button, Card, Col, Collapse, DatePicker, Form, Input, message, Popconfirm, Row, Select, Spin, Tag, Timeline, Tooltip, Typography } from 'antd';
+import { Alert, AutoComplete, Button, Card, Col, Collapse, DatePicker, Form, Input, InputNumber, message, Modal, Popconfirm, Row, Select, Spin, Tag, Timeline, Tooltip, Typography } from 'antd';
 import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
 import { db, functions } from 'config/firebase/firebase';
 import { doc, onSnapshot, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
@@ -22,7 +22,7 @@ import { addCommentOrder, calculateTotalWeight, completeOrder, deleteOrder, deli
 import { ability } from 'config/casl/ability';
 import { OrderNotFound } from './OrderNotFound';
 import { useUser } from 'hooks/use-user';
-import { CheckCircleOutlined, ClockCircleOutlined, CopyOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CheckOutlined, ClockCircleOutlined, CloseOutlined, CopyOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
 import { DamagedMaterialModal } from './DamagedMaterialModal';
 import { Can } from 'config/casl/casl';
 import { useTranslation } from 'react-i18next';
@@ -82,7 +82,7 @@ export const OrderView = (props: OrderProps) => {
     const userDataLoading = membersUserDataContext.loading;
 
 
-    const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: t('common:status.loading') }) }));
+    const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { id: member.userId, displayName: member.displayName || member.userId }) }));
 
     const abteilungOrdersLink = `/abteilungen/${abteilung.slug || abteilung.id}/orders`;
 
@@ -105,6 +105,14 @@ export const OrderView = (props: OrderProps) => {
     const [editLoading, setEditLoading] = useState(false);
     const [editCollisions, setEditCollisions] = useState<{ [matId: string]: number } | undefined>(undefined);
     const [materialSearchQuery, setMaterialSearchQuery] = useState('');
+
+    // Approve/Reject modal state
+    const [approveModalOpen, setApproveModalOpen] = useState(false);
+    const [rejectModalOpen, setRejectModalOpen] = useState(false);
+    const [approvePfand, setApprovePfand] = useState<number | null>(null);
+    const [approvePrice, setApprovePrice] = useState<number | null>(null);
+    const [rejectReason, setRejectReason] = useState('');
+    const [approveRejectLoading, setApproveRejectLoading] = useState(false);
 
     // Copy to cart state
     const cookieName = getCartName(abteilung.id);
@@ -296,6 +304,50 @@ export const OrderView = (props: OrderProps) => {
         }
     }, [order?.status]);
 
+    // Approve/Reject handlers
+    const handleApproveOrder = async () => {
+        if (!orderId) return;
+        setApproveRejectLoading(true);
+        try {
+            const result = await httpsCallable(functions, 'approveOrder')({
+                abteilungId: abteilung.id,
+                orderId,
+                pfand: approvePfand,
+                price: approvePrice,
+            });
+            const data = result.data as { success?: boolean; collisions?: { [matId: string]: number } };
+            if (data.collisions) {
+                message.error(t('order:messages.approveNotAllAvailable'));
+            } else {
+                message.success(t('order:messages.approveSuccess'));
+                setApproveModalOpen(false);
+                setApprovePfand(null);
+                setApprovePrice(null);
+            }
+        } catch (err: any) {
+            message.error(err?.message || t('common:errors.generic', { error: err }));
+        }
+        setApproveRejectLoading(false);
+    };
+
+    const handleRejectOrder = async () => {
+        if (!orderId) return;
+        setApproveRejectLoading(true);
+        try {
+            await httpsCallable(functions, 'rejectOrder')({
+                abteilungId: abteilung.id,
+                orderId,
+                reason: rejectReason || null,
+            });
+            message.success(t('order:messages.rejectSuccess'));
+            setRejectModalOpen(false);
+            setRejectReason('');
+        } catch (err: any) {
+            message.error(err?.message || t('common:errors.generic', { error: err }));
+        }
+        setApproveRejectLoading(false);
+    };
+
     const togglePreparedItem = async (matId: string) => {
         if (!order || !orderId) return;
         const orderRef = doc(db, abteilungenCollection, abteilung.id, abteilungenOrdersCollection, orderId);
@@ -427,6 +479,28 @@ export const OrderView = (props: OrderProps) => {
 
     const MaterialAction = () => {
         if (!order) return <></>;
+        if (order.status === 'pending') {
+            return <>
+                <Tooltip placement='bottom' title={t('order:actions.approveTooltip')}>
+                    <Button
+                        type='primary'
+                        icon={<CheckOutlined />}
+                        onClick={() => setApproveModalOpen(true)}
+                    >
+                        {t('order:actions.approve')}
+                    </Button>
+                </Tooltip>
+                <Tooltip placement='bottom' title={t('order:actions.rejectTooltip')}>
+                    <Button
+                        danger
+                        icon={<CloseOutlined />}
+                        onClick={() => setRejectModalOpen(true)}
+                    >
+                        {t('order:actions.reject')}
+                    </Button>
+                </Tooltip>
+            </>;
+        }
         if (order.status === 'created') {
             return <Tooltip placement='bottom' title={t('order:actions.deliverTooltip')}>
                 <Button
@@ -465,7 +539,7 @@ export const OrderView = (props: OrderProps) => {
 
         
 
-        if (order.status === 'completed' || order.status === 'completed-damaged') {
+        if (order.status === 'completed') {
             return <Tooltip placement='bottom' title={t('order:actions.resetTooltip')}>
                 <Popconfirm
                     title={t('order:actions.resetConfirm')}
@@ -543,7 +617,7 @@ export const OrderView = (props: OrderProps) => {
                 <Col span={24}>
                     {isEditing ? (
                         <>
-                            <p><b>{t('order:view.orderer')}</b>{` ${orderer ? orderer.displayName : order?.orderer}`}</p>
+                            <p><b>{t('order:view.orderer')}</b>{` ${orderer ? orderer.displayName : order?.orderer}`}{orderer?.email ? ` (${orderer.email})` : ''}</p>
                             <Form.Item label={t('order:create.date')}>
                                 <DatePicker.RangePicker
                                     value={[editStartDate, editEndDate]}
@@ -589,10 +663,28 @@ export const OrderView = (props: OrderProps) => {
                         </>
                     ) : (
                         <>
-                            <p><b>{t('order:view.orderer')}</b>{` ${orderer ? orderer.displayName : order?.orderer}`}</p>
+                            {order.status === 'pending' && (
+                                <Alert type="warning" message={t('order:view.pendingBanner')} showIcon style={{ marginBottom: 12 }} />
+                            )}
+                            {order.status === 'rejected' && (
+                                <Alert
+                                    type="error"
+                                    message={t('order:view.rejectedBanner')}
+                                    description={order.rejectionReason ? t('order:view.rejectionReason', { reason: order.rejectionReason }) : undefined}
+                                    showIcon
+                                    style={{ marginBottom: 12 }}
+                                />
+                            )}
+                            <p><b>{t('order:view.orderer')}</b>{` ${orderer ? orderer.displayName : order?.orderer}`}{orderer?.email ? ` (${orderer.email})` : ''}</p>
                             <p><b>{t('order:view.from')}</b>{` ${order?.startDate.format(dateFormatWithTime)}`}</p>
                             <p><b>{t('order:view.to')}</b>{` ${order?.endDate.format(dateFormatWithTime)}`}</p>
                             <p><b>{t('order:view.status')}</b><Tag color={getStatusColor(order)}>{getStatusName(order)}</Tag></p>
+                            {order.pfand != null && order.pfand > 0 && (
+                                <p><b>{t('order:view.pfand')} </b>CHF {order.pfand.toFixed(2)}</p>
+                            )}
+                            {order.price != null && order.price > 0 && (
+                                <p><b>{t('order:view.price')} </b>CHF {order.price.toFixed(2)}</p>
+                            )}
                             <p><b>{t('order:view.weight')}</b><Weight/></p>
                         </>
                     )}
@@ -781,6 +873,57 @@ export const OrderView = (props: OrderProps) => {
                     onMerge={handleMerge}
                     onCancel={() => setCopyModalOpen(false)}
                 />
+                <Modal
+                    title={t('order:approveModal.title')}
+                    open={approveModalOpen}
+                    onCancel={() => setApproveModalOpen(false)}
+                    onOk={handleApproveOrder}
+                    okText={t('order:approveModal.confirm')}
+                    confirmLoading={approveRejectLoading}
+                >
+                    <Form layout="vertical">
+                        <Form.Item label={t('order:approveModal.pfand')} help={t('order:approveModal.pfandHint')}>
+                            <InputNumber
+                                min={0}
+                                step={0.5}
+                                value={approvePfand}
+                                onChange={(val) => setApprovePfand(val)}
+                                style={{ width: '100%' }}
+                                addonAfter="CHF"
+                            />
+                        </Form.Item>
+                        <Form.Item label={t('order:approveModal.price')} help={t('order:approveModal.priceHint')}>
+                            <InputNumber
+                                min={0}
+                                step={0.5}
+                                value={approvePrice}
+                                onChange={(val) => setApprovePrice(val)}
+                                style={{ width: '100%' }}
+                                addonAfter="CHF"
+                            />
+                        </Form.Item>
+                    </Form>
+                </Modal>
+                <Modal
+                    title={t('order:rejectModal.title')}
+                    open={rejectModalOpen}
+                    onCancel={() => setRejectModalOpen(false)}
+                    onOk={handleRejectOrder}
+                    okText={t('order:rejectModal.confirm')}
+                    okButtonProps={{ danger: true }}
+                    confirmLoading={approveRejectLoading}
+                >
+                    <Form layout="vertical">
+                        <Form.Item label={t('order:rejectModal.reason')}>
+                            <Input.TextArea
+                                value={rejectReason}
+                                onChange={(e) => setRejectReason(e.target.value)}
+                                placeholder={t('order:rejectModal.reasonPlaceholder')}
+                                rows={3}
+                            />
+                        </Form.Item>
+                    </Form>
+                </Modal>
             </Row>
         </Col>
         {isMobile && (

@@ -27,7 +27,7 @@ export const Group = (props: GroupProps) => {
     const userDataLoading = membersUserDataContext.loading;
 
 
-    const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: 'Loading...' }) }));
+    const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { id: member.userId, displayName: member.displayName || member.userId }) }));
 
     return <Row gutter={[16, 16]}>
             <Can I='update' this={abteilung}>

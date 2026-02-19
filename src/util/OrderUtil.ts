@@ -15,6 +15,8 @@ export const getStatusName = (order: Order | undefined): string => {
     if (!order) return i18n.t('common:status.loading');
 
     switch (order.status) {
+        case 'pending':
+            return i18n.t('order:status.pending');
         case 'created':
             return i18n.t('order:status.created');
         case 'delivered':
@@ -24,6 +26,8 @@ export const getStatusName = (order: Order | undefined): string => {
                 return i18n.t('order:status.completedDamaged');
             }
             return i18n.t('order:status.completed');
+        case 'rejected':
+            return i18n.t('order:status.rejected');
     }
 
     return i18n.t('common:status.unknown');
@@ -32,6 +36,8 @@ export const getStatusName = (order: Order | undefined): string => {
 export const getStatusColor = (order: Order | undefined): string | undefined => {
     if (!order) return undefined;
     switch (order.status) {
+        case 'pending':
+            return 'orange';
         case 'created':
             return 'cyan';
         case 'delivered':
@@ -41,6 +47,8 @@ export const getStatusColor = (order: Order | undefined): string | undefined => 
                 return 'volcano';
             }
             return 'green';
+        case 'rejected':
+            return 'red';
     }
 
     return undefined

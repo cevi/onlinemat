@@ -49,6 +49,8 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
 
     const customGroupId = 'custom';
 
+    const isGuestRole = (userState.appUser?.userData?.roles || {})[abteilung.id] === 'guest';
+
     const [userGroups, setUserGroups] = useState<Group[]>([]);
 
     const [selectedGroup, setSelectedGroup] = useState<string | undefined>(undefined);
@@ -63,6 +65,12 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
 
 
     useEffect(() => {
+        if (isGuestRole) {
+            setUserGroups([]);
+            setSelectedGroup(customGroupId);
+            return;
+        }
+
         const isStaff = userState.appUser?.userData.staff || false;
         const list = groupObjToList(abteilung.groups);
 
@@ -215,7 +223,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col xs={24} lg={18}>
+                    {!isGuestRole && <Col xs={24} lg={18}>
                         <Form.Item
                             label={t('order:create.group')}
                             name='groupId'
@@ -246,17 +254,17 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                                 </OptGroup>
                             </Select>
                         </Form.Item>
-                    </Col>
+                    </Col>}
                     {
-                        selectedGroup === customGroupId && <Col xs={24} lg={18}>
+                        (isGuestRole || selectedGroup === customGroupId) && <Col xs={24} lg={18}>
                             <Form.Item
                                 label={t('order:create.customGroupName')}
                                 name='customGroupName'
                                 rules={[
-                                    { required: selectedGroup === customGroupId },
+                                    { required: isGuestRole || selectedGroup === customGroupId },
                                 ]}
                             >
-                                <Input />
+                                <Input placeholder={isGuestRole ? t('order:create.customGroupNamePlaceholder') : undefined} />
                             </Form.Item>
                         </Col>
                     }

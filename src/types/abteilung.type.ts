@@ -21,6 +21,7 @@ export interface AbteilungMember {
     approved: boolean
     banned?: boolean
     displayName?: string
+    email?: string
     notifyOnNewOrder?: boolean
 }
 

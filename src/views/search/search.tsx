@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { AutoComplete, Card, Col, Row, Spin, Table, Tag, Typography } from 'antd';
+import { AutoComplete, Button, Card, Col, Input, Row, Spin, Table, Tag, Typography } from 'antd';
 import { useAuth0 } from '@auth0/auth0-react';
 import { db } from 'config/firebase/firebase';
 import { collectionGroup, query as firestoreQuery, where, limit, getDocs } from 'firebase/firestore';
@@ -11,7 +11,6 @@ import { Abteilung } from 'types/abteilung.type';
 import { useSearchParams } from 'react-router-dom';
 import { AbteilungenContext } from 'components/navigation/NavigationMenu';
 import { SearchOutlined } from '@ant-design/icons';
-import { Input } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 interface SearchMaterial extends Material {
@@ -79,11 +78,20 @@ export const SearchView = () => {
         loadAll();
     }, [isAuthenticated]);
 
-    // Featured: random selection from loaded materials
+    // Featured: random selection from loaded materials, unique by name
     const featured = useMemo(() => {
         if (visibleSearchable.length === 0) return [];
         const shuffled = [...visibleSearchable].sort(() => Math.random() - 0.5);
-        return shuffled.slice(0, FEATURED_DISPLAY_COUNT);
+        const seen = new Set<string>();
+        const unique: typeof visibleSearchable = [];
+        for (const mat of shuffled) {
+            if (!seen.has(mat.name)) {
+                seen.add(mat.name);
+                unique.push(mat);
+                if (unique.length >= FEATURED_DISPLAY_COUNT) break;
+            }
+        }
+        return unique;
     }, [visibleSearchable]);
 
     // Autocomplete options: deduplicated by material name, max 10 unique names
@@ -198,6 +206,21 @@ export const SearchView = () => {
                 return <a href={getAbteilungMatLink(ab)}>{ab.name}</a>;
             },
         },
+        {
+            title: '',
+            key: 'order',
+            render: (_: any, record: SearchMaterial) => {
+                const ab = findAbteilung(record.abteilungId);
+                if (!ab) return null;
+                return (
+                    <a href={getAbteilungMatLink(ab)}>
+                        <Button type="primary" size="small">
+                            {t('search:orderButton')}
+                        </Button>
+                    </a>
+                );
+            },
+        },
     ];
 
     return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])} style={{ alignItems: 'center' }}>
@@ -286,5 +309,6 @@ export const SearchView = () => {
                 </Row>
             </>
         )}
+
     </div>
 }

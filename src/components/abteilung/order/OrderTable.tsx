@@ -94,7 +94,8 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
 
     const getOrdererName = (record: Order): string => {
         const member = members.find(mem => mem.id === record.orderer);
-        return member ? member.displayName : t('common:status.unknown');
+        if (!member) return t('common:status.unknown');
+        return member.email ? `${member.displayName} (${member.email})` : member.displayName;
     };
 
     const sortedOrders = orders.sort((a: Order, b: Order) => a.startDate.valueOf() - b.startDate.valueOf());
