@@ -1,6 +1,7 @@
 import { Col, Row } from "antd";
 import { useContext } from "react";
 import { Abteilung } from "types/abteilung.type";
+import { Can } from "config/casl/casl";
 import { MembersContext, MembersUserDataContext } from "../AbteilungDetails";
 import { AddGroupButton } from "./AddGroup";
 import { GroupTable } from "./GroupTable";
@@ -29,9 +30,11 @@ export const Group = (props: GroupProps) => {
     const membersMerged = members.map(member => ({ ...member, ...(userData[member.userId] || { displayName: 'Loading...' }) }));
 
     return <Row gutter={[16, 16]}>
-            <Col span={24}>
-                <AddGroupButton abteilung={abteilung} members={membersMerged} />
-            </Col>
+            <Can I='update' this={abteilung}>
+                <Col span={24}>
+                    <AddGroupButton abteilung={abteilung} members={membersMerged} />
+                </Col>
+            </Can>
             <Col span={24}>
                 <GroupTable abteilung={abteilung} members={membersMerged} loading={userDataLoading || membersLoading} />
             </Col>

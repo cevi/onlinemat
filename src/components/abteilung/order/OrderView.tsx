@@ -111,9 +111,16 @@ export const OrderView = (props: OrderProps) => {
 
     const customGroupId = 'custom';
 
+    const uid = user?.appUser?.firebaseUser?.uid;
+    const isInOrderGroup = !!(
+        uid && order?.groupId &&
+        abteilung.groups[order.groupId]?.members?.includes(uid)
+    );
+
     const canEditOrder = order && order.status === 'created' && (
         order.orderer === user?.appUser?.userData?.id
         || ability.can('update', { ...order, abteilungId: abteilung.id })
+        || isInOrderGroup
     );
 
     const userGroups = (() => {

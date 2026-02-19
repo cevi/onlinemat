@@ -188,9 +188,9 @@ export const AbteilungDetail = () => {
                         { key: 'standort', icon: <HomeOutlined />, label: t('abteilung:tabs.standorte') },
                         { key: 'category', icon: <PaperClipOutlined />, label: t('abteilung:tabs.kategorien') },
                         { key: 'orders', icon: <UnorderedListOutlined />, label: t('abteilung:tabs.bestellungen') },
+                        { key: 'groups', icon: <TagsOutlined />, label: t('abteilung:tabs.gruppen') },
                         ...(canUpdate ? [
                             { key: 'members', icon: <TeamOutlined />, label: t('abteilung:tabs.mitglieder') },
-                            { key: 'groups', icon: <TagsOutlined />, label: t('abteilung:tabs.gruppen') },
                             { key: 'settings', icon: <SettingOutlined />, label: t('abteilung:tabs.einstellungen') },
                         ] : []),
                     ] : []),

@@ -1,7 +1,7 @@
 import { Table, Button, Popconfirm } from 'antd';
 import { Abteilung, AbteilungMemberUserData } from 'types/abteilung.type';
 import { Group } from 'types/group.types';
-import { Can } from 'config/casl/casl';
+import { ability } from 'config/casl/ability';
 import { deleteGroup, EditGroupButton } from './EditGroup';
 import { DeleteOutlined } from '@ant-design/icons';
 import { groupObjToList } from 'util/GroupUtil';
@@ -22,6 +22,8 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
     const { abteilung, members, loading } = props;
 
     const { t } = useTranslation();
+
+    const canUpdate = ability.can('update', abteilung);
 
     const columns = [
         {
@@ -62,27 +64,25 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
                 }).join(', ')}</p>
             )
         },
-        {
+        ...(canUpdate ? [{
             title: t('group:table.actions'),
             key: 'actions',
             dataIndex: 'id',
             render: (text: string, record: Group) => (
                 <>
-                    <Can I='update' this={abteilung}>
-                        <EditGroupButton group={record} members={members} abteilung={abteilung} />
-                        <Popconfirm
-                            title={t('group:delete.confirm')}
-                            onConfirm={() => deleteGroup(abteilung, record, t)}
-                            onCancel={() => { }}
-                            okText={t('common:confirm.yes')}
-                            cancelText={t('common:confirm.no')}
-                        >
-                            <Button type='ghost' danger icon={<DeleteOutlined />} disabled={loading}/>
-                        </Popconfirm>
-                    </Can>
+                    <EditGroupButton group={record} members={members} abteilung={abteilung} />
+                    <Popconfirm
+                        title={t('group:delete.confirm')}
+                        onConfirm={() => deleteGroup(abteilung, record, t)}
+                        onCancel={() => { }}
+                        okText={t('common:confirm.yes')}
+                        cancelText={t('common:confirm.no')}
+                    >
+                        <Button type='ghost' danger icon={<DeleteOutlined />} disabled={loading}/>
+                    </Popconfirm>
                 </>
             )
-        }
+        }] : []),
     ];
 
 
