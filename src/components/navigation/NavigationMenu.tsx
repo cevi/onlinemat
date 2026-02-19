@@ -26,6 +26,10 @@ import { LanguagePicker } from 'config/i18n/LanguagePicker';
 import { ReleaseNote } from 'types/releaseNote.types';
 import { ReleaseNotePopup } from 'components/releaseNotes/ReleaseNotePopup';
 import dayjs from 'dayjs';
+import { useIsMobile } from 'hooks/useIsMobile';
+import { BottomNav, BOTTOM_NAV_HEIGHT } from './BottomNav';
+import { MobileDrawer } from './MobileDrawer';
+import { MobileNavContext } from 'contexts/MobileNavContext';
 
 const {Header, Content, Footer, Sider} = Layout;
 
@@ -36,6 +40,12 @@ export const AbteilungenContext = createContext<{ abteilungen: Abteilung[], load
 
 const NavigationMenu: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [abteilungMenuItems, setAbteilungMenuItems] = useState<MenuProps['items']>([]);
+    const [abteilungSelectedKey, setAbteilungSelectedKey] = useState('');
+    const [abteilungName, setAbteilungName] = useState('');
+    const [cartCount, setCartCount] = useState(0);
+    const isMobile = useIsMobile();
     const {pathname} = useLocation();
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -164,76 +174,123 @@ const NavigationMenu: React.FC = () => {
         return routeItems;
     }, [isLoading, isAuthenticated, filteredRoutes, userState.appUser?.userData?.defaultAbteilung, t]);
 
+    const mobileNavContextValue = useMemo(() => ({
+        abteilungMenuItems,
+        abteilungSelectedKey,
+        abteilungName,
+        cartCount,
+        setAbteilungMenuItems,
+        setAbteilungSelectedKey,
+        setAbteilungName,
+        setCartCount,
+    }), [abteilungMenuItems, abteilungSelectedKey, abteilungName, cartCount]);
+
     return (
         <AbteilungenContext.Provider value={{
             abteilungen, loading
         }}>
-            <Layout style={{minHeight: '100vh'}}>
-                <Sider
-                    theme='dark'
-                    collapsible
-                    collapsed={collapsed}
-                    onCollapse={setCollapsed}
-                    breakpoint='lg'
-                >
-                    <div className={classNames(styles['sider-content'])}>
-                        <div className={classNames(styles['sider-menu'])}>
-                            <Header className={classNames(styles['app-logo-container'])} onClick={() => navigate('/')}>
-                                <Typography.Title ellipsis className={classNames(styles['app-logo'])}>{collapsed ?
-                                    <span>OM</span> : 'Onlinemat'}</Typography.Title>
-                            </Header>
-                            <Menu
-                                mode='inline'
-                                theme='dark'
-                                selectedKeys={calculateSelectedKeys()}
-                                selectable={false}
-                                items={menuItems}
-                            />
-                        </div>
-                        <LanguagePicker collapsed={collapsed} />
-                    </div>
-                </Sider>
-                <Layout>
-                    <Content style={{margin: '0 16px'}} className={classNames(appStyles['center-container-stretch'])}>
-                        {
-                            isLoading || loading ?
-                                <Spin tip={t('common:status.loading')}>
-                                    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 100}}/>
-                                </Spin>
-                                :
-                                user && !user.email_verified ? <VerifyEmail/> :
-                                    <Routes>
-                                        {[HomeRoute, ...AppRoutes].map(appRoute => <Route key={appRoute.key}
-                                                                                          path={appRoute.key}
-                                                                                          element={appRoute.private ?
-                                                                                              <ProtectedRoute
-                                                                                                  component={appRoute.view}/> : appRoute.element}></Route>)}
-                                        <Route path='status' element={<StatusPage/>}/>
-                                        <Route path='*' element={<NotFoundView/>}/>
-
-                                    </Routes>
-                        }
-                    </Content>
-                    {isAuthenticated && userState.appUser?.userData && (
-                        <ReleaseNotePopup
-                            releaseNotes={releaseNotes}
-                            readReleaseNoteIds={readReleaseNoteIds}
-                            userId={userState.appUser.userData.id}
+            <MobileNavContext.Provider value={mobileNavContextValue}>
+                <Layout style={{minHeight: '100vh'}}>
+                    {!isMobile && (
+                        <Sider
+                            theme='dark'
+                            collapsible
+                            collapsed={collapsed}
+                            onCollapse={setCollapsed}
+                            breakpoint='lg'
+                        >
+                            <div className={classNames(styles['sider-content'])}>
+                                <div className={classNames(styles['sider-menu'])}>
+                                    <Header className={classNames(styles['app-logo-container'])} onClick={() => navigate('/')}>
+                                        <Typography.Title ellipsis className={classNames(styles['app-logo'])}>{collapsed ?
+                                            <span>OM</span> : 'Onlinemat'}</Typography.Title>
+                                    </Header>
+                                    <Menu
+                                        mode='inline'
+                                        theme='dark'
+                                        selectedKeys={calculateSelectedKeys()}
+                                        selectable={false}
+                                        items={menuItems}
+                                    />
+                                </div>
+                                <LanguagePicker collapsed={collapsed} />
+                            </div>
+                        </Sider>
+                    )}
+                    {isMobile && (
+                        <MobileDrawer
+                            open={drawerOpen}
+                            onClose={() => setDrawerOpen(false)}
+                            menuItems={menuItems}
+                            selectedKeys={calculateSelectedKeys()}
+                            abteilungMenuItems={abteilungMenuItems}
+                            abteilungSelectedKey={abteilungSelectedKey}
+                            abteilungName={abteilungName}
+                            footerContent={<>
+                                Designed by <a href='https://cevi.tools' target='_blank'>Cevi Tools</a> <br/><a href='mailto:onlinemat@cevi.tools'>Contact</a>
+                                {isAuthenticated && <> | <a onClick={() => { navigate('/release-notes'); setDrawerOpen(false); }} style={{cursor: 'pointer'}}>
+                                    {t('releaseNote:footerLink')}
+                                </a></>}
+                                <br/>&copy; Cevi Tools {(new Date()).getFullYear()}
+                            </>}
                         />
                     )}
-                    <Footer style={{textAlign: 'center', backgroundColor: import.meta.env.VITE_DEV_ENV === 'true' ? '#FF4B91' : 'unset'}}>
-                        Designed by <a href='https://cevi.tools' target='_blank'>Cevi Tools</a> | <a href='mailto:onlinemat@cevi.tools'>Contact</a>
-                        {isAuthenticated && <> | <a onClick={() => navigate('/release-notes')} style={{cursor: 'pointer'}}>
-                            <Badge count={unreadCount} size="small" offset={[6, -2]}><span style={{color: '#1677ff'}}>{t('releaseNote:footerLink')}</span></Badge>
-                        </a></>}
-                        {' '}| &copy; Cevi Tools {(new Date()).getFullYear()}
-                        {import.meta.env.VITE_DEV_ENV === 'true' && <> |
-                            Branch: <Tag>{generatedGitInfo.gitBranch}</Tag>
-                            Git Hash: <Tag>{generatedGitInfo.gitCommitHash}</Tag>
-                        </>}
-                    </Footer>
+                    <Layout>
+                        <Content
+                            style={{
+                                margin: '0 16px',
+                                paddingBottom: isMobile ? BOTTOM_NAV_HEIGHT + 16 : 0,
+                            }}
+                            className={classNames(appStyles['center-container-stretch'])}
+                        >
+                            {
+                                isLoading || loading ?
+                                    <Spin tip={t('common:status.loading')}>
+                                        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 100}}/>
+                                    </Spin>
+                                    :
+                                    user && !user.email_verified ? <VerifyEmail/> :
+                                        <Routes>
+                                            {[HomeRoute, ...AppRoutes].map(appRoute => <Route key={appRoute.key}
+                                                                                              path={appRoute.key}
+                                                                                              element={appRoute.private ?
+                                                                                                  <ProtectedRoute
+                                                                                                      component={appRoute.view}/> : appRoute.element}></Route>)}
+                                            <Route path='status' element={<StatusPage/>}/>
+                                            <Route path='*' element={<NotFoundView/>}/>
+
+                                        </Routes>
+                            }
+                        </Content>
+                        {isAuthenticated && userState.appUser?.userData && (
+                            <ReleaseNotePopup
+                                releaseNotes={releaseNotes}
+                                readReleaseNoteIds={readReleaseNoteIds}
+                                userId={userState.appUser.userData.id}
+                            />
+                        )}
+                        {!isMobile && (
+                            <Footer style={{
+                                textAlign: 'center',
+                                backgroundColor: import.meta.env.VITE_DEV_ENV === 'true' ? '#FF4B91' : 'unset',
+                            }}>
+                                Designed by <a href='https://cevi.tools' target='_blank'>Cevi Tools</a> | <a href='mailto:onlinemat@cevi.tools'>Contact</a>
+                                {isAuthenticated && <> | <a onClick={() => navigate('/release-notes')} style={{cursor: 'pointer'}}>
+                                    <Badge count={unreadCount} size="small" offset={[6, -2]}><span style={{color: '#1677ff'}}>{t('releaseNote:footerLink')}</span></Badge>
+                                </a></>}
+                                {' '}| &copy; Cevi Tools {(new Date()).getFullYear()}
+                                {import.meta.env.VITE_DEV_ENV === 'true' && <> |
+                                    Branch: <Tag>{generatedGitInfo.gitBranch}</Tag>
+                                    Git Hash: <Tag>{generatedGitInfo.gitCommitHash}</Tag>
+                                </>}
+                            </Footer>
+                        )}
+                    </Layout>
+                    {isMobile && (
+                        <BottomNav onMenuClick={() => setDrawerOpen(true)} />
+                    )}
                 </Layout>
-            </Layout>
+            </MobileNavContext.Provider>
         </AbteilungenContext.Provider>
     );
 }
@@ -244,6 +301,6 @@ export const ProtectedRoute = ({
                                    component,
                                    ...args
                                }: React.PropsWithChildren<any>) => {
-    const Component = withAuthenticationRequired(component, args);
+    const Component = useMemo(() => withAuthenticationRequired(component, args), [component]);
     return <Component/>;
 };

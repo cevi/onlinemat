@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Table, Button, Tag, Tooltip, Space, message } from 'antd';
+import { Table, Button, Tag, Tooltip, Space, List, Spin, message } from 'antd';
 import { Abteilung, AbteilungMemberUserData } from 'types/abteilung.type';
-import { CopyOutlined } from '@ant-design/icons';
+import { CopyOutlined, CalendarOutlined, RightOutlined } from '@ant-design/icons';
 import { Order } from 'types/order.types';
 import { CartItem } from 'types/cart.types';
 import { dateFormatWithTime } from 'util/constants';
@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { useCookies } from 'react-cookie';
 import dayjs from 'dayjs';
 import { CopyToCartModal } from './CopyToCartModal';
+import { useIsMobile } from 'hooks/useIsMobile';
 
 
 
@@ -79,6 +80,25 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
     };
 
 
+    const isMobile = useIsMobile();
+
+    const getGroupName = (record: Order): string => {
+        if (record.groupId) {
+            const group = abteilung.groups[record.groupId];
+            if (group) return group.name;
+        } else if (record.customGroupName) {
+            return record.customGroupName;
+        }
+        return t('common:status.unknown');
+    };
+
+    const getOrdererName = (record: Order): string => {
+        const member = members.find(mem => mem.id === record.orderer);
+        return member ? member.displayName : t('common:status.unknown');
+    };
+
+    const sortedOrders = orders.sort((a: Order, b: Order) => a.startDate.valueOf() - b.startDate.valueOf());
+
     const columns = [
         {
             title: t('order:table.status'),
@@ -95,18 +115,7 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
             key: 'groupId',
             sorter: (a: Order, b: Order) => ((a.groupId || a.customGroupName) || '').normalize().localeCompare(((a.groupId || a.customGroupName) || '').normalize()),
             render: (text: string, record: Order) => {
-                let name = t('common:status.unknown');
-                if(record.groupId) {
-                    const group = abteilung.groups[record.groupId];
-                    if(group) {
-                        name = group.name;
-                    }
-                } else if(record.customGroupName) {
-                    name = record.customGroupName
-                }
-
-
-                return <p key={`group_${record.id}`}>{name}</p>
+                return <p key={`group_${record.id}`}>{getGroupName(record)}</p>
             }
         },
         {
@@ -115,8 +124,7 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
             key: 'orderer',
             sorter: (a: Order, b: Order) => a.orderer.normalize().localeCompare(b.orderer.normalize()),
             render: (text: string, record: Order) => {
-                const member = members.find(mem => mem.id === record.orderer);
-                return <p key={`orderer_${record.id}`}>{member ? member.displayName : t('common:status.unknown')}</p>
+                return <p key={`orderer_${record.id}`}>{getOrdererName(record)}</p>
             }
         },
         {
@@ -153,8 +161,55 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
     ];
 
 
+    if (isMobile) {
+        return <>
+            <List
+                loading={loading}
+                dataSource={sortedOrders}
+                renderItem={(record) => (
+                    <List.Item
+                        style={{ padding: '12px 0', cursor: 'pointer' }}
+                        onClick={() => navigate(`/abteilungen/${abteilung.slug || abteilung.id}/order/${record.id}`)}
+                        actions={[
+                            <Button
+                                key="copy"
+                                size="small"
+                                icon={<CopyOutlined />}
+                                onClick={(e) => { e.stopPropagation(); handleCopyToCart(record); }}
+                            />,
+                            <RightOutlined key="go" style={{ color: '#999' }} />,
+                        ]}
+                    >
+                        <List.Item.Meta
+                            title={
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <Tag color={getStatusColor(record)} style={{ margin: 0 }}>{getStatusName(record)}</Tag>
+                                    <span style={{ fontWeight: 500 }}>{getGroupName(record)}</span>
+                                </span>
+                            }
+                            description={
+                                <span style={{ fontSize: 12, color: '#888' }}>
+                                    {getOrdererName(record)}
+                                    <span style={{ margin: '0 6px' }}>·</span>
+                                    <CalendarOutlined style={{ marginRight: 4 }} />
+                                    {record.startDate.format('DD.MM.YY')} – {record.endDate.format('DD.MM.YY')}
+                                </span>
+                            }
+                        />
+                    </List.Item>
+                )}
+            />
+            <CopyToCartModal
+                open={copyModalOpen}
+                onReplace={handleReplace}
+                onMerge={handleMerge}
+                onCancel={handleCancelCopy}
+            />
+        </>;
+    }
+
     return <>
-        <Table rowKey='id' loading={loading} columns={columns} dataSource={orders.sort((a: Order, b: Order) => a.startDate.valueOf() - b.startDate.valueOf())} />
+        <Table rowKey='id' loading={loading} columns={columns} dataSource={sortedOrders} />
         <CopyToCartModal
             open={copyModalOpen}
             onReplace={handleReplace}

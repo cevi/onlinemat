@@ -12,6 +12,9 @@
     "login": "Anmelden",
     "logout": "Abmelden"
   },
+  "bottomNav": {
+    "menu": "Menü"
+  },
   "notFound": {
     "title": "Seite nicht gefunden",
     "backToHome": "Zurück zur Startseite"

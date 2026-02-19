@@ -20,6 +20,8 @@ import {
 } from '@ant-design/icons';
 import { ability } from 'config/casl/ability';
 import { AbteilungenContext } from 'components/navigation/NavigationMenu';
+import { useIsMobile } from 'hooks/useIsMobile';
+import { MobileNavContext } from 'contexts/MobileNavContext';
 
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 import { AbteilungSettings } from './settings/AbteilungSettings';
@@ -58,19 +60,16 @@ export const AbteilungDetail = () => {
     const { state } = useLocation();
 
     const validTabs: AbteilungTab[] = ['mat', 'settings', 'members', 'groups', 'cart', 'orders', 'order', 'standort', 'category'];
-    const initTab: AbteilungTab = validTabs.includes(tab as AbteilungTab) ? (tab as AbteilungTab) : 'mat';
+    const selectedMenu: AbteilungTab = validTabs.includes(tab as AbteilungTab) ? (tab as AbteilungTab) : 'mat';
 
     const abteilungenContext = useContext(AbteilungenContext);
     const abteilungen = abteilungenContext.abteilungen;
     const abteilungLoading = abteilungenContext.loading;
 
-    const [windowSize] = useState([
-        window.innerWidth,
-        window.innerHeight,
-    ]);
+    const isMobile = useIsMobile();
+    const { setAbteilungMenuItems, setAbteilungSelectedKey, setAbteilungName, setCartCount } = useContext(MobileNavContext);
 
     const [abteilung, setAbteilung] = useState<Abteilung | undefined>(undefined);
-    const [selectedMenu] = useState<AbteilungTab>(initTab);
 
     const [cookies] = useCookies();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -90,6 +89,7 @@ export const AbteilungDetail = () => {
         const cookieRaw = cookies[cookieName];
         if (!cookieRaw) return;
         const cookieCart = cookieToCart(cookieRaw, abteilung.id)
+        if (cookieCart.length === 0) return;
         setCartItems(cookieCart)
     }, [abteilung, cartItems, cookies])
 
@@ -140,38 +140,63 @@ export const AbteilungDetail = () => {
             return <NoAccessToAbteilung abteilung={abteilung} />
         }
 
-        if (windowSize[0] > 768) {
-            switch (selectedMenu) {
-                case 'mat':
-                    return <AbteilungMaterialView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
-                case 'members':
-                    return <Member abteilungId={abteilung.id} />
-                case 'groups':
-                    return <Group abteilung={abteilung} />
-                case 'settings':
-                    return <AbteilungSettings abteilung={abteilung} />
-                case 'cart':
-                    return <Cart abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
-                case 'orders':
-                    return <Orders abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
-                case 'order':
-                    return <OrderView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
-                case 'standort':
-                    return <AbteilungStandorteView abteilung={abteilung} />
-                case 'category':
-                    return <AbteilungCategoryView abteilung={abteilung} />
-            }
-        } else {
-            switch (selectedMenu) {
-                case 'mat':
-                    return <AbteilungMaterialView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
-                case 'cart':
-                    return <Cart abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
-            }
+        switch (selectedMenu) {
+            case 'mat':
+                return <AbteilungMaterialView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
+            case 'members':
+                return <Member abteilungId={abteilung.id} />
+            case 'groups':
+                return <Group abteilung={abteilung} />
+            case 'settings':
+                return <AbteilungSettings abteilung={abteilung} />
+            case 'cart':
+                return <Cart abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
+            case 'orders':
+                return <Orders abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
+            case 'order':
+                return <OrderView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
+            case 'standort':
+                return <AbteilungStandorteView abteilung={abteilung} />
+            case 'category':
+                return <AbteilungCategoryView abteilung={abteilung} />
         }
-
     }
 
+
+    // Sync cart count to mobile nav context
+    useEffect(() => {
+        setCartCount(getCartCount(cartItems));
+    }, [cartItems, setCartCount]);
+
+    // Populate mobile drawer with abteilung-specific tabs
+    useEffect(() => {
+        if (!abteilung || !isMobile) {
+            setAbteilungMenuItems([]);
+            setAbteilungSelectedKey('');
+            return;
+        }
+
+        const items: MenuProps['items'] = [
+            { key: 'standort', icon: <HomeOutlined />, label: t('abteilung:tabs.standorte'), onClick: () => navigateToMenu('standort') },
+            { key: 'category', icon: <PaperClipOutlined />, label: t('abteilung:tabs.kategorien'), onClick: () => navigateToMenu('category') },
+            { key: 'orders', icon: <UnorderedListOutlined />, label: t('abteilung:tabs.bestellungen'), onClick: () => navigateToMenu('orders') },
+            { key: 'groups', icon: <TagsOutlined />, label: t('abteilung:tabs.gruppen'), onClick: () => navigateToMenu('groups') },
+            ...(canUpdate ? [
+                { key: 'members', icon: <TeamOutlined />, label: t('abteilung:tabs.mitglieder'), onClick: () => navigateToMenu('members') },
+                { key: 'settings', icon: <SettingOutlined />, label: t('abteilung:tabs.einstellungen'), onClick: () => navigateToMenu('settings') },
+            ] : []),
+        ];
+
+        setAbteilungMenuItems(items);
+        setAbteilungSelectedKey(selectedMenu);
+        setAbteilungName(abteilung.name);
+
+        return () => {
+            setAbteilungMenuItems([]);
+            setAbteilungSelectedKey('');
+            setAbteilungName('');
+        };
+    }, [abteilung, isMobile, canUpdate, selectedMenu, t]);
 
     if (abteilungLoading || !abteilung) return <Spin />
 
@@ -184,7 +209,7 @@ export const AbteilungDetail = () => {
                 mode='horizontal'
                 items={[
                     { key: 'mat', icon: <ContainerOutlined />, label: t('abteilung:tabs.material') },
-                    ...(windowSize[0] > 768 ? [
+                    ...(!isMobile ? [
                         { key: 'standort', icon: <HomeOutlined />, label: t('abteilung:tabs.standorte') },
                         { key: 'category', icon: <PaperClipOutlined />, label: t('abteilung:tabs.kategorien') },
                         { key: 'orders', icon: <UnorderedListOutlined />, label: t('abteilung:tabs.bestellungen') },

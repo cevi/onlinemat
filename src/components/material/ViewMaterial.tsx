@@ -48,9 +48,9 @@ export const ViewMaterial = forwardRef((props: ViewMaterialProps, ref) => {
                 <p>
                     <b>{t('material:view.categories')}</b> {displayCategorieNames(categories, material?.categorieIds || [])}
                 </p>
-                <p>
+                <div>
                     <PicturesWall showRemove={false} imageUrls={material?.imageUrls ? material.imageUrls : []} />
-                </p>
+                </div>
 
             </>
         }
