@@ -8,13 +8,13 @@ import {AppRoute, AppRoutes, HomeRoute} from 'routes';
 import {Route, Routes, useLocation, useNavigate} from 'react-router';
 import {auth, db} from 'config/firebase/firebase';
 import {signOut} from 'firebase/auth';
-import {collection, query, where, orderBy} from 'firebase/firestore';
+import {collection, query, where, orderBy, doc, updateDoc} from 'firebase/firestore';
 import {LoginOutlined, LogoutOutlined} from '@ant-design/icons';
 import {useAuth0, withAuthenticationRequired} from '@auth0/auth0-react';
 import {useUser} from 'hooks/use-user';
 import {NotFoundView} from './NotFound';
 import {Abteilung} from 'types/abteilung.type';
-import {abteilungenCollection, releaseNotesCollection} from 'config/firebase/collections';
+import {abteilungenCollection, releaseNotesCollection, usersCollection} from 'config/firebase/collections';
 import {setGroupDates} from 'util/GroupUtil';
 import {useFirestoreCollection} from 'hooks/useFirestoreCollection';
 import {VerifyEmail} from './VerifyEmail';
@@ -75,6 +75,24 @@ const NavigationMenu: React.FC = () => {
         deps: [isAuthenticated, userState],
     });
 
+    //auto-set defaultAbteilung if user has exactly one accessible Abteilung
+    useEffect(() => {
+        if (!isAuthenticated || !userState.appUser?.userData || loading || abteilungen.length === 0) return;
+        if (userState.appUser.userData.defaultAbteilung) return;
+
+        const userRoles = userState.appUser.userData.roles || {};
+        const accessibleAbteilungen = abteilungen.filter(a => {
+            const role = userRoles[a.id];
+            return role && role !== 'pending';
+        });
+
+        if (accessibleAbteilungen.length === 1) {
+            const abt = accessibleAbteilungen[0];
+            updateDoc(doc(db, usersCollection, userState.appUser.userData.id), {
+                defaultAbteilung: abt.slug || abt.id,
+            });
+        }
+    }, [isAuthenticated, userState.appUser?.userData, abteilungen, loading])
 
     const isStaff = userState.appUser?.userData.staff || false;
     const readReleaseNoteIds = userState.appUser?.userData?.readReleaseNoteIds || [];
