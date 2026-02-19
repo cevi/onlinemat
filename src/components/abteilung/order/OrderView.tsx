@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { AutoComplete, Button, Card, Col, DatePicker, Form, Input, message, Popconfirm, Row, Select, Spin, Tag, Timeline, Tooltip, Typography } from 'antd';
+import { AutoComplete, Button, Card, Col, Collapse, DatePicker, Form, Input, message, Popconfirm, Row, Select, Spin, Tag, Timeline, Tooltip, Typography } from 'antd';
 import { abteilungenCollection, abteilungenOrdersCollection } from 'config/firebase/collections';
 import { db, functions } from 'config/firebase/firebase';
 import { doc, onSnapshot, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { useCookies } from 'react-cookie';
 import { getCartName, replaceCart, mergeCart } from 'util/CartUtil';
 import { CopyToCartModal } from './CopyToCartModal';
+import { useIsMobile } from 'hooks/useIsMobile';
 
 export interface OrderProps {
     abteilung: Abteilung
@@ -52,6 +53,7 @@ export const OrderView = (props: OrderProps) => {
     const user = useUser();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const isMobile = useIsMobile();
 
     const [order, setOrder] = useState<Order | undefined>(undefined);
     const [orderLoading, setOrderLoading] = useState(false);
@@ -502,8 +504,34 @@ export const OrderView = (props: OrderProps) => {
 
     if (!order) return <OrderNotFound abteilung={abteilung} orderId={orderId} />
 
+    const timelineContent = (
+        <>
+            <style>{`.order-timeline .ant-timeline-item-head-custom { background: transparent; }`}</style>
+            <div
+                id='scrollableDiv'
+                style={{
+                    maxHeight: 500,
+                    overflow: 'auto',
+                    padding: '10px 16px 0 0',
+                }}
+            >
+                <Timeline
+                    className='order-timeline'
+                    mode='left'
+                    items={detailedHistory.map((orderHistory, index) => ({
+                        key: `history_${index}`,
+                        label: dayjs(orderHistory.timestamp).format(dateFormatWithTime),
+                        color: orderHistory.color || undefined,
+                        dot: getDotIcon(orderHistory.type, orderHistory.color),
+                        children: orderHistory.text,
+                    }))}
+                />
+            </div>
+        </>
+    );
+
     return <Row gutter={[16, 16]}>
-        <Col span={7}>
+        <Col xs={24} lg={7}>
             <Row gutter={[16, 16]}>
                 <Col span={24}>
                     {isEditing ? (
@@ -527,6 +555,7 @@ export const OrderView = (props: OrderProps) => {
                                     }}
                                     format={dateFormatWithTime}
                                     showTime={{ format: 'HH:mm' }}
+                                    style={isMobile ? { width: '100%' } : undefined}
                                 />
                             </Form.Item>
                             <Form.Item label={t('order:create.group')}>
@@ -568,32 +597,14 @@ export const OrderView = (props: OrderProps) => {
                         </>
                     )}
                 </Col>
-                <Col span={24}>
-                    <style>{`.order-timeline .ant-timeline-item-head-custom { background: transparent; }`}</style>
-                    <div
-                        id='scrollableDiv'
-                        style={{
-                            maxHeight: 500,
-                            overflow: 'auto',
-                            padding: '10px 16px 0 0',
-                        }}
-                    >
-                        <Timeline
-                            className='order-timeline'
-                            mode='left'
-                            items={detailedHistory.map((orderHistory, index) => ({
-                                key: `history_${index}`,
-                                label: dayjs(orderHistory.timestamp).format(dateFormatWithTime),
-                                color: orderHistory.color || undefined,
-                                dot: getDotIcon(orderHistory.type, orderHistory.color),
-                                children: orderHistory.text,
-                            }))}
-                        />
-                    </div>
-                </Col>
+                {!isMobile && (
+                    <Col span={24}>
+                        {timelineContent}
+                    </Col>
+                )}
             </Row>
         </Col>
-        <Col offset={1} span={16}>
+        <Col xs={24} lg={{ offset: 1, span: 16 }}>
             <Row gutter={[16, 16]}>
                 <Col span={24}>
                     {isEditing ? (
@@ -708,13 +719,12 @@ export const OrderView = (props: OrderProps) => {
                     )}
                 </Col>
                 <Col span={24}>
-                    <div style={{display: 'flex', justifyContent: 'right'}}>
+                    <div style={{display: 'flex', justifyContent: 'right', flexWrap: 'wrap', gap: 8}}>
                         {isEditing ? (
                             <>
                                 <Button onClick={cancelEdit} disabled={editLoading}>
                                     {t('common:buttons.cancel')}
                                 </Button>
-                                <div style={{marginLeft: '1%', marginRight: '1%'}}></div>
                                 <Button type='primary' onClick={saveEdit} loading={editLoading} disabled={editItems.length <= 0}>
                                     {t('common:buttons.save')}
                                 </Button>
@@ -722,13 +732,13 @@ export const OrderView = (props: OrderProps) => {
                         ) : (
                             <>
                                 <Tooltip title={t('order:actions.copyToCartTooltip')}>
-                                    <Button icon={<CopyOutlined />} onClick={handleCopyToCart} style={{marginRight: '1%'}}>
-                                        {t('order:actions.copyToCart')}
+                                    <Button icon={<CopyOutlined />} onClick={handleCopyToCart}>
+                                        {!isMobile && t('order:actions.copyToCart')}
                                     </Button>
                                 </Tooltip>
                                 {canEditOrder && (
-                                    <Button icon={<EditOutlined />} onClick={enterEditMode} style={{marginRight: '1%'}}>
-                                        {t('common:buttons.edit')}
+                                    <Button icon={<EditOutlined />} onClick={enterEditMode}>
+                                        {!isMobile && t('common:buttons.edit')}
                                     </Button>
                                 )}
                                 <Can I='delete' this={{
@@ -750,10 +760,9 @@ export const OrderView = (props: OrderProps) => {
                                         cancelText={t('common:confirm.no')}
                                         disabled={order.status === 'delivered'}
                                     >
-                                        <Button type='ghost' danger icon={<DeleteOutlined />} disabled={order.status === 'delivered'}>{t('order:actions.delete')}</Button>
+                                        <Button type='ghost' danger icon={<DeleteOutlined />} disabled={order.status === 'delivered'}>{!isMobile && t('order:actions.delete')}</Button>
                                     </Popconfirm>
                                 </Can>
-                                <div style={{marginLeft: '1%', marginRight: '1%'}}></div>
                                 <Can I='deliver' this={{
                                     ...order,
                                     abteilungId: abteilung.id
@@ -774,6 +783,18 @@ export const OrderView = (props: OrderProps) => {
                 />
             </Row>
         </Col>
+        {isMobile && (
+            <Col span={24}>
+                <Collapse
+                    size="small"
+                    items={[{
+                        key: 'timeline',
+                        label: t('order:view.history', 'Verlauf'),
+                        children: timelineContent,
+                    }]}
+                />
+            </Col>
+        )}
     </Row>
 
 

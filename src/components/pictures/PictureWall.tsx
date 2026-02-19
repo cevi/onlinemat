@@ -17,7 +17,7 @@ export const PicturesWall = (props: PicturesWallProps) => {
       
     return <Row gutter={[16, 24]}>
         {
-            imageUrls &&  imageUrls.length > 0 ? imageUrls.map(url => <Col span={4}> 
+            imageUrls &&  imageUrls.length > 0 ? imageUrls.map((url, index) => <Col key={`img_${index}`} span={4}>
                 <div>
                     <Image
                         src={url}

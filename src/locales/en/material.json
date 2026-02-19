@@ -56,6 +56,12 @@
     "unlimited": "unlimited",
     "uncategorized": "Uncategorized"
   },
+  "filter": {
+    "title": "Filters",
+    "category": "Select category",
+    "standort": "Select location",
+    "availableOnly": "Available only"
+  },
   "search": {
     "placeholder": "Search for material"
   },

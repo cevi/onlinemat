@@ -16,6 +16,7 @@ import { Can } from 'config/casl/casl';
 import { DeleteOutlined } from '@ant-design/icons';
 import { getValidateMessages } from 'util/FormValdationMessages';
 import { useTranslation } from 'react-i18next';
+import { useIsMobile } from 'hooks/useIsMobile';
 
 export interface AbteilungSettingsProps {
     abteilung: Abteilung
@@ -27,6 +28,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const isMobile = useIsMobile();
 
     const [form] = Form.useForm<Abteilung>();
     const [updateLoading, setUpdateLoading] = useState(false);
@@ -139,50 +141,42 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
         }
     }
 
-    return <Row>
-        <div className={classNames(moduleStyles['ceviLogoWrapper'])}>
+    return <Row gutter={[16, 16]}>
+        <Col xs={24} lg={4} style={isMobile ? { textAlign: 'center', marginBottom: 16 } : undefined}>
             <Image
-                width={200}
+                width={isMobile ? 120 : 200}
                 src={abteilung?.logoUrl && abteilung.logoUrl !== '' ? abteilung.logoUrl : `${ceviLogoImage}`}
                 preview={false}
             />
-        </div>
-        <div style={{ flex: 1 }}>
+        </Col>
+        <Col xs={24} lg={20}>
             {canToggleSearch && (
-                <Row style={{ marginBottom: 24 }}>
-                    <Col span={24}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <Switch
-                                checked={searchVisible}
-                                onChange={toggleSearchVisible}
-                                loading={searchVisibleLoading}
-                            />
-                            <div>
-                                <Typography.Text strong>{t('abteilung:settings.searchVisible')}</Typography.Text>
-                                <br />
-                                <Typography.Text type="secondary">{t('abteilung:settings.searchVisibleDescription')}</Typography.Text>
-                            </div>
-                        </div>
-                    </Col>
-                </Row>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+                    <Switch
+                        checked={searchVisible}
+                        onChange={toggleSearchVisible}
+                        loading={searchVisibleLoading}
+                    />
+                    <div>
+                        <Typography.Text strong>{t('abteilung:settings.searchVisible')}</Typography.Text>
+                        <br />
+                        <Typography.Text type="secondary">{t('abteilung:settings.searchVisibleDescription')}</Typography.Text>
+                    </div>
+                </div>
             )}
             {isAdmin && (
-                <Row style={{ marginBottom: 24 }}>
-                    <Col span={24}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <Switch
-                                checked={notifyOnNewOrder}
-                                onChange={toggleNotifyOnNewOrder}
-                                loading={notifyLoading}
-                            />
-                            <div>
-                                <Typography.Text strong>{t('abteilung:settings.notifyOnNewOrder')}</Typography.Text>
-                                <br />
-                                <Typography.Text type="secondary">{t('abteilung:settings.notifyOnNewOrderDescription')}</Typography.Text>
-                            </div>
-                        </div>
-                    </Col>
-                </Row>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+                    <Switch
+                        checked={notifyOnNewOrder}
+                        onChange={toggleNotifyOnNewOrder}
+                        loading={notifyLoading}
+                    />
+                    <div>
+                        <Typography.Text strong>{t('abteilung:settings.notifyOnNewOrder')}</Typography.Text>
+                        <br />
+                        <Typography.Text type="secondary">{t('abteilung:settings.notifyOnNewOrderDescription')}</Typography.Text>
+                    </div>
+                </div>
             )}
             <Form
                 form={form}
@@ -193,8 +187,8 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                 validateMessages={getValidateMessages()}
                 initialValues={abteilung}
             >
-                <Row gutter={[16, 24]}>
-                    <Col span={8}>
+                <Row gutter={[16, 0]}>
+                    <Col xs={24} sm={12} lg={8}>
                         <Form.Item
                             label={t('abteilung:settings.name')}
                             name='name'
@@ -209,7 +203,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col xs={24} sm={12} lg={8}>
                         <Form.Item
                             label={t('abteilung:settings.slug')}
                             name='slug'
@@ -242,7 +236,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col xs={24} sm={12} lg={8}>
                         <Form.Item
                             label={t('abteilung:settings.ceviDbId')}
                             name='ceviDBId'
@@ -256,7 +250,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col xs={24} sm={12} lg={8}>
                         <Form.Item
                             label={t('abteilung:settings.logoUrl')}
                             name='logoUrl'
@@ -272,7 +266,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col xs={24} sm={12} lg={8}>
                         <Form.Item
                             label={t('abteilung:settings.email')}
                             name='email'
@@ -287,25 +281,27 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                         </Form.Item>
                     </Col>
                     <Can I='update' this={abteilung}>
-                        <Col span={16}>
-                            <Button style={{ marginRight: '10px' }} type='primary' htmlType='submit' disabled={updateLoading}>
-                                {t('abteilung:settings.save')}
-                            </Button>
-                            <Popconfirm
-                                title={t('abteilung:settings.deleteConfirm')}
-                                onConfirm={() => delteAbteilung(abteilung)}
-                                onCancel={() => { }}
-                                okText={t('common:confirm.yes')}
-                                cancelText={t('common:confirm.no')}
-                            >
-                                <Button type='ghost' danger icon={<DeleteOutlined />} disabled={updateLoading}>
-                                    {t('abteilung:settings.delete')}
+                        <Col span={24}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                                <Button type='primary' htmlType='submit' disabled={updateLoading}>
+                                    {t('abteilung:settings.save')}
                                 </Button>
-                            </Popconfirm>
+                                <Popconfirm
+                                    title={t('abteilung:settings.deleteConfirm')}
+                                    onConfirm={() => delteAbteilung(abteilung)}
+                                    onCancel={() => { }}
+                                    okText={t('common:confirm.yes')}
+                                    cancelText={t('common:confirm.no')}
+                                >
+                                    <Button type='text' danger icon={<DeleteOutlined />} disabled={updateLoading}>
+                                        {t('abteilung:settings.delete')}
+                                    </Button>
+                                </Popconfirm>
+                            </div>
                         </Col>
                     </Can>
                 </Row>
             </Form>
-        </div>
+        </Col>
     </Row>
 }

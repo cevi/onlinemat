@@ -26,6 +26,8 @@
     "guest": "Guest",
     "member": "Member",
     "matchef": "Material Chief",
-    "admin": "Admin"
+    "admin": "Admin",
+    "banned": "Banned",
+    "pending": "Pending"
   }
 }

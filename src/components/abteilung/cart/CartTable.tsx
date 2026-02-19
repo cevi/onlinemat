@@ -1,11 +1,12 @@
 import { useContext } from 'react';
-import { Table, Button, InputNumber } from 'antd';
+import { Table, Button, InputNumber, List } from 'antd';
 import { Abteilung } from 'types/abteilung.type';
 import { MaterialsContext} from '../AbteilungDetails';
 import { DeleteOutlined } from '@ant-design/icons';
 import { changeCountFromCart, removeFromCart } from 'util/CartUtil';
 import { CartItem, DetailedCartItem } from 'types/cart.types';
 import { useTranslation } from 'react-i18next';
+import { useIsMobile } from 'hooks/useIsMobile';
 
 
 
@@ -20,7 +21,49 @@ export const CartTableImpl = (props: GroupImplTableProps) => {
 
     const { abteilung, cartItems, allCartItems, changeCart } = props;
     const { t } = useTranslation();
+    const isMobile = useIsMobile();
 
+    const sortedItems = cartItems.sort((a: DetailedCartItem, b: DetailedCartItem) => a.matId.normalize().localeCompare(b.matId.normalize()));
+
+    if (isMobile) {
+        return <List
+            dataSource={sortedItems}
+            renderItem={(record) => (
+                <List.Item
+                    style={{ padding: '12px 0' }}
+                    actions={[
+                        <Button
+                            key="delete"
+                            type="text"
+                            danger
+                            size="small"
+                            icon={<DeleteOutlined />}
+                            onClick={() => changeCart(removeFromCart(allCartItems, record))}
+                        />,
+                    ]}
+                >
+                    <List.Item.Meta
+                        title={<span style={{ fontWeight: 500 }}>{record.name}</span>}
+                        description={
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                                <span style={{ fontSize: 12, color: '#888' }}>{t('order:cart.table.count')}:</span>
+                                <InputNumber
+                                    size="small"
+                                    min={1}
+                                    max={record.maxCount}
+                                    defaultValue={record.count}
+                                    style={{ width: 60 }}
+                                    onChange={(value) => {
+                                        changeCart(changeCountFromCart(allCartItems, record, value))
+                                    }}
+                                />
+                            </span>
+                        }
+                    />
+                </List.Item>
+            )}
+        />;
+    }
 
     const columns = [
         {
@@ -54,7 +97,7 @@ export const CartTableImpl = (props: GroupImplTableProps) => {
     ];
 
 
-    return <Table rowKey='matId' columns={columns} dataSource={cartItems.sort((a: DetailedCartItem, b: DetailedCartItem) => a.matId.normalize().localeCompare(b.matId.normalize()))} />;
+    return <Table rowKey='matId' columns={columns} dataSource={sortedItems} />;
 
 }
 

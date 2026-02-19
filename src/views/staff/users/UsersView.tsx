@@ -11,6 +11,7 @@ import { UserData } from 'types/user.type';
 import { useAuth0 } from '@auth0/auth0-react';
 import { SyncOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { useIsMobile } from 'hooks/useIsMobile';
 
 
 export interface AbteilungDetailProps {
@@ -25,6 +26,7 @@ export const UsersView = () => {
 
     const { isAuthenticated } = useAuth0();
     const { t } = useTranslation();
+    const isMobile = useIsMobile();
 
     const { Search } = Input;
 
@@ -78,10 +80,10 @@ export const UsersView = () => {
     }, [isAuthenticated]);
 
     return <div className={classNames(appStyles['flex-grower'])}>
-        <Typography.Title level={3}>Benutzer</Typography.Title>
+        <Typography.Title level={isMobile ? 4 : 3}>Benutzer</Typography.Title>
 
         <div className={classNames(appStyles['flex-grower'])}>
-            <Row gutter={16} align='middle'>
+            <Row gutter={[16, 12]} align='middle' style={{ marginBottom: 12 }}>
                 <Col>
                     <Statistic title='Benutzer' value={users.length} />
                 </Col>
@@ -92,6 +94,7 @@ export const UsersView = () => {
                     <Button
                         icon={<SyncOutlined />}
                         loading={syncLoading}
+                        size={isMobile ? 'small' : 'middle'}
                         onClick={syncAllDisplayNames}
                     >
                         {t('navigation:users.syncDisplayNames.button')}
@@ -103,7 +106,8 @@ export const UsersView = () => {
                 placeholder='nach Benutzern suchen'
                 allowClear
                 enterButton='Suchen'
-                size='large'
+                size={isMobile ? 'middle' : 'large'}
+                style={{ marginBottom: 12 }}
                 onSearch={(query: string) => setQuery(query)}
             />
             <UserTable loading={usersLoading} users={query ? users.filter(user => user.displayName.toLowerCase().includes(query.toLowerCase()) || user.email.toLowerCase().includes(query.toLowerCase())) : users} makeStaff={promoteDemoteStaff} />

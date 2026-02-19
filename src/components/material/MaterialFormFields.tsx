@@ -144,15 +144,17 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
         <Form.List name='imageUrls'>
             {(fields, { add, remove }, { errors }) => (
                 <>
-                    {fields.map((field, index) => (
+                    {fields.map((field, index) => {
+                        const { key, ...restField } = field;
+                        return (
                         <Form.Item
                             {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
                             label={index === 0 ? t('material:form.imageUrls') : ''}
                             required={false}
-                            key={field.key}
+                            key={key}
                         >
                             <Form.Item
-                                {...field}
+                                {...restField}
                                 validateTrigger={['onChange', 'onBlur']}
                                 rules={[
                                     {
@@ -166,10 +168,11 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
                             </Form.Item>
                             <MinusCircleOutlined
                                 className='dynamic-delete-button'
-                                onClick={() => remove(field.name)}
+                                onClick={() => remove(restField.name)}
                             />
                         </Form.Item>
-                    ))}
+                    );
+                    })}
                     <Form.Item>
                         <Button
                             type='dashed'

@@ -1,4 +1,4 @@
-import { Table, Button, Popconfirm, Space } from 'antd';
+import { Table, Button, Popconfirm, Space, List, Tag } from 'antd';
 import { Abteilung, AbteilungMemberUserData } from 'types/abteilung.type';
 import { Group } from 'types/group.types';
 import { ability } from 'config/casl/ability';
@@ -8,6 +8,7 @@ import { groupObjToList } from 'util/GroupUtil';
 import { dateFormat } from 'util/constants';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
+import { useIsMobile } from 'hooks/useIsMobile';
 
 
 
@@ -22,8 +23,53 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
     const { abteilung, members, loading } = props;
 
     const { t } = useTranslation();
+    const isMobile = useIsMobile();
 
     const canUpdate = ability.can('update', abteilung);
+
+    const sortedGroups = groupObjToList(abteilung.groups).sort((a: Group, b: Group) => a.name.normalize().localeCompare(b.name.normalize()));
+
+    const getMemberNames = (record: Group): string => {
+        return record.members.map(m => {
+            const member = members.find(mem => mem.id === m);
+            return member ? member.displayName : t('common:status.unknown');
+        }).join(', ');
+    };
+
+    if (isMobile) {
+        return <List
+            loading={loading}
+            dataSource={sortedGroups}
+            renderItem={(record) => (
+                <List.Item style={{ padding: '12px 0', display: 'block' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                        <span style={{ fontWeight: 500, flex: 1 }}>{record.name}</span>
+                        <Tag color={record.type === 'group' ? 'blue' : 'green'}>
+                            {record.type === 'group' ? t('group:table.typeGroup') : t('group:table.typeEvent')}
+                        </Tag>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>
+                        {dayjs(record.createdAt).format(dateFormat)}
+                        {record.members.length > 0 && <> · {getMemberNames(record)}</>}
+                    </div>
+                    {canUpdate && (
+                        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                            <EditGroupButton group={record} members={members} abteilung={abteilung} />
+                            <Popconfirm
+                                title={t('group:delete.confirm')}
+                                onConfirm={() => deleteGroup(abteilung, record, t)}
+                                onCancel={() => { }}
+                                okText={t('common:confirm.yes')}
+                                cancelText={t('common:confirm.no')}
+                            >
+                                <Button type='text' danger size='small' icon={<DeleteOutlined />} disabled={loading}/>
+                            </Popconfirm>
+                        </div>
+                    )}
+                </List.Item>
+            )}
+        />;
+    }
 
     const columns = [
         {
@@ -58,10 +104,7 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
             key: 'members',
             dataIndex: 'members',
             render: (text: string, record: Group) => (
-                <p key={`members_${record.id}`}>{record.members.map(m => {
-                    const member = members.find(mem => mem.id === m);
-                    return member ? member.displayName : t('common:status.unknown')
-                }).join(', ')}</p>
+                <p key={`members_${record.id}`}>{getMemberNames(record)}</p>
             )
         },
         ...(canUpdate ? [{
@@ -86,7 +129,7 @@ export const GroupTableImpl = (props: GroupImplTableProps) => {
     ];
 
 
-    return <Table rowKey='id' loading={loading} columns={columns} dataSource={groupObjToList(abteilung.groups).sort((a: Group, b: Group) => a.name.normalize().localeCompare(b.name.normalize()))} />;
+    return <Table rowKey='id' loading={loading} columns={columns} dataSource={sortedGroups} />;
 
 }
 

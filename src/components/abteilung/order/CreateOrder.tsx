@@ -11,6 +11,7 @@ import { groupObjToList } from 'util/GroupUtil';
 import { dateFormatWithTime } from 'util/constants';
 import { OrderItems } from './OrderItems';
 import { useTranslation } from 'react-i18next';
+import { useIsMobile } from 'hooks/useIsMobile';
 
 export interface CreateOrderProps {
     abteilung: Abteilung
@@ -37,6 +38,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
     const userState = useUser();
     const { t } = useTranslation();
 
+    const isMobile = useIsMobile();
     const { RangePicker } = DatePicker as any;
     const { TextArea } = Input;
     const { Option, OptGroup } = Select;
@@ -179,11 +181,12 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
 
     if (!userState) return <Spin />
 
-    return <Row>
-        <Col span={12}>
+    return <Row gutter={[16, 16]}>
+        <Col xs={24} lg={12}>
             <Form
                 form={form}
                 validateMessages={getValidateMessages()}
+                layout={isMobile ? 'vertical' : 'horizontal'}
             >
                 <Row gutter={[16, 16]}>
                     <Col span={24}>
@@ -208,10 +211,11 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                                 showTime={{
                                     format: 'HH:mm'
                                 }}
+                                style={{ width: '100%' }}
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={18}>
+                    <Col xs={24} lg={18}>
                         <Form.Item
                             label={t('order:create.group')}
                             name='groupId'
@@ -244,7 +248,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                         </Form.Item>
                     </Col>
                     {
-                        selectedGroup === customGroupId && <Col span={18}>
+                        selectedGroup === customGroupId && <Col xs={24} lg={18}>
                             <Form.Item
                                 label={t('order:create.customGroupName')}
                                 name='customGroupName'
@@ -256,7 +260,7 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                             </Form.Item>
                         </Col>
                     }
-                    <Col span={18}>
+                    <Col xs={24} lg={18}>
                         <Form.Item
                             label={t('order:create.comment')}
                             name='comment'
@@ -270,15 +274,9 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
                 </Row>
             </Form>
         </Col>
-        <Col span={12}>
-            <Row gutter={[16, 16]}>
-                <Col span={24}>
-                    <OrderItems items={items.sort((a: DetailedCartItem, b: DetailedCartItem) => a.name.localeCompare(b.name))} collisions={collisions} updateOrderItemsByAvail={updateOrderItemsByAvail} />
-                </Col>
-            </Row>
-
+        <Col xs={24} lg={12}>
+            <OrderItems items={items.sort((a: DetailedCartItem, b: DetailedCartItem) => a.name.localeCompare(b.name))} collisions={collisions} updateOrderItemsByAvail={updateOrderItemsByAvail} />
         </Col>
-
     </Row>
 
 })

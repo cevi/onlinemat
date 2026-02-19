@@ -45,8 +45,9 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMenuClick }) => {
         if (pathname.match(/\/abteilungen\/[^/]+\/cart/)) return 'cart';
         if (pathname.match(/\/abteilungen\/[^/]+\/orders/) ||
             pathname.match(/\/abteilungen\/[^/]+\/order/)) return 'orders';
-        if (pathname.match(/\/abteilungen\/[^/]+/)) return 'materials';
-        return 'materials';
+        if (pathname.match(/\/abteilungen\/[^/]+\/mat/) ||
+            pathname.match(/\/abteilungen\/[^/]+$/)) return 'materials';
+        return '';
     };
 
     const activeKey = getActiveKey();
