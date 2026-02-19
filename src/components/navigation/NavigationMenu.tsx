@@ -2,19 +2,19 @@ import React, {createContext, useEffect, useMemo, useState} from 'react';
 import styles from './NavigationMenu.module.scss';
 import appStyles from 'styles.module.scss';
 import classNames from 'classnames';
-import {Layout, Menu, Spin, Tag, Typography} from 'antd';
+import {Badge, Layout, Menu, Spin, Tag, Typography} from 'antd';
 import type {MenuProps} from 'antd';
 import {AppRoute, AppRoutes, HomeRoute} from 'routes';
 import {Route, Routes, useLocation, useNavigate} from 'react-router';
 import {auth, db} from 'config/firebase/firebase';
 import {signOut} from 'firebase/auth';
-import {collection} from 'firebase/firestore';
+import {collection, query, where, orderBy} from 'firebase/firestore';
 import {LoginOutlined, LogoutOutlined} from '@ant-design/icons';
 import {useAuth0, withAuthenticationRequired} from '@auth0/auth0-react';
 import {useUser} from 'hooks/use-user';
 import {NotFoundView} from './NotFound';
 import {Abteilung} from 'types/abteilung.type';
-import {abteilungenCollection} from 'config/firebase/collections';
+import {abteilungenCollection, releaseNotesCollection} from 'config/firebase/collections';
 import {setGroupDates} from 'util/GroupUtil';
 import {useFirestoreCollection} from 'hooks/useFirestoreCollection';
 import {VerifyEmail} from './VerifyEmail';
@@ -23,6 +23,9 @@ import generatedGitInfo from 'generatedGitInfo.json';
 import { StatusPage } from 'components/status/Status';
 import { useTranslation } from 'react-i18next';
 import { LanguagePicker } from 'config/i18n/LanguagePicker';
+import { ReleaseNote } from 'types/releaseNote.types';
+import { ReleaseNotePopup } from 'components/releaseNotes/ReleaseNotePopup';
+import dayjs from 'dayjs';
 
 const {Header, Content, Footer, Sider} = Layout;
 
@@ -64,7 +67,32 @@ const NavigationMenu: React.FC = () => {
 
 
     const isStaff = userState.appUser?.userData.staff || false;
+    const readReleaseNoteIds = userState.appUser?.userData?.readReleaseNoteIds || [];
 
+    // Fetch published release notes for popup + footer badge
+    const releaseNotesQuery = useMemo(() => {
+        return query(
+            collection(db, releaseNotesCollection),
+            where('published', '==', true),
+            orderBy('createdAt', 'desc')
+        );
+    }, []);
+
+    const { data: releaseNotes } = useFirestoreCollection<ReleaseNote>({
+        ref: releaseNotesQuery,
+        enabled: isAuthenticated && !!userState.appUser?.firebaseUser,
+        transform: (data, id) => ({
+            ...data,
+            id,
+            createdAt: data.createdAt?.toDate ? dayjs(data.createdAt.toDate()) : dayjs(),
+            updatedAt: data.updatedAt?.toDate ? dayjs(data.updatedAt.toDate()) : dayjs(),
+        } as ReleaseNote),
+        deps: [isAuthenticated, userState],
+    });
+
+    const unreadCount = useMemo(() => {
+        return releaseNotes.filter(n => !readReleaseNoteIds.includes(n.id)).length;
+    }, [releaseNotes, readReleaseNoteIds]);
 
     const filteredRoutes = AppRoutes.filter((appRoute: AppRoute) => {
         // When the user is not signed in, return the public access
@@ -186,9 +214,19 @@ const NavigationMenu: React.FC = () => {
                                     </Routes>
                         }
                     </Content>
+                    {isAuthenticated && userState.appUser?.userData && (
+                        <ReleaseNotePopup
+                            releaseNotes={releaseNotes}
+                            readReleaseNoteIds={readReleaseNoteIds}
+                            userId={userState.appUser.userData.id}
+                        />
+                    )}
                     <Footer style={{textAlign: 'center', backgroundColor: import.meta.env.VITE_DEV_ENV === 'true' ? '#FF4B91' : 'unset'}}>
-                        Designed by <a href='https://cevi.tools' target='_blank'>Cevi Tools</a> | <a href='mailto:onlinemat@cevi.tools'>Contact</a> | &copy; Cevi
-                        Tools {(new Date()).getFullYear()}
+                        Designed by <a href='https://cevi.tools' target='_blank'>Cevi Tools</a> | <a href='mailto:onlinemat@cevi.tools'>Contact</a>
+                        {isAuthenticated && <> | <a onClick={() => navigate('/release-notes')} style={{cursor: 'pointer'}}>
+                            <Badge count={unreadCount} size="small" offset={[6, -2]}><span style={{color: '#1677ff'}}>{t('releaseNote:footerLink')}</span></Badge>
+                        </a></>}
+                        {' '}| &copy; Cevi Tools {(new Date()).getFullYear()}
                         {import.meta.env.VITE_DEV_ENV === 'true' && <> |
                             Branch: <Tag>{generatedGitInfo.gitBranch}</Tag>
                             Git Hash: <Tag>{generatedGitInfo.gitCommitHash}</Tag>

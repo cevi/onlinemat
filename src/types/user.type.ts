@@ -12,6 +12,7 @@ export interface UserData {
   user_metadata?: Record<string, unknown>;
   staff?: boolean;
   defaultAbteilung?: string;
+  readReleaseNoteIds?: string[];
   roles: { [abteilungId: string]: role };
 }
 
