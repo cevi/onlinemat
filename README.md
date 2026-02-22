@@ -19,6 +19,40 @@ The page will reload if you make edits.
 
 Happy Coding!
 
+### Run tests
+
+**Framework**: [Vitest](https://vitest.dev/) (configured in `vite.config.ts`)
+
+```bash
+yarn test             # watch mode
+yarn test:run         # single run (CI-friendly)
+yarn test:coverage    # single run with coverage report (output: ./coverage)
+```
+
+Tests live in `__tests__/` directories next to the source they test:
+
+```
+src/util/__tests__/CartUtil.test.ts          — cart cookie operations
+src/util/__tests__/MaterialUtil.test.ts      — keyword generation, availability calculations
+src/util/__tests__/UserPermission.test.ts    — CASL permission rules for all roles
+src/util/__tests__/OrderUtil.test.ts         — order weight calculations
+src/config/casl/__tests__/ability.integration.test.ts  — multi-abteilung role scoping
+src/hooks/__tests__/useFirestoreCollection.test.ts     — Firestore snapshot hook
+```
+
+### Run E2E tests
+
+**Framework**: [Playwright](https://playwright.dev/) (config: `playwright.config.ts`, tests: `e2e/`)
+
+```bash
+npx playwright install chromium    # first time only
+npx playwright test                # runs against dev server at localhost:3000
+```
+
+### CI/CD
+
+Tests run automatically on push/PR to `dev` and `master` via GitHub Actions. Deployments are gated — tests must pass before the Docker build proceeds.
+
 ### FAQ
 
 **The Application won't start**
