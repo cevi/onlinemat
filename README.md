@@ -44,10 +44,46 @@ src/hooks/__tests__/useFirestoreCollection.test.ts     — Firestore snapshot ho
 
 **Framework**: [Playwright](https://playwright.dev/) (config: `playwright.config.ts`, tests: `e2e/`)
 
+E2E tests run against the Firebase emulator for Firestore and Auth data, with Auth0 mocked at the network level.
+
+#### Prerequisites
+
+1. Install Playwright browsers (first time only):
+   ```bash
+   npx playwright install chromium
+   ```
+
+2. Start the Firebase emulators (in a separate terminal):
+   ```bash
+   cd ../onlinemat-config
+   npx firebase emulators:start --only auth,firestore
+   ```
+   This starts the Auth emulator on port 9099 and Firestore emulator on port 8080. You can view the emulator UI at http://localhost:4000.
+
+#### Running the tests
+
 ```bash
-npx playwright install chromium    # first time only
-npx playwright test                # runs against dev server at localhost:3000
+yarn test:e2e           # run all E2E tests
+yarn test:e2e:headed    # run with visible browser window
+yarn test:e2e:ui        # interactive Playwright UI (useful for debugging)
 ```
+
+You can also run a specific test file:
+```bash
+npx playwright test e2e/smoke.spec.ts
+```
+
+After a test run, view the HTML report with:
+```bash
+npx playwright show-report
+```
+
+#### How it works
+
+- The Playwright config (`playwright.config.ts`) auto-starts the Vite dev server with emulator environment variables
+- `global-setup.ts` checks that the Firebase emulators are running and seeds test data (users, departments, materials)
+- Auth0 is mocked via Playwright route interception and localStorage injection — no real Auth0 calls are made
+- Tests run serially (single worker) since they share the emulator state
 
 ### CI/CD
 
