@@ -25,10 +25,30 @@ yarn build
 yarn preview
 
 # Run tests
-yarn test
+yarn test             # watch mode
+yarn test:run         # single run (CI-friendly)
+yarn test:coverage    # single run with coverage report (output: ./coverage)
 ```
 
 A `.env` file is required (copy `.env.example` and fill in secrets). Environment variables use the `VITE_` prefix (e.g. `VITE_FIREBASE_API_KEY`).
+
+### Test Structure
+
+Tests live in `__tests__/` directories next to the source they test:
+```
+src/util/__tests__/CartUtil.test.ts
+src/util/__tests__/MaterialUtil.test.ts
+src/util/__tests__/UserPermission.test.ts
+src/util/__tests__/OrderUtil.test.ts
+src/config/casl/__tests__/ability.integration.test.ts
+src/hooks/__tests__/useFirestoreCollection.test.ts
+```
+
+- **Framework**: Vitest (configured in `vite.config.ts`)
+- **Component testing**: `@testing-library/react` + `@testing-library/user-event`
+- **API mocking**: `msw` (Mock Service Worker)
+- **Coverage**: `@vitest/coverage-v8` — reports in text, HTML, and lcov formats
+- **E2E**: Playwright (config: `playwright.config.ts`, tests: `e2e/`)
 
 ## Tech Stack
 

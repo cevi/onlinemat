@@ -25,6 +25,9 @@ yarn-error.log*
 # JetBrains IDEA
 /.idea
 
+test-results
+playwright-report
+
 # Environment file
 .env.*
 
