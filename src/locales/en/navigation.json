@@ -43,6 +43,10 @@
       "search": {
         "title": "Cross-department search",
         "description": "Find materials from other departments that have enabled sharing - perfect when you need something extra."
+      },
+      "metadata": {
+        "title": "Equipment management",
+        "description": "Track purchase dates, condition, maintenance history and more - keep full oversight of your equipment lifecycle."
       }
     }
   },

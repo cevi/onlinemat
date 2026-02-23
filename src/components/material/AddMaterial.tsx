@@ -73,6 +73,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
                 maxCount={maxCount}
                 availCount={availCount}
                 renderMatImages={renderMatImages}
+                abteilungId={abteilungId}
             />
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
@@ -99,6 +100,7 @@ export const AddMaterialButton = (props: AddMaterialProps) => {
             title={t('material:add.title')}
             open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
+            width={720}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>
                   {t('common:buttons.cancel')}

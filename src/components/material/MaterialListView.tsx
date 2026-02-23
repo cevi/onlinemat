@@ -192,7 +192,7 @@ export const MaterialListView: React.FC<MaterialListViewProps> = ({
                     </div>
                 }
             >
-                <ViewMaterial material={activeRecord} />
+                <ViewMaterial material={activeRecord} abteilungId={abteilungId} />
             </Modal>
         </>
     );

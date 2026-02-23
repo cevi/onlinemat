@@ -27,6 +27,17 @@
     "onlyLendInternal": "Für Externe ausblenden:",
     "defaultStandort": "Standard-Standort",
     "defaultCategories": "Standard-Kategorien",
-    "defaultImageUrls": "Standard-URLs (kommagetrennt)"
+    "defaultImageUrls": "Standard-URLs (kommagetrennt)",
+    "purchaseDate": "Kaufdatum:",
+    "lifespanInYears": "Lebensdauer (Jahre):",
+    "purchasePrice": "Kaufpreis (CHF):",
+    "supplier": "Lieferant:",
+    "inventoryNumber": "Inventarnummer:",
+    "brand": "Marke/Hersteller:",
+    "condition": "Zustand:",
+    "warrantyUntil": "Garantie bis:",
+    "nextMaintenanceDue": "Nächste Kontrolle:",
+    "storageInstructions": "Lagerhinweise:",
+    "maintenanceHistory": "Wartungshistorie:"
   }
 }
