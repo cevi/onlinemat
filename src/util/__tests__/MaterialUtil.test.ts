@@ -1,9 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   generateKeywords,
   getAvailableMatCount,
   getAvailableMatCountToEdit,
 } from '../MaterialUtil';
+
+vi.mock('config/firebase/firebase');
 import { Material } from 'types/material.types';
 
 const makeMaterial = (overrides: Partial<Material> = {}): Material => ({
