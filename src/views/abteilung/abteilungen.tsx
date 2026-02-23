@@ -1,10 +1,9 @@
 import { useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
-import { Col, Image, Input, List, Row, Spin, Tag, Typography } from 'antd';
+import { Button, Image, Input, List, Table, Tag, Typography } from 'antd';
+import type { TableColumnsType } from 'antd';
 import { RightOutlined, SearchOutlined } from '@ant-design/icons';
-import styles from './abteilungen.module.scss';
-import { AbteilungCard } from 'components/abteilung/AbteilungCard';
 import { AddAbteilung } from 'components/abteilung/AddAbteilung';
 import { Can } from 'config/casl/casl';
 import { AbteilungenContext } from 'components/navigation/NavigationMenu';
@@ -15,6 +14,7 @@ import { ability } from 'config/casl/ability';
 import { JoinAbteilungButton } from 'components/abteilung/join/JoinAbteilung';
 import { useTranslation } from 'react-i18next';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
+import { Abteilung } from 'types/abteilung.type';
 
 
 
@@ -38,6 +38,57 @@ export const AbteilungenView = () => {
         return sorted.filter(ab => ab.name.toLowerCase().includes(term));
     }, [abteilungen, search]);
 
+    const columns: TableColumnsType<Abteilung> = [
+        {
+            title: '',
+            key: 'logo',
+            width: 64,
+            render: (_, record) => (
+                <Image
+                    src={record.logoUrl || ceviLogoImage}
+                    width={40}
+                    height={40}
+                    preview={false}
+                    style={{ objectFit: 'contain', borderRadius: 4 }}
+                />
+            ),
+        },
+        {
+            title: 'Name',
+            key: 'name',
+            dataIndex: 'name',
+        },
+        {
+            title: '',
+            key: 'action',
+            width: 160,
+            align: 'right',
+            render: (_, record) => {
+                const canRead = ability.can('read', record);
+                const userRole = user.appUser?.userData?.['roles']
+                    ? user.appUser?.userData?.roles[record.id]
+                    : '';
+
+                if (canRead) {
+                    return (
+                        <Button
+                            type="link"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/abteilungen/${record.slug || record.id}`);
+                            }}
+                        >
+                            Details
+                        </Button>
+                    );
+                }
+
+                return userRole !== 'pending'
+                    ? <JoinAbteilungButton abteilungId={record.id} abteilungName={record.name} />
+                    : <Tag color="geekblue">{t('abteilung:join.pending', 'Angefragt')}</Tag>;
+            },
+        },
+    ];
 
     return <div className={classNames(appStyles['flex-grower'])}>
 
@@ -95,20 +146,24 @@ export const AbteilungenView = () => {
                 }}
             />
         ) : (
-            <div className={classNames(appStyles['flex-grower'])} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'stretch' }}>
-                <Row gutter={[16, 16]} className={classNames(styles['row'])}>
-                    {
-                        loading ?
-                            <Spin />
-                            :
-                            filteredAbteilungen.map(ab => {
-                                return <Col key={ab.id} xs={24} md={12} lg={8} xxl={6}>
-                                    <AbteilungCard abteilung={ab} />
-                                </Col>
-                            })
-                    }
-                </Row>
-            </div>
+            <Table<Abteilung>
+                rowKey="id"
+                columns={columns}
+                dataSource={filteredAbteilungen}
+                loading={loading}
+                pagination={false}
+                showHeader={false}
+                style={{ width: '100%' }}
+                onRow={(record) => {
+                    const canRead = ability.can('read', record);
+                    return {
+                        style: { cursor: canRead ? 'pointer' : 'default' },
+                        onClick: canRead
+                            ? () => navigate(`/abteilungen/${record.slug || record.id}`)
+                            : undefined,
+                    };
+                }}
+            />
         )}
     </div>
 }

@@ -18,9 +18,6 @@ import dayjs from 'dayjs';
 import {Material} from 'types/material.types';
 import {getAvailableMatCount} from 'util/MaterialUtil';
 import {AddStandortButton} from "components/standort/AddStandort";
-import {ImportAddMaterialButton} from 'components/material/ImportAddMaterial';
-import {DeleteMaterialButton} from 'components/material/DeleteMaterial';
-import {ExportMaterialButton} from 'components/material/ExportMaterial';
 import {useIsMobile} from 'hooks/useIsMobile';
 
 export type AbteilungMaterialViewProps = {
@@ -132,17 +129,6 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                 <AddStandortButton abteilungId={abteilung.id} />
             </Can>
         </Col>
-        <Can I={'delete'} this={{ __caslSubjectType__: 'Material', abteilungId: abteilung.id } as AbteilungEntityCasl}>
-            <Col hidden={isMobile} xl={4}>
-                    <ImportAddMaterialButton abteilung={abteilung} />
-            </Col>
-            <Col hidden={isMobile} xl={4}>
-                <ExportMaterialButton abteilung={abteilung} />
-            </Col>
-            <Col hidden={isMobile} xl={4}>
-                <DeleteMaterialButton abteilung={abteilung} />
-            </Col>
-        </Can>
 
 
         {

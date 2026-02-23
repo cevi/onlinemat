@@ -77,6 +77,17 @@
     "maxCountReached": "Die maximale Stückzahl von {{name}} befindet sich bereits in deinem Warenkorb.",
     "notAvailable": "{{name}} ist zur Zeit leider nicht verfügbar."
   },
+  "settings": {
+    "excelTitle": "Excel",
+    "visibilityTitle": "Sichtbarkeit",
+    "setAllInternal": "Alle auf intern setzen",
+    "setAllPublic": "Alle auf öffentlich setzen",
+    "setAllInternalConfirm": "Alle Materialien werden in der Suche für Externe ausgeblendet. Fortfahren?",
+    "setAllPublicConfirm": "Alle Materialien werden in der Suche für Externe sichtbar. Fortfahren?",
+    "setAllInternalSuccess": "Alle Materialien wurden auf intern gesetzt",
+    "setAllPublicSuccess": "Alle Materialien wurden auf öffentlich gesetzt",
+    "dangerZoneTitle": "Gefahrenzone"
+  },
   "util": {
     "unlimited": "unbegrenzt",
     "deleted": "Gelöschtes Material"

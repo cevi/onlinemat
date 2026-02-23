@@ -16,6 +16,7 @@ import {
     ShoppingCartOutlined,
     TagsOutlined,
     TeamOutlined,
+    ToolOutlined,
     UnorderedListOutlined
 } from '@ant-design/icons';
 import { ability } from 'config/casl/ability';
@@ -43,6 +44,7 @@ import { OrderView } from './order/OrderView';
 import { AbteilungStandorteView } from '../../views/abteilung/standort/abteilungStandorte';
 import { AbteilungCategoryView } from '../../views/abteilung/category/abteilungCategory';
 import { AbteilungDataProvider } from './AbteilungDataProvider';
+import { AbteilungMaterialSettingsView } from 'views/abteilung/material/abteilungMaterialSettings';
 
 // Re-export contexts for backward compatibility
 export {
@@ -99,7 +101,7 @@ export type AbteilungDetailViewParams = {
     tab: string
 };
 
-export type AbteilungTab = 'mat' | 'settings' | 'members' | 'groups' | 'cart' | 'orders' | 'order' | 'standort' | 'category';
+export type AbteilungTab = 'mat' | 'matsettings' | 'settings' | 'members' | 'groups' | 'cart' | 'orders' | 'order' | 'standort' | 'category';
 
 
 export const AbteilungDetail = () => {
@@ -109,7 +111,7 @@ export const AbteilungDetail = () => {
     const navigate = useNavigate();
     const { state } = useLocation();
 
-    const validTabs: AbteilungTab[] = ['mat', 'settings', 'members', 'groups', 'cart', 'orders', 'order', 'standort', 'category'];
+    const validTabs: AbteilungTab[] = ['mat', 'matsettings', 'settings', 'members', 'groups', 'cart', 'orders', 'order', 'standort', 'category'];
     const selectedMenu: AbteilungTab = validTabs.includes(tab as AbteilungTab) ? (tab as AbteilungTab) : 'mat';
 
     const abteilungenContext = useContext(AbteilungenContext);
@@ -233,6 +235,8 @@ export const AbteilungDetail = () => {
         switch (selectedMenu) {
             case 'mat':
                 return <AbteilungMaterialView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
+            case 'matsettings':
+                return <AbteilungMaterialSettingsView abteilung={abteilung} />
             case 'members':
                 return <Member abteilung={abteilung} />
             case 'groups':
@@ -276,6 +280,7 @@ export const AbteilungDetail = () => {
                 { key: 'groups', icon: <TagsOutlined />, label: t('abteilung:tabs.gruppen'), onClick: () => navigateToMenu('groups') },
             ] : []),
             ...(canUpdate ? [
+                { key: 'matsettings', icon: <ToolOutlined />, label: t('abteilung:tabs.materialEinstellungen'), onClick: () => navigateToMenu('matsettings') },
                 { key: 'members', icon: <TeamOutlined />, label: t('abteilung:tabs.mitglieder'), onClick: () => navigateToMenu('members') },
                 { key: 'settings', icon: <SettingOutlined />, label: t('abteilung:tabs.einstellungen'), onClick: () => navigateToMenu('settings') },
             ] : []),
@@ -312,6 +317,9 @@ export const AbteilungDetail = () => {
                 mode='horizontal'
                 items={[
                     { key: 'mat', icon: <ContainerOutlined />, label: t('abteilung:tabs.material') },
+                    ...(canUpdate ? [
+                        { key: 'matsettings', icon: <ToolOutlined />, label: t('abteilung:tabs.materialEinstellungen') },
+                    ] : []),
                     ...(!isMobile ? [
                         ...(!isGuest ? [
                             { key: 'standort', icon: <HomeOutlined />, label: t('abteilung:tabs.standorte') },

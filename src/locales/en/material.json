@@ -77,6 +77,17 @@
     "maxCountReached": "The maximum quantity of {{name}} is already in your cart.",
     "notAvailable": "{{name}} is currently not available."
   },
+  "settings": {
+    "excelTitle": "Excel",
+    "visibilityTitle": "Visibility",
+    "setAllInternal": "Set all to internal",
+    "setAllPublic": "Set all to public",
+    "setAllInternalConfirm": "All materials will be hidden from external search. Continue?",
+    "setAllPublicConfirm": "All materials will be visible in external search. Continue?",
+    "setAllInternalSuccess": "All materials have been set to internal",
+    "setAllPublicSuccess": "All materials have been set to public",
+    "dangerZoneTitle": "Danger Zone"
+  },
   "util": {
     "unlimited": "unlimited",
     "deleted": "Deleted material"
