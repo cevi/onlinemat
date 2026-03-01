@@ -129,12 +129,11 @@ export const CreateOrder = forwardRef((props: CreateOrderProps, ref) => {
 
         const formValues = form.getFieldsValue();
 
-        const orderItems = items.map(i => {
-            return {
-                count: i.count,
-                matId: i.matId
-            }
-        })
+        const orderItems = items.map(i => ({
+            count: i.count,
+            matId: i.matId,
+            ...(i.sammlungId ? { sammlungId: i.sammlungId } : {}),
+        }))
 
         const orderToCreate = {
             startDate: startDate.second(0).toISOString(),

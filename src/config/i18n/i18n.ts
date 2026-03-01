@@ -18,6 +18,7 @@ import validationDe from 'locales/de/validation.json';
 import excelDe from 'locales/de/excel.json';
 import releaseNoteDe from 'locales/de/releaseNote.json';
 import statsDe from 'locales/de/stats.json';
+import sammlungDe from 'locales/de/sammlung.json';
 
 // English translations
 import commonEn from 'locales/en/common.json';
@@ -35,6 +36,7 @@ import validationEn from 'locales/en/validation.json';
 import excelEn from 'locales/en/excel.json';
 import releaseNoteEn from 'locales/en/releaseNote.json';
 import statsEn from 'locales/en/stats.json';
+import sammlungEn from 'locales/en/sammlung.json';
 
 const LANGUAGE_KEY = 'onlinemat-language';
 
@@ -75,6 +77,7 @@ i18n
         excel: excelDe,
         releaseNote: releaseNoteDe,
         stats: statsDe,
+        sammlung: sammlungDe,
       },
       en: {
         common: commonEn,
@@ -92,6 +95,7 @@ i18n
         excel: excelEn,
         releaseNote: releaseNoteEn,
         stats: statsEn,
+        sammlung: sammlungEn,
       },
     },
     lng: getSavedLanguage(),
@@ -100,7 +104,7 @@ i18n
     ns: [
       'common', 'navigation', 'material', 'order', 'abteilung',
       'member', 'group', 'category', 'standort', 'profile',
-      'search', 'validation', 'excel', 'releaseNote', 'stats',
+      'search', 'validation', 'excel', 'releaseNote', 'stats', 'sammlung',
     ],
     interpolation: {
       escapeValue: false,

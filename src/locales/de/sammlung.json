@@ -1,0 +1,78 @@
+{
+  "export": {
+    "button": "Excel Export"
+  },
+  "import": {
+    "title": "Sammlungen importieren",
+    "importAdd": "Importieren hinzufügen",
+    "importAddTooltip": "Bestehende Sammlungen werden mit dem Inhalt der Excel-Tabelle ergänzt.",
+    "importReplace": "Importieren ersetzen",
+    "importReplaceTooltip": "Bestehende Sammlungen werden gelöscht und mit dem Inhalt der Excel-Tabelle ersetzt.",
+    "importReplaceConfirm": "Möchtest du wirklich alle bestehenden Sammlungen dieser Abteilung löschen?",
+    "nameRequired": "Du musst den Namen der Sammlung zuordnen.",
+    "materialienRequired": "Du musst die Materialien-Spalte zuordnen.",
+    "success": "Es wurden erfolgreich {{imported}}/{{total}} Sammlungen importiert.",
+    "materialWarning": "{{count}} Material(ien) konnten nicht zugeordnet werden: {{names}}",
+    "skippedEmpty": "{{count}} Sammlung(en) übersprungen (keine passenden Materialien).",
+    "selectPlaceholder": "Passendes Feld",
+    "noneOption": "Nicht vorhanden",
+    "example": "Beispiel: {{value}}",
+    "defaultValue": "Standardwert"
+  },
+  "excelFields": {
+    "name": "Name*:",
+    "description": "Beschreibung:",
+    "imageUrls": "Bilder:",
+    "materialien": "Materialien*:",
+    "materialienHelp": "Format: Materialname:Anzahl, kommagetrennt"
+  },
+  "add": {
+    "button": "Sammlung hinzufügen",
+    "title": "Sammlung hinzufügen",
+    "submit": "Sammlung hinzufügen",
+    "success": "Sammlung {{name}} erfolgreich erstellt"
+  },
+  "edit": {
+    "title": "Sammlung bearbeiten",
+    "submit": "Änderungen speichern",
+    "success": "Sammlung {{name}} erfolgreich bearbeitet"
+  },
+  "delete": {
+    "confirm": "Möchtest du {{name}} wirklich löschen?",
+    "success": "Sammlung {{name}} erfolgreich gelöscht"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Sammlungsname",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Beschreibung der Sammlung",
+    "imageUrls": "Bild URLs",
+    "imageUrlPlaceholder": "Bild URL",
+    "addImage": "Bild hinzufügen",
+    "items": "Materialien",
+    "addItem": "Material hinzufügen",
+    "material": "Material",
+    "materialPlaceholder": "Material auswählen",
+    "count": "Anzahl"
+  },
+  "table": {
+    "name": "Name",
+    "description": "Beschreibung",
+    "items": "Materialien",
+    "itemCount": "{{count}} Material(ien)",
+    "edit": "Bearbeiten",
+    "cart": "Warenkorb"
+  },
+  "cart": {
+    "added": "Sammlung {{name}} zum Warenkorb hinzugefügt",
+    "alreadyInCart": "Diese Sammlung befindet sich bereits im Warenkorb",
+    "unavailableTitle": "Nicht alle Materialien verfügbar",
+    "unavailableMessage": "Folgende Materialien sind nicht oder nicht in der gewünschten Menge verfügbar:",
+    "unavailableItem": "{{name}}: {{available}} von {{requested}} verfügbar",
+    "addAvailable": "Verfügbare hinzufügen",
+    "cancel": "Abbrechen"
+  },
+  "cartItem": {
+    "sammlungLabel": "Sammlung"
+  }
+}

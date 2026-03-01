@@ -8,6 +8,7 @@ import {
     abteilungenInvitationsCollection,
     abteilungenMaterialsCollection,
     abteilungenMembersCollection,
+    abteilungenSammlungCollection,
     abteilungenStandortCollection,
     usersCollection
 } from 'config/firebase/collections';
@@ -20,6 +21,7 @@ import { Categorie } from 'types/categorie.types';
 import { Material } from 'types/material.types';
 import { Standort } from 'types/standort.types';
 import { Invitation } from 'types/invitation.types';
+import { Sammlung } from 'types/sammlung.types';
 import {
     MembersContext,
     MembersUserDataContext,
@@ -27,6 +29,7 @@ import {
     StandorteContext,
     MaterialsContext,
     InvitationsContext,
+    SammlungenContext,
 } from 'contexts/AbteilungContexts';
 
 interface AbteilungDataProviderProps {
@@ -69,6 +72,13 @@ export const AbteilungDataProvider = ({ abteilung, children }: AbteilungDataProv
         ref: collection(db, abteilungenCollection, abteilung.id, abteilungenMaterialsCollection),
         enabled: isAuthenticated && canRead,
         transform: (data, id) => ({ ...data, __caslSubjectType__: 'Material', id } as Material),
+        deps: [isAuthenticated, abteilung, canRead],
+    });
+
+    const { data: sammlungen, loading: sammlungenLoading } = useFirestoreCollection<Sammlung>({
+        ref: collection(db, abteilungenCollection, abteilung.id, abteilungenSammlungCollection),
+        enabled: isAuthenticated && canRead,
+        transform: (data, id) => ({ ...data, __caslSubjectType__: 'Sammlung', id } as Sammlung),
         deps: [isAuthenticated, abteilung, canRead],
     });
 
@@ -141,7 +151,9 @@ export const AbteilungDataProvider = ({ abteilung, children }: AbteilungDataProv
                     <MaterialsContext.Provider value={{ materials, loading: matLoading }}>
                         <StandorteContext.Provider value={{ standorte, loading: standorteLoading }}>
                             <InvitationsContext.Provider value={{ invitations, loading: invitationsLoading }}>
-                                {children}
+                                <SammlungenContext.Provider value={{ sammlungen, loading: sammlungenLoading }}>
+                                    {children}
+                                </SammlungenContext.Provider>
                             </InvitationsContext.Provider>
                         </StandorteContext.Provider>
                     </MaterialsContext.Provider>

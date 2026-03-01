@@ -15,7 +15,7 @@ import { dateFormat, dateFormatWithTime } from 'util/constants';
 import { getAvailableMatCount } from 'util/MaterialUtil';
 import { OrderItems } from './OrderItems';
 import { CartTable } from '../cart/CartTable';
-import { CategorysContext, MaterialsContext, MembersContext, MembersUserDataContext, StandorteContext } from '../AbteilungDetails';
+import { CategorysContext, MaterialsContext, MembersContext, MembersUserDataContext, SammlungenContext, StandorteContext } from '../AbteilungDetails';
 import { getGroupName } from 'util/AbteilungUtil';
 import { groupObjToList } from 'util/GroupUtil';
 import { addCommentOrder, calculateTotalWeight, completeOrder, deleteOrder, deliverOrder, getStatusColor, getStatusName, resetLostOrder, resetOrder } from 'util/OrderUtil';
@@ -68,6 +68,7 @@ export const OrderView = (props: OrderProps) => {
     //fetch categories & standorte
     const { categories } = useContext(CategorysContext);
     const { standorte } = useContext(StandorteContext);
+    const { sammlungen } = useContext(SammlungenContext);
 
     //fetch members
     const membersContext = useContext(MembersContext);
@@ -172,7 +173,7 @@ export const OrderView = (props: OrderProps) => {
         }
         setEditLoading(true);
         try {
-            const orderItems = editItems.map(i => ({ count: i.count, matId: i.matId }));
+            const orderItems = editItems.map(i => ({ count: i.count, matId: i.matId, ...(i.sammlungId ? { sammlungId: i.sammlungId } : {}) }));
             const result = await httpsCallable(functions, 'updateOrder')({
                 abteilungId: abteilung.id,
                 orderId: order.id,
@@ -221,6 +222,7 @@ export const OrderView = (props: OrderProps) => {
             weightInKg: mat?.weightInKg,
             standortNames: mat?.standort?.map(id => standorte.find(s => s.id === id)?.name).filter((n): n is string => !!n),
             categorieNames: mat?.categorieIds?.map(id => categories.find(c => c.id === id)?.name).filter((n): n is string => !!n),
+            sammlungName: item.sammlungId ? sammlungen.find(s => s.id === item.sammlungId)?.name : undefined,
         };
     };
 
@@ -421,6 +423,7 @@ export const OrderView = (props: OrderProps) => {
         order?.items.forEach(item => {
             const mat = materials.find(m => m.id === item.matId);
             const maxCount = getAvailableMatCount(mat);
+            const sammlungName = item.sammlungId ? sammlungen.find(s => s.id === item.sammlungId)?.name : undefined;
             const mergedItem: DetailedCartItem = {
                 ...item,
                 name: mat?.name || (matLoading ? t('common:status.loading') : t('material:util.deleted')),
@@ -430,12 +433,13 @@ export const OrderView = (props: OrderProps) => {
                 weightInKg: mat?.weightInKg,
                 standortNames: mat?.standort?.map(id => standorte.find(s => s.id === id)?.name).filter((n): n is string => !!n),
                 categorieNames: mat?.categorieIds?.map(id => categories.find(c => c.id === id)?.name).filter((n): n is string => !!n),
+                sammlungName,
                 __caslSubjectType__: 'DetailedCartItem'
             }
             localItemsMerged.push(mergedItem);
         })
         setCartItemsMerged(localItemsMerged);
-    }, [order, materials, standorte, categories])
+    }, [order, materials, standorte, categories, sammlungen])
 
 
 

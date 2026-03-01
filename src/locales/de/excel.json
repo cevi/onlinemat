@@ -39,5 +39,45 @@
     "nextMaintenanceDue": "Nächste Kontrolle:",
     "storageInstructions": "Lagerhinweise:",
     "maintenanceHistory": "Wartungshistorie:"
+  },
+  "combined": {
+    "title": "Daten importieren",
+    "importAdd": "Importieren hinzufügen",
+    "importAddTooltip": "Bestehende Daten werden mit dem Inhalt der Excel-Tabelle ergänzt.",
+    "importReplace": "Importieren ersetzen",
+    "importReplaceTooltip": "Alle bestehenden Daten werden gelöscht und ersetzt.",
+    "importReplaceConfirm": "Möchtest du wirklich alle bestehenden Daten (Material, Sammlungen, Kategorien, Standorte) löschen?",
+    "exportButton": "Excel Export",
+    "success": "Import erfolgreich: {{materials}} Material(ien), {{sammlungen}} Sammlung(en), {{kategorien}} Kategorie(n), {{standorte}} Standort(e).",
+    "noSheets": "Keine erkannten Datenblätter gefunden.",
+    "tabMaterial": "Material",
+    "tabSammlungen": "Sammlungen",
+    "tabKategorien": "Kategorien",
+    "tabStandorte": "Standorte",
+    "rowCount": "({{count}} Zeilen)",
+    "nameRequired": "Du musst den Namen zuordnen.",
+    "materialienRequired": "Du musst die Materialien-Spalte zuordnen.",
+    "selectPlaceholder": "Passendes Feld",
+    "noneOption": "Nicht vorhanden",
+    "example": "Beispiel: {{value}}",
+    "defaultValue": "Standardwert",
+    "materialWarning": "{{count}} Material(ien) konnten nicht zugeordnet werden: {{names}}",
+    "skippedEmpty": "{{count}} Sammlung(en) übersprungen (keine passenden Materialien)."
+  },
+  "sammlungFields": {
+    "name": "Name*:",
+    "description": "Beschreibung:",
+    "imageUrls": "Bilder:",
+    "materialien": "Materialien*:",
+    "materialienHelp": "Format: Materialname:Anzahl, kommagetrennt"
+  },
+  "standortFields": {
+    "name": "Name*:",
+    "street": "Strasse:",
+    "city": "Stadt:",
+    "coordinates": "Koordinaten:"
+  },
+  "kategorieFields": {
+    "name": "Name*:"
   }
 }

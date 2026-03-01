@@ -1,6 +1,6 @@
 import { abteilungenCollection, abteilungenMaterialsCollection } from "config/firebase/collections";
 import { db } from "config/firebase/firebase";
-import { collection, doc, deleteDoc, updateDoc, writeBatch } from 'firebase/firestore';
+import { collection, doc, deleteDoc, getDocs, updateDoc, writeBatch } from 'firebase/firestore';
 import { Material } from "types/material.types";
 import { firestoreOperation } from "./firestoreOperation";
 import i18n from "config/i18n/i18n";
@@ -110,4 +110,13 @@ export const massImportMaterial = async (abteilungId: string, materials: Materia
         batch.set(insert, mat);
     });
     return await batch.commit();
+}
+
+export const deleteAllMaterials = async (abteilungId: string): Promise<void> => {
+    const snapshot = await getDocs(
+        collection(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection)
+    );
+    const batch = writeBatch(db);
+    snapshot.docs.forEach((d) => batch.delete(d.ref));
+    await batch.commit();
 }

@@ -8,6 +8,7 @@ import { Material } from 'types/material.types';
 import { Order } from 'types/order.types';
 import { UserData } from 'types/user.type';
 import {Standort} from "types/standort.types";
+import {Sammlung} from "types/sammlung.types";
 
 export type Actions = 'create' | 'read' | 'update' | 'delete' | 'deliver';
 
@@ -18,6 +19,7 @@ export type Subjects =  InferSubjects<Abteilung
 | Order & { abteilungId: string }
 | Group & { abteilungId: string }
     | Standort & { abteilungId: string }
+    | Sammlung & { abteilungId: string }
     | Invitation & { abteilungId: string }
     | UserData
 | AbteilungMember>

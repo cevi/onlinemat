@@ -1,14 +1,19 @@
 import { useContext, useState } from 'react';
-import { Button, Card, Col, message, Popconfirm, Row, Space } from 'antd';
+import { Button, Card, Col, Popconfirm, Row, Space, Spin } from 'antd';
 import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { Abteilung } from 'types/abteilung.type';
-import { MaterialsContext } from 'components/abteilung/AbteilungDetails';
-import { ExportMaterialButton } from 'components/material/ExportMaterial';
-import { ImportAddMaterialButton } from 'components/material/ImportAddMaterial';
+import { MaterialsContext, CategorysContext, StandorteContext } from 'components/abteilung/AbteilungDetails';
+import { ImportExportButtons } from 'components/excel/ImportExportButtons';
 import { DeleteMaterialButton } from 'components/material/DeleteMaterial';
 import { setAllOnlyLendInternal } from 'util/MaterialUtil';
 import { firestoreOperation } from 'util/firestoreOperation';
+import { Can } from 'config/casl/casl';
+import { AbteilungEntityCasl } from 'config/casl/ability';
+import { AddCategorieButton } from 'components/categorie/AddCategorie';
+import { CategoryTable } from 'components/categorie/CategoryTable';
+import { AddStandortButton } from 'components/standort/AddStandort';
+import { StandortTable } from 'components/standort/StandortTable';
 
 export type AbteilungMaterialSettingsViewProps = {
     abteilung: Abteilung;
@@ -21,6 +26,9 @@ export const AbteilungMaterialSettingsView = (props: AbteilungMaterialSettingsVi
 
     const materialsContext = useContext(MaterialsContext);
     const materials = materialsContext.materials;
+
+    const { categories, loading: categoryLoading } = useContext(CategorysContext);
+    const { standorte, loading: standortLoading } = useContext(StandorteContext);
 
     const handleSetAllInternal = async () => {
         setLoading(true);
@@ -44,10 +52,7 @@ export const AbteilungMaterialSettingsView = (props: AbteilungMaterialSettingsVi
         <Row gutter={[16, 16]}>
             <Col xs={24} lg={12}>
                 <Card title={t('material:settings.excelTitle')}>
-                    <Space>
-                        <ImportAddMaterialButton abteilung={abteilung} />
-                        <ExportMaterialButton abteilung={abteilung} />
-                    </Space>
+                    <ImportExportButtons abteilung={abteilung} />
                 </Card>
             </Col>
 
@@ -75,6 +80,28 @@ export const AbteilungMaterialSettingsView = (props: AbteilungMaterialSettingsVi
                             </Button>
                         </Popconfirm>
                     </Space>
+                </Card>
+            </Col>
+
+            <Col xs={24}>
+                <Card title={t('abteilung:tabs.kategorien')}>
+                    <Can I={'create'} this={{ __caslSubjectType__: 'Categorie', abteilungId: abteilung.id } as AbteilungEntityCasl}>
+                        <div style={{ marginBottom: 16 }}>
+                            <AddCategorieButton abteilungId={abteilung.id} />
+                        </div>
+                    </Can>
+                    {categoryLoading ? <Spin /> : <CategoryTable abteilungId={abteilung.id} category={categories} />}
+                </Card>
+            </Col>
+
+            <Col xs={24}>
+                <Card title={t('abteilung:tabs.standorte')}>
+                    <Can I={'create'} this={{ __caslSubjectType__: 'Standort', abteilungId: abteilung.id } as AbteilungEntityCasl}>
+                        <div style={{ marginBottom: 16 }}>
+                            <AddStandortButton abteilungId={abteilung.id} />
+                        </div>
+                    </Can>
+                    {standortLoading ? <Spin /> : <StandortTable abteilungId={abteilung.id} standort={standorte} />}
                 </Card>
             </Col>
 

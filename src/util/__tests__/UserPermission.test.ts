@@ -61,6 +61,13 @@ describe('UserPermission - updateAbility', () => {
       expect(ability.can('delete', 'Standort')).toBe(true);
     });
 
+    it('can CRUD Sammlung globally', () => {
+      expect(ability.can('create', 'Sammlung')).toBe(true);
+      expect(ability.can('read', 'Sammlung')).toBe(true);
+      expect(ability.can('update', 'Sammlung')).toBe(true);
+      expect(ability.can('delete', 'Sammlung')).toBe(true);
+    });
+
     it('can CRUD AbteilungMember globally', () => {
       expect(ability.can('create', 'AbteilungMember')).toBe(true);
       expect(ability.can('read', 'AbteilungMember')).toBe(true);
@@ -130,6 +137,18 @@ describe('UserPermission - updateAbility', () => {
       expect(ability.can('delete', subject)).toBe(true);
     });
 
+    it('can CRUD Sammlung in own abteilung', () => {
+      const subject = { __caslSubjectType__: 'Sammlung', abteilungId } as any;
+      expect(ability.can('create', subject)).toBe(true);
+      expect(ability.can('update', subject)).toBe(true);
+      expect(ability.can('delete', subject)).toBe(true);
+    });
+
+    it('cannot CRUD Sammlung in other abteilung', () => {
+      const subject = { __caslSubjectType__: 'Sammlung', abteilungId: 'other' } as any;
+      expect(ability.can('create', subject)).toBe(false);
+    });
+
     it('can read own Abteilung', () => {
       expect(ability.can('read', { __caslSubjectType__: 'Abteilung', id: abteilungId } as any)).toBe(true);
     });
@@ -164,6 +183,13 @@ describe('UserPermission - updateAbility', () => {
 
     it('can CRUD Standort in own abteilung', () => {
       const subject = { __caslSubjectType__: 'Standort', abteilungId } as any;
+      expect(ability.can('create', subject)).toBe(true);
+      expect(ability.can('update', subject)).toBe(true);
+      expect(ability.can('delete', subject)).toBe(true);
+    });
+
+    it('can CRUD Sammlung in own abteilung', () => {
+      const subject = { __caslSubjectType__: 'Sammlung', abteilungId } as any;
       expect(ability.can('create', subject)).toBe(true);
       expect(ability.can('update', subject)).toBe(true);
       expect(ability.can('delete', subject)).toBe(true);
@@ -218,6 +244,13 @@ describe('UserPermission - updateAbility', () => {
 
     it('cannot manage Material', () => {
       const subject = { __caslSubjectType__: 'Material', abteilungId } as any;
+      expect(ability.can('create', subject)).toBe(false);
+      expect(ability.can('update', subject)).toBe(false);
+      expect(ability.can('delete', subject)).toBe(false);
+    });
+
+    it('cannot manage Sammlung', () => {
+      const subject = { __caslSubjectType__: 'Sammlung', abteilungId } as any;
       expect(ability.can('create', subject)).toBe(false);
       expect(ability.can('update', subject)).toBe(false);
       expect(ability.can('delete', subject)).toBe(false);
