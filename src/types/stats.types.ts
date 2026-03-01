@@ -25,6 +25,12 @@ export interface MonthlyOrderStat {
     count: number;
 }
 
+export interface DailyUserStat {
+    date: string;
+    newUsers: number;
+    activeUsers: number;
+}
+
 export interface ReleaseNoteStat {
     id: string;
     title: string;
@@ -41,4 +47,5 @@ export interface StatsData {
     activeUsers: ActiveUserStat[];
     ordersOverTime: MonthlyOrderStat[];
     releaseNoteStats: ReleaseNoteStat[];
+    usersPerDay?: DailyUserStat[];
 }

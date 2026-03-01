@@ -216,7 +216,7 @@ const NavigationMenu: React.FC = () => {
             abteilungen, loading
         }}>
             <MobileNavContext.Provider value={mobileNavContextValue}>
-                <Layout style={{minHeight: '100vh'}}>
+                <Layout style={{height: '100vh', overflow: 'hidden'}}>
                     {!isAuthenticated && !isLoading && (
                         <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '8px 16px', gap: 8}}>
                             <LanguagePicker theme="light" />
@@ -269,11 +269,12 @@ const NavigationMenu: React.FC = () => {
                             </>}
                         />
                     )}
-                    <Layout>
+                    <Layout style={{overflow: 'auto'}}>
                         <Content
                             style={{
                                 margin: '0 16px',
                                 paddingBottom: isMobile ? BOTTOM_NAV_HEIGHT + 16 : 0,
+                                flex: '1 0 auto',
                             }}
                             className={classNames(appStyles['center-container-stretch'])}
                         >

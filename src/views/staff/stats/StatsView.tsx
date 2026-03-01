@@ -3,7 +3,7 @@ import { Button, Card, Col, Empty, message, Row, Spin, Statistic, Table, Tag, Ty
 import { ReloadOutlined } from '@ant-design/icons';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { useAuth0 } from '@auth0/auth0-react';
 import dayjs from 'dayjs';
@@ -198,7 +198,7 @@ export const StatsView: React.FC = () => {
     ];
 
     return (
-        <div className={classNames(appStyles['flex-grower'])}>
+        <div className={classNames(appStyles['flex-grower'])} style={{marginTop: '10px', marginBottom: '10px'   }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
                 <Typography.Title level={isMobile ? 4 : 3} style={{ margin: 0 }}>{t('stats:title')}</Typography.Title>
                 <Button icon={<ReloadOutlined />} loading={refreshing} onClick={handleRefresh}>
@@ -230,6 +230,35 @@ export const StatsView: React.FC = () => {
                     </LineChart>
                 </ResponsiveContainer>
             </Card>
+
+            {stats.usersPerDay && stats.usersPerDay.length > 0 && (
+                <Card title={t('stats:chart.usersPerDay')} style={{ marginTop: 16 }}>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={stats.usersPerDay}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                                dataKey="date"
+                                tickFormatter={(d: string) => {
+                                    const parts = d.split('-');
+                                    return parts.length === 3 ? `${parts[2]}.${parts[1]}.` : d;
+                                }}
+                                interval={isMobile ? 6 : 2}
+                            />
+                            <YAxis allowDecimals={false} />
+                            <Tooltip
+                                labelFormatter={(label) => {
+                                    const str = String(label);
+                                    const parts = str.split('-');
+                                    return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : str;
+                                }}
+                            />
+                            <Legend />
+                            <Line type="monotone" dataKey="newUsers" name={t('stats:chart.newUsers')} stroke="#52c41a" strokeWidth={2} dot={false} />
+                            <Line type="monotone" dataKey="activeUsers" name={t('stats:chart.activeUsersLine')} stroke="#1890ff" strokeWidth={2} dot={false} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </Card>
+            )}
 
             <Card title={t('stats:abteilungenTable.title')} style={{ marginTop: 16 }}>
                 <Table
