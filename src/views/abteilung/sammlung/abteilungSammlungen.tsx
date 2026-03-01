@@ -33,8 +33,15 @@ export const AbteilungSammlungenView = (props: AbteilungSammlungenViewProps) => 
     const [unavailableItems, setUnavailableItems] = useState<UnavailableItem[]>([]);
     const [pendingCartItems, setPendingCartItems] = useState<CartItem[]>([]);
     const [pendingSammlungName, setPendingSammlungName] = useState('');
+    const [pendingSammlungId, setPendingSammlungId] = useState('');
 
     const addSammlungToCart = (sammlung: Sammlung) => {
+        // Check if Sammlung already in cart
+        if (cartItems.some(c => c.sammlungId === sammlung.id)) {
+            message.info(t('sammlung:cart.alreadyInCart'));
+            return;
+        }
+
         const { availableItems, unavailableItems: unavailable } = prepareSammlungForCart(
             sammlung.items,
             materials,
@@ -42,29 +49,22 @@ export const AbteilungSammlungenView = (props: AbteilungSammlungenViewProps) => 
         );
 
         if (unavailable.length === 0) {
-            applyToCart(availableItems, sammlung.name);
+            applyToCart(availableItems, sammlung.name, sammlung.id);
         } else {
             setUnavailableItems(unavailable);
             setPendingCartItems(availableItems);
             setPendingSammlungName(sammlung.name);
+            setPendingSammlungId(sammlung.id);
             setWarningVisible(true);
         }
     };
 
-    const applyToCart = (itemsToAdd: CartItem[], sammlungName: string) => {
-        let localCart = [...cartItems];
-
-        for (const item of itemsToAdd) {
-            const existing = localCart.find(c => c.matId === item.matId);
-            if (existing) {
-                localCart = [
-                    ...localCart.filter(c => c.matId !== item.matId),
-                    { __caslSubjectType__: 'CartItem' as const, matId: item.matId, count: existing.count + item.count },
-                ];
-            } else {
-                localCart = [...localCart, item];
-            }
-        }
+    const applyToCart = (itemsToAdd: CartItem[], sammlungName: string, sammlungId: string) => {
+        const taggedItems = itemsToAdd.map(item => ({
+            ...item,
+            sammlungId,
+        }));
+        const localCart = [...cartItems, ...taggedItems];
 
         const expires = dayjs().add(24, 'hours');
         setCookie(cookieName, localCart, {
@@ -78,7 +78,7 @@ export const AbteilungSammlungenView = (props: AbteilungSammlungenViewProps) => 
     };
 
     const confirmAddAvailable = () => {
-        applyToCart(pendingCartItems, pendingSammlungName);
+        applyToCart(pendingCartItems, pendingSammlungName, pendingSammlungId);
         setWarningVisible(false);
     };
 

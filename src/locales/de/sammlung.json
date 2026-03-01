@@ -38,10 +38,14 @@
   },
   "cart": {
     "added": "Sammlung {{name}} zum Warenkorb hinzugefügt",
+    "alreadyInCart": "Diese Sammlung befindet sich bereits im Warenkorb",
     "unavailableTitle": "Nicht alle Materialien verfügbar",
     "unavailableMessage": "Folgende Materialien sind nicht oder nicht in der gewünschten Menge verfügbar:",
     "unavailableItem": "{{name}}: {{available}} von {{requested}} verfügbar",
     "addAvailable": "Verfügbare hinzufügen",
     "cancel": "Abbrechen"
+  },
+  "cartItem": {
+    "sammlungLabel": "Sammlung"
   }
 }

@@ -38,10 +38,14 @@
   },
   "cart": {
     "added": "Collection {{name}} added to cart",
+    "alreadyInCart": "This collection is already in the cart",
     "unavailableTitle": "Not all materials available",
     "unavailableMessage": "The following materials are not available or not in the requested quantity:",
     "unavailableItem": "{{name}}: {{available}} of {{requested}} available",
     "addAvailable": "Add available",
     "cancel": "Cancel"
+  },
+  "cartItem": {
+    "sammlungLabel": "Collection"
   }
 }

@@ -73,6 +73,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     const [unavailableItems, setUnavailableItems] = useState<UnavailableItem[]>([]);
     const [pendingCartItems, setPendingCartItems] = useState<CartItem[]>([]);
     const [pendingSammlungName, setPendingSammlungName] = useState('');
+    const [pendingSammlungId, setPendingSammlungId] = useState('');
 
     const addItemToCart = (material: Material) => {
 
@@ -117,6 +118,12 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     }
 
     const addSammlungToCart = (sammlung: Sammlung) => {
+        // Check if Sammlung already in cart
+        if (cartItems.some(c => c.sammlungId === sammlung.id)) {
+            message.info(t('sammlung:cart.alreadyInCart'));
+            return;
+        }
+
         const { availableItems, unavailableItems: unavailable } = prepareSammlungForCart(
             sammlung.items,
             materials,
@@ -124,29 +131,22 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
         );
 
         if (unavailable.length === 0) {
-            applySammlungToCart(availableItems, sammlung.name);
+            applySammlungToCart(availableItems, sammlung.name, sammlung.id);
         } else {
             setUnavailableItems(unavailable);
             setPendingCartItems(availableItems);
             setPendingSammlungName(sammlung.name);
+            setPendingSammlungId(sammlung.id);
             setWarningVisible(true);
         }
     };
 
-    const applySammlungToCart = (itemsToAdd: CartItem[], sammlungName: string) => {
-        let localCart = [...cartItems];
-
-        for (const item of itemsToAdd) {
-            const existing = localCart.find(c => c.matId === item.matId);
-            if (existing) {
-                localCart = [
-                    ...localCart.filter(c => c.matId !== item.matId),
-                    { __caslSubjectType__: 'CartItem' as const, matId: item.matId, count: existing.count + item.count },
-                ];
-            } else {
-                localCart = [...localCart, item];
-            }
-        }
+    const applySammlungToCart = (itemsToAdd: CartItem[], sammlungName: string, sammlungId: string) => {
+        const taggedItems = itemsToAdd.map(item => ({
+            ...item,
+            sammlungId,
+        }));
+        const localCart = [...cartItems, ...taggedItems];
 
         const expires = dayjs().add(24, 'hours');
         setCookie(cookieName, localCart, {
@@ -160,7 +160,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     };
 
     const confirmAddAvailable = () => {
-        applySammlungToCart(pendingCartItems, pendingSammlungName);
+        applySammlungToCart(pendingCartItems, pendingSammlungName, pendingSammlungId);
         setWarningVisible(false);
     };
 

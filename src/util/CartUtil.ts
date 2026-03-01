@@ -75,19 +75,25 @@ export const getCartCount = (cartItems: CartItem[]) => {
 }
 
 export const removeFromCart = (cartItems: DetailedCartItem[], item: DetailedCartItem): CartItem[] => {
-    return cartItems.filter(i => i.matId !== item.matId).map(i => ({
-        __caslSubjectType__: 'CartItem',
+    return cartItems.filter(i => !(i.matId === item.matId && i.sammlungId === item.sammlungId)).map(i => ({
+        __caslSubjectType__: 'CartItem' as const,
         count: i.count,
-        matId: i.matId
-    } as CartItem));
+        matId: i.matId,
+        ...(i.sammlungId ? { sammlungId: i.sammlungId } : {}),
+    }));
+}
+
+export const removeSammlungFromCart = (cartItems: CartItem[], sammlungId: string): CartItem[] => {
+    return cartItems.filter(i => i.sammlungId !== sammlungId);
 }
 
 export const changeCountFromCart = (cartItems: DetailedCartItem[], item: DetailedCartItem, count: number | null): CartItem[] => {
     return cartItems.map(i => ({
-        __caslSubjectType__: 'CartItem',
-        count: i.matId === item.matId ? count || 0: i.count,
-        matId: i.matId
-    } as CartItem));
+        __caslSubjectType__: 'CartItem' as const,
+        count: i.matId === item.matId && i.sammlungId === item.sammlungId ? count || 0: i.count,
+        matId: i.matId,
+        ...(i.sammlungId ? { sammlungId: i.sammlungId } : {}),
+    }));
 }
 
 export const replaceCart = (orderItems: CartItem[]): CartItem[] => {
@@ -95,6 +101,7 @@ export const replaceCart = (orderItems: CartItem[]): CartItem[] => {
         __caslSubjectType__: 'CartItem' as const,
         matId: item.matId,
         count: item.count,
+        ...(item.sammlungId ? { sammlungId: item.sammlungId } : {}),
     }));
 };
 
@@ -106,6 +113,7 @@ export const mergeCart = (existingCart: CartItem[], orderItems: CartItem[]): Car
                 __caslSubjectType__: 'CartItem' as const,
                 matId: orderItem.matId,
                 count: orderItem.count,
+                ...(orderItem.sammlungId ? { sammlungId: orderItem.sammlungId } : {}),
             });
         }
     });
