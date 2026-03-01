@@ -10,8 +10,8 @@ import { cookieToCart, getCartCount, getCartName } from 'util/CartUtil';
 import { useCookies } from 'react-cookie';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import {
+    AppstoreAddOutlined,
     ContainerOutlined,
-    HomeOutlined, PaperClipOutlined,
     SettingOutlined,
     ShoppingCartOutlined,
     TagsOutlined,
@@ -41,10 +41,9 @@ import { Group } from './group/Group';
 import { Member } from './members/Member';
 import { Orders } from './order/Orders';
 import { OrderView } from './order/OrderView';
-import { AbteilungStandorteView } from '../../views/abteilung/standort/abteilungStandorte';
-import { AbteilungCategoryView } from '../../views/abteilung/category/abteilungCategory';
 import { AbteilungDataProvider } from './AbteilungDataProvider';
 import { AbteilungMaterialSettingsView } from 'views/abteilung/material/abteilungMaterialSettings';
+import { AbteilungSammlungenView } from 'views/abteilung/sammlung/abteilungSammlungen';
 
 // Re-export contexts for backward compatibility
 export {
@@ -54,6 +53,7 @@ export {
     StandorteContext,
     MaterialsContext,
     InvitationsContext,
+    SammlungenContext,
 } from 'contexts/AbteilungContexts';
 import { MembersContext } from 'contexts/AbteilungContexts';
 
@@ -101,7 +101,7 @@ export type AbteilungDetailViewParams = {
     tab: string
 };
 
-export type AbteilungTab = 'mat' | 'matsettings' | 'settings' | 'members' | 'groups' | 'cart' | 'orders' | 'order' | 'standort' | 'category';
+export type AbteilungTab = 'mat' | 'matsettings' | 'settings' | 'members' | 'groups' | 'cart' | 'orders' | 'order' | 'sammlung';
 
 
 export const AbteilungDetail = () => {
@@ -111,7 +111,7 @@ export const AbteilungDetail = () => {
     const navigate = useNavigate();
     const { state } = useLocation();
 
-    const validTabs: AbteilungTab[] = ['mat', 'matsettings', 'settings', 'members', 'groups', 'cart', 'orders', 'order', 'standort', 'category'];
+    const validTabs: AbteilungTab[] = ['mat', 'matsettings', 'settings', 'members', 'groups', 'cart', 'orders', 'order', 'sammlung'];
     const selectedMenu: AbteilungTab = validTabs.includes(tab as AbteilungTab) ? (tab as AbteilungTab) : 'mat';
 
     const abteilungenContext = useContext(AbteilungenContext);
@@ -249,10 +249,8 @@ export const AbteilungDetail = () => {
                 return <Orders abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
             case 'order':
                 return <OrderView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
-            case 'standort':
-                return <AbteilungStandorteView abteilung={abteilung} />
-            case 'category':
-                return <AbteilungCategoryView abteilung={abteilung} />
+            case 'sammlung':
+                return <AbteilungSammlungenView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
         }
     }
 
@@ -271,9 +269,8 @@ export const AbteilungDetail = () => {
         }
 
         const items: MenuProps['items'] = [
-            ...(!isGuest ? [
-                { key: 'standort', icon: <HomeOutlined />, label: t('abteilung:tabs.standorte'), onClick: () => navigateToMenu('standort') },
-                { key: 'category', icon: <PaperClipOutlined />, label: t('abteilung:tabs.kategorien'), onClick: () => navigateToMenu('category') },
+            ...(canUpdate ? [
+                { key: 'sammlung', icon: <AppstoreAddOutlined />, label: t('abteilung:tabs.sammlungen'), onClick: () => navigateToMenu('sammlung') },
             ] : []),
             { key: 'orders', icon: <UnorderedListOutlined />, label: canUpdate ? <PendingOrdersBadge abteilungId={abteilung.id} /> : t('abteilung:tabs.bestellungen'), onClick: () => navigateToMenu('orders') },
             ...(!isGuest ? [
@@ -321,9 +318,8 @@ export const AbteilungDetail = () => {
                         { key: 'matsettings', icon: <ToolOutlined />, label: t('abteilung:tabs.materialEinstellungen') },
                     ] : []),
                     ...(!isMobile ? [
-                        ...(!isGuest ? [
-                            { key: 'standort', icon: <HomeOutlined />, label: t('abteilung:tabs.standorte') },
-                            { key: 'category', icon: <PaperClipOutlined />, label: t('abteilung:tabs.kategorien') },
+                        ...(canUpdate ? [
+                            { key: 'sammlung', icon: <AppstoreAddOutlined />, label: t('abteilung:tabs.sammlungen') },
                         ] : []),
                         { key: 'orders', icon: <UnorderedListOutlined />, label: canUpdate ? <PendingOrdersBadge abteilungId={abteilung.id} /> : t('abteilung:tabs.bestellungen') },
                         ...(!isGuest ? [

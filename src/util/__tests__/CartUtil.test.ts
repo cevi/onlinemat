@@ -7,8 +7,11 @@ import {
   changeCountFromCart,
   replaceCart,
   mergeCart,
+  prepareSammlungForCart,
 } from '../CartUtil';
 import { CartItem, DetailedCartItem } from 'types/cart.types';
+import { Material } from 'types/material.types';
+import { SammlungItem } from 'types/sammlung.types';
 
 const makeCartItem = (matId: string, count: number): CartItem => ({
   __caslSubjectType__: 'CartItem',
@@ -143,6 +146,106 @@ describe('CartUtil', () => {
       const copy = [...existing];
       mergeCart(existing, [makeCartItem('b', 3)]);
       expect(existing).toEqual(copy);
+    });
+  });
+
+  describe('prepareSammlungForCart', () => {
+    const makeMaterial = (id: string, name: string, count: number, opts?: Partial<Material>): Material => ({
+      __caslSubjectType__: 'Material',
+      id,
+      name,
+      count,
+      consumables: false,
+      damaged: 0,
+      lost: 0,
+      keywords: [],
+      onlyLendInternal: false,
+      ...opts,
+    } as Material);
+
+    const materials = [
+      makeMaterial('m1', 'Seil', 5),
+      makeMaterial('m2', 'Karabiner', 10),
+      makeMaterial('m3', 'Helm', 0),
+    ];
+
+    it('returns all items as available when stock is sufficient', () => {
+      const items: SammlungItem[] = [
+        { matId: 'm1', count: 2 },
+        { matId: 'm2', count: 3 },
+      ];
+      const result = prepareSammlungForCart(items, materials, []);
+      expect(result.availableItems).toHaveLength(2);
+      expect(result.unavailableItems).toHaveLength(0);
+      expect(result.availableItems[0].count).toBe(2);
+      expect(result.availableItems[1].count).toBe(3);
+    });
+
+    it('marks items as unavailable when stock is zero', () => {
+      const items: SammlungItem[] = [{ matId: 'm3', count: 1 }];
+      const result = prepareSammlungForCart(items, materials, []);
+      expect(result.availableItems).toHaveLength(0);
+      expect(result.unavailableItems).toHaveLength(1);
+      expect(result.unavailableItems[0].name).toBe('Helm');
+      expect(result.unavailableItems[0].requested).toBe(1);
+      expect(result.unavailableItems[0].available).toBe(0);
+    });
+
+    it('reduces available count by existing cart items', () => {
+      const items: SammlungItem[] = [{ matId: 'm1', count: 4 }];
+      const existingCart: CartItem[] = [makeCartItem('m1', 3)];
+      const result = prepareSammlungForCart(items, materials, existingCart);
+      expect(result.availableItems).toHaveLength(1);
+      expect(result.availableItems[0].count).toBe(2); // 5 total - 3 in cart = 2 remaining
+      expect(result.unavailableItems).toHaveLength(1);
+      expect(result.unavailableItems[0].requested).toBe(4);
+      expect(result.unavailableItems[0].available).toBe(2);
+    });
+
+    it('skips materials that no longer exist', () => {
+      const items: SammlungItem[] = [{ matId: 'deleted', count: 1 }];
+      const result = prepareSammlungForCart(items, materials, []);
+      expect(result.availableItems).toHaveLength(0);
+      expect(result.unavailableItems).toHaveLength(0);
+    });
+
+    it('handles mixed available and unavailable items', () => {
+      const items: SammlungItem[] = [
+        { matId: 'm1', count: 2 },
+        { matId: 'm3', count: 1 },
+      ];
+      const result = prepareSammlungForCart(items, materials, []);
+      expect(result.availableItems).toHaveLength(1);
+      expect(result.availableItems[0].matId).toBe('m1');
+      expect(result.unavailableItems).toHaveLength(1);
+      expect(result.unavailableItems[0].matId).toBe('m3');
+    });
+
+    it('handles empty sammlung items', () => {
+      const result = prepareSammlungForCart([], materials, []);
+      expect(result.availableItems).toHaveLength(0);
+      expect(result.unavailableItems).toHaveLength(0);
+    });
+
+    it('caps at available count when requesting more than available', () => {
+      const items: SammlungItem[] = [{ matId: 'm1', count: 100 }];
+      const result = prepareSammlungForCart(items, materials, []);
+      expect(result.availableItems).toHaveLength(1);
+      expect(result.availableItems[0].count).toBe(5);
+      expect(result.unavailableItems).toHaveLength(1);
+      expect(result.unavailableItems[0].requested).toBe(100);
+      expect(result.unavailableItems[0].available).toBe(5);
+    });
+
+    it('accounts for damaged and lost materials', () => {
+      const damagedMaterials = [makeMaterial('m1', 'Seil', 5, { damaged: 2, lost: 1 })];
+      const items: SammlungItem[] = [{ matId: 'm1', count: 3 }];
+      const result = prepareSammlungForCart(items, damagedMaterials, []);
+      // available = 5 - 2 - 1 = 2
+      expect(result.availableItems).toHaveLength(1);
+      expect(result.availableItems[0].count).toBe(2);
+      expect(result.unavailableItems).toHaveLength(1);
+      expect(result.unavailableItems[0].available).toBe(2);
     });
   });
 });

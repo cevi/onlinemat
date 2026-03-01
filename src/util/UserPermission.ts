@@ -39,6 +39,12 @@ export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) 
     can('update', 'Standort');
     can('delete', 'Standort');
 
+    //Sammlung
+    can('create', 'Sammlung');
+    can('read', 'Sammlung');
+    can('update', 'Sammlung');
+    can('delete', 'Sammlung');
+
     //UserData
     can('read', 'UserData');
     can('update', 'UserData');
@@ -90,6 +96,11 @@ export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) 
           can('update', 'Standort', { abteilungId: abteilungId });
           can('delete', 'Standort', { abteilungId: abteilungId });
 
+          //Sammlung
+          can('create', 'Sammlung', { abteilungId: abteilungId });
+          can('update', 'Sammlung', { abteilungId: abteilungId });
+          can('delete', 'Sammlung', { abteilungId: abteilungId });
+
           //Order
           can('create', 'Order', { abteilungId: abteilungId });
           can('read', 'Order', { abteilungId: abteilungId });
@@ -120,6 +131,11 @@ export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) 
           can('create', 'Standort', { abteilungId: abteilungId });
           can('update', 'Standort', { abteilungId: abteilungId });
           can('delete', 'Standort', { abteilungId: abteilungId });
+
+          //Sammlung
+          can('create', 'Sammlung', { abteilungId: abteilungId });
+          can('update', 'Sammlung', { abteilungId: abteilungId });
+          can('delete', 'Sammlung', { abteilungId: abteilungId });
 
           //Order
           can('create', 'Order', { abteilungId: abteilungId });

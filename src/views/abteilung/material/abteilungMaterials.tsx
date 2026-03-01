@@ -1,6 +1,6 @@
 import {useContext, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
-import {Col, Input, message, Radio, Row, Spin} from 'antd';
+import {Button, Col, Input, List, message, Modal, Radio, Row, Spin} from 'antd';
 import {AddMaterialButton} from 'components/material/AddMaterial';
 import {AppstoreOutlined, MenuOutlined, UnorderedListOutlined} from '@ant-design/icons';
 import {AddCategorieButton} from 'components/categorie/AddCategorie';
@@ -10,15 +10,17 @@ import {MaterialGrid} from 'components/material/MaterialGrid';
 import {MaterialListView} from 'components/material/MaterialListView';
 import {Can} from 'config/casl/casl';
 import {AbteilungEntityCasl} from 'config/casl/ability';
-import {CategorysContext, MaterialsContext, StandorteContext} from 'components/abteilung/AbteilungDetails';
+import {CategorysContext, MaterialsContext, SammlungenContext, StandorteContext} from 'components/abteilung/AbteilungDetails';
 import {useCookies} from 'react-cookie';
 import {CartItem} from 'types/cart.types';
-import {getCartName} from 'util/CartUtil';
+import {getCartName, prepareSammlungForCart, UnavailableItem} from 'util/CartUtil';
 import dayjs from 'dayjs';
 import {Material} from 'types/material.types';
+import {Sammlung} from 'types/sammlung.types';
 import {getAvailableMatCount} from 'util/MaterialUtil';
 import {AddStandortButton} from "components/standort/AddStandort";
 import {useIsMobile} from 'hooks/useIsMobile';
+import {useTranslation} from 'react-i18next';
 
 export type AbteilungMaterialViewProps = {
     abteilung: Abteilung;
@@ -39,6 +41,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     const [cookies, setCookie] = useCookies([cookieName]);
 
     const isMobile = useIsMobile();
+    const { t } = useTranslation();
 
     function getInitialMode(): 'table' | 'grid' | 'list' {
         return isMobile ? 'list' : 'table';
@@ -61,6 +64,15 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
     const materialsContext = useContext(MaterialsContext);
     const materials = materialsContext.materials;
     const matLoading = materialsContext.loading;
+
+    //fetch sammlungen
+    const sammlungenContext = useContext(SammlungenContext);
+    const sammlungen = sammlungenContext.sammlungen;
+
+    const [warningVisible, setWarningVisible] = useState(false);
+    const [unavailableItems, setUnavailableItems] = useState<UnavailableItem[]>([]);
+    const [pendingCartItems, setPendingCartItems] = useState<CartItem[]>([]);
+    const [pendingSammlungName, setPendingSammlungName] = useState('');
 
     const addItemToCart = (material: Material) => {
 
@@ -104,6 +116,54 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
         changeCart(localCart)
     }
 
+    const addSammlungToCart = (sammlung: Sammlung) => {
+        const { availableItems, unavailableItems: unavailable } = prepareSammlungForCart(
+            sammlung.items,
+            materials,
+            cartItems,
+        );
+
+        if (unavailable.length === 0) {
+            applySammlungToCart(availableItems, sammlung.name);
+        } else {
+            setUnavailableItems(unavailable);
+            setPendingCartItems(availableItems);
+            setPendingSammlungName(sammlung.name);
+            setWarningVisible(true);
+        }
+    };
+
+    const applySammlungToCart = (itemsToAdd: CartItem[], sammlungName: string) => {
+        let localCart = [...cartItems];
+
+        for (const item of itemsToAdd) {
+            const existing = localCart.find(c => c.matId === item.matId);
+            if (existing) {
+                localCart = [
+                    ...localCart.filter(c => c.matId !== item.matId),
+                    { __caslSubjectType__: 'CartItem' as const, matId: item.matId, count: existing.count + item.count },
+                ];
+            } else {
+                localCart = [...localCart, item];
+            }
+        }
+
+        const expires = dayjs().add(24, 'hours');
+        setCookie(cookieName, localCart, {
+            path: '/',
+            expires: expires.toDate(),
+            secure: true,
+            sameSite: 'strict',
+        });
+        changeCart(localCart);
+        message.success(t('sammlung:cart.added', { name: sammlungName }));
+    };
+
+    const confirmAddAvailable = () => {
+        applySammlungToCart(pendingCartItems, pendingSammlungName);
+        setWarningVisible(false);
+    };
+
 
     if (!abteilung) {
         return <Spin />
@@ -111,6 +171,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
 
 
     const filteredMaterials = query ? materials.filter(mat => mat.name.toLowerCase().includes(query.toLowerCase())) : materials;
+    const filteredSammlungen = query ? sammlungen.filter(s => s.name.toLowerCase().includes(query.toLowerCase())) : sammlungen;
 
     return <Row gutter={[16, 16]}>
 
@@ -163,16 +224,50 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                     </Col>
                     <Col span={24}>
                         {
-                            displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categories} standort={standorte} material={filteredMaterials} addToCart={addItemToCart} />
+                            displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categories} standort={standorte} material={filteredMaterials} sammlungen={filteredSammlungen} addToCart={addItemToCart} addSammlungToCart={addSammlungToCart} />
                         }
                         {
-                            displayMode === 'grid' && <MaterialGrid abteilungId={abteilung.id} categorie={categories} standort={standorte} material={filteredMaterials} addToCart={addItemToCart} />
+                            displayMode === 'grid' && <MaterialGrid abteilungId={abteilung.id} categorie={categories} standort={standorte} material={filteredMaterials} sammlungen={filteredSammlungen} addToCart={addItemToCart} addSammlungToCart={addSammlungToCart} />
                         }
                         {
-                            displayMode === 'list' && <MaterialListView abteilungId={abteilung.id} categorie={categories} standort={standorte} material={filteredMaterials} addToCart={addItemToCart} />
+                            displayMode === 'list' && <MaterialListView abteilungId={abteilung.id} categorie={categories} standort={standorte} material={filteredMaterials} sammlungen={filteredSammlungen} addToCart={addItemToCart} addSammlungToCart={addSammlungToCart} />
                         }
                     </Col>
                 </>
         }
+
+        <Modal
+            title={t('sammlung:cart.unavailableTitle')}
+            open={warningVisible}
+            onCancel={() => setWarningVisible(false)}
+            footer={[
+                <Button key="cancel" onClick={() => setWarningVisible(false)}>
+                    {t('sammlung:cart.cancel')}
+                </Button>,
+                <Button
+                    key="add"
+                    type="primary"
+                    disabled={pendingCartItems.length === 0}
+                    onClick={confirmAddAvailable}
+                >
+                    {t('sammlung:cart.addAvailable')}
+                </Button>,
+            ]}
+        >
+            <p>{t('sammlung:cart.unavailableMessage')}</p>
+            <List
+                size="small"
+                dataSource={unavailableItems}
+                renderItem={(item) => (
+                    <List.Item>
+                        {t('sammlung:cart.unavailableItem', {
+                            name: item.name,
+                            available: item.available,
+                            requested: item.requested,
+                        })}
+                    </List.Item>
+                )}
+            />
+        </Modal>
     </Row >
 }

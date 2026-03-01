@@ -1,0 +1,47 @@
+{
+  "add": {
+    "button": "Sammlung hinzufügen",
+    "title": "Sammlung hinzufügen",
+    "submit": "Sammlung hinzufügen",
+    "success": "Sammlung {{name}} erfolgreich erstellt"
+  },
+  "edit": {
+    "title": "Sammlung bearbeiten",
+    "submit": "Änderungen speichern",
+    "success": "Sammlung {{name}} erfolgreich bearbeitet"
+  },
+  "delete": {
+    "confirm": "Möchtest du {{name}} wirklich löschen?",
+    "success": "Sammlung {{name}} erfolgreich gelöscht"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Sammlungsname",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Beschreibung der Sammlung",
+    "imageUrls": "Bild URLs",
+    "imageUrlPlaceholder": "Bild URL",
+    "addImage": "Bild hinzufügen",
+    "items": "Materialien",
+    "addItem": "Material hinzufügen",
+    "material": "Material",
+    "materialPlaceholder": "Material auswählen",
+    "count": "Anzahl"
+  },
+  "table": {
+    "name": "Name",
+    "description": "Beschreibung",
+    "items": "Materialien",
+    "itemCount": "{{count}} Material(ien)",
+    "edit": "Bearbeiten",
+    "cart": "Warenkorb"
+  },
+  "cart": {
+    "added": "Sammlung {{name}} zum Warenkorb hinzugefügt",
+    "unavailableTitle": "Nicht alle Materialien verfügbar",
+    "unavailableMessage": "Folgende Materialien sind nicht oder nicht in der gewünschten Menge verfügbar:",
+    "unavailableItem": "{{name}}: {{available}} von {{requested}} verfügbar",
+    "addAvailable": "Verfügbare hinzufügen",
+    "cancel": "Abbrechen"
+  }
+}
