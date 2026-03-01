@@ -86,6 +86,8 @@
     "damagedCheckboxTooltip": "Material ist beschädigt oder wurde nicht zurückgegeben.",
     "adjust": "Anpassen",
     "prepared": "Bereitgestellt",
+    "controlled": "Kontrolliert",
+    "controlledTooltip": "Material wurde bei Rückgabe kontrolliert",
     "showDetails": "Details",
     "standort": "Standort: {{names}}",
     "categories": "Kategorien: {{names}}",

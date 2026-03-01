@@ -376,6 +376,15 @@ export const OrderView = (props: OrderProps) => {
         });
     };
 
+    const toggleControlledItem = async (matId: string) => {
+        if (!order || !orderId) return;
+        const orderRef = doc(db, abteilungenCollection, abteilung.id, abteilungenOrdersCollection, orderId);
+        const isControlled = order.controlledItems?.includes(matId);
+        await updateDoc(orderRef, {
+            controlledItems: isControlled ? arrayRemove(matId) : arrayUnion(matId)
+        });
+    };
+
     //fetch order
     useEffect(() => {
         if (!isAuthenticated || !abteilung) return;
@@ -782,6 +791,13 @@ export const OrderView = (props: OrderProps) => {
                             }) && order.status === 'created' && !isEditing}
                             preparedItems={order.preparedItems || []}
                             onTogglePrepared={togglePreparedItem}
+
+                            showControlledCheckboxes={ability.can('deliver', {
+                                ...order,
+                                abteilungId: abteilung.id
+                            }) && (order.status === 'delivered' || order.status === 'completed') && !isEditing}
+                            controlledItems={order.controlledItems || []}
+                            onToggleControlled={order.status === 'delivered' ? toggleControlledItem : undefined}
                         />
                     )}
                 </Col>

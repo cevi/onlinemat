@@ -16,11 +16,14 @@ export interface OrderItemsProps {
     showPrepareCheckboxes?: boolean
     preparedItems?: string[]
     onTogglePrepared?: (matId: string) => void
+    showControlledCheckboxes?: boolean
+    controlledItems?: string[]
+    onToggleControlled?: (matId: string) => void
 }
 
 export const OrderItems = (props: OrderItemsProps) => {
 
-    const { items, collisions, showCheckBoxes, damagedMaterialsCheckboxes, damagedMaterials, setDamagedMaterialCheckboxes, updateOrderItemsByAvail, showPrepareCheckboxes, preparedItems, onTogglePrepared } = props;
+    const { items, collisions, showCheckBoxes, damagedMaterialsCheckboxes, damagedMaterials, setDamagedMaterialCheckboxes, updateOrderItemsByAvail, showPrepareCheckboxes, preparedItems, onTogglePrepared, showControlledCheckboxes, controlledItems, onToggleControlled } = props;
     const { t } = useTranslation();
 
     const [expandedItems, setExpandedItems] = useState<string[]>([]);
@@ -49,6 +52,7 @@ export const OrderItems = (props: OrderItemsProps) => {
                 const damaged = damagedMaterials && damagedMaterials.find(mat => mat.id === item.matId)
                 const isExpanded = expandedItems.includes(item.matId);
                 const isPrepared = preparedItems?.includes(item.matId);
+                const isControlled = controlledItems?.includes(item.matId);
                 return <List.Item style={{ borderColor: '#B5B2B0' }}>
                     {showPrepareCheckboxes && onTogglePrepared && (
                         <Checkbox
@@ -62,7 +66,7 @@ export const OrderItems = (props: OrderItemsProps) => {
                     <List.Item.Meta
                         avatar={item.imageUrls && item.imageUrls.length > 0 ? <Avatar src={item.imageUrls[0]} /> : undefined}
                         title={
-                            <span style={isPrepared ? { textDecoration: 'line-through', opacity: 0.6 } : undefined}>
+                            <span style={(showPrepareCheckboxes && isPrepared) || (showControlledCheckboxes && isControlled) ? { textDecoration: 'line-through', opacity: 0.6 } : undefined}>
                                 {`${item.count} x ${item.name}`}
                             </span>
                         }
@@ -112,6 +116,16 @@ export const OrderItems = (props: OrderItemsProps) => {
                     {
                         (!!showCheckBoxes && damagedMaterialsCheckboxes && setDamagedMaterialCheckboxes) && <Checkbox checked={damagedMaterialsCheckboxes.includes(item) ? true : false} onChange={(e)=>{setDamagedMaterialCheckboxes(e.target.checked ? [...damagedMaterialsCheckboxes, item] : damagedMaterialsCheckboxes.filter(d => d.matId !== item.matId))}}><Tooltip title={t('order:items.damagedCheckboxTooltip')}>{t('order:items.damagedCheckbox')}</Tooltip></Checkbox>
                     }
+                    {showControlledCheckboxes && (
+                        <Checkbox
+                            checked={isControlled}
+                            disabled={!onToggleControlled}
+                            onChange={() => onToggleControlled && onToggleControlled(item.matId)}
+                            style={{ marginLeft: 12 }}
+                        >
+                            <Tooltip title={t('order:items.controlledTooltip')}>{t('order:items.controlled')}</Tooltip>
+                        </Checkbox>
+                    )}
                 </List.Item>
                 }}
         />
