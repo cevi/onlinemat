@@ -57,7 +57,9 @@
     "approve": "Genehmigen",
     "approveTooltip": "Bestellung genehmigen",
     "reject": "Ablehnen",
-    "rejectTooltip": "Bestellung ablehnen"
+    "rejectTooltip": "Bestellung ablehnen",
+    "sendReminder": "Rückgabeerinnerung senden",
+    "sendReminderTooltip": "Sendet eine Erinnerungsmail an die bestellende Person"
   },
   "create": {
     "date": "Datum",
@@ -134,7 +136,8 @@
     "editMaterialNotAvailable": "{{name}} ist zur Zeit nicht verfügbar.",
     "approveSuccess": "Bestellung wurde genehmigt.",
     "approveNotAllAvailable": "Leider ist nicht alles Material verfügbar.",
-    "rejectSuccess": "Bestellung wurde abgelehnt."
+    "rejectSuccess": "Bestellung wurde abgelehnt.",
+    "reminderSuccess": "Rückgabeerinnerung wurde erfolgreich gesendet."
   },
   "search": {
     "placeholder": "nach Bestellung suchen",

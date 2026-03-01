@@ -22,6 +22,7 @@ export interface Order {
     pfand?: number
     price?: number
     rejectionReason?: string
+    lastReturnReminderSentAt?: Date
 }
 
 export interface OrderHistory {
