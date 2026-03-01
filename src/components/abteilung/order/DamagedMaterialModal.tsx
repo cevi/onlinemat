@@ -1,5 +1,6 @@
 import { Button, Modal } from "antd";
 import { useUser } from "hooks/use-user";
+import { useIsMobile } from "hooks/useIsMobile";
 import { useContext, useEffect, useState } from "react";
 import { Abteilung } from "types/abteilung.type";
 import { DetailedCartItem } from "types/cart.types";
@@ -26,6 +27,7 @@ export const DamagedMaterialModal = (props: DamagedMaterialModalProps) => {
 
     const user = useUser();
     const { t } = useTranslation();
+    const isMobile = useIsMobile();
 
     //fetch materials
     const materialsContext = useContext(MaterialsContext);
@@ -55,7 +57,7 @@ export const DamagedMaterialModal = (props: DamagedMaterialModalProps) => {
     return <Modal
         open={showDamageModal}
         title={t('order:damagedModal.title')}
-        width={700}
+        width={isMobile ? '95vw' : 700}
         onOk={() => { }}
         onCancel={() => { }}
         footer={[
@@ -72,7 +74,7 @@ export const DamagedMaterialModal = (props: DamagedMaterialModalProps) => {
             </Button>
         ]}
     >
-        <OrderItemsDamaged items={damagedMaterialDetails.sort((a: DamagedMaterialDetails, b: DamagedMaterialDetails) => a.name.localeCompare(b.name))} updateDamagedMaterial={updateDamagedMaterial} />
+        <OrderItemsDamaged items={damagedMaterialDetails.sort((a: DamagedMaterialDetails, b: DamagedMaterialDetails) => a.name.localeCompare(b.name))} updateDamagedMaterial={updateDamagedMaterial} isMobile={isMobile} />
     </Modal>
 
 }

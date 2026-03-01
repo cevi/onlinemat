@@ -7,6 +7,7 @@ COPY package*.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
 COPY . .
+RUN yarn test:run
 RUN yarn run build
 
 FROM nginx:1.27-alpine
