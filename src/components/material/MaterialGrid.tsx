@@ -1,6 +1,7 @@
 import {Button, Card, Carousel, Col, Image, Modal, Row} from 'antd';
 import React, {useState} from 'react';
 import {Categorie} from 'types/categorie.types';
+import {Standort} from 'types/standort.types';
 import {Material} from 'types/material.types';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
 import classNames from 'classnames';
@@ -8,30 +9,40 @@ import appStyles from 'styles.module.scss';
 import {ViewMaterial} from "./ViewMaterial";
 import {EyeOutlined, ShoppingCartOutlined} from "@ant-design/icons";
 import {useUser} from "../../hooks/use-user";
+import {MaterialFilterBar} from './MaterialFilterBar';
+import {MaterialFilterState, applyFilterAndSort, initialFilterState} from 'util/materialFilterSort';
 
 
 export interface MaterialGridProps {
     abteilungId: string;
     material: Material[]
     categorie: Categorie[]
+    standort?: Standort[]
     addToCart: (mat: Material) => void
 }
 
 
 export const MaterialGrid = (props: MaterialGridProps) => {
 
-    const { abteilungId, material, categorie, addToCart } = props;
+    const { abteilungId, material, categorie, standort = [], addToCart } = props;
 
     const userState = useUser();
+    const [filterState, setFilterState] = useState<MaterialFilterState>(initialFilterState);
 
-    const filteredMaterials = (userState.appUser?.userData?.roles|| {})[abteilungId]?.includes('guest') ?
+    const guestFiltered = (userState.appUser?.userData?.roles|| {})[abteilungId]?.includes('guest') ?
         material.filter(material => !material.onlyLendInternal) : material;
 
-    return <>
+    const displayMaterials = applyFilterAndSort(guestFiltered, filterState);
 
+    return <>
+        <MaterialFilterBar
+            categories={categorie}
+            standorte={standort}
+            onFilterChange={setFilterState}
+        />
         <Row gutter={[24, 24]}>
             {
-                filteredMaterials.map(mat => <MaterialCard key={mat.id} material={mat} addToCart={addToCart} abteilungId={abteilungId} />)
+                displayMaterials.map(mat => <MaterialCard key={mat.id} material={mat} addToCart={addToCart} abteilungId={abteilungId} />)
             }
         </Row>
 
