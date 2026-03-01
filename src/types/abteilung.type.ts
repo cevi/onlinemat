@@ -3,7 +3,7 @@ import { UserData } from './user.type';
 
 export interface ReturnReminderSettings {
     enabled: boolean
-    daysAfterDelivery: number
+    daysAfterEndDate: number
 }
 
 export interface MaterialReminderSettings {

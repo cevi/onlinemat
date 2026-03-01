@@ -51,7 +51,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
     // Return reminder settings
     const [returnReminderEnabled, setReturnReminderEnabled] = useState<boolean>(abteilung.returnReminder?.enabled === true);
-    const [daysAfterDelivery, setDaysAfterDelivery] = useState<number>(abteilung.returnReminder?.daysAfterDelivery ?? 14);
+    const [daysAfterEndDate, setDaysAfterDelivery] = useState<number>(abteilung.returnReminder?.daysAfterEndDate ?? 14);
     const [returnReminderLoading, setReturnReminderLoading] = useState(false);
 
     // Material reminder settings
@@ -101,7 +101,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                 abteilungId: abteilung.id,
                 returnReminder: {
                     enabled: isEnabled,
-                    daysAfterDelivery,
+                    daysAfterEndDate,
                 },
             });
             setReturnReminderEnabled(isEnabled);
@@ -274,8 +274,8 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                         {returnReminderEnabled && (
                             <Row gutter={[16, 8]}>
                                 <Col xs={24} sm={12}>
-                                    <Form.Item label={t('abteilung:settings.reminders.daysAfterDelivery')}>
-                                        <InputNumber min={1} max={365} value={daysAfterDelivery} onChange={(val) => setDaysAfterDelivery(val ?? 14)} />
+                                    <Form.Item label={t('abteilung:settings.reminders.daysAfterEndDate')}>
+                                        <InputNumber min={1} max={365} value={daysAfterEndDate} onChange={(val) => setDaysAfterDelivery(val ?? 14)} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>

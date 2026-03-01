@@ -2,6 +2,14 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+
+    :global(.ant-badge) span {
+        color: rgba(255, 255, 255, 0.65);
+    }
+
+    :global(.ant-menu-item-selected .ant-badge) span {
+        color: #fff;
+    }
 }
 
 .drawer-divider {

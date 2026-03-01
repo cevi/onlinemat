@@ -56,7 +56,22 @@
     "delete": "Delete Department",
     "deleteConfirm": "Do you really want to delete this department?",
     "saveSuccess": "Changes saved successfully",
-    "deleteSuccess": "{{name}} successfully deleted"
+    "deleteSuccess": "{{name}} successfully deleted",
+    "reminders": {
+      "title": "Reminders",
+      "returnTitle": "Return reminder",
+      "returnEnabled": "Automatic return reminder",
+      "returnEnabledDescription": "Borrowers automatically receive an email if material has not been returned within the defined period after the order end date.",
+      "daysAfterEndDate": "Days after end date",
+      "materialTitle": "Material inspection / lifespan",
+      "materialEnabled": "Automatic material reminder",
+      "materialEnabledDescription": "Matchefs and admins automatically receive an email when materials need inspection or their lifespan has expired.",
+      "daysBeforeDue": "Days before due",
+      "checkIntervalDays": "Check interval (days)",
+      "sendMaterialReminder": "Check & remind now",
+      "materialReminderSent": "Reminder sent for {{count}} material(s).",
+      "noMaintenanceNeeded": "All materials are up to date, no reminder needed."
+    }
   },
   "search": {
     "placeholder": "Search department..."
