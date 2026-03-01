@@ -4,6 +4,7 @@ import { Abteilung } from 'types/abteilung.type';
 import { Categorie } from 'types/categorie.types';
 import { ExcelJson } from 'types/excel.type';
 import { Material, MaterialCondition, MaintenanceHistoryEntry, MaintenanceType } from 'types/material.types';
+import { Sammlung } from 'types/sammlung.types';
 import * as XLSX from 'xlsx'
 import { dateFormat } from './constants';
 import {Standort} from "types/standort.types";
@@ -53,86 +54,117 @@ export const serializeMaintenanceHistory = (history: MaintenanceHistoryEntry[] |
 };
 
 
-export const excelToJson = async (e: React.ChangeEvent<HTMLInputElement>): Promise<ExcelJson | undefined> => {
+export const exportAbteilungToXlsx = (abteilung: Abteilung, materials: Material[], sammlungen: Sammlung[], categories: Categorie[], standorte: Standort[]) => {
+    const wb = XLSX.utils.book_new();
+
+    // Material sheet
+    const materialRows = materials.sort((a, b) => a.name.localeCompare(b.name)).map(mat => ({
+        Name: mat.name,
+        Bemerkung: mat.comment,
+        Anzahl: mat.count,
+        Beschädigt: mat.damaged || 0,
+        Verloren: mat.lost || 0,
+        Standort: mat.standort?.map(ortId => standorte.find(ort => ort.id === ortId)?.name).join(','),
+        Gewicht: mat.weightInKg,
+        Verbrauchsmaterial: mat.consumables,
+        Kategorien: mat.categorieIds?.map(catId => categories.find(cat => cat.id === catId)?.name).join(','),
+        Bilder: mat.imageUrls || [].join(','),
+        'Nur intern ausleihbar': mat.onlyLendInternal || false,
+        Kaufdatum: mat.purchaseDate || '',
+        'Lebensdauer (Jahre)': mat.lifespanInYears ?? '',
+        'Kaufpreis (CHF)': mat.purchasePrice ?? '',
+        Lieferant: mat.supplier || '',
+        Inventarnummer: mat.inventoryNumber || '',
+        'Marke/Hersteller': mat.brand || '',
+        Zustand: mat.condition ? (conditionToGerman[mat.condition] || mat.condition) : '',
+        'Garantie bis': mat.warrantyUntil || '',
+        'Nächste Kontrolle': mat.nextMaintenanceDue || '',
+        Lagerhinweise: mat.storageInstructions || '',
+        Wartungshistorie: serializeMaintenanceHistory(mat.maintenanceHistory),
+    }));
+    const materialWS = XLSX.utils.json_to_sheet(materialRows);
+    if (materialRows.length > 0) {
+        const col = Object.keys(materialWS).slice(-2, -1)[0];
+        materialWS['!autofilter'] = { ref: `A1:${col}` };
+    }
+    XLSX.utils.book_append_sheet(wb, materialWS, 'Material');
+
+    // Sammlungen sheet
+    const sammlungRows = sammlungen.sort((a, b) => a.name.localeCompare(b.name)).map(sammlung => ({
+        Name: sammlung.name,
+        Beschreibung: sammlung.description || '',
+        Bilder: (sammlung.imageUrls || []).join(','),
+        Materialien: sammlung.items.map(item => {
+            const mat = materials.find(m => m.id === item.matId);
+            return `${mat?.name || item.matId}:${item.count}`;
+        }).join(','),
+    }));
+    const sammlungWS = XLSX.utils.json_to_sheet(sammlungRows);
+    if (sammlungRows.length > 0) {
+        const col = Object.keys(sammlungWS).slice(-2, -1)[0];
+        sammlungWS['!autofilter'] = { ref: `A1:${col}` };
+    }
+    XLSX.utils.book_append_sheet(wb, sammlungWS, 'Sammlungen');
+
+    // Kategorien sheet
+    const kategorieRows = categories.sort((a, b) => a.name.localeCompare(b.name)).map(cat => ({
+        Name: cat.name,
+    }));
+    const kategorieWS = XLSX.utils.json_to_sheet(kategorieRows);
+    XLSX.utils.book_append_sheet(wb, kategorieWS, 'Kategorien');
+
+    // Standorte sheet
+    const standortRows = standorte.sort((a, b) => a.name.localeCompare(b.name)).map(ort => ({
+        Name: ort.name,
+        Strasse: ort.street || '',
+        Stadt: ort.city || '',
+        Koordinaten: ort.coordinates || '',
+    }));
+    const standortWS = XLSX.utils.json_to_sheet(standortRows);
+    XLSX.utils.book_append_sheet(wb, standortWS, 'Standorte');
+
+    XLSX.writeFile(wb, `${abteilung.name}_Export_${dayjs().format(dateFormat)}.xlsx`);
+}
+
+export const excelToJsonAllSheets = async (e: React.ChangeEvent<HTMLInputElement>): Promise<{ [sheetName: string]: ExcelJson } | undefined> => {
     if (!e) return undefined;
     e.preventDefault();
-    let excelData: ExcelJson | undefined;
     if (e.target.files) {
         const reader = new FileReader();
         return new Promise((resolve, reject) => {
-            reader.onload = (e) => {
-                if (!e.target) {
+            reader.onload = (ev) => {
+                if (!ev.target) {
                     message.error('Leider ist ein Fehler beim lesen der Datei aufgetreten');
-                    console.error('Leider ist ein Fehler beim lesen der Datei aufgetreten')
                     return;
                 }
-                const data = e.target.result;
+                const data = ev.target.result;
                 const workbook = XLSX.read(data, { type: 'array' });
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                const json = XLSX.utils.sheet_to_json(worksheet, {
-                    raw: true,
-                    dateNF: 'DD.MM.YYYY',
-                    header: 1,
-                    defval: null,
-                });
-                resolve({
-                    headers: json[0],
-                    data: json.slice(1)
-                } as ExcelJson)
+                const result: { [sheetName: string]: ExcelJson } = {};
+
+                for (const sheetName of workbook.SheetNames) {
+                    const worksheet = workbook.Sheets[sheetName];
+                    const json = XLSX.utils.sheet_to_json(worksheet, {
+                        raw: true,
+                        dateNF: 'DD.MM.YYYY',
+                        header: 1,
+                        defval: null,
+                    }) as unknown[][];
+                    if (json.length > 0) {
+                        result[sheetName] = {
+                            headers: json[0] as string[],
+                            data: json.slice(1),
+                        };
+                    }
+                }
+                resolve(result);
             };
             const file = e.target.files;
             if (file !== null && file.length > 0) {
                 reader.readAsArrayBuffer(file[0]);
             } else {
-                reject()
+                reject();
             }
-
-        })
-
+        });
     }
-    return excelData;
-}
-
-export const exportMaterialsToXlsx = (abteilung: Abteilung, categories: Categorie[], materials: Material[], standort: Standort[]) => {
-
-    const materialsCleen = materials.sort((a: Material, b: Material) => a.name.localeCompare(b.name)).map(mat => {
-        return {
-            Name: mat.name,
-            Bemerkung: mat.comment,
-            Anzahl: mat.count,
-            Beschädigt: mat.damaged || 0,
-            Verloren: mat.lost || 0,
-            Standort: mat.standort?.map(ortId => standort.find(ort => ort.id === ortId)?.name).join(','),
-            Gewicht: mat.weightInKg,
-            Verbrauchsmaterial: mat.consumables,
-            Kategorien: mat.categorieIds?.map(catId => categories.find(cat => cat.id === catId)?.name).join(','),
-            Bilder: mat.imageUrls || [].join(','),
-            'Nur intern ausleihbar': mat.onlyLendInternal || false,
-            Kaufdatum: mat.purchaseDate || '',
-            'Lebensdauer (Jahre)': mat.lifespanInYears ?? '',
-            'Kaufpreis (CHF)': mat.purchasePrice ?? '',
-            Lieferant: mat.supplier || '',
-            Inventarnummer: mat.inventoryNumber || '',
-            'Marke/Hersteller': mat.brand || '',
-            Zustand: mat.condition ? (conditionToGerman[mat.condition] || mat.condition) : '',
-            'Garantie bis': mat.warrantyUntil || '',
-            'Nächste Kontrolle': mat.nextMaintenanceDue || '',
-            Lagerhinweise: mat.storageInstructions || '',
-            Wartungshistorie: serializeMaintenanceHistory(mat.maintenanceHistory),
-        }
-    })
-
-    const materialsWS = XLSX.utils.json_to_sheet(materialsCleen)
-
-    //get second last entry (last one is !ref to get the col char) EX: I1
-    const col = Object.keys(materialsWS).slice(-2, -1)[0];
-
-    materialsWS['!autofilter'] = { ref: `A1:${col}` };
-
-    const wb = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(wb, materialsWS, 'Material')
-
-    XLSX.writeFile(wb, `${abteilung.name}_Material_${dayjs().format(dateFormat)}.xlsx`)
+    return undefined;
 }

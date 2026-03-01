@@ -1,4 +1,31 @@
 {
+  "export": {
+    "button": "Excel Export"
+  },
+  "import": {
+    "title": "Import collections",
+    "importAdd": "Import and add",
+    "importAddTooltip": "Existing collections will be supplemented with the content of the Excel spreadsheet.",
+    "importReplace": "Import and replace",
+    "importReplaceTooltip": "Existing collections will be deleted and replaced with the content of the Excel spreadsheet.",
+    "importReplaceConfirm": "Do you really want to delete all existing collections of this department?",
+    "nameRequired": "You must assign the name of the collection.",
+    "materialienRequired": "You must assign the materials column.",
+    "success": "Successfully imported {{imported}}/{{total}} collections.",
+    "materialWarning": "{{count}} material(s) could not be matched: {{names}}",
+    "skippedEmpty": "{{count}} collection(s) skipped (no matching materials found).",
+    "selectPlaceholder": "Matching field",
+    "noneOption": "Not available",
+    "example": "Example: {{value}}",
+    "defaultValue": "Default value"
+  },
+  "excelFields": {
+    "name": "Name*:",
+    "description": "Description:",
+    "imageUrls": "Images:",
+    "materialien": "Materials*:",
+    "materialienHelp": "Format: MaterialName:count, comma-separated"
+  },
   "add": {
     "button": "Add collection",
     "title": "Add collection",

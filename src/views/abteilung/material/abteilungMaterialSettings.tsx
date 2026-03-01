@@ -4,8 +4,7 @@ import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { Abteilung } from 'types/abteilung.type';
 import { MaterialsContext, CategorysContext, StandorteContext } from 'components/abteilung/AbteilungDetails';
-import { ExportMaterialButton } from 'components/material/ExportMaterial';
-import { ImportAddMaterialButton } from 'components/material/ImportAddMaterial';
+import { ImportExportButtons } from 'components/excel/ImportExportButtons';
 import { DeleteMaterialButton } from 'components/material/DeleteMaterial';
 import { setAllOnlyLendInternal } from 'util/MaterialUtil';
 import { firestoreOperation } from 'util/firestoreOperation';
@@ -53,10 +52,7 @@ export const AbteilungMaterialSettingsView = (props: AbteilungMaterialSettingsVi
         <Row gutter={[16, 16]}>
             <Col xs={24} lg={12}>
                 <Card title={t('material:settings.excelTitle')}>
-                    <Space>
-                        <ImportAddMaterialButton abteilung={abteilung} />
-                        <ExportMaterialButton abteilung={abteilung} />
-                    </Space>
+                    <ImportExportButtons abteilung={abteilung} />
                 </Card>
             </Col>
 

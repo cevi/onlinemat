@@ -1,4 +1,31 @@
 {
+  "export": {
+    "button": "Excel Export"
+  },
+  "import": {
+    "title": "Sammlungen importieren",
+    "importAdd": "Importieren hinzufügen",
+    "importAddTooltip": "Bestehende Sammlungen werden mit dem Inhalt der Excel-Tabelle ergänzt.",
+    "importReplace": "Importieren ersetzen",
+    "importReplaceTooltip": "Bestehende Sammlungen werden gelöscht und mit dem Inhalt der Excel-Tabelle ersetzt.",
+    "importReplaceConfirm": "Möchtest du wirklich alle bestehenden Sammlungen dieser Abteilung löschen?",
+    "nameRequired": "Du musst den Namen der Sammlung zuordnen.",
+    "materialienRequired": "Du musst die Materialien-Spalte zuordnen.",
+    "success": "Es wurden erfolgreich {{imported}}/{{total}} Sammlungen importiert.",
+    "materialWarning": "{{count}} Material(ien) konnten nicht zugeordnet werden: {{names}}",
+    "skippedEmpty": "{{count}} Sammlung(en) übersprungen (keine passenden Materialien).",
+    "selectPlaceholder": "Passendes Feld",
+    "noneOption": "Nicht vorhanden",
+    "example": "Beispiel: {{value}}",
+    "defaultValue": "Standardwert"
+  },
+  "excelFields": {
+    "name": "Name*:",
+    "description": "Beschreibung:",
+    "imageUrls": "Bilder:",
+    "materialien": "Materialien*:",
+    "materialienHelp": "Format: Materialname:Anzahl, kommagetrennt"
+  },
   "add": {
     "button": "Sammlung hinzufügen",
     "title": "Sammlung hinzufügen",

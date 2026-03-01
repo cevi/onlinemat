@@ -39,5 +39,45 @@
     "nextMaintenanceDue": "Next maintenance due:",
     "storageInstructions": "Storage instructions:",
     "maintenanceHistory": "Maintenance history:"
+  },
+  "combined": {
+    "title": "Import data",
+    "importAdd": "Import and add",
+    "importAddTooltip": "Existing data will be supplemented with the content of the Excel spreadsheet.",
+    "importReplace": "Import and replace",
+    "importReplaceTooltip": "All existing data will be deleted and replaced.",
+    "importReplaceConfirm": "Do you really want to delete all existing data (materials, collections, categories, locations)?",
+    "exportButton": "Excel Export",
+    "success": "Import successful: {{materials}} material(s), {{sammlungen}} collection(s), {{kategorien}} category/ies, {{standorte}} location(s).",
+    "noSheets": "No recognized data sheets found.",
+    "tabMaterial": "Material",
+    "tabSammlungen": "Collections",
+    "tabKategorien": "Categories",
+    "tabStandorte": "Locations",
+    "rowCount": "({{count}} rows)",
+    "nameRequired": "You must assign the name column.",
+    "materialienRequired": "You must assign the materials column.",
+    "selectPlaceholder": "Matching field",
+    "noneOption": "Not available",
+    "example": "Example: {{value}}",
+    "defaultValue": "Default value",
+    "materialWarning": "{{count}} material(s) could not be matched: {{names}}",
+    "skippedEmpty": "{{count}} collection(s) skipped (no matching materials found)."
+  },
+  "sammlungFields": {
+    "name": "Name*:",
+    "description": "Description:",
+    "imageUrls": "Images:",
+    "materialien": "Materials*:",
+    "materialienHelp": "Format: MaterialName:count, comma-separated"
+  },
+  "standortFields": {
+    "name": "Name*:",
+    "street": "Street:",
+    "city": "City:",
+    "coordinates": "Coordinates:"
+  },
+  "kategorieFields": {
+    "name": "Name*:"
   }
 }

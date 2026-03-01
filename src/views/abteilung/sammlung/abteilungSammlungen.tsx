@@ -87,7 +87,7 @@ export const AbteilungSammlungenView = (props: AbteilungSammlungenViewProps) => 
     return (
         <>
             <Row gutter={[16, 16]}>
-                <Col span={12}>
+                <Col span={24}>
                     <Can I="create" this={{ __caslSubjectType__: 'Sammlung', abteilungId: abteilung.id } as AbteilungEntityCasl}>
                         <AddSammlungButton abteilungId={abteilung.id} />
                     </Can>
