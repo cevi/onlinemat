@@ -109,6 +109,17 @@
     "standort": "Select location",
     "availableOnly": "Available only"
   },
+  "sort": {
+    "placeholder": "Sort by",
+    "nameAsc": "Name (A-Z)",
+    "nameDesc": "Name (Z-A)",
+    "commentAsc": "Comment (A-Z)",
+    "commentDesc": "Comment (Z-A)",
+    "weightAsc": "Weight (lightest first)",
+    "weightDesc": "Weight (heaviest first)",
+    "availableAsc": "Available (fewest first)",
+    "availableDesc": "Available (most first)"
+  },
   "search": {
     "placeholder": "Search for material"
   },

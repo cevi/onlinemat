@@ -56,7 +56,22 @@
     "delete": "Abteilung Löschen",
     "deleteConfirm": "Möchtest du diese Abteilung wirklich löschen?",
     "saveSuccess": "Änderungen erfolgreich gespeichert",
-    "deleteSuccess": "{{name}} erfolgreich gelöscht"
+    "deleteSuccess": "{{name}} erfolgreich gelöscht",
+    "reminders": {
+      "title": "Erinnerungen",
+      "returnTitle": "Rückgabeerinnerung",
+      "returnEnabled": "Automatische Rückgabeerinnerung",
+      "returnEnabledDescription": "Ausleiher erhalten automatisch eine E-Mail, wenn Material nach dem Enddatum der Bestellung nicht innerhalb der definierten Frist zurückgegeben wurde.",
+      "daysAfterEndDate": "Tage nach Enddatum",
+      "materialTitle": "Material-Kontrolle / Lebensdauer",
+      "materialEnabled": "Automatische Material-Erinnerung",
+      "materialEnabledDescription": "Matchefs und Admins erhalten automatisch eine E-Mail, wenn Materialien eine Kontrolle benötigen oder deren Lebensdauer abgelaufen ist.",
+      "daysBeforeDue": "Tage vor Fälligkeit",
+      "checkIntervalDays": "Prüfintervall (Tage)",
+      "sendMaterialReminder": "Jetzt prüfen & erinnern",
+      "materialReminderSent": "Erinnerung für {{count}} Material(ien) wurde gesendet.",
+      "noMaintenanceNeeded": "Alle Materialien sind aktuell, keine Erinnerung nötig."
+    }
   },
   "search": {
     "placeholder": "Abteilung suchen..."

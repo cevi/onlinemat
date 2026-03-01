@@ -23,8 +23,15 @@ export const deleteMaterial = async (abteilungId: string, mat: Material) => {
 
 export const editMaterial = async (abteilungId: string, material: Material) => {
     material.keywords = generateKeywords(material.name);
+    // Strip undefined values — Firestore rejects them in updateDoc()
+    const cleanData: Record<string, any> = {};
+    for (const [key, value] of Object.entries(material)) {
+        if (value !== undefined) {
+            cleanData[key] = value;
+        }
+    }
     await firestoreOperation(
-        () => updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, material.id), material),
+        () => updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, material.id), cleanData),
         i18n.t('material:messages.editSuccess', { name: material.name }),
     );
 }

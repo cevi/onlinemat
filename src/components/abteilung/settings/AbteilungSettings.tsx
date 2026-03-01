@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { Button, Col, Form, Image, Input, message, Popconfirm, Row, Switch, Typography, Upload } from 'antd';
+import { Button, Card, Col, Divider, Form, Image, Input, InputNumber, message, Popconfirm, Row, Switch, Typography } from 'antd';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
 import { useNavigate } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
@@ -13,7 +13,7 @@ import moduleStyles from '../Abteilung.module.scss'
 import { ability } from 'config/casl/ability';
 import { slugify } from 'util/FormUtil';
 import { Can } from 'config/casl/casl';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MailOutlined } from '@ant-design/icons';
 import { getValidateMessages } from 'util/FormValdationMessages';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from 'hooks/useIsMobile';
@@ -49,6 +49,19 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
     const [notifyOnNewOrder, setNotifyOnNewOrder] = useState<boolean>(currentMember?.notifyOnNewOrder === true);
     const [notifyLoading, setNotifyLoading] = useState(false);
 
+    // Return reminder settings
+    const [returnReminderEnabled, setReturnReminderEnabled] = useState<boolean>(abteilung.returnReminder?.enabled === true);
+    const [daysAfterEndDate, setDaysAfterDelivery] = useState<number>(abteilung.returnReminder?.daysAfterEndDate ?? 14);
+    const [returnReminderLoading, setReturnReminderLoading] = useState(false);
+
+    // Material reminder settings
+    const [materialReminderEnabled, setMaterialReminderEnabled] = useState<boolean>(abteilung.materialReminder?.enabled === true);
+    const [daysBeforeDue, setDaysBeforeDue] = useState<number>(abteilung.materialReminder?.daysBeforeDue ?? 14);
+    const [checkIntervalDays, setCheckIntervalDays] = useState<number>(abteilung.materialReminder?.checkIntervalDays ?? 7);
+    const [materialReminderLoading, setMaterialReminderLoading] = useState(false);
+    const [materialCheckLoading, setMaterialCheckLoading] = useState(false);
+    const [materialCheckResult, setMaterialCheckResult] = useState<number | null>(null);
+
     const toggleNotifyOnNewOrder = async (checked: boolean) => {
         if (!uid) return;
         try {
@@ -77,6 +90,68 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
             message.error(t('common:errors.generic', { error: ex }));
         } finally {
             setSearchVisibleLoading(false);
+        }
+    };
+
+    const saveReturnReminderSettings = async (enabled?: boolean) => {
+        try {
+            setReturnReminderLoading(true);
+            const isEnabled = enabled !== undefined ? enabled : returnReminderEnabled;
+            await httpsCallable(functions, 'updateReminderSettings')({
+                abteilungId: abteilung.id,
+                returnReminder: {
+                    enabled: isEnabled,
+                    daysAfterEndDate,
+                },
+            });
+            setReturnReminderEnabled(isEnabled);
+            message.success(t('abteilung:settings.saveSuccess'));
+        } catch (ex) {
+            message.error(t('common:errors.generic', { error: ex }));
+        } finally {
+            setReturnReminderLoading(false);
+        }
+    };
+
+    const saveMaterialReminderSettings = async (enabled?: boolean) => {
+        try {
+            setMaterialReminderLoading(true);
+            const isEnabled = enabled !== undefined ? enabled : materialReminderEnabled;
+            await httpsCallable(functions, 'updateReminderSettings')({
+                abteilungId: abteilung.id,
+                materialReminder: {
+                    enabled: isEnabled,
+                    daysBeforeDue,
+                    checkIntervalDays,
+                },
+            });
+            setMaterialReminderEnabled(isEnabled);
+            message.success(t('abteilung:settings.saveSuccess'));
+        } catch (ex) {
+            message.error(t('common:errors.generic', { error: ex }));
+        } finally {
+            setMaterialReminderLoading(false);
+        }
+    };
+
+    const handleMaterialCheck = async () => {
+        try {
+            setMaterialCheckLoading(true);
+            setMaterialCheckResult(null);
+            const result = await httpsCallable(functions, 'sendMaterialMaintenanceReminder')({
+                abteilungId: abteilung.id,
+            });
+            const count = (result.data as any).count;
+            setMaterialCheckResult(count);
+            if (count > 0) {
+                message.success(t('abteilung:settings.reminders.materialReminderSent', { count }));
+            } else {
+                message.info(t('abteilung:settings.reminders.noMaintenanceNeeded'));
+            }
+        } catch (ex) {
+            message.error(t('common:errors.generic', { error: ex }));
+        } finally {
+            setMaterialCheckLoading(false);
         }
     };
 
@@ -177,6 +252,87 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                         <Typography.Text type="secondary">{t('abteilung:settings.notifyOnNewOrderDescription')}</Typography.Text>
                     </div>
                 </div>
+            )}
+            {canToggleSearch && (
+                <>
+                    <Divider />
+                    <Typography.Title level={5}>{t('abteilung:settings.reminders.title')}</Typography.Title>
+
+                    <Card size="small" title={t('abteilung:settings.reminders.returnTitle')} style={{ marginBottom: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                            <Switch
+                                checked={returnReminderEnabled}
+                                onChange={(checked) => saveReturnReminderSettings(checked)}
+                                loading={returnReminderLoading}
+                            />
+                            <div>
+                                <Typography.Text strong>{t('abteilung:settings.reminders.returnEnabled')}</Typography.Text>
+                                <br />
+                                <Typography.Text type="secondary">{t('abteilung:settings.reminders.returnEnabledDescription')}</Typography.Text>
+                            </div>
+                        </div>
+                        {returnReminderEnabled && (
+                            <Row gutter={[16, 8]}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item label={t('abteilung:settings.reminders.daysAfterEndDate')}>
+                                        <InputNumber min={1} max={365} value={daysAfterEndDate} onChange={(val) => setDaysAfterDelivery(val ?? 14)} />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Button type="primary" onClick={() => saveReturnReminderSettings()} loading={returnReminderLoading}>
+                                        {t('abteilung:settings.save')}
+                                    </Button>
+                                </Col>
+                            </Row>
+                        )}
+                    </Card>
+
+                    <Card size="small" title={t('abteilung:settings.reminders.materialTitle')} style={{ marginBottom: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                            <Switch
+                                checked={materialReminderEnabled}
+                                onChange={(checked) => saveMaterialReminderSettings(checked)}
+                                loading={materialReminderLoading}
+                            />
+                            <div>
+                                <Typography.Text strong>{t('abteilung:settings.reminders.materialEnabled')}</Typography.Text>
+                                <br />
+                                <Typography.Text type="secondary">{t('abteilung:settings.reminders.materialEnabledDescription')}</Typography.Text>
+                            </div>
+                        </div>
+                        {materialReminderEnabled && (
+                            <Row gutter={[16, 8]}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item label={t('abteilung:settings.reminders.daysBeforeDue')}>
+                                        <InputNumber min={0} max={365} value={daysBeforeDue} onChange={(val) => setDaysBeforeDue(val ?? 14)} />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item label={t('abteilung:settings.reminders.checkIntervalDays')}>
+                                        <InputNumber min={1} max={365} value={checkIntervalDays} onChange={(val) => setCheckIntervalDays(val ?? 7)} />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Button type="primary" onClick={() => saveMaterialReminderSettings()} loading={materialReminderLoading}>
+                                        {t('abteilung:settings.save')}
+                                    </Button>
+                                </Col>
+                            </Row>
+                        )}
+                        <Divider />
+                        <Button icon={<MailOutlined />} onClick={handleMaterialCheck} loading={materialCheckLoading}>
+                            {t('abteilung:settings.reminders.sendMaterialReminder')}
+                        </Button>
+                        {materialCheckResult !== null && (
+                            <Typography.Text style={{ marginLeft: 12 }}>
+                                {materialCheckResult > 0
+                                    ? t('abteilung:settings.reminders.materialReminderSent', { count: materialCheckResult })
+                                    : t('abteilung:settings.reminders.noMaintenanceNeeded')
+                                }
+                            </Typography.Text>
+                        )}
+                    </Card>
+                </>
             )}
             <Form
                 form={form}

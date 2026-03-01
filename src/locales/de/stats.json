@@ -12,7 +12,10 @@
     },
     "chart": {
         "ordersOverTime": "Bestellungen pro Monat",
-        "orders": "Bestellungen"
+        "orders": "Bestellungen",
+        "usersPerDay": "Nutzende pro Tag",
+        "newUsers": "Neue Registrierungen",
+        "activeUsersLine": "Aktive Nutzende"
     },
     "abteilungenTable": {
         "title": "Abteilungen",

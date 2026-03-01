@@ -57,7 +57,9 @@
     "approve": "Genehmigen",
     "approveTooltip": "Bestellung genehmigen",
     "reject": "Ablehnen",
-    "rejectTooltip": "Bestellung ablehnen"
+    "rejectTooltip": "Bestellung ablehnen",
+    "sendReminder": "Rückgabeerinnerung senden",
+    "sendReminderTooltip": "Sendet eine Erinnerungsmail an die bestellende Person"
   },
   "create": {
     "date": "Datum",
@@ -84,6 +86,8 @@
     "damagedCheckboxTooltip": "Material ist beschädigt oder wurde nicht zurückgegeben.",
     "adjust": "Anpassen",
     "prepared": "Bereitgestellt",
+    "controlled": "Kontrolliert",
+    "controlledTooltip": "Material wurde bei Rückgabe kontrolliert",
     "showDetails": "Details",
     "standort": "Standort: {{names}}",
     "categories": "Kategorien: {{names}}",
@@ -134,7 +138,8 @@
     "editMaterialNotAvailable": "{{name}} ist zur Zeit nicht verfügbar.",
     "approveSuccess": "Bestellung wurde genehmigt.",
     "approveNotAllAvailable": "Leider ist nicht alles Material verfügbar.",
-    "rejectSuccess": "Bestellung wurde abgelehnt."
+    "rejectSuccess": "Bestellung wurde abgelehnt.",
+    "reminderSuccess": "Rückgabeerinnerung wurde erfolgreich gesendet."
   },
   "search": {
     "placeholder": "nach Bestellung suchen",

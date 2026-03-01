@@ -34,6 +34,7 @@ export interface Material {
     nextMaintenanceDue?: string;
     storageInstructions?: string;
     maintenanceHistory?: MaintenanceHistoryEntry[];
+    lastMaintenanceReminderSentAt?: Date;
 }
 
 export interface DamagedMaterial {

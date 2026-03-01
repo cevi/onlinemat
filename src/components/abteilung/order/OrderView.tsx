@@ -22,7 +22,7 @@ import { addCommentOrder, calculateTotalWeight, completeOrder, deleteOrder, deli
 import { ability } from 'config/casl/ability';
 import { OrderNotFound } from './OrderNotFound';
 import { useUser } from 'hooks/use-user';
-import { CheckCircleOutlined, CheckOutlined, ClockCircleOutlined, CloseOutlined, CopyOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined, UndoOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CheckOutlined, ClockCircleOutlined, CloseOutlined, CopyOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined, MailOutlined, UndoOutlined } from '@ant-design/icons';
 import { DamagedMaterialModal } from './DamagedMaterialModal';
 import { Can } from 'config/casl/casl';
 import { useTranslation } from 'react-i18next';
@@ -118,6 +118,9 @@ export const OrderView = (props: OrderProps) => {
     const cookieName = getCartName(abteilung.id);
     const [, setCookie] = useCookies([cookieName]);
     const [copyModalOpen, setCopyModalOpen] = useState(false);
+
+    // Return reminder state
+    const [reminderLoading, setReminderLoading] = useState(false);
 
     const customGroupId = 'custom';
 
@@ -296,6 +299,22 @@ export const OrderView = (props: OrderProps) => {
         copyToCartAndNavigate(newItems);
     };
 
+    const handleSendReturnReminder = async () => {
+        if (!order || !orderId) return;
+        try {
+            setReminderLoading(true);
+            await httpsCallable(functions, 'sendReturnReminder')({
+                abteilungId: abteilung.id,
+                orderId: order.id,
+            });
+            message.success(t('order:messages.reminderSuccess'));
+        } catch (ex: any) {
+            message.error(ex?.message || t('common:errors.generic', { error: ex }));
+        } finally {
+            setReminderLoading(false);
+        }
+    };
+
     // Auto-exit edit mode if order status changes while editing
     useEffect(() => {
         if (isEditing && order && order.status !== 'created') {
@@ -354,6 +373,15 @@ export const OrderView = (props: OrderProps) => {
         const isPrepared = order.preparedItems?.includes(matId);
         await updateDoc(orderRef, {
             preparedItems: isPrepared ? arrayRemove(matId) : arrayUnion(matId)
+        });
+    };
+
+    const toggleControlledItem = async (matId: string) => {
+        if (!order || !orderId) return;
+        const orderRef = doc(db, abteilungenCollection, abteilung.id, abteilungenOrdersCollection, orderId);
+        const isControlled = order.controlledItems?.includes(matId);
+        await updateDoc(orderRef, {
+            controlledItems: isControlled ? arrayRemove(matId) : arrayUnion(matId)
         });
     };
 
@@ -514,27 +542,49 @@ export const OrderView = (props: OrderProps) => {
 
         //No mat was damged / lost
         if (order.status === 'delivered' && damagedMaterial.length <= 0) {
-            return <Tooltip placement='bottom' title={t('order:actions.completeTooltip')}>
-                <Button
-                    type='primary'
-                    onClick={() => completeOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
-                >
-                    {t('order:actions.complete')}
-                </Button>
-            </Tooltip>;
+            return <>
+                <Tooltip placement='bottom' title={t('order:actions.completeTooltip')}>
+                    <Button
+                        type='primary'
+                        onClick={() => completeOrder(abteilung.id, order, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName)}
+                    >
+                        {t('order:actions.complete')}
+                    </Button>
+                </Tooltip>
+                <Tooltip placement='bottom' title={t('order:actions.sendReminderTooltip')}>
+                    <Button
+                        icon={<MailOutlined />}
+                        onClick={handleSendReturnReminder}
+                        loading={reminderLoading}
+                    >
+                        {t('order:actions.sendReminder')}
+                    </Button>
+                </Tooltip>
+            </>;
         }
 
         //Some mat is damaged /lost
         if (order.status === 'delivered') {
-            return <Tooltip placement='bottom' title={t('order:actions.completePartialTooltip')}>
-                <Button
-                    type='dashed'
-                    danger
-                    onClick={() => setShowDamageModal(!showDamageModal)}
-                >
-                    {t('order:actions.completePartial')}
-                </Button>
-            </Tooltip>;
+            return <>
+                <Tooltip placement='bottom' title={t('order:actions.completePartialTooltip')}>
+                    <Button
+                        type='dashed'
+                        danger
+                        onClick={() => setShowDamageModal(!showDamageModal)}
+                    >
+                        {t('order:actions.completePartial')}
+                    </Button>
+                </Tooltip>
+                <Tooltip placement='bottom' title={t('order:actions.sendReminderTooltip')}>
+                    <Button
+                        icon={<MailOutlined />}
+                        onClick={handleSendReturnReminder}
+                        loading={reminderLoading}
+                    >
+                        {t('order:actions.sendReminder')}
+                    </Button>
+                </Tooltip>
+            </>;
         }
 
         
@@ -741,6 +791,13 @@ export const OrderView = (props: OrderProps) => {
                             }) && order.status === 'created' && !isEditing}
                             preparedItems={order.preparedItems || []}
                             onTogglePrepared={togglePreparedItem}
+
+                            showControlledCheckboxes={ability.can('deliver', {
+                                ...order,
+                                abteilungId: abteilung.id
+                            }) && (order.status === 'delivered' || order.status === 'completed') && !isEditing}
+                            controlledItems={order.controlledItems || []}
+                            onToggleControlled={order.status === 'delivered' ? toggleControlledItem : undefined}
                         />
                     )}
                 </Col>

@@ -1,6 +1,17 @@
 import { Group } from './group.types';
 import { UserData } from './user.type';
 
+export interface ReturnReminderSettings {
+    enabled: boolean
+    daysAfterEndDate: number
+}
+
+export interface MaterialReminderSettings {
+    enabled: boolean
+    daysBeforeDue: number
+    checkIntervalDays: number
+}
+
 export interface Abteilung {
     __caslSubjectType__ : 'Abteilung'
     id: string
@@ -11,6 +22,8 @@ export interface Abteilung {
     groups: { [id: string]: Group }
     email?: string
     searchVisible?: boolean
+    returnReminder?: ReturnReminderSettings
+    materialReminder?: MaterialReminderSettings
 }
 
 

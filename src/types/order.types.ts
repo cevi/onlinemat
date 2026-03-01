@@ -19,9 +19,11 @@ export interface Order {
     matchefComment?: string
     damagedMaterial?: DamagedMaterial[] | null
     preparedItems?: string[]
+    controlledItems?: string[]
     pfand?: number
     price?: number
     rejectionReason?: string
+    lastReturnReminderSentAt?: Date
 }
 
 export interface OrderHistory {

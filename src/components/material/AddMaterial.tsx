@@ -36,7 +36,15 @@ export const AddMaterial = (props: AddMaterialProps) => {
             const material = form.getFieldsValue() as Material;
             material.keywords = generateKeywords(material.name)
 
-            const response = await addDoc(collection(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection), material)
+            // Strip undefined values — Firestore rejects them
+            const cleanData: Record<string, any> = {};
+            for (const [key, value] of Object.entries(material)) {
+                if (value !== undefined) {
+                    cleanData[key] = value;
+                }
+            }
+
+            const response = await addDoc(collection(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection), cleanData)
             if (response.id) {
                 message.success(t('material:add.success', { name: form.getFieldValue('name') }));
                 form.resetFields();

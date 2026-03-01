@@ -166,7 +166,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
                             displayMode === 'table' && <MaterialTable abteilungId={abteilung.id} categorie={categories} standort={standorte} material={filteredMaterials} addToCart={addItemToCart} />
                         }
                         {
-                            displayMode === 'grid' && <MaterialGrid abteilungId={abteilung.id} categorie={categories} material={filteredMaterials} addToCart={addItemToCart} />
+                            displayMode === 'grid' && <MaterialGrid abteilungId={abteilung.id} categorie={categories} standort={standorte} material={filteredMaterials} addToCart={addItemToCart} />
                         }
                         {
                             displayMode === 'list' && <MaterialListView abteilungId={abteilung.id} categorie={categories} standort={standorte} material={filteredMaterials} addToCart={addItemToCart} />
