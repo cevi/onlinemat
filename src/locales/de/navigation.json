@@ -43,6 +43,10 @@
       "search": {
         "title": "Abteilungsübergreifend suchen",
         "description": "Finde Material von anderen Abteilungen, die das Ausleihen ermöglicht haben - ideal wenn dir etwas fehlt."
+      },
+      "metadata": {
+        "title": "Materialverwaltung",
+        "description": "Erfasse Kaufdatum, Zustand, Wartungshistorie und mehr - behalte den Überblick über den gesamten Lebenszyklus deines Materials."
       }
     }
   },

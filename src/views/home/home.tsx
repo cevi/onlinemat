@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import appStyles from 'styles.module.scss';
 import { Button, Card, Col, Result, Row, Typography } from 'antd';
-import { AppstoreOutlined, CalendarOutlined, LoginOutlined, SearchOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, CalendarOutlined, LoginOutlined, SearchOutlined, ToolOutlined } from '@ant-design/icons';
 import { useAuth0 } from '@auth0/auth0-react';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ const features = [
     { key: 'browse', icon: <AppstoreOutlined style={{fontSize: 36, color: '#1890ff'}} /> },
     { key: 'reserve', icon: <CalendarOutlined style={{fontSize: 36, color: '#52c41a'}} /> },
     { key: 'search', icon: <SearchOutlined style={{fontSize: 36, color: '#faad14'}} /> },
+    { key: 'metadata', icon: <ToolOutlined style={{fontSize: 36, color: '#722ed1'}} /> },
 ] as const;
 
 export const HomeView = () => {
@@ -23,7 +24,7 @@ export const HomeView = () => {
 
         {
             !isAuthenticated && <div className={classNames(appStyles['flex-grower'], appStyles['center-container'])}>
-                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 800, padding: '0 16px', textAlign: 'center'}}>
+                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 1200, padding: '0 16px', textAlign: 'center'}}>
                     <img src={ceviLogoImage} alt="Onlinemat" style={{width: 120, marginBottom: 16}} />
                     <Typography.Title>{t('navigation:home.appName')}</Typography.Title>
                     <Typography.Paragraph style={{fontSize: 16, maxWidth: 600}}>
@@ -34,7 +35,7 @@ export const HomeView = () => {
                     </Button>
                     <Row gutter={[24, 24]} style={{marginTop: 32, width: '100%'}}>
                         {features.map(({key, icon}) => (
-                            <Col xs={24} sm={8} key={key}>
+                            <Col xs={24} sm={12} md={6} key={key}>
                                 <Card style={{height: '100%', textAlign: 'center'}}>
                                     <div style={{marginBottom: 12}}>{icon}</div>
                                     <Typography.Title level={5} style={{marginTop: 0}}>

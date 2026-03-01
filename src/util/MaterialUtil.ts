@@ -80,6 +80,19 @@ export const getAvailableMatCountToEdit = (mat: Material | undefined): { damaged
     }
 }
 
+export const setAllOnlyLendInternal = async (abteilungId: string, materials: Material[], value: boolean): Promise<void> => {
+    const BATCH_LIMIT = 500;
+    for (let i = 0; i < materials.length; i += BATCH_LIMIT) {
+        const batch = writeBatch(db);
+        const chunk = materials.slice(i, i + BATCH_LIMIT);
+        chunk.forEach(mat => {
+            const ref = doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, mat.id);
+            batch.update(ref, { onlyLendInternal: value });
+        });
+        await batch.commit();
+    }
+}
+
 export const massImportMaterial = async (abteilungId: string, materials: Material[]): Promise<void> => {
     if (materials.length > 500) {
         throw new Error('Import limit exceeded: maximum 500 materials per import');

@@ -8,7 +8,8 @@
     "bestellungen": "Orders",
     "mitglieder": "Members",
     "gruppen": "Groups",
-    "einstellungen": "Settings"
+    "einstellungen": "Settings",
+    "materialEinstellungen": "Material Settings"
   },
   "card": {
     "details": "Details",

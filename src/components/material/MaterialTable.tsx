@@ -158,7 +158,7 @@ export const MaterialTable = (props: MaterialTablelProps) => {
                     </Button>
                 ]}
             >
-                <ViewMaterial material={activeRecord}></ViewMaterial>
+                <ViewMaterial material={activeRecord} abteilungId={abteilungId}></ViewMaterial>
             </Modal>
         </>
 

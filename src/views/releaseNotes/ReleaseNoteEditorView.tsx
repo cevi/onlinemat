@@ -156,7 +156,7 @@ export const ReleaseNoteEditorView: React.FC = () => {
                     </Col>
                 </Row>
 
-                <Space>
+                <Space style={{marginBottom: '20px'}}>
                     <Button type="primary" onClick={handleSave} loading={saving}>
                         {t('releaseNote:saveButton')}
                     </Button>

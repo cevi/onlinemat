@@ -31,7 +31,7 @@ export const MaterialGrid = (props: MaterialGridProps) => {
 
         <Row gutter={[24, 24]}>
             {
-                filteredMaterials.map(mat => <MaterialCard key={mat.id} material={mat} addToCart={addToCart} />)
+                filteredMaterials.map(mat => <MaterialCard key={mat.id} material={mat} addToCart={addToCart} abteilungId={abteilungId} />)
             }
         </Row>
 
@@ -42,11 +42,12 @@ export const MaterialGrid = (props: MaterialGridProps) => {
 export interface MaterialCardProps {
     material: Material
     addToCart: (mat: Material) => void
+    abteilungId: string
 }
 
 export const MaterialCard = (props: MaterialCardProps) => {
 
-    const { material , addToCart} = props;
+    const { material, addToCart, abteilungId } = props;
 
     const createImageCarousel = () => {
         if (!material.imageUrls || material.imageUrls.length <= 0) {
@@ -110,7 +111,7 @@ export const MaterialCard = (props: MaterialCardProps) => {
                 </Button>
             ]}
         >
-            <ViewMaterial material={activeRecord}></ViewMaterial>
+            <ViewMaterial material={activeRecord} abteilungId={abteilungId}></ViewMaterial>
         </Modal>
     </Col>
 

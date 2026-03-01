@@ -27,6 +27,17 @@
     "onlyLendInternal": "Hide for external users:",
     "defaultStandort": "Default location",
     "defaultCategories": "Default categories",
-    "defaultImageUrls": "Default URLs (comma-separated)"
+    "defaultImageUrls": "Default URLs (comma-separated)",
+    "purchaseDate": "Purchase date:",
+    "lifespanInYears": "Lifespan (years):",
+    "purchasePrice": "Purchase price (CHF):",
+    "supplier": "Supplier:",
+    "inventoryNumber": "Inventory number:",
+    "brand": "Brand/Manufacturer:",
+    "condition": "Condition:",
+    "warrantyUntil": "Warranty until:",
+    "nextMaintenanceDue": "Next maintenance due:",
+    "storageInstructions": "Storage instructions:",
+    "maintenanceHistory": "Maintenance history:"
   }
 }

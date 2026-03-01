@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { PicturesWall } from 'components/pictures/PictureWall';
 import { CategorysContext, StandorteContext } from 'components/abteilung/AbteilungDetails';
+import { Can } from 'config/casl/casl';
+import { MaterialMetadataFields } from './MaterialMetadataFields';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -30,9 +32,10 @@ interface MaterialFormFieldsProps {
     maxCount: { damaged: number; lost: number };
     availCount: number;
     renderMatImages: string[];
+    abteilungId: string;
 }
 
-export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: MaterialFormFieldsProps) => {
+export const MaterialFormFields = ({ maxCount, availCount, renderMatImages, abteilungId }: MaterialFormFieldsProps) => {
     const { t } = useTranslation();
     const { categories } = useContext(CategorysContext);
     const { standorte } = useContext(StandorteContext);
@@ -188,5 +191,9 @@ export const MaterialFormFields = ({ maxCount, availCount, renderMatImages }: Ma
         </Form.List>
 
         <PicturesWall showRemove={false} imageUrls={renderMatImages} />
+
+        <Can I='update' this={{ __caslSubjectType__: 'Material' as const, abteilungId }}>
+            <MaterialMetadataFields />
+        </Can>
     </>;
 };

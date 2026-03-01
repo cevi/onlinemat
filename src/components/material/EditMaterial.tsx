@@ -78,6 +78,7 @@ export const EditMaterial = forwardRef<EditFormHandle, EditMaterialProps>((props
                 maxCount={maxCount}
                 availCount={availCount}
                 renderMatImages={renderMatImages}
+                abteilungId={abteilungId}
             />
         </Form>
     </>
@@ -98,6 +99,7 @@ export const EditMaterialButton = (props: EditMaterialProps) => {
             title={t('material:edit.title')}
             open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
+            width={720}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>
                     {t('common:buttons.cancel')}

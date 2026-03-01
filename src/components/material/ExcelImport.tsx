@@ -24,8 +24,9 @@ import { useContext, useEffect, useState } from "react";
 import { Abteilung } from "types/abteilung.type";
 import { Categorie } from "types/categorie.types";
 import { ExcelJson } from "types/excel.type";
-import { Material } from "types/material.types";
+import { Material, MaterialCondition } from "types/material.types";
 import { massImportMaterial } from "util/MaterialUtil";
+import { parseCondition, parseMaintenanceHistory } from "util/ExcelUtil";
 import {
   CategorysContext,
   StandorteContext,
@@ -80,6 +81,24 @@ export const ExcelImport = (props: ExcelImportProps) => {
   const [defaultOnlyLendInternal, setDefaultOnlyLendInternal] =
     useState<boolean>(false);
 
+  // Metadata column mappings
+  const [purchaseDate, setPurchaseDate] = useState<string | undefined>();
+  const [lifespanInYears, setLifespanInYears] = useState<string | undefined>();
+  const [purchasePrice, setPurchasePrice] = useState<string | undefined>();
+  const [supplier, setSupplier] = useState<string | undefined>();
+  const [inventoryNumber, setInventoryNumber] = useState<string | undefined>();
+  const [brand, setBrand] = useState<string | undefined>();
+  const [condition, setCondition] = useState<string | undefined>();
+  const [warrantyUntil, setWarrantyUntil] = useState<string | undefined>();
+  const [nextMaintenanceDue, setNextMaintenanceDue] = useState<string | undefined>();
+  const [storageInstructions, setStorageInstructions] = useState<string | undefined>();
+  const [maintenanceHistory, setMaintenanceHistory] = useState<string | undefined>();
+
+  // Metadata default values
+  const [defaultSupplier, setDefaultSupplier] = useState<string | null>(null);
+  const [defaultBrand, setDefaultBrand] = useState<string | null>(null);
+  const [defaultCondition, setDefaultCondition] = useState<MaterialCondition | null>(null);
+
   // Auto-match Excel headers to Onlinemat fields when data is loaded
   useEffect(() => {
     if (!excelData) return;
@@ -127,6 +146,17 @@ export const ExcelImport = (props: ExcelImportProps) => {
         ],
         setter: setOnlyLendInternal,
       },
+      { aliases: ["kaufdatum", "purchase date", "purchasedate"], setter: setPurchaseDate },
+      { aliases: ["lebensdauer", "lebensdauer (jahre)", "lifespan", "lifespaninyears"], setter: setLifespanInYears },
+      { aliases: ["kaufpreis", "kaufpreis (chf)", "purchase price", "purchaseprice"], setter: setPurchasePrice },
+      { aliases: ["lieferant", "supplier"], setter: setSupplier },
+      { aliases: ["inventarnummer", "inventory number", "inventorynumber"], setter: setInventoryNumber },
+      { aliases: ["marke", "marke/hersteller", "brand", "hersteller"], setter: setBrand },
+      { aliases: ["zustand", "condition"], setter: setCondition },
+      { aliases: ["garantie bis", "garantie", "warranty", "warrantyuntil"], setter: setWarrantyUntil },
+      { aliases: ["nächste kontrolle", "naechste kontrolle", "next maintenance", "nextmaintenancedue"], setter: setNextMaintenanceDue },
+      { aliases: ["lagerhinweise", "storage instructions", "storageinstructions"], setter: setStorageInstructions },
+      { aliases: ["wartungshistorie", "maintenance history", "maintenancehistory"], setter: setMaintenanceHistory },
     ];
 
     for (const { aliases, setter } of fieldMappings) {
@@ -301,6 +331,41 @@ export const ExcelImport = (props: ExcelImportProps) => {
       const sanitizedName = matName.trim().slice(0, 200);
       if (!sanitizedName) continue;
 
+      // Read metadata fields from Excel or defaults
+      const matPurchaseDate: string | undefined = purchaseDate
+        ? (String(dataArray[indexes[purchaseDate]] || '')) || undefined
+        : undefined;
+      const matLifespan: number | undefined = lifespanInYears
+        ? (Number(dataArray[indexes[lifespanInYears]]) || undefined)
+        : undefined;
+      const matPrice: number | undefined = purchasePrice
+        ? (Number(dataArray[indexes[purchasePrice]]) || undefined)
+        : undefined;
+      const matSupplier: string | undefined = supplier
+        ? (String(dataArray[indexes[supplier]] || '')) || defaultSupplier || undefined
+        : defaultSupplier || undefined;
+      const matInventoryNumber: string | undefined = inventoryNumber
+        ? (String(dataArray[indexes[inventoryNumber]] || '')) || undefined
+        : undefined;
+      const matBrand: string | undefined = brand
+        ? (String(dataArray[indexes[brand]] || '')) || defaultBrand || undefined
+        : defaultBrand || undefined;
+      const matCondition: MaterialCondition | undefined = condition
+        ? parseCondition(String(dataArray[indexes[condition]] || '')) || undefined
+        : defaultCondition || undefined;
+      const matWarrantyUntil: string | undefined = warrantyUntil
+        ? (String(dataArray[indexes[warrantyUntil]] || '')) || undefined
+        : undefined;
+      const matNextMaintenance: string | undefined = nextMaintenanceDue
+        ? (String(dataArray[indexes[nextMaintenanceDue]] || '')) || undefined
+        : undefined;
+      const matStorageInstructions: string | undefined = storageInstructions
+        ? (String(dataArray[indexes[storageInstructions]] || '')) || undefined
+        : undefined;
+      const matMaintenanceHistory = maintenanceHistory
+        ? parseMaintenanceHistory(String(dataArray[indexes[maintenanceHistory]] || ''))
+        : undefined;
+
       const matToAdd = {
         name: sanitizedName,
         comment: matComment ? matComment.trim().slice(0, 1000) : null,
@@ -313,6 +378,17 @@ export const ExcelImport = (props: ExcelImportProps) => {
         imageUrls: matImageUrls.filter(url => url.startsWith('https://') || url.startsWith('http://')),
         standort: matStandortIds,
         onlyLendInternal: Boolean(matonlyLendInternal),
+        ...(matPurchaseDate && { purchaseDate: matPurchaseDate }),
+        ...(matLifespan != null && { lifespanInYears: matLifespan }),
+        ...(matPrice != null && { purchasePrice: matPrice }),
+        ...(matSupplier && { supplier: matSupplier }),
+        ...(matInventoryNumber && { inventoryNumber: matInventoryNumber }),
+        ...(matBrand && { brand: matBrand }),
+        ...(matCondition && { condition: matCondition }),
+        ...(matWarrantyUntil && { warrantyUntil: matWarrantyUntil }),
+        ...(matNextMaintenance && { nextMaintenanceDue: matNextMaintenance }),
+        ...(matStorageInstructions && { storageInstructions: matStorageInstructions }),
+        ...(matMaintenanceHistory && matMaintenanceHistory.length > 0 && { maintenanceHistory: matMaintenanceHistory }),
       } as Material;
 
       material.push(matToAdd);
@@ -660,6 +736,181 @@ export const ExcelImport = (props: ExcelImportProps) => {
               <span>{defaultOnlyLendInternal ? t('common:confirm.yes') : t('common:confirm.no')}</span>
             </div>
           )}
+        </Col>
+
+        {/* --- Metadata fields --- */}
+
+        {/* Kaufdatum */}
+        <Col span={12}>
+          <p>{t('excel:fields.purchaseDate')}</p>
+          {purchaseDate && <p>{t('excel:import.example', { value: findExampleData(purchaseDate) })}</p>}
+        </Col>
+        <Col span={12}>
+          <ExcelImportSelect
+            options={excelData.headers}
+            selected={purchaseDate}
+            setSelected={setPurchaseDate}
+          />
+        </Col>
+
+        {/* Lebensdauer */}
+        <Col span={12}>
+          <p>{t('excel:fields.lifespanInYears')}</p>
+          {lifespanInYears && <p>{t('excel:import.example', { value: findExampleData(lifespanInYears) })}</p>}
+        </Col>
+        <Col span={12}>
+          <ExcelImportSelect
+            options={excelData.headers}
+            selected={lifespanInYears}
+            setSelected={setLifespanInYears}
+          />
+        </Col>
+
+        {/* Kaufpreis */}
+        <Col span={12}>
+          <p>{t('excel:fields.purchasePrice')}</p>
+          {purchasePrice && <p>{t('excel:import.example', { value: findExampleData(purchasePrice) })}</p>}
+        </Col>
+        <Col span={12}>
+          <ExcelImportSelect
+            options={excelData.headers}
+            selected={purchasePrice}
+            setSelected={setPurchasePrice}
+          />
+        </Col>
+
+        {/* Lieferant */}
+        <Col span={12}>
+          <p>{t('excel:fields.supplier')}</p>
+          {supplier && <p>{t('excel:import.example', { value: findExampleData(supplier) })}</p>}
+        </Col>
+        <Col span={12}>
+          <ExcelImportSelect
+            options={excelData.headers}
+            selected={supplier}
+            setSelected={setSupplier}
+          />
+          {!supplier && (
+            <Input
+              placeholder={t('excel:import.defaultValue')}
+              value={defaultSupplier ?? undefined}
+              onChange={(e) => setDefaultSupplier(e.target.value || null)}
+              style={{ width: "100%", marginTop: 4 }}
+            />
+          )}
+        </Col>
+
+        {/* Inventarnummer */}
+        <Col span={12}>
+          <p>{t('excel:fields.inventoryNumber')}</p>
+          {inventoryNumber && <p>{t('excel:import.example', { value: findExampleData(inventoryNumber) })}</p>}
+        </Col>
+        <Col span={12}>
+          <ExcelImportSelect
+            options={excelData.headers}
+            selected={inventoryNumber}
+            setSelected={setInventoryNumber}
+          />
+        </Col>
+
+        {/* Marke/Hersteller */}
+        <Col span={12}>
+          <p>{t('excel:fields.brand')}</p>
+          {brand && <p>{t('excel:import.example', { value: findExampleData(brand) })}</p>}
+        </Col>
+        <Col span={12}>
+          <ExcelImportSelect
+            options={excelData.headers}
+            selected={brand}
+            setSelected={setBrand}
+          />
+          {!brand && (
+            <Input
+              placeholder={t('excel:import.defaultValue')}
+              value={defaultBrand ?? undefined}
+              onChange={(e) => setDefaultBrand(e.target.value || null)}
+              style={{ width: "100%", marginTop: 4 }}
+            />
+          )}
+        </Col>
+
+        {/* Zustand */}
+        <Col span={12}>
+          <p>{t('excel:fields.condition')}</p>
+          {condition && <p>{t('excel:import.example', { value: findExampleData(condition) })}</p>}
+        </Col>
+        <Col span={12}>
+          <ExcelImportSelect
+            options={excelData.headers}
+            selected={condition}
+            setSelected={setCondition}
+          />
+          {!condition && (
+            <Select
+              allowClear
+              placeholder={t('excel:import.defaultValue')}
+              value={defaultCondition ?? undefined}
+              onChange={(val) => setDefaultCondition(val || null)}
+              style={{ width: "100%", marginTop: 4 }}
+            >
+              <Select.Option value="new">{t('material:form.conditionNew')}</Select.Option>
+              <Select.Option value="good">{t('material:form.conditionGood')}</Select.Option>
+              <Select.Option value="fair">{t('material:form.conditionFair')}</Select.Option>
+              <Select.Option value="poor">{t('material:form.conditionPoor')}</Select.Option>
+            </Select>
+          )}
+        </Col>
+
+        {/* Garantie bis */}
+        <Col span={12}>
+          <p>{t('excel:fields.warrantyUntil')}</p>
+          {warrantyUntil && <p>{t('excel:import.example', { value: findExampleData(warrantyUntil) })}</p>}
+        </Col>
+        <Col span={12}>
+          <ExcelImportSelect
+            options={excelData.headers}
+            selected={warrantyUntil}
+            setSelected={setWarrantyUntil}
+          />
+        </Col>
+
+        {/* Nächste Kontrolle */}
+        <Col span={12}>
+          <p>{t('excel:fields.nextMaintenanceDue')}</p>
+          {nextMaintenanceDue && <p>{t('excel:import.example', { value: findExampleData(nextMaintenanceDue) })}</p>}
+        </Col>
+        <Col span={12}>
+          <ExcelImportSelect
+            options={excelData.headers}
+            selected={nextMaintenanceDue}
+            setSelected={setNextMaintenanceDue}
+          />
+        </Col>
+
+        {/* Lagerhinweise */}
+        <Col span={12}>
+          <p>{t('excel:fields.storageInstructions')}</p>
+          {storageInstructions && <p>{t('excel:import.example', { value: findExampleData(storageInstructions) })}</p>}
+        </Col>
+        <Col span={12}>
+          <ExcelImportSelect
+            options={excelData.headers}
+            selected={storageInstructions}
+            setSelected={setStorageInstructions}
+          />
+        </Col>
+
+        {/* Wartungshistorie */}
+        <Col span={12}>
+          <p>{t('excel:fields.maintenanceHistory')}</p>
+          {maintenanceHistory && <p>{t('excel:import.example', { value: findExampleData(maintenanceHistory) })}</p>}
+        </Col>
+        <Col span={12}>
+          <ExcelImportSelect
+            options={excelData.headers}
+            selected={maintenanceHistory}
+            setSelected={setMaintenanceHistory}
+          />
         </Col>
 
         {catLoading && <Spin />}
