@@ -25,6 +25,7 @@ export const ReleaseNoteEditorView: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [notifying, setNotifying] = useState(false);
+    const [recipientCount, setRecipientCount] = useState<number | null>(null);
 
     const isEditing = !!id;
 
@@ -37,6 +38,13 @@ export const ReleaseNoteEditorView: React.FC = () => {
                 setTitle(data.title || '');
                 setContent(data.content || '');
                 setPublished(data.published || false);
+                if (data.published) {
+                    httpsCallable<{ releaseNoteId: string; dryRun: boolean }, { notifiedCount: number }>(
+                        functions, 'notifyReleaseNote'
+                    )({ releaseNoteId: id, dryRun: true })
+                        .then(res => setRecipientCount(res.data.notifiedCount))
+                        .catch(() => {});
+                }
             }
             setLoading(false);
         });
@@ -166,7 +174,9 @@ export const ReleaseNoteEditorView: React.FC = () => {
                             onClick={handleNotify}
                             loading={notifying}
                         >
-                            {t('releaseNote:notifyButton')}
+                            {recipientCount !== null
+                                ? t('releaseNote:notifyButtonWithCount', { count: recipientCount })
+                                : t('releaseNote:notifyButton')}
                         </Button>
                     )}
                     {isEditing && (

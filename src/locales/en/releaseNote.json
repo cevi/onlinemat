@@ -6,6 +6,7 @@
   "deleteConfirm": "Do you really want to delete this release note?",
   "saveButton": "Save",
   "notifyButton": "Notify Admins/Matchefs",
+  "notifyButtonWithCount": "Notify Admins/Matchefs ({{count}})",
   "notifySuccess": "{{count}} users have been notified.",
   "publishedLabel": "Published",
   "draftLabel": "Draft",

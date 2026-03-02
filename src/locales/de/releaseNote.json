@@ -6,6 +6,7 @@
   "deleteConfirm": "Möchtest du diese Release Note wirklich löschen?",
   "saveButton": "Speichern",
   "notifyButton": "Admins/Matverantwortungen benachrichtigen",
+  "notifyButtonWithCount": "Admins/Matverantwortungen benachrichtigen ({{count}})",
   "notifySuccess": "{{count}} Nutzende wurden benachrichtigt.",
   "publishedLabel": "Veröffentlicht",
   "draftLabel": "Entwurf",
