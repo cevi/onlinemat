@@ -439,13 +439,8 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
                 }
 
                 if (materialList.length > 0) {
-                    await massImportMaterial(abteilung.id, materialList);
-
-                    // Build allMaterials for sammlung resolution (use names since we don't have IDs back)
-                    allMaterials = [
-                        ...allMaterials,
-                        ...materialList.map((m, idx) => ({ ...m, id: `__new_${idx}` } as Material)),
-                    ];
+                    const createdMaterials = await massImportMaterial(abteilung.id, materialList);
+                    allMaterials = [...allMaterials, ...createdMaterials];
                     importedMaterials = materialList.length;
                 }
             }
