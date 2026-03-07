@@ -9,3 +9,12 @@ vi.mock('firebase/auth', () => ({
   getAuth: vi.fn(() => ({})),
   connectAuthEmulator: vi.fn(),
 }));
+
+// Some components import build-time generated git metadata.
+// In CI test runs, that file may not exist because `git-info` is not executed.
+vi.mock('generatedGitInfo.json', () => ({
+  default: {
+    gitBranch: 'test',
+    gitCommitHash: 'test',
+  },
+}), { virtual: true });
