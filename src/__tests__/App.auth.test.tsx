@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import { render, waitFor } from "@testing-library/react";
-import App from "App";
+import { ComponentType } from "react";
 
 const {
   mockDispatch,
@@ -26,6 +26,7 @@ const {
   mockAuth: { currentUser: null as null | { uid: string } },
 }));
 let auth0State: any;
+let App: ComponentType;
 
 vi.mock("@auth0/auth0-react", () => ({
   useAuth0: vi.fn(() => auth0State),
@@ -84,6 +85,10 @@ vi.mock("config/i18n/i18n", () => ({
 
 describe("App auth bootstrap", () => {
   const claim = "https://mat.cevi.tools/firebase_token";
+
+  beforeAll(async () => {
+    ({ default: App } = await import("App"));
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();
