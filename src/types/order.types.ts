@@ -22,6 +22,13 @@ export interface Order {
     controlledItems?: string[]
     pfand?: number
     price?: number
+    pricePaidBy?: string
+    pricePaidAt?: Date
+    pfandPaidBy?: string
+    pfandPaidAt?: Date
+    pfandReturnedTo?: string
+    pfandReturnedAt?: Date
+    pfandReturnedAmount?: number
     rejectionReason?: string
     lastReturnReminderSentAt?: Date
 }
@@ -30,5 +37,5 @@ export interface OrderHistory {
     color: string | null
     timestamp: Date
     text: string
-    type: 'creation' | 'matchefComment' | 'startDate' | 'endDate' | 'delivered' | 'completed' | 'reset' | 'completed-damaged' | 'edited' | 'approved' | 'rejected' | null
+    type: 'creation' | 'matchefComment' | 'startDate' | 'endDate' | 'delivered' | 'completed' | 'reset' | 'completed-damaged' | 'edited' | 'approved' | 'rejected' | 'pricePaid' | 'pfandPaid' | 'pfandReturned' | null
 }

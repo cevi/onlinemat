@@ -188,6 +188,67 @@ export const addCommentOrder = async (abteilungId: string, order: Order, comment
     return result ?? false;
 }
 
+export const markPricePaid = async (abteilungId: string, order: Order, paidByName: string, userName: string): Promise<boolean> => {
+    const result = await firestoreOperation(async () => {
+        const orderRef = doc(db, abteilungenCollection, abteilungId, abteilungenOrdersCollection, order.id);
+        const orderHistory = order.history || [];
+        orderHistory.push({
+            timestamp: dayjs().toDate(),
+            text: i18n.t('order:history.pricePaid', { name: userName, payer: paidByName }),
+            color: 'green',
+            type: 'pricePaid'
+        });
+        await updateDoc(orderRef, {
+            pricePaidBy: paidByName,
+            pricePaidAt: dayjs().toDate(),
+            history: orderHistory,
+        } as Order);
+        return true;
+    }, i18n.t('order:messages.pricePaidSuccess'));
+    return result ?? false;
+}
+
+export const markPfandPaid = async (abteilungId: string, order: Order, paidByName: string, userName: string): Promise<boolean> => {
+    const result = await firestoreOperation(async () => {
+        const orderRef = doc(db, abteilungenCollection, abteilungId, abteilungenOrdersCollection, order.id);
+        const orderHistory = order.history || [];
+        orderHistory.push({
+            timestamp: dayjs().toDate(),
+            text: i18n.t('order:history.pfandPaid', { name: userName, payer: paidByName }),
+            color: 'green',
+            type: 'pfandPaid'
+        });
+        await updateDoc(orderRef, {
+            pfandPaidBy: paidByName,
+            pfandPaidAt: dayjs().toDate(),
+            history: orderHistory,
+        } as Order);
+        return true;
+    }, i18n.t('order:messages.pfandPaidSuccess'));
+    return result ?? false;
+}
+
+export const markPfandReturned = async (abteilungId: string, order: Order, returnedToName: string, amount: number, userName: string): Promise<boolean> => {
+    const result = await firestoreOperation(async () => {
+        const orderRef = doc(db, abteilungenCollection, abteilungId, abteilungenOrdersCollection, order.id);
+        const orderHistory = order.history || [];
+        orderHistory.push({
+            timestamp: dayjs().toDate(),
+            text: i18n.t('order:history.pfandReturned', { name: userName, receiver: returnedToName, amount: amount.toFixed(2) }),
+            color: 'green',
+            type: 'pfandReturned'
+        });
+        await updateDoc(orderRef, {
+            pfandReturnedTo: returnedToName,
+            pfandReturnedAt: dayjs().toDate(),
+            pfandReturnedAmount: amount,
+            history: orderHistory,
+        } as Order);
+        return true;
+    }, i18n.t('order:messages.pfandReturnedSuccess'));
+    return result ?? false;
+}
+
 export const deleteOrder = async (abteilung: Abteilung, order: Order, materials: Material[], user: UserState): Promise<boolean> => {
     if (order.status === 'delivered') {
         message.error(i18n.t('order:messages.deleteErrorDelivered', { status: getStatusName(order) }));

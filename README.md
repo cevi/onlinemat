@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="src/assets/onlinemat_logo.png" alt="OnlineMat Logo" width="200" />
+</p>
+
 # Onlinemat
 
 ## Getting started

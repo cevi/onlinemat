@@ -98,7 +98,7 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
         return member.email ? `${member.displayName} (${member.email})` : member.displayName;
     };
 
-    const sortedOrders = orders.sort((a: Order, b: Order) => a.startDate.valueOf() - b.startDate.valueOf());
+    const sortedOrders = orders.sort((a: Order, b: Order) => b.startDate.valueOf() - a.startDate.valueOf());
 
     const columns = [
         {
@@ -132,6 +132,7 @@ export const OrderTableImpl = (props: OrderImplTableProps) => {
             title: t('order:table.startDate'),
             dataIndex: 'startDate',
             key: 'startDate',
+            defaultSortOrder: 'descend' as const,
             sorter: (a: Order, b: Order) => a.startDate.valueOf() - b.startDate.valueOf(),
             render: (text: string, record: Order) => (
                 <p key={`startDate_${record.id}`}>{record.startDate.format(dateFormatWithTime)}</p>

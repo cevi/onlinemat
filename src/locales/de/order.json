@@ -38,7 +38,16 @@
     "rejectedBanner": "Diese Bestellung wurde abgelehnt.",
     "rejectionReason": "Begründung: {{reason}}",
     "pfand": "Pfand:",
-    "price": "Preis:"
+    "price": "Preis:",
+    "pricePaid": "Bezahlt von {{name}} am {{date}}",
+    "pfandReceived": "Pfand erhalten von {{name}} am {{date}}",
+    "pfandReturned": "Pfand zurückgegeben: CHF {{amount}} an {{name}} am {{date}}",
+    "markPricePaid": "Bezahlt markieren",
+    "markPfandReceived": "Pfand erhalten",
+    "markPfandReturned": "Pfand zurückgeben",
+    "pfandReturnAmount": "Rückgabebetrag (CHF)",
+    "paidBy": "Bezahlt von",
+    "returnedTo": "Zurückgegeben an"
   },
   "actions": {
     "open": "Öffnen",
@@ -118,7 +127,10 @@
     "commentRemoved": "{{name}} hat eine Bemerkung entfernt.",
     "edited": "{{name}} hat die Bestellung bearbeitet.",
     "approved": "{{name}} hat die Bestellung genehmigt.",
-    "rejected": "{{name}} hat die Bestellung abgelehnt."
+    "rejected": "{{name}} hat die Bestellung abgelehnt.",
+    "pricePaid": "{{name}} hat die Bezahlung erfasst (von {{payer}}).",
+    "pfandPaid": "{{name}} hat den Pfand als erhalten markiert (von {{payer}}).",
+    "pfandReturned": "{{name}} hat den Pfand zurückgegeben: CHF {{amount}} (an {{receiver}})."
   },
   "messages": {
     "deliverSuccess": "Bestellung erfolgreich ausgegeben.",
@@ -139,7 +151,10 @@
     "approveSuccess": "Bestellung wurde genehmigt.",
     "approveNotAllAvailable": "Leider ist nicht alles Material verfügbar.",
     "rejectSuccess": "Bestellung wurde abgelehnt.",
-    "reminderSuccess": "Rückgabeerinnerung wurde erfolgreich gesendet."
+    "reminderSuccess": "Rückgabeerinnerung wurde erfolgreich gesendet.",
+    "pricePaidSuccess": "Bezahlung erfolgreich erfasst.",
+    "pfandPaidSuccess": "Pfand als erhalten markiert.",
+    "pfandReturnedSuccess": "Pfand erfolgreich zurückgegeben."
   },
   "search": {
     "placeholder": "nach Bestellung suchen",

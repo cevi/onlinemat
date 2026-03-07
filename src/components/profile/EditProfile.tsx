@@ -110,7 +110,7 @@ export const EditProfile = forwardRef((props: EditProfileProps, ref) => {
           <Form.Item
             label={t('profile:form.ceviName')}
             name="nickname"
-            rules={[{ required: true }, { type: "string", min: 1 }]}
+            rules={[{ type: "string" }]}
           >
             <Input placeholder={t('profile:form.ceviNamePlaceholder')} />
           </Form.Item>

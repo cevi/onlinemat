@@ -8,7 +8,7 @@ export interface UserData {
   photoURL: string;
   given_name: string;
   family_name: string;
-  nickname: string;
+  nickname?: string;
   name: string;
   email_verified?: boolean;
   user_metadata?: Record<string, unknown>;
@@ -25,7 +25,7 @@ export interface UserDataUpdate {
   photoURL: string;
   given_name: string;
   family_name: string;
-  nickname: string;
+  nickname?: string;
   name: string;
   defaultAbteilung?: string;
 }

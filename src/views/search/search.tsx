@@ -287,7 +287,7 @@ export const SearchView = () => {
         {!hasSearched && !allLoading && (
             <>
                 <Typography.Title level={5} style={{ marginTop: 16 }}>{t('search:featured.title')}</Typography.Title>
-                <Row gutter={[16, 16]} style={{ maxWidth: 800 }}>
+                <Row gutter={[16, 16]} style={{ maxWidth: 800, width: '100%' }}>
                     {featured.map(mat => {
                         const abteilung = findAbteilung(mat.abteilungId);
                         const href = abteilung

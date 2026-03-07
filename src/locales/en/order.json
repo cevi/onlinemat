@@ -38,7 +38,16 @@
     "rejectedBanner": "This order was rejected.",
     "rejectionReason": "Reason: {{reason}}",
     "pfand": "Deposit:",
-    "price": "Price:"
+    "price": "Price:",
+    "pricePaid": "Paid by {{name}} on {{date}}",
+    "pfandReceived": "Deposit received from {{name}} on {{date}}",
+    "pfandReturned": "Deposit returned: CHF {{amount}} to {{name}} on {{date}}",
+    "markPricePaid": "Mark as paid",
+    "markPfandReceived": "Deposit received",
+    "markPfandReturned": "Return deposit",
+    "pfandReturnAmount": "Return amount (CHF)",
+    "paidBy": "Paid by",
+    "returnedTo": "Returned to"
   },
   "actions": {
     "open": "Open",
@@ -114,7 +123,10 @@
     "commentRemoved": "{{name}} removed a comment.",
     "edited": "{{name}} edited the order.",
     "approved": "{{name}} approved the order.",
-    "rejected": "{{name}} rejected the order."
+    "rejected": "{{name}} rejected the order.",
+    "pricePaid": "{{name}} recorded payment (from {{payer}}).",
+    "pfandPaid": "{{name}} marked deposit as received (from {{payer}}).",
+    "pfandReturned": "{{name}} returned deposit: CHF {{amount}} (to {{receiver}})."
   },
   "messages": {
     "deliverSuccess": "Order successfully delivered.",
@@ -134,7 +146,10 @@
     "editMaterialNotAvailable": "{{name}} is currently not available.",
     "approveSuccess": "Order has been approved.",
     "approveNotAllAvailable": "Unfortunately, not all material is available.",
-    "rejectSuccess": "Order has been rejected."
+    "rejectSuccess": "Order has been rejected.",
+    "pricePaidSuccess": "Payment successfully recorded.",
+    "pfandPaidSuccess": "Deposit marked as received.",
+    "pfandReturnedSuccess": "Deposit successfully returned."
   },
   "search": {
     "placeholder": "Search for order",

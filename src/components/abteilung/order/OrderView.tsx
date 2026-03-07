@@ -18,11 +18,11 @@ import { CartTable } from '../cart/CartTable';
 import { CategorysContext, MaterialsContext, MembersContext, MembersUserDataContext, SammlungenContext, StandorteContext } from '../AbteilungDetails';
 import { getGroupName } from 'util/AbteilungUtil';
 import { groupObjToList } from 'util/GroupUtil';
-import { addCommentOrder, calculateTotalWeight, completeOrder, deleteOrder, deliverOrder, getStatusColor, getStatusName, resetLostOrder, resetOrder } from 'util/OrderUtil';
+import { addCommentOrder, calculateTotalWeight, completeOrder, deleteOrder, deliverOrder, getStatusColor, getStatusName, markPfandPaid, markPfandReturned, markPricePaid, resetLostOrder, resetOrder } from 'util/OrderUtil';
 import { ability } from 'config/casl/ability';
 import { OrderNotFound } from './OrderNotFound';
 import { useUser } from 'hooks/use-user';
-import { CheckCircleOutlined, CheckOutlined, ClockCircleOutlined, CloseOutlined, CopyOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined, MailOutlined, UndoOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CheckOutlined, ClockCircleOutlined, CloseOutlined, CopyOutlined, DeleteOutlined, DollarOutlined, EditOutlined, ExclamationCircleOutlined, MailOutlined, UndoOutlined } from '@ant-design/icons';
 import { DamagedMaterialModal } from './DamagedMaterialModal';
 import { Can } from 'config/casl/casl';
 import { useTranslation } from 'react-i18next';
@@ -122,6 +122,13 @@ export const OrderView = (props: OrderProps) => {
 
     // Return reminder state
     const [reminderLoading, setReminderLoading] = useState(false);
+
+    // Payment / deposit tracking state
+    const [pricePaidByName, setPricePaidByName] = useState('');
+    const [pfandPaidByName, setPfandPaidByName] = useState('');
+    const [pfandReturnToName, setPfandReturnToName] = useState('');
+    const [pfandReturnAmount, setPfandReturnAmount] = useState<number | null>(null);
+    const [paymentLoading, setPaymentLoading] = useState(false);
 
     const customGroupId = 'custom';
 
@@ -396,19 +403,21 @@ export const OrderView = (props: OrderProps) => {
         return onSnapshot(ordersRef, (snap) => {
             setOrderLoading(false);
             if (!snap.exists()) return;
+            const raw = snap.data() as any;
             const orderLoaded = {
-                ...snap.data() as Order,
+                ...raw,
                 __caslSubjectType__: 'Order',
                 id: snap.id,
-                startDate: dayjs((snap.data() as any).startDate.toDate()),
-                endDate: dayjs((snap.data() as any).endDate.toDate()),
-                creationTime: dayjs((snap.data() as any).creationTime.toDate()),
-                history: ((snap.data() as Order).history || []).map(h => {
-                    return {
-                        ...h,
-                        timestamp: (h.timestamp as any).toDate()
-                    } as OrderHistory
-                })
+                startDate: dayjs(raw.startDate.toDate()),
+                endDate: dayjs(raw.endDate.toDate()),
+                creationTime: dayjs(raw.creationTime.toDate()),
+                history: (raw.history || []).map((h: any) => ({
+                    ...h,
+                    timestamp: h.timestamp?.toDate?.() ?? h.timestamp
+                } as OrderHistory)),
+                pricePaidAt: raw.pricePaidAt?.toDate?.() ?? raw.pricePaidAt,
+                pfandPaidAt: raw.pfandPaidAt?.toDate?.() ?? raw.pfandPaidAt,
+                pfandReturnedAt: raw.pfandReturnedAt?.toDate?.() ?? raw.pfandReturnedAt,
             } as Order;
             setOrder(orderLoaded);
         }, (err) => {
@@ -450,6 +459,13 @@ export const OrderView = (props: OrderProps) => {
                 setMatchefComment(order.matchefComment)
             }
             setDetailedHistory(mergeHistory(order?.history))
+
+            // Initialize payment default names
+            const ordererName = orderer?.displayName || '';
+            if (!pricePaidByName) setPricePaidByName(ordererName);
+            if (!pfandPaidByName) setPfandPaidByName(ordererName);
+            if (!pfandReturnToName) setPfandReturnToName(ordererName);
+            if (pfandReturnAmount === null && order.pfand != null) setPfandReturnAmount(order.pfand);
         }
     }, [membersLoading, userDataLoading, order, orderer?.displayName])
 
@@ -472,6 +488,10 @@ export const OrderView = (props: OrderProps) => {
                 return <UndoOutlined style={{ fontSize: '16px' }} color={colorToSet} />
             case 'edited':
                 return <EditOutlined style={{ fontSize: '16px' }} color={colorToSet} />
+            case 'pricePaid':
+            case 'pfandPaid':
+            case 'pfandReturned':
+                return <DollarOutlined style={{ fontSize: '16px' }} color={colorToSet} />
         }
     }
 
@@ -739,6 +759,118 @@ export const OrderView = (props: OrderProps) => {
                             {order.price != null && order.price > 0 && (
                                 <p><b>{t('order:view.price')} </b>CHF {order.price.toFixed(2)}</p>
                             )}
+
+                            {/* Price payment tracking */}
+                            {order.price != null && order.price > 0 && ability.can('deliver', { ...order, abteilungId: abteilung.id }) && (
+                                order.pricePaidBy ? (
+                                    <p style={{ color: 'green' }}>
+                                        <CheckCircleOutlined style={{ marginRight: 4 }} />
+                                        {t('order:view.pricePaid', { name: order.pricePaidBy, date: order.pricePaidAt ? dayjs(order.pricePaidAt).format(dateFormatWithTime) : '' })}
+                                    </p>
+                                ) : (
+                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
+                                        <Input
+                                            size="small"
+                                            style={{ width: 180 }}
+                                            placeholder={t('order:view.paidBy')}
+                                            value={pricePaidByName}
+                                            onChange={(e) => setPricePaidByName(e.target.value)}
+                                        />
+                                        <Button
+                                            size="small"
+                                            type="primary"
+                                            loading={paymentLoading}
+                                            disabled={!pricePaidByName.trim()}
+                                            onClick={async () => {
+                                                setPaymentLoading(true);
+                                                await markPricePaid(abteilung.id, order, pricePaidByName.trim(), (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName);
+                                                setPaymentLoading(false);
+                                            }}
+                                        >
+                                            {t('order:view.markPricePaid')}
+                                        </Button>
+                                    </div>
+                                )
+                            )}
+
+                            {/* Pfand payment tracking */}
+                            {order.pfand != null && order.pfand > 0 && ability.can('deliver', { ...order, abteilungId: abteilung.id }) && (
+                                <>
+                                    {order.pfandPaidBy ? (
+                                        <p style={{ color: 'green' }}>
+                                            <CheckCircleOutlined style={{ marginRight: 4 }} />
+                                            {t('order:view.pfandReceived', { name: order.pfandPaidBy, date: order.pfandPaidAt ? dayjs(order.pfandPaidAt).format(dateFormatWithTime) : '' })}
+                                        </p>
+                                    ) : (
+                                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
+                                            <Input
+                                                size="small"
+                                                style={{ width: 180 }}
+                                                placeholder={t('order:view.paidBy')}
+                                                value={pfandPaidByName}
+                                                onChange={(e) => setPfandPaidByName(e.target.value)}
+                                            />
+                                            <Button
+                                                size="small"
+                                                type="primary"
+                                                loading={paymentLoading}
+                                                disabled={!pfandPaidByName.trim()}
+                                                onClick={async () => {
+                                                    setPaymentLoading(true);
+                                                    await markPfandPaid(abteilung.id, order, pfandPaidByName.trim(), (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName);
+                                                    setPaymentLoading(false);
+                                                }}
+                                            >
+                                                {t('order:view.markPfandReceived')}
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                    {/* Pfand return tracking */}
+                                    {order.pfandPaidBy && (
+                                        order.pfandReturnedTo ? (
+                                            <p style={{ color: 'green' }}>
+                                                <CheckCircleOutlined style={{ marginRight: 4 }} />
+                                                {t('order:view.pfandReturned', { amount: order.pfandReturnedAmount?.toFixed(2) ?? '0.00', name: order.pfandReturnedTo, date: order.pfandReturnedAt ? dayjs(order.pfandReturnedAt).format(dateFormatWithTime) : '' })}
+                                            </p>
+                                        ) : (
+                                            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
+                                                <InputNumber
+                                                    size="small"
+                                                    style={{ width: 120 }}
+                                                    min={0}
+                                                    step={0.5}
+                                                    value={pfandReturnAmount}
+                                                    onChange={(val) => setPfandReturnAmount(val)}
+                                                    addonAfter="CHF"
+                                                    placeholder={t('order:view.pfandReturnAmount')}
+                                                />
+                                                <Input
+                                                    size="small"
+                                                    style={{ width: 180 }}
+                                                    placeholder={t('order:view.returnedTo')}
+                                                    value={pfandReturnToName}
+                                                    onChange={(e) => setPfandReturnToName(e.target.value)}
+                                                />
+                                                <Button
+                                                    size="small"
+                                                    type="primary"
+                                                    loading={paymentLoading}
+                                                    disabled={!pfandReturnToName.trim() || pfandReturnAmount === null}
+                                                    onClick={async () => {
+                                                        setPaymentLoading(true);
+                                                        await markPfandReturned(abteilung.id, order, pfandReturnToName.trim(), pfandReturnAmount ?? 0, (!user || !user.appUser || !user.appUser.userData) ? 'Unbekannt' : user.appUser.userData.displayName);
+                                                        setPaymentLoading(false);
+                                                    }}
+                                                >
+                                                    {t('order:view.markPfandReturned')}
+                                                </Button>
+                                            </div>
+                                        )
+                                    )}
+                                </>
+                            )}
+
                             <p><b>{t('order:view.weight')}</b><Weight/></p>
                         </>
                     )}
