@@ -13,13 +13,13 @@ test.describe('Role-based access - Admin', () => {
     const menu = page.locator('[role="menu"]');
 
     // Admin should see all tabs
-    await expect(menu.getByText('Material')).toBeVisible();
-    await expect(menu.getByText('Standorte')).toBeVisible();
-    await expect(menu.getByText('Kategorien')).toBeVisible();
+    await expect(menu.getByText('Material', { exact: true })).toBeVisible();
+    await expect(menu.getByText('Material Einstellungen')).toBeVisible();
+    await expect(menu.getByText('Sammlungen')).toBeVisible();
     await expect(menu.getByText('Bestellungen')).toBeVisible();
     await expect(menu.getByText('Gruppen')).toBeVisible();
     await expect(menu.getByText('Mitglieder')).toBeVisible();
-    await expect(menu.getByText('Einstellungen')).toBeVisible();
+    await expect(menu.getByText('Einstellungen', { exact: true })).toBeVisible();
   });
 
   test('admin can navigate to settings tab', async ({ page }) => {
@@ -49,12 +49,12 @@ test.describe('Role-based access - Member', () => {
 
     // Member should see these tabs
     await expect(menu.getByText('Material')).toBeVisible();
-    await expect(menu.getByText('Standorte')).toBeVisible();
-    await expect(menu.getByText('Kategorien')).toBeVisible();
     await expect(menu.getByText('Bestellungen')).toBeVisible();
     await expect(menu.getByText('Gruppen')).toBeVisible();
 
     // Member should NOT see admin-only tabs
+    await expect(menu.getByText('Material Einstellungen')).not.toBeVisible();
+    await expect(menu.getByText('Sammlungen')).not.toBeVisible();
     await expect(menu.getByText('Mitglieder')).not.toBeVisible();
     await expect(menu.getByText('Einstellungen')).not.toBeVisible();
   });
@@ -74,8 +74,9 @@ test.describe('Role-based access - Guest', () => {
     await expect(menu.getByText('Bestellungen')).toBeVisible();
 
     // Guest should NOT see these tabs
-    await expect(menu.getByText('Standorte')).not.toBeVisible();
-    await expect(menu.getByText('Kategorien')).not.toBeVisible();
+    await expect(menu.getByText('Material Einstellungen')).not.toBeVisible();
+    await expect(menu.getByText('Sammlungen')).not.toBeVisible();
+    await expect(menu.getByText('Gruppen')).not.toBeVisible();
     await expect(menu.getByText('Mitglieder')).not.toBeVisible();
     await expect(menu.getByText('Einstellungen')).not.toBeVisible();
   });
