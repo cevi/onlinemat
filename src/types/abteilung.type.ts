@@ -24,6 +24,7 @@ export interface Abteilung {
     searchVisible?: boolean
     returnReminder?: ReturnReminderSettings
     materialReminder?: MaterialReminderSettings
+    defaultStandortId?: string
 }
 
 

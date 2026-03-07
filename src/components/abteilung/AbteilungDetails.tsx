@@ -308,7 +308,7 @@ export const AbteilungDetail = () => {
                     style={{ marginBottom: 16 }}
                 />
             )}
-            <Menu
+            {!isMobile && <Menu
                 onClick={(e) => { navigateToMenu(e.key as AbteilungTab) }}
                 selectedKeys={[selectedMenu]}
                 mode='horizontal'
@@ -317,22 +317,20 @@ export const AbteilungDetail = () => {
                     ...(canUpdate ? [
                         { key: 'matsettings', icon: <ToolOutlined />, label: t('abteilung:tabs.materialEinstellungen') },
                     ] : []),
-                    ...(!isMobile ? [
-                        ...(canUpdate ? [
-                            { key: 'sammlung', icon: <AppstoreAddOutlined />, label: t('abteilung:tabs.sammlungen') },
-                        ] : []),
-                        { key: 'orders', icon: <UnorderedListOutlined />, label: canUpdate ? <PendingOrdersBadge abteilungId={abteilung.id} /> : t('abteilung:tabs.bestellungen') },
-                        ...(!isGuest ? [
-                            { key: 'groups', icon: <TagsOutlined />, label: t('abteilung:tabs.gruppen') },
-                        ] : []),
-                        ...(canUpdate ? [
-                            { key: 'members', icon: <TeamOutlined />, label: <MembersTabLabel /> },
-                            { key: 'settings', icon: <SettingOutlined />, label: t('abteilung:tabs.einstellungen') },
-                        ] : []),
+                    ...(canUpdate ? [
+                        { key: 'sammlung', icon: <AppstoreAddOutlined />, label: t('abteilung:tabs.sammlungen') },
+                    ] : []),
+                    { key: 'orders', icon: <UnorderedListOutlined />, label: canUpdate ? <PendingOrdersBadge abteilungId={abteilung.id} /> : t('abteilung:tabs.bestellungen') },
+                    ...(!isGuest ? [
+                        { key: 'groups', icon: <TagsOutlined />, label: t('abteilung:tabs.gruppen') },
+                    ] : []),
+                    ...(canUpdate ? [
+                        { key: 'members', icon: <TeamOutlined />, label: <MembersTabLabel /> },
+                        { key: 'settings', icon: <SettingOutlined />, label: t('abteilung:tabs.einstellungen') },
                     ] : []),
                     { key: 'cart', icon: <ShoppingCartOutlined />, label: getCartCount(cartItems), style: { marginLeft: 'auto' } },
                 ] as MenuProps['items']}
-            />
+            />}
             <Row gutter={[16, 24]}>
                 <Col span={24}></Col>
                 <Col span={24}>

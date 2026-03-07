@@ -30,5 +30,12 @@
     "city": "City",
     "coordinates": "Coordinates",
     "edit": "Edit"
+  },
+  "default": {
+    "setDefault": "Set as default",
+    "isDefault": "Default",
+    "removeDefault": "Remove default",
+    "assignConfirm": "Assign this location to all {{count}} material(s) without a location?",
+    "assignSuccess": "{{count}} material(s) have been assigned the location."
   }
 }

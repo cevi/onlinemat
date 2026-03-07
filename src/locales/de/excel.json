@@ -62,7 +62,16 @@
     "example": "Beispiel: {{value}}",
     "defaultValue": "Standardwert",
     "materialWarning": "{{count}} Material(ien) konnten nicht zugeordnet werden: {{names}}",
-    "skippedEmpty": "{{count}} Sammlung(en) übersprungen (keine passenden Materialien)."
+    "skippedEmpty": "{{count}} Sammlung(en) übersprungen (keine passenden Materialien).",
+    "sheetAssignment": "Datenblätter zuordnen",
+    "sheetAssignmentDescription": "Ordne jedes Datenblatt dem passenden Datentyp zu.",
+    "sheetName": "Datenblatt",
+    "dataType": "Datentyp",
+    "skip": "Überspringen",
+    "next": "Weiter",
+    "back": "Zurück",
+    "rows": "Zeilen",
+    "noAssignment": "Mindestens ein Datenblatt muss zugeordnet werden."
   },
   "sammlungFields": {
     "name": "Name*:",

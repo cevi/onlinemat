@@ -14,7 +14,7 @@ import {
     Typography,
 } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Abteilung } from 'types/abteilung.type';
 import { ExcelJson } from 'types/excel.type';
 import { Material, MaterialCondition } from 'types/material.types';
@@ -119,6 +119,82 @@ function findExampleData(excelData: ExcelJson, key: string | undefined): string 
     return res ? String(res[index]) : '';
 }
 
+// ========== Sheet type auto-detection ==========
+export type SheetType = 'material' | 'sammlungen' | 'kategorien' | 'standorte' | 'skip';
+
+const sheetNameAliases: Record<Exclude<SheetType, 'skip'>, string[]> = {
+    material: ['material', 'materialien', 'materials', 'tabelle1', 'sheet1', 'blatt1'],
+    sammlungen: ['sammlungen', 'sammlung', 'collections', 'collection'],
+    kategorien: ['kategorien', 'kategorie', 'categories', 'category'],
+    standorte: ['standorte', 'standort', 'locations', 'location', 'orte'],
+};
+
+const materialHeaderHints = ['anzahl', 'count', 'menge', 'bemerkung', 'comment', 'kommentar', 'gewicht', 'weight', 'verbrauchsmaterial', 'consumables', 'kategorien', 'kategorie', 'categories'];
+const standortHeaderHints = ['strasse', 'street', 'str', 'stadt', 'city', 'koordinaten', 'coordinates'];
+const sammlungHeaderHints = ['materialien', 'materials', 'items'];
+
+function autoDetectSheetTypes(allSheets: { [sheetName: string]: ExcelJson }): Record<string, SheetType> {
+    const result: Record<string, SheetType> = {};
+    const sheetNames = Object.keys(allSheets);
+    const assignedTypes = new Set<string>();
+
+    // Pass 1: match by sheet name aliases
+    for (const sheetName of sheetNames) {
+        const lower = sheetName.toLowerCase().trim();
+        for (const [type, aliases] of Object.entries(sheetNameAliases)) {
+            if (!assignedTypes.has(type) && aliases.includes(lower)) {
+                result[sheetName] = type as SheetType;
+                assignedTypes.add(type);
+                break;
+            }
+        }
+    }
+
+    // Pass 2: for unmatched sheets, try column header analysis
+    for (const sheetName of sheetNames) {
+        if (result[sheetName]) continue;
+        const headers = allSheets[sheetName].headers.map(h => h?.toLowerCase().trim()).filter(Boolean);
+
+        if (!assignedTypes.has('standorte') && headers.some(h => standortHeaderHints.includes(h))) {
+            result[sheetName] = 'standorte';
+            assignedTypes.add('standorte');
+            continue;
+        }
+        if (!assignedTypes.has('sammlungen') && headers.some(h => sammlungHeaderHints.includes(h))) {
+            result[sheetName] = 'sammlungen';
+            assignedTypes.add('sammlungen');
+            continue;
+        }
+        if (!assignedTypes.has('material') && headers.some(h => materialHeaderHints.includes(h))) {
+            result[sheetName] = 'material';
+            assignedTypes.add('material');
+            continue;
+        }
+    }
+
+    // Pass 3: if only 1 unmatched sheet and no material assigned, default to material
+    const unmatched = sheetNames.filter(s => !result[s]);
+    if (unmatched.length === 1 && !assignedTypes.has('material')) {
+        result[unmatched[0]] = 'material';
+    }
+
+    // Default remaining to skip
+    for (const sheetName of sheetNames) {
+        if (!result[sheetName]) {
+            result[sheetName] = 'skip';
+        }
+    }
+
+    return result;
+}
+
+const sheetTypeLabels: Record<Exclude<SheetType, 'skip'>, string> = {
+    material: 'excel:combined.tabMaterial',
+    sammlungen: 'excel:combined.tabSammlungen',
+    kategorien: 'excel:combined.tabKategorien',
+    standorte: 'excel:combined.tabStandorte',
+};
+
 export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
     const { abteilung, allSheets, showModal, setShow } = props;
     const { t } = useTranslation();
@@ -127,10 +203,43 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
     const { standorte } = useContext(StandorteContext);
     const { materials } = useContext(MaterialsContext);
 
-    const materialData = allSheets?.['Material'];
-    const sammlungData = allSheets?.['Sammlungen'];
-    const kategorienData = allSheets?.['Kategorien'];
-    const standorteData = allSheets?.['Standorte'];
+    // ========== Sheet assignment step ==========
+    const [step, setStep] = useState<'assign' | 'map'>('assign');
+    const [sheetAssignments, setSheetAssignments] = useState<Record<string, SheetType>>({});
+
+    // Auto-detect sheet types when allSheets changes
+    useEffect(() => {
+        if (allSheets) {
+            const detected = autoDetectSheetTypes(allSheets);
+            setSheetAssignments(detected);
+            setStep('assign');
+        }
+    }, [allSheets]);
+
+    // Resolve sheet data based on assignments
+    const materialData = useMemo(() => {
+        if (!allSheets) return undefined;
+        const name = Object.entries(sheetAssignments).find(([, type]) => type === 'material')?.[0];
+        return name ? allSheets[name] : undefined;
+    }, [allSheets, sheetAssignments]);
+
+    const sammlungData = useMemo(() => {
+        if (!allSheets) return undefined;
+        const name = Object.entries(sheetAssignments).find(([, type]) => type === 'sammlungen')?.[0];
+        return name ? allSheets[name] : undefined;
+    }, [allSheets, sheetAssignments]);
+
+    const kategorienData = useMemo(() => {
+        if (!allSheets) return undefined;
+        const name = Object.entries(sheetAssignments).find(([, type]) => type === 'kategorien')?.[0];
+        return name ? allSheets[name] : undefined;
+    }, [allSheets, sheetAssignments]);
+
+    const standorteData = useMemo(() => {
+        if (!allSheets) return undefined;
+        const name = Object.entries(sheetAssignments).find(([, type]) => type === 'standorte')?.[0];
+        return name ? allSheets[name] : undefined;
+    }, [allSheets, sheetAssignments]);
 
     // ========== Material column mappings ==========
     const [matName, setMatName] = useState<string | undefined>();
@@ -187,8 +296,8 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
     const [ortCity, setOrtCity] = useState<string | undefined>();
     const [ortCoordinates, setOrtCoordinates] = useState<string | undefined>();
 
-    // Auto-match all sheets
-    useEffect(() => {
+    // Auto-match column fields when proceeding to mapping step
+    const runAutoMatch = () => {
         if (materialData) {
             autoMatch(materialData.headers, [
                 { aliases: ['name'], setter: setMatName },
@@ -236,7 +345,7 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
                 { aliases: ['koordinaten', 'coordinates', 'coords'], setter: setOrtCoordinates },
             ]);
         }
-    }, [allSheets]);
+    };
 
     const importAll = async (mode: 'add' | 'replace') => {
         if (!allSheets) return;
@@ -516,11 +625,22 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
 
     if (!allSheets) return <></>;
 
-    const hasAnySheet = materialData || sammlungData || kategorienData || standorteData;
-    if (!hasAnySheet) {
+    const sheetNames = Object.keys(allSheets);
+    if (sheetNames.length === 0) {
         message.warning(t('excel:combined.noSheets'));
         return <></>;
     }
+
+    const hasAnyAssigned = Object.values(sheetAssignments).some(t => t !== 'skip');
+
+    const handleNextStep = () => {
+        if (!hasAnyAssigned) {
+            message.warning(t('excel:combined.noAssignment'));
+            return;
+        }
+        runAutoMatch();
+        setStep('map');
+    };
 
     const tabItems = [];
 
@@ -674,37 +794,96 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
         (kategorienData ? !!katName : true) &&
         (standorteData ? !!ortName : true);
 
+    const assignFooter = [
+        <Button key="cancel" onClick={() => setShow(false)}>
+            {t('common:buttons.cancel')}
+        </Button>,
+        <Button key="next" type="primary" disabled={!hasAnyAssigned} onClick={handleNextStep}>
+            {t('excel:combined.next')}
+        </Button>,
+    ];
+
+    const mapFooter = [
+        <Button key="back" onClick={() => setStep('assign')}>
+            {t('excel:combined.back')}
+        </Button>,
+        <Tooltip key="importAdd" title={t('excel:combined.importAddTooltip')}>
+            <Button type="primary" disabled={!isValid} onClick={() => importAll('add')}>
+                {t('excel:combined.importAdd')}
+            </Button>
+        </Tooltip>,
+        <Popconfirm
+            key="importReplace"
+            title={t('excel:combined.importReplaceConfirm')}
+            onConfirm={() => importAll('replace')}
+            okText={t('common:confirm.yes')}
+            cancelText={t('common:confirm.no')}
+        >
+            <Tooltip title={t('excel:combined.importReplaceTooltip')}>
+                <Button type="primary" disabled={!isValid}>
+                    {t('excel:combined.importReplace')}
+                </Button>
+            </Tooltip>
+        </Popconfirm>,
+    ];
+
+    const typeOptions: { value: SheetType; label: string }[] = [
+        { value: 'material', label: t('excel:combined.tabMaterial') },
+        { value: 'sammlungen', label: t('excel:combined.tabSammlungen') },
+        { value: 'kategorien', label: t('excel:combined.tabKategorien') },
+        { value: 'standorte', label: t('excel:combined.tabStandorte') },
+        { value: 'skip', label: t('excel:combined.skip') },
+    ];
+
     return (
         <Modal
-            title={t('excel:combined.title')}
+            title={step === 'assign' ? t('excel:combined.sheetAssignment') : t('excel:combined.title')}
             open={showModal}
             onCancel={() => setShow(false)}
             width={700}
-            footer={[
-                <Button key="back" onClick={() => setShow(false)}>
-                    {t('common:buttons.cancel')}
-                </Button>,
-                <Tooltip key="importAdd" title={t('excel:combined.importAddTooltip')}>
-                    <Button type="primary" disabled={!isValid} onClick={() => importAll('add')}>
-                        {t('excel:combined.importAdd')}
-                    </Button>
-                </Tooltip>,
-                <Popconfirm
-                    key="importReplace"
-                    title={t('excel:combined.importReplaceConfirm')}
-                    onConfirm={() => importAll('replace')}
-                    okText={t('common:confirm.yes')}
-                    cancelText={t('common:confirm.no')}
-                >
-                    <Tooltip title={t('excel:combined.importReplaceTooltip')}>
-                        <Button type="primary" disabled={!isValid}>
-                            {t('excel:combined.importReplace')}
-                        </Button>
-                    </Tooltip>
-                </Popconfirm>,
-            ]}
+            footer={step === 'assign' ? assignFooter : mapFooter}
         >
-            <Tabs items={tabItems} />
+            {step === 'assign' ? (
+                <div>
+                    <Typography.Paragraph type="secondary">
+                        {t('excel:combined.sheetAssignmentDescription')}
+                    </Typography.Paragraph>
+                    <Row gutter={[16, 12]}>
+                        <Col span={10}><Typography.Text strong>{t('excel:combined.sheetName')}</Typography.Text></Col>
+                        <Col span={8}><Typography.Text strong>{t('excel:combined.dataType')}</Typography.Text></Col>
+                        <Col span={6}><Typography.Text strong>{t('excel:combined.rows')}</Typography.Text></Col>
+                        {sheetNames.map(name => {
+                            const currentType = sheetAssignments[name] || 'skip';
+                            const usedTypes = Object.entries(sheetAssignments)
+                                .filter(([n, t]) => n !== name && t !== 'skip')
+                                .map(([, t]) => t);
+                            return (
+                                <React.Fragment key={name}>
+                                    <Col span={10} style={{ display: 'flex', alignItems: 'center' }}>
+                                        <Typography.Text ellipsis={{ tooltip: name }}>{name}</Typography.Text>
+                                    </Col>
+                                    <Col span={8}>
+                                        <Select
+                                            value={currentType}
+                                            onChange={(val) => setSheetAssignments(prev => ({ ...prev, [name]: val }))}
+                                            style={{ width: '100%' }}
+                                            options={typeOptions.map(opt => ({
+                                                ...opt,
+                                                disabled: opt.value !== 'skip' && opt.value !== currentType && usedTypes.includes(opt.value),
+                                            }))}
+                                        />
+                                    </Col>
+                                    <Col span={6} style={{ display: 'flex', alignItems: 'center' }}>
+                                        <Typography.Text type="secondary">{allSheets[name].data.length} {t('excel:combined.rows')}</Typography.Text>
+                                    </Col>
+                                </React.Fragment>
+                            );
+                        })}
+                    </Row>
+                </div>
+            ) : (
+                <Tabs items={tabItems} />
+            )}
         </Modal>
     );
 };

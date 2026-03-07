@@ -11,12 +11,13 @@ import { MaterialFormFields } from './MaterialFormFields';
 
 export interface AddMaterialProps {
     abteilungId: string
+    defaultStandortId?: string
     onSuccess?: () => void
 }
 
 export const AddMaterial = (props: AddMaterialProps) => {
 
-    const { abteilungId, onSuccess } = props;
+    const { abteilungId, defaultStandortId, onSuccess } = props;
     const { t } = useTranslation();
 
     const [form] = Form.useForm<Material>();
@@ -64,7 +65,7 @@ export const AddMaterial = (props: AddMaterialProps) => {
     return <>
         <Form
             form={form}
-            initialValues={{ consumables: false, categorieIds: [], comment: '', lost: 0, damaged: 0, weightInKg: null, imageUrls: [], onlyLendInternal: true, standort: [] }}
+            initialValues={{ consumables: false, categorieIds: [], comment: '', lost: 0, damaged: 0, weightInKg: null, imageUrls: [], onlyLendInternal: true, standort: defaultStandortId ? [defaultStandortId] : [] }}
             onValuesChange={() => {
                 if (renderMatImages !== form.getFieldValue('imageUrls')) {
                     setRenderMatImages(form.getFieldValue('imageUrls'))
@@ -115,7 +116,7 @@ export const AddMaterialButton = (props: AddMaterialProps) => {
                 </Button>,
               ]}
         >
-            <AddMaterial abteilungId={abteilungId} onSuccess={()=> { setIsModalVisible(false)}}/>
+            <AddMaterial abteilungId={abteilungId} defaultStandortId={props.defaultStandortId} onSuccess={()=> { setIsModalVisible(false)}}/>
         </Modal>
     </>
 

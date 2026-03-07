@@ -62,7 +62,16 @@
     "example": "Example: {{value}}",
     "defaultValue": "Default value",
     "materialWarning": "{{count}} material(s) could not be matched: {{names}}",
-    "skippedEmpty": "{{count}} collection(s) skipped (no matching materials found)."
+    "skippedEmpty": "{{count}} collection(s) skipped (no matching materials found).",
+    "sheetAssignment": "Assign worksheets",
+    "sheetAssignmentDescription": "Assign each worksheet to the corresponding data type.",
+    "sheetName": "Worksheet",
+    "dataType": "Data type",
+    "skip": "Skip",
+    "next": "Next",
+    "back": "Back",
+    "rows": "rows",
+    "noAssignment": "At least one worksheet must be assigned."
   },
   "sammlungFields": {
     "name": "Name*:",

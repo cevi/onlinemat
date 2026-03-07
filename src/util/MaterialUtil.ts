@@ -100,6 +100,21 @@ export const setAllOnlyLendInternal = async (abteilungId: string, materials: Mat
     }
 }
 
+export const assignStandortToMaterialsWithout = async (abteilungId: string, materials: Material[], standortId: string): Promise<number> => {
+    const materialsWithout = materials.filter(m => !m.standort || m.standort.length === 0);
+    const BATCH_LIMIT = 500;
+    for (let i = 0; i < materialsWithout.length; i += BATCH_LIMIT) {
+        const batch = writeBatch(db);
+        const chunk = materialsWithout.slice(i, i + BATCH_LIMIT);
+        chunk.forEach(mat => {
+            const ref = doc(db, abteilungenCollection, abteilungId, abteilungenMaterialsCollection, mat.id);
+            batch.update(ref, { standort: [standortId] });
+        });
+        await batch.commit();
+    }
+    return materialsWithout.length;
+}
+
 export const massImportMaterial = async (abteilungId: string, materials: Material[]): Promise<Material[]> => {
     if (materials.length > 500) {
         throw new Error('Import limit exceeded: maximum 500 materials per import');

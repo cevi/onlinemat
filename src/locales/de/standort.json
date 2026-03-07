@@ -30,5 +30,12 @@
     "city": "Ort",
     "coordinates": "Koordinaten",
     "edit": "Bearbeiten"
+  },
+  "default": {
+    "setDefault": "Als Standard setzen",
+    "isDefault": "Standard",
+    "removeDefault": "Standard entfernen",
+    "assignConfirm": "Soll dieser Standort auch allen {{count}} Material(ien) ohne Standort zugewiesen werden?",
+    "assignSuccess": "{{count}} Material(ien) wurde(n) der Standort zugewiesen."
   }
 }

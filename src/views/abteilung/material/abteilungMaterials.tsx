@@ -270,7 +270,7 @@ export const AbteilungMaterialView = (props: AbteilungMaterialViewProps) => {
             }
           >
             <Col xl={4}>
-              <AddMaterialButton abteilungId={abteilung.id} />
+              <AddMaterialButton abteilungId={abteilung.id} defaultStandortId={abteilung.defaultStandortId} />
             </Col>
             <Col xl={8}></Col>
           </Can>

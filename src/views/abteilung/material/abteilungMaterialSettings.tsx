@@ -101,7 +101,7 @@ export const AbteilungMaterialSettingsView = (props: AbteilungMaterialSettingsVi
                             <AddStandortButton abteilungId={abteilung.id} />
                         </div>
                     </Can>
-                    {standortLoading ? <Spin /> : <StandortTable abteilungId={abteilung.id} standort={standorte} />}
+                    {standortLoading ? <Spin /> : <StandortTable abteilungId={abteilung.id} standort={standorte} abteilung={abteilung} materials={materials} />}
                 </Card>
             </Col>
 
