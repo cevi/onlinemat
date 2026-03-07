@@ -1,0 +1,92 @@
+{
+  "routes": {
+    "home": "Home",
+    "login": "Login",
+    "search": "Search",
+    "abteilungen": "Departments",
+    "abteilungenDetails": "Department Details",
+    "users": "Users",
+    "stats": "Statistics",
+    "profile": "Profile"
+  },
+  "menu": {
+    "login": "Log in",
+    "logout": "Log out"
+  },
+  "bottomNav": {
+    "menu": "Menu"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "backToHome": "Back to home page"
+  },
+  "verifyEmail": {
+    "title": "Please verify your email",
+    "subtitle": "You need to verify your email to use Onlinemat. Please also check your spam folder.",
+    "confirmed": "I have verified my email"
+  },
+  "home": {
+    "title": "Home",
+    "appName": "Onlinemat",
+    "description": "Onlinemat is the material management and lending platform for all Jungschar groups and Cevi departments. Browse the available materials in your department and reserve them directly online. Each department manages its own materials, locations, and members. Looking for something your department doesn't have? Use the search to find materials from other departments that have enabled sharing.",
+    "dashboard": "Onlinemat Dashboard",
+    "welcome": "Welcome {{name}}, you can get started now.",
+    "features": {
+      "browse": {
+        "title": "Browse materials",
+        "description": "Discover the available materials in your department - from tents to cooking gear to games and more."
+      },
+      "reserve": {
+        "title": "Reserve online",
+        "description": "Reserve materials with just a few clicks and keep track of your orders at any time."
+      },
+      "search": {
+        "title": "Cross-department search",
+        "description": "Find materials from other departments that have enabled sharing - perfect when you need something extra."
+      },
+      "metadata": {
+        "title": "Equipment management",
+        "description": "Track purchase dates, condition, maintenance history and more - keep full oversight of your equipment lifecycle."
+      }
+    }
+  },
+  "login": {
+    "button": "Log in"
+  },
+  "status": {
+    "branch": "Branch",
+    "gitHash": "Git Hash"
+  },
+  "users": {
+    "title": "Users",
+    "searchPlaceholder": "Search for users",
+    "statisticUsers": "Users",
+    "statisticStaff": "Staff",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "abteilungen": "Departments",
+      "staff": "Staff",
+      "actions": "Actions",
+      "lastLogin": "Last Login"
+    },
+    "syncDisplayNames": {
+      "button": "Sync display names",
+      "success": "Sync complete: {{updated}} updated, {{skipped}} skipped",
+      "warning": "Sync completed with errors",
+      "permissionError": "Only staff members can use this function",
+      "error": "Sync failed"
+    },
+    "addToAbteilung": {
+      "button": "Add user to department",
+      "title": "Add user to department",
+      "submit": "Add to department",
+      "abteilungLabel": "Department",
+      "abteilungPlaceholder": "Department",
+      "roleLabel": "Role",
+      "alreadyMember": "This user is already a member of this department",
+      "error": "The user could not be added to the department!",
+      "success": "The user was successfully added to the department"
+    }
+  }
+}

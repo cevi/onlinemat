@@ -1,9 +1,11 @@
 import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
 import {Button, Form, Input, message, Modal} from 'antd';
 import {EditOutlined} from '@ant-design/icons';
-import {validateMessages} from 'util/FormValdationMessages';
+import {getValidateMessages} from 'util/FormValdationMessages';
 import {Standort} from "../../types/standort.types";
 import {editStandort} from "../../util/StandortUtil";
+import { EditFormHandle } from 'types/form.types';
+import { useTranslation } from 'react-i18next';
 
 export interface EditStandortProps {
     abteilungId: string
@@ -12,11 +14,11 @@ export interface EditStandortProps {
     onSuccess?: () => void
 }
 
-export const EditStandort = forwardRef((props: EditStandortProps, ref) => {
+export const EditStandort = forwardRef<EditFormHandle, EditStandortProps>((props, ref) => {
     useImperativeHandle(
         ref,
         () => ({
-            saveEditStandort() {
+            save() {
                 prepareEditStandort();
             }
         }),
@@ -25,6 +27,7 @@ export const EditStandort = forwardRef((props: EditStandortProps, ref) => {
     const { abteilungId, standortId, standort, onSuccess } = props;
 
     const [form] = Form.useForm<Standort>();
+    const { t } = useTranslation();
 
     const prepareEditStandort = async () => {
         try {
@@ -41,10 +44,10 @@ export const EditStandort = forwardRef((props: EditStandortProps, ref) => {
             if (onSuccess) {
                 onSuccess()
             } else {
-                message.error('Es ist leider ein Fehler aufgetreten')
+                message.error(t('common:errors.genericShort'))
             }
         } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+            message.error(t('common:errors.generic', { error: ex }))
         }
 
     }
@@ -59,10 +62,10 @@ export const EditStandort = forwardRef((props: EditStandortProps, ref) => {
                     form.validateFields()
 
                 }}
-                validateMessages={validateMessages}
+                validateMessages={getValidateMessages()}
             >
                 <Form.Item
-                    label='Name'
+                    label={t('standort:form.name')}
                     name='name'
                     rules={[
                         { required: true },
@@ -70,23 +73,23 @@ export const EditStandort = forwardRef((props: EditStandortProps, ref) => {
                     ]}
                 >
                     <Input
-                        placeholder='Standortname'
+                        placeholder={t('standort:form.namePlaceholder')}
                     />
                 </Form.Item>
                 <Form.Item
-                    label='Strasse'
+                    label={t('standort:form.street')}
                     name='street'
                     rules={[
                         { required: false },
                     ]}
                 >
                     <Input
-                        placeholder='Strasse'
+                        placeholder={t('standort:form.streetPlaceholder')}
                     />
                 </Form.Item>
 
                 <Form.Item
-                    label='Ort'
+                    label={t('standort:form.city')}
                     name='city'
                     rules={[
                         { required: false },
@@ -94,11 +97,11 @@ export const EditStandort = forwardRef((props: EditStandortProps, ref) => {
                 >
 
                     <Input
-                        placeholder='Ort'
+                        placeholder={t('standort:form.cityPlaceholder')}
                     />
                 </Form.Item>
                 <Form.Item
-                    label='Koordinaten'
+                    label={t('standort:form.coordinates')}
                     name='coordinates'
                     rules={[
                         { required: false },
@@ -106,7 +109,7 @@ export const EditStandort = forwardRef((props: EditStandortProps, ref) => {
                 >
 
                     <Input
-                        placeholder='Koordinaten'
+                        placeholder={t('standort:form.coordinatesPlaceholder')}
                     />
                 </Form.Item>
             </Form>
@@ -118,26 +121,23 @@ export const EditStandortButton = (props: EditStandortProps) => {
 
     const { abteilungId, standortId, standort } = props;
 
-    const editStandortRef = useRef();
+    const editStandortRef = useRef<EditFormHandle>(null);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const { t } = useTranslation();
 
     return <>
         <Button type='primary' onClick={() => { setIsModalVisible(!isModalVisible) }} icon={<EditOutlined />} />
         <Modal
-            title='Stadort bearbeiten'
+            title={t('standort:edit.title')}
             open={isModalVisible}
             onCancel={() => { setIsModalVisible(false) }}
             footer={[
                 <Button key='back' onClick={() => { setIsModalVisible(false) }}>
-                    Abbrechen
+                    {t('common:buttons.cancel')}
                 </Button>,
-                <Button key='save'  type='primary' onClick={() => { 
-                    if(!editStandortRef || !editStandortRef.current) return;
-                    //TODO: typescript
-                    (editStandortRef.current as any).saveEditStandort() }}
-                >
-                    Änderungen speichern
+                <Button key='save'  type='primary' onClick={() => { editStandortRef.current?.save() }}>
+                    {t('standort:edit.submit')}
                 </Button>
             ]}
         >

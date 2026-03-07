@@ -1,19 +1,22 @@
 import classNames from 'classnames';
-import { Button, Col, Form, Image, Input, message, Popconfirm, Row, Upload } from 'antd';
+import { Button, Card, Col, Divider, Form, Image, Input, InputNumber, message, Popconfirm, Row, Switch, Typography } from 'antd';
 import ceviLogoImage from 'assets/onlinemat_logo.png';
 import { useNavigate } from 'react-router';
 import { Abteilung } from 'types/abteilung.type';
 import { useContext, useState } from 'react';
-import { db, functions } from 'config/firebase/firebase';
+import { auth, db, functions } from 'config/firebase/firebase';
 import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
-import { abteilungenCollection, abteilungenMaterialsCollection } from 'config/firebase/collections';
+import { abteilungenCollection, abteilungenMembersCollection } from 'config/firebase/collections';
+import { MembersContext } from 'contexts/AbteilungContexts';
 import moduleStyles from '../Abteilung.module.scss'
 import { ability } from 'config/casl/ability';
 import { slugify } from 'util/FormUtil';
 import { Can } from 'config/casl/casl';
-import { DeleteOutlined } from '@ant-design/icons';
-import { validateMessages } from 'util/FormValdationMessages';
+import { DeleteOutlined, MailOutlined } from '@ant-design/icons';
+import { getValidateMessages } from 'util/FormValdationMessages';
+import { useTranslation } from 'react-i18next';
+import { useIsMobile } from 'hooks/useIsMobile';
 
 export interface AbteilungSettingsProps {
     abteilung: Abteilung
@@ -23,7 +26,9 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
     const { abteilung } = props;
 
+    const { t } = useTranslation();
     const navigate = useNavigate();
+    const isMobile = useIsMobile();
 
     const [form] = Form.useForm<Abteilung>();
     const [updateLoading, setUpdateLoading] = useState(false);
@@ -31,7 +36,124 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
     const [slug, setSlug] = useState<string>(abteilung.slug);
 
     const disabled = ability.cannot('update', 'Abteilung');
-    
+    const canToggleSearch = ability.can('update', { __caslSubjectType__: 'Material' as const, abteilungId: abteilung.id });
+
+    const [searchVisible, setSearchVisible] = useState<boolean>(abteilung.searchVisible !== false);
+    const [searchVisibleLoading, setSearchVisibleLoading] = useState(false);
+
+    const uid = auth.currentUser?.uid;
+    const { members } = useContext(MembersContext);
+    const currentMember = members.find(m => m.userId === uid);
+    const isAdmin = currentMember?.role === 'admin';
+
+    const [notifyOnNewOrder, setNotifyOnNewOrder] = useState<boolean>(currentMember?.notifyOnNewOrder === true);
+    const [notifyLoading, setNotifyLoading] = useState(false);
+
+    // Return reminder settings
+    const [returnReminderEnabled, setReturnReminderEnabled] = useState<boolean>(abteilung.returnReminder?.enabled === true);
+    const [daysAfterEndDate, setDaysAfterDelivery] = useState<number>(abteilung.returnReminder?.daysAfterEndDate ?? 14);
+    const [returnReminderLoading, setReturnReminderLoading] = useState(false);
+
+    // Material reminder settings
+    const [materialReminderEnabled, setMaterialReminderEnabled] = useState<boolean>(abteilung.materialReminder?.enabled === true);
+    const [daysBeforeDue, setDaysBeforeDue] = useState<number>(abteilung.materialReminder?.daysBeforeDue ?? 14);
+    const [checkIntervalDays, setCheckIntervalDays] = useState<number>(abteilung.materialReminder?.checkIntervalDays ?? 7);
+    const [materialReminderLoading, setMaterialReminderLoading] = useState(false);
+    const [materialCheckLoading, setMaterialCheckLoading] = useState(false);
+    const [materialCheckResult, setMaterialCheckResult] = useState<number | null>(null);
+
+    const toggleNotifyOnNewOrder = async (checked: boolean) => {
+        if (!uid) return;
+        try {
+            setNotifyLoading(true);
+            await updateDoc(doc(db, abteilungenCollection, abteilung.id, abteilungenMembersCollection, uid), {
+                notifyOnNewOrder: checked
+            });
+            setNotifyOnNewOrder(checked);
+            message.success(t('abteilung:settings.saveSuccess'));
+        } catch (ex) {
+            message.error(t('common:errors.generic', { error: ex }));
+        } finally {
+            setNotifyLoading(false);
+        }
+    };
+
+    const toggleSearchVisible = async (checked: boolean) => {
+        try {
+            setSearchVisibleLoading(true);
+            await updateDoc(doc(db, abteilungenCollection, abteilung.id), {
+                searchVisible: checked
+            });
+            setSearchVisible(checked);
+            message.success(t('abteilung:settings.saveSuccess'));
+        } catch (ex) {
+            message.error(t('common:errors.generic', { error: ex }));
+        } finally {
+            setSearchVisibleLoading(false);
+        }
+    };
+
+    const saveReturnReminderSettings = async (enabled?: boolean) => {
+        try {
+            setReturnReminderLoading(true);
+            const isEnabled = enabled !== undefined ? enabled : returnReminderEnabled;
+            await httpsCallable(functions, 'updateReminderSettings')({
+                abteilungId: abteilung.id,
+                returnReminder: {
+                    enabled: isEnabled,
+                    daysAfterEndDate,
+                },
+            });
+            setReturnReminderEnabled(isEnabled);
+            message.success(t('abteilung:settings.saveSuccess'));
+        } catch (ex) {
+            message.error(t('common:errors.generic', { error: ex }));
+        } finally {
+            setReturnReminderLoading(false);
+        }
+    };
+
+    const saveMaterialReminderSettings = async (enabled?: boolean) => {
+        try {
+            setMaterialReminderLoading(true);
+            const isEnabled = enabled !== undefined ? enabled : materialReminderEnabled;
+            await httpsCallable(functions, 'updateReminderSettings')({
+                abteilungId: abteilung.id,
+                materialReminder: {
+                    enabled: isEnabled,
+                    daysBeforeDue,
+                    checkIntervalDays,
+                },
+            });
+            setMaterialReminderEnabled(isEnabled);
+            message.success(t('abteilung:settings.saveSuccess'));
+        } catch (ex) {
+            message.error(t('common:errors.generic', { error: ex }));
+        } finally {
+            setMaterialReminderLoading(false);
+        }
+    };
+
+    const handleMaterialCheck = async () => {
+        try {
+            setMaterialCheckLoading(true);
+            setMaterialCheckResult(null);
+            const result = await httpsCallable(functions, 'sendMaterialMaintenanceReminder')({
+                abteilungId: abteilung.id,
+            });
+            const count = (result.data as any).count;
+            setMaterialCheckResult(count);
+            if (count > 0) {
+                message.success(t('abteilung:settings.reminders.materialReminderSent', { count }));
+            } else {
+                message.info(t('abteilung:settings.reminders.noMaintenanceNeeded'));
+            }
+        } catch (ex) {
+            message.error(t('common:errors.generic', { error: ex }));
+        } finally {
+            setMaterialCheckLoading(false);
+        }
+    };
 
     const updateAbteilung = async () => {
         if (!abteilung) return;
@@ -59,7 +181,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                 } as Abteilung);
             }
            
-            message.success(`Änderungen erfolgreich gespeichert`);
+            message.success(t('abteilung:settings.saveSuccess'));
 
             //if slug changed, redirect to new url
             if (slugChanged && slug) {
@@ -67,7 +189,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
             }
 
         } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+            message.error(t('common:errors.generic', { error: ex }))
         }
         setUpdateLoading(false);
     }
@@ -78,7 +200,7 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
             const slug = form.getFieldsValue().slug;
             await httpsCallable(functions, 'updateSlug')({ abteilungId: abteilung.id, slug });
         } catch (ex) {
-            console.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+            console.error(t('common:errors.generic', { error: ex }))
             throw ex;
         }
     }
@@ -87,35 +209,144 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
         if (!ab) return;
         try {
             await deleteDoc(doc(db, abteilungenCollection, ab.id));
-            message.info(`${ab.name} erfolgreich gelöscht`)
+            message.info(t('abteilung:settings.deleteSuccess', { name: ab.name }))
             navigate('/')
         } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
+            message.error(t('common:errors.generic', { error: ex }))
         }
     }
 
-    return <Row>
-        <div className={classNames(moduleStyles['ceviLogoWrapper'])}>
+    return <Row gutter={[16, 16]}>
+        <Col xs={24} lg={4} style={isMobile ? { textAlign: 'center', marginBottom: 16 } : undefined}>
             <Image
-                width={200}
+                width={isMobile ? 120 : 200}
                 src={abteilung?.logoUrl && abteilung.logoUrl !== '' ? abteilung.logoUrl : `${ceviLogoImage}`}
                 preview={false}
             />
-        </div>
-        <div style={{ flex: 1 }}>
+        </Col>
+        <Col xs={24} lg={20}>
+            {canToggleSearch && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+                    <Switch
+                        checked={searchVisible}
+                        onChange={toggleSearchVisible}
+                        loading={searchVisibleLoading}
+                    />
+                    <div>
+                        <Typography.Text strong>{t('abteilung:settings.searchVisible')}</Typography.Text>
+                        <br />
+                        <Typography.Text type="secondary">{t('abteilung:settings.searchVisibleDescription')}</Typography.Text>
+                    </div>
+                </div>
+            )}
+            {isAdmin && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+                    <Switch
+                        checked={notifyOnNewOrder}
+                        onChange={toggleNotifyOnNewOrder}
+                        loading={notifyLoading}
+                    />
+                    <div>
+                        <Typography.Text strong>{t('abteilung:settings.notifyOnNewOrder')}</Typography.Text>
+                        <br />
+                        <Typography.Text type="secondary">{t('abteilung:settings.notifyOnNewOrderDescription')}</Typography.Text>
+                    </div>
+                </div>
+            )}
+            {canToggleSearch && (
+                <>
+                    <Divider />
+                    <Typography.Title level={5}>{t('abteilung:settings.reminders.title')}</Typography.Title>
+
+                    <Card size="small" title={t('abteilung:settings.reminders.returnTitle')} style={{ marginBottom: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                            <Switch
+                                checked={returnReminderEnabled}
+                                onChange={(checked) => saveReturnReminderSettings(checked)}
+                                loading={returnReminderLoading}
+                            />
+                            <div>
+                                <Typography.Text strong>{t('abteilung:settings.reminders.returnEnabled')}</Typography.Text>
+                                <br />
+                                <Typography.Text type="secondary">{t('abteilung:settings.reminders.returnEnabledDescription')}</Typography.Text>
+                            </div>
+                        </div>
+                        {returnReminderEnabled && (
+                            <Row gutter={[16, 8]}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item label={t('abteilung:settings.reminders.daysAfterEndDate')}>
+                                        <InputNumber min={1} max={365} value={daysAfterEndDate} onChange={(val) => setDaysAfterDelivery(val ?? 14)} />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Button type="primary" onClick={() => saveReturnReminderSettings()} loading={returnReminderLoading}>
+                                        {t('abteilung:settings.save')}
+                                    </Button>
+                                </Col>
+                            </Row>
+                        )}
+                    </Card>
+
+                    <Card size="small" title={t('abteilung:settings.reminders.materialTitle')} style={{ marginBottom: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                            <Switch
+                                checked={materialReminderEnabled}
+                                onChange={(checked) => saveMaterialReminderSettings(checked)}
+                                loading={materialReminderLoading}
+                            />
+                            <div>
+                                <Typography.Text strong>{t('abteilung:settings.reminders.materialEnabled')}</Typography.Text>
+                                <br />
+                                <Typography.Text type="secondary">{t('abteilung:settings.reminders.materialEnabledDescription')}</Typography.Text>
+                            </div>
+                        </div>
+                        {materialReminderEnabled && (
+                            <Row gutter={[16, 8]}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item label={t('abteilung:settings.reminders.daysBeforeDue')}>
+                                        <InputNumber min={0} max={365} value={daysBeforeDue} onChange={(val) => setDaysBeforeDue(val ?? 14)} />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item label={t('abteilung:settings.reminders.checkIntervalDays')}>
+                                        <InputNumber min={1} max={365} value={checkIntervalDays} onChange={(val) => setCheckIntervalDays(val ?? 7)} />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Button type="primary" onClick={() => saveMaterialReminderSettings()} loading={materialReminderLoading}>
+                                        {t('abteilung:settings.save')}
+                                    </Button>
+                                </Col>
+                            </Row>
+                        )}
+                        <Divider />
+                        <Button icon={<MailOutlined />} onClick={handleMaterialCheck} loading={materialCheckLoading}>
+                            {t('abteilung:settings.reminders.sendMaterialReminder')}
+                        </Button>
+                        {materialCheckResult !== null && (
+                            <Typography.Text style={{ marginLeft: 12 }}>
+                                {materialCheckResult > 0
+                                    ? t('abteilung:settings.reminders.materialReminderSent', { count: materialCheckResult })
+                                    : t('abteilung:settings.reminders.noMaintenanceNeeded')
+                                }
+                            </Typography.Text>
+                        )}
+                    </Card>
+                </>
+            )}
             <Form
                 form={form}
                 layout='vertical'
                 onFinish={updateAbteilung}
                 onFinishFailed={() => { }}
                 autoComplete='off'
-                validateMessages={validateMessages}
+                validateMessages={getValidateMessages()}
                 initialValues={abteilung}
             >
-                <Row gutter={[16, 24]}>
-                    <Col span={8}>
+                <Row gutter={[16, 0]}>
+                    <Col xs={24} sm={12} lg={8}>
                         <Form.Item
-                            label='Abteilungsname'
+                            label={t('abteilung:settings.name')}
                             name='name'
                             rules={[
                                 { required: true },
@@ -123,16 +354,16 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                             ]}
                         >
                             <Input
-                                placeholder='Abteilungsname'
+                                placeholder={t('abteilung:settings.namePlaceholder')}
                                 disabled={disabled || updateLoading}
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col xs={24} sm={12} lg={8}>
                         <Form.Item
-                            label='Slug'
+                            label={t('abteilung:settings.slug')}
                             name='slug'
-                            tooltip={'Url lesbarer Name'}
+                            tooltip={t('abteilung:settings.slugTooltip')}
                             rules={[
                                 { required: true },
                                 { type: 'string', min: 3 },
@@ -140,11 +371,11 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                                     validator: (rule: any, value: string, cb: (msg?: string) => void) => {
                                         //check for whitespaces
                                         if (value.includes(' ')) {
-                                            return cb('Der Slug darf keine Leerzeichen haben')
+                                            return cb(t('abteilung:settings.slugNoSpaces'))
                                         }
                                         //Check if contains upper case
                                         if (value.toLowerCase() !== value) {
-                                            return cb('Der Slug muss klein geschrieben werden')
+                                            return cb(t('abteilung:settings.slugLowercase'))
                                         }
 
                                         //OK
@@ -155,29 +386,29 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
 
                         >
                             <Input
-                                placeholder='Slug'
+                                placeholder={t('abteilung:settings.slugPlaceholder')}
                                 onChange={(val) => {form.setFieldsValue({ slug: slugify(val.currentTarget.value) }); setSlug(val.currentTarget.value)}}
                                 disabled={disabled || updateLoading}
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col xs={24} sm={12} lg={8}>
                         <Form.Item
-                            label='Cevi DB Abteilungs ID'
+                            label={t('abteilung:settings.ceviDbId')}
                             name='ceviDBId'
                             rules={[
                                 { required: false }
                             ]}
                         >
                             <Input
-                                placeholder='Cevi DB Id'
+                                placeholder={t('abteilung:settings.ceviDbIdPlaceholder')}
                                 disabled={disabled || updateLoading}
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col xs={24} sm={12} lg={8}>
                         <Form.Item
-                            label='Cevi Logo Url'
+                            label={t('abteilung:settings.logoUrl')}
                             name='logoUrl'
                             rules={[
                                 { required: false },
@@ -186,45 +417,47 @@ export const AbteilungSettings = (props: AbteilungSettingsProps) => {
                             ]}
                         >
                             <Input
-                                placeholder='Cevi Logo Url'
+                                placeholder={t('abteilung:settings.logoUrlPlaceholder')}
                                 disabled={disabled || updateLoading}
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col xs={24} sm={12} lg={8}>
                         <Form.Item
-                            label='Email'
+                            label={t('abteilung:settings.email')}
                             name='email'
                             rules={[
                                 { type: 'email' },
                             ]}
                         >
                             <Input
-                                placeholder='Email'
+                                placeholder={t('abteilung:settings.emailPlaceholder')}
                                 disabled={disabled || updateLoading}
                             />
                         </Form.Item>
                     </Col>
                     <Can I='update' this={abteilung}>
-                        <Col span={16}>
-                            <Button style={{ marginRight: '10px' }} type='primary' htmlType='submit' disabled={updateLoading}>
-                                Speichern
-                            </Button>
-                            <Popconfirm
-                                title='Möchtest du diese Abteilung wirklich löschen?'
-                                onConfirm={() => delteAbteilung(abteilung)}
-                                onCancel={() => { }}
-                                okText='Ja'
-                                cancelText='Nein'
-                            >
-                                <Button type='ghost' danger icon={<DeleteOutlined />} disabled={updateLoading}>
-                                    Abteilung Löschen
+                        <Col span={24}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                                <Button type='primary' htmlType='submit' disabled={updateLoading}>
+                                    {t('abteilung:settings.save')}
                                 </Button>
-                            </Popconfirm>
+                                <Popconfirm
+                                    title={t('abteilung:settings.deleteConfirm')}
+                                    onConfirm={() => delteAbteilung(abteilung)}
+                                    onCancel={() => { }}
+                                    okText={t('common:confirm.yes')}
+                                    cancelText={t('common:confirm.no')}
+                                >
+                                    <Button type='text' danger icon={<DeleteOutlined />} disabled={updateLoading}>
+                                        {t('abteilung:settings.delete')}
+                                    </Button>
+                                </Popconfirm>
+                            </div>
                         </Col>
                     </Can>
                 </Row>
             </Form>
-        </div>
+        </Col>
     </Row>
 }

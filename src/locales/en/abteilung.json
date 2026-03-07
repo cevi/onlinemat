@@ -1,0 +1,83 @@
+{
+  "title": "Departments",
+  "detailTitle": "Department {{name}}",
+  "tabs": {
+    "material": "Material",
+    "standorte": "Locations",
+    "kategorien": "Categories",
+    "bestellungen": "Orders",
+    "mitglieder": "Members",
+    "gruppen": "Groups",
+    "einstellungen": "Settings",
+    "materialEinstellungen": "Material Settings",
+    "sammlungen": "Collections"
+  },
+  "card": {
+    "details": "Details",
+    "pending": "Pending"
+  },
+  "add": {
+    "button": "Add department",
+    "title": "Create department",
+    "namePlaceholder": "Name",
+    "success": "Department {{name}} successfully created",
+    "duplicateWarning": "A department with the name \"{{name}}\" already exists. Are you sure you want to create a new one, or would you like to ask to join the existing one?"
+  },
+  "noAccess": {
+    "title": "You do not have permission for this department",
+    "emailHint": "Or send an email to "
+  },
+  "guestBanner": "You are a guest in this department. You can order material, but for full access you can request membership.",
+  "join": {
+    "button": "Join",
+    "title": "Join department {{name}}",
+    "roleLabel": "Role",
+    "submit": "Request to join",
+    "success": "Request to {{name}} successfully sent"
+  },
+  "settings": {
+    "name": "Department name",
+    "namePlaceholder": "Department name",
+    "slug": "Slug",
+    "slugPlaceholder": "Slug",
+    "slugTooltip": "URL-friendly name",
+    "slugNoSpaces": "The slug must not contain spaces",
+    "slugLowercase": "The slug must be lowercase",
+    "ceviDbId": "Cevi DB Department ID",
+    "ceviDbIdPlaceholder": "Cevi DB ID",
+    "logoUrl": "Cevi Logo URL",
+    "logoUrlPlaceholder": "Cevi Logo URL",
+    "email": "Email",
+    "emailPlaceholder": "Email",
+    "searchVisible": "Visible in search",
+    "searchVisibleDescription": "When disabled, materials from this department will not appear in the global search. This can also be set per material.",
+    "notifyOnNewOrder": "Email on new order",
+    "notifyOnNewOrderDescription": "You will receive an email notification when a new order is created or edited.",
+    "save": "Save",
+    "delete": "Delete Department",
+    "deleteConfirm": "Do you really want to delete this department?",
+    "saveSuccess": "Changes saved successfully",
+    "deleteSuccess": "{{name}} successfully deleted",
+    "reminders": {
+      "title": "Reminders",
+      "returnTitle": "Return reminder",
+      "returnEnabled": "Automatic return reminder",
+      "returnEnabledDescription": "Borrowers automatically receive an email if material has not been returned within the defined period after the order end date.",
+      "daysAfterEndDate": "Days after end date",
+      "materialTitle": "Material inspection / lifespan",
+      "materialEnabled": "Automatic material reminder",
+      "materialEnabledDescription": "Matchefs and admins automatically receive an email when materials need inspection or their lifespan has expired.",
+      "daysBeforeDue": "Days before due",
+      "checkIntervalDays": "Check interval (days)",
+      "sendMaterialReminder": "Check & remind now",
+      "materialReminderSent": "Reminder sent for {{count}} material(s).",
+      "noMaintenanceNeeded": "All materials are up to date, no reminder needed."
+    }
+  },
+  "search": {
+    "placeholder": "Search department..."
+  },
+  "errors": {
+    "unknown": "Unknown department {{id}}"
+  }
+}

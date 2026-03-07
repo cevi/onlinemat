@@ -1,0 +1,153 @@
+{
+  "add": {
+    "button": "Material hinzufügen",
+    "title": "Material hinzufügen",
+    "submit": "Material hinzufügen",
+    "success": "Material {{name}} erfolgreich erstellt"
+  },
+  "edit": {
+    "title": "Material bearbeiten",
+    "submit": "Änderungen speichern"
+  },
+  "delete": {
+    "button": "Material Löschen",
+    "confirmAll": "Möchtest du wirklich alles Material dieser Abteilung löschen?",
+    "confirmSingle": "Möchtest du {{name}} wirklich löschen?",
+    "successAll": "Alles Material von {{name}} wurde erfolgreich gelöscht",
+    "success": "Material {{name}} erfolgreich gelöscht"
+  },
+  "view": {
+    "comment": "Bemerkung:",
+    "standort": "Standort:",
+    "available": "Verfügbar:",
+    "weight": "Gewicht in Kg:",
+    "categories": "Kategorien:",
+    "noPictures": "Keine Bilder vorhanden",
+    "purchaseDate": "Kaufdatum:",
+    "lifespanInYears": "Lebensdauer:",
+    "lifespanUnit": "{{count}} Jahre",
+    "purchasePrice": "Kaufpreis:",
+    "priceUnit": "CHF {{price}}",
+    "supplier": "Lieferant:",
+    "inventoryNumber": "Inventarnummer:",
+    "brand": "Marke/Hersteller:",
+    "condition": "Zustand:",
+    "warrantyUntil": "Garantie bis:",
+    "nextMaintenanceDue": "Nächste Kontrolle:",
+    "storageInstructions": "Lagerhinweise:",
+    "maintenanceHistory": "Wartungshistorie",
+    "noMaintenanceEntries": "Keine Einträge vorhanden"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Materialname",
+    "comment": "Bemerkung",
+    "commentPlaceholder": "Bemerkung",
+    "standort": "Standort",
+    "standortPlaceholder": "Standort",
+    "count": "Anzahl",
+    "lost": "Verloren",
+    "damaged": "Beschädigt",
+    "availableCount": "Verfügbar: {{count}}",
+    "weight": "Gewicht in Kg",
+    "consumables": "Ist Verbrauchsmaterial",
+    "onlyLendInternal": "In der Suche für Externe ausblenden",
+    "categories": "Kategorien",
+    "categoriesPlaceholder": "Kategorien",
+    "imageUrls": "Bilder Urls",
+    "imageUrlPlaceholder": "Material Bild Url",
+    "addImage": "Bild hinzufügen",
+    "metadataSection": "Erweiterte Informationen",
+    "purchaseDate": "Kaufdatum",
+    "purchaseDatePlaceholder": "Kaufdatum wählen",
+    "lifespanInYears": "Lebensdauer (Jahre)",
+    "purchasePrice": "Kaufpreis (CHF)",
+    "supplier": "Lieferant",
+    "supplierPlaceholder": "Name des Lieferanten",
+    "inventoryNumber": "Inventarnummer",
+    "inventoryNumberPlaceholder": "Inventarnummer eingeben",
+    "brand": "Marke/Hersteller",
+    "brandPlaceholder": "Marke oder Hersteller",
+    "condition": "Zustand",
+    "conditionPlaceholder": "Zustand wählen",
+    "conditionNew": "Neu",
+    "conditionGood": "Gut",
+    "conditionFair": "Befriedigend",
+    "conditionPoor": "Schlecht",
+    "warrantyUntil": "Garantie bis",
+    "warrantyUntilPlaceholder": "Garantiedatum wählen",
+    "nextMaintenanceDue": "Nächste Kontrolle",
+    "nextMaintenanceDuePlaceholder": "Kontrolldatum wählen",
+    "storageInstructions": "Lagerhinweise",
+    "storageInstructionsPlaceholder": "Lagerhinweise eingeben",
+    "maintenanceHistory": "Wartungshistorie",
+    "addMaintenanceEntry": "Eintrag hinzufügen",
+    "maintenanceDate": "Datum",
+    "maintenanceType": "Typ",
+    "maintenanceTypeRepair": "Reparatur",
+    "maintenanceTypeControl": "Kontrolle",
+    "maintenanceTypePurchase": "Anschaffung",
+    "maintenanceTypeOther": "Sonstiges",
+    "maintenanceNotes": "Bemerkungen",
+    "maintenanceUser": "Durchgeführt von"
+  },
+  "table": {
+    "name": "Name",
+    "comment": "Bemerkung",
+    "category": "Kategorie",
+    "standort": "Standort",
+    "weight": "Gewicht",
+    "available": "Verfügbar",
+    "cart": "Warenkorb",
+    "weightUnit": "{{weight}} Kg",
+    "unlimited": "unbegrenzt",
+    "uncategorized": "Nicht kategorisiert"
+  },
+  "filter": {
+    "title": "Filter",
+    "category": "Kategorie wählen",
+    "standort": "Standort wählen",
+    "availableOnly": "Nur verfügbare"
+  },
+  "sort": {
+    "placeholder": "Sortieren",
+    "nameAsc": "Name (A-Z)",
+    "nameDesc": "Name (Z-A)",
+    "commentAsc": "Bemerkung (A-Z)",
+    "commentDesc": "Bemerkung (Z-A)",
+    "weightAsc": "Gewicht (leicht zuerst)",
+    "weightDesc": "Gewicht (schwer zuerst)",
+    "availableAsc": "Verfügbar (wenig zuerst)",
+    "availableDesc": "Verfügbar (viel zuerst)"
+  },
+  "search": {
+    "placeholder": "nach Material suchen"
+  },
+  "export": {
+    "button": "Excel export"
+  },
+  "import": {
+    "button": "Excel Import",
+    "fileError": "Leider ist ein Fehler beim lesen der Datei aufgetreten 2"
+  },
+  "messages": {
+    "editSuccess": "Material {{name}} erfolgreich bearbeitet",
+    "maxCountReached": "Die maximale Stückzahl von {{name}} befindet sich bereits in deinem Warenkorb.",
+    "notAvailable": "{{name}} ist zur Zeit leider nicht verfügbar."
+  },
+  "settings": {
+    "excelTitle": "Excel",
+    "visibilityTitle": "Sichtbarkeit",
+    "setAllInternal": "Alle auf intern setzen",
+    "setAllPublic": "Alle auf öffentlich setzen",
+    "setAllInternalConfirm": "Alle Materialien werden in der Suche für Externe ausgeblendet. Fortfahren?",
+    "setAllPublicConfirm": "Alle Materialien werden in der Suche für Externe sichtbar. Fortfahren?",
+    "setAllInternalSuccess": "Alle Materialien wurden auf intern gesetzt",
+    "setAllPublicSuccess": "Alle Materialien wurden auf öffentlich gesetzt",
+    "dangerZoneTitle": "Gefahrenzone"
+  },
+  "util": {
+    "unlimited": "unbegrenzt",
+    "deleted": "Gelöschtes Material"
+  }
+}

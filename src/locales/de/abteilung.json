@@ -1,0 +1,83 @@
+{
+  "title": "Abteilungen",
+  "detailTitle": "Abteilung {{name}}",
+  "tabs": {
+    "material": "Material",
+    "standorte": "Standorte",
+    "kategorien": "Kategorien",
+    "bestellungen": "Bestellungen",
+    "mitglieder": "Mitglieder",
+    "gruppen": "Gruppen",
+    "einstellungen": "Einstellungen",
+    "materialEinstellungen": "Material Einstellungen",
+    "sammlungen": "Sammlungen"
+  },
+  "card": {
+    "details": "Details",
+    "pending": "Angefragt"
+  },
+  "add": {
+    "button": "Abteilung hinzufügen",
+    "title": "Abteilung erstellen",
+    "namePlaceholder": "Name",
+    "success": "Abteilung {{name}} erfolgreich erstellt",
+    "duplicateWarning": "Eine Abteilung mit dem Namen \"{{name}}\" existiert bereits. Möchtest du wirklich eine neue erstellen, oder möchtest du der bestehenden beitreten?"
+  },
+  "noAccess": {
+    "title": "Du hast keine Berechtigungen für diese Abteilung",
+    "emailHint": "Oder schreibe eine email an "
+  },
+  "guestBanner": "Du bist als Gast in dieser Abteilung. Du kannst Material bestellen, aber für vollen Zugang kannst du eine Mitgliedschaft beantragen.",
+  "join": {
+    "button": "Beitreten",
+    "title": "Abteilung {{name}} beitreten",
+    "roleLabel": "Rolle",
+    "submit": "Beitritt anfragen",
+    "success": "Anfrage an {{name}} erfolgreich gesendet"
+  },
+  "settings": {
+    "name": "Abteilungsname",
+    "namePlaceholder": "Abteilungsname",
+    "slug": "Slug",
+    "slugPlaceholder": "Slug",
+    "slugTooltip": "Url lesbarer Name",
+    "slugNoSpaces": "Der Slug darf keine Leerzeichen haben",
+    "slugLowercase": "Der Slug muss klein geschrieben werden",
+    "ceviDbId": "Cevi DB Abteilungs ID",
+    "ceviDbIdPlaceholder": "Cevi DB Id",
+    "logoUrl": "Cevi Logo Url",
+    "logoUrlPlaceholder": "Cevi Logo Url",
+    "email": "Email",
+    "emailPlaceholder": "Email",
+    "searchVisible": "In Suche sichtbar",
+    "searchVisibleDescription": "Wenn deaktiviert, werden die Materialien dieser Abteilung nicht in der globalen Suche angezeigt. Diese Einstellung kann auch pro Material gesetzt werden.",
+    "notifyOnNewOrder": "E-Mail bei neuer Bestellung",
+    "notifyOnNewOrderDescription": "Du erhältst eine E-Mail-Benachrichtigung, wenn eine neue Bestellung erstellt oder bearbeitet wird.",
+    "save": "Speichern",
+    "delete": "Abteilung Löschen",
+    "deleteConfirm": "Möchtest du diese Abteilung wirklich löschen?",
+    "saveSuccess": "Änderungen erfolgreich gespeichert",
+    "deleteSuccess": "{{name}} erfolgreich gelöscht",
+    "reminders": {
+      "title": "Erinnerungen",
+      "returnTitle": "Rückgabeerinnerung",
+      "returnEnabled": "Automatische Rückgabeerinnerung",
+      "returnEnabledDescription": "Ausleiher erhalten automatisch eine E-Mail, wenn Material nach dem Enddatum der Bestellung nicht innerhalb der definierten Frist zurückgegeben wurde.",
+      "daysAfterEndDate": "Tage nach Enddatum",
+      "materialTitle": "Material-Kontrolle / Lebensdauer",
+      "materialEnabled": "Automatische Material-Erinnerung",
+      "materialEnabledDescription": "Matchefs und Admins erhalten automatisch eine E-Mail, wenn Materialien eine Kontrolle benötigen oder deren Lebensdauer abgelaufen ist.",
+      "daysBeforeDue": "Tage vor Fälligkeit",
+      "checkIntervalDays": "Prüfintervall (Tage)",
+      "sendMaterialReminder": "Jetzt prüfen & erinnern",
+      "materialReminderSent": "Erinnerung für {{count}} Material(ien) wurde gesendet.",
+      "noMaintenanceNeeded": "Alle Materialien sind aktuell, keine Erinnerung nötig."
+    }
+  },
+  "search": {
+    "placeholder": "Abteilung suchen..."
+  },
+  "errors": {
+    "unknown": "Unbekannte Abteilung {{id}}"
+  }
+}

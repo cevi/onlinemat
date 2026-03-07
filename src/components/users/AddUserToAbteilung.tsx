@@ -1,21 +1,25 @@
 import {Button, Form, message, Modal, Select, Spin} from "antd";
 import {db} from "../../config/firebase/firebase";
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import {abteilungenCollection, abteilungenMembersCollection} from "../../config/firebase/collections";
+import {abteilungenCollection, abteilungenMembersCollection, usersCollection} from "../../config/firebase/collections";
 import React, {useContext, useState} from "react";
 import {AbteilungenContext} from "../navigation/NavigationMenu";
-import {roles} from "../abteilung/members/MemberTable";
+import {getRoles} from "../abteilung/members/MemberTable";
+import { useTranslation } from 'react-i18next';
 import { AbteilungMember } from 'types/user.type';
 
 export interface EditAbteilungMemberProps {
     uid: string
     onSuccess?: () => void
+    size?: 'small' | 'middle' | 'large'
 }
 
 export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
 
     const {uid, onSuccess} = props;
 
+    const { t } = useTranslation();
+    const roles = getRoles(t);
     const [form] = Form.useForm<AbteilungMember>();
 
     const abteilungenContext = useContext(AbteilungenContext);
@@ -23,26 +27,45 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
     const abtielungenLoading = abteilungenContext.loading;
 
     const addUserToAbteilung = async () => {
-        const userRef = doc(db, abteilungenCollection, form.getFieldValue('abteilung'), abteilungenMembersCollection, uid)
-        const memberDoc = await getDoc(userRef);
-        if (memberDoc.exists()) {
-            message.error('Dieser Benutzer ist bereits mitglied dieser Abteilung');
-        } else {
-            const member: AbteilungMember = {
-                userId: uid,
-                role: form.getFieldValue('role'),
-                approved: true,
+        const abteilungId = form.getFieldValue('abteilung');
+        const role = form.getFieldValue('role');
+        const memberRef = doc(db, abteilungenCollection, abteilungId, abteilungenMembersCollection, uid);
+
+        // Check if already a member (may fail with permission error if staff is not a member of this abteilung)
+        try {
+            const memberDoc = await getDoc(memberRef);
+            if (memberDoc.exists()) {
+                message.error(t('navigation:users.addToAbteilung.alreadyMember'));
+                return;
             }
-            await setDoc(doc(db, abteilungenCollection, form.getFieldValue('abteilung'), abteilungenMembersCollection, uid), member)
-                .then(() => {
-                    if (onSuccess) {
-                        onSuccess();
-                    }
-                })
-                .catch(() => {
-                    message.error('Der Benutzer konnte nicht zur Abteilung hinzugefügt werden!')
-                })
+        } catch {
+            // Permission error reading member doc — proceed with creation
         }
+
+        // Fetch user profile for displayName and email
+        const userDoc = await getDoc(doc(db, usersCollection, uid)).catch(() => null);
+        const userProfile = userDoc?.data();
+        const displayName = userProfile?.displayName || '';
+
+        const member: any = {
+            userId: uid,
+            role,
+            approved: true,
+            displayName,
+        };
+        if (role === 'guest') {
+            member.email = userProfile?.email || '';
+        }
+
+        await setDoc(memberRef, member)
+            .then(() => {
+                if (onSuccess) {
+                    onSuccess();
+                }
+            })
+            .catch(() => {
+                message.error(t('navigation:users.addToAbteilung.error'))
+            })
     }
 
     return <>
@@ -55,7 +78,7 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
                     } as Partial<AbteilungMember>}
                     onFinish={addUserToAbteilung}>
                     <Form.Item
-                        label='Abteilung'
+                        label={t('navigation:users.addToAbteilung.abteilungLabel')}
                         name='abteilung'
                         rules={[
                             {required: true},
@@ -64,19 +87,16 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
                     >
                         <Select
                             showSearch
-                            placeholder='Abteilung'
+                            placeholder={t('navigation:users.addToAbteilung.abteilungPlaceholder')}
                             optionFilterProp='children'
-                            options={[{label: 'Keine Abteilung', value: null} as any, ...abteilungen.map((a) => {
-                                return {
-                                    value: a.id,
-                                    label: a.name,
-                                }
-                            }).sort((a, b) => a.label.localeCompare(b.label))]}
-                        >
-                        </Select>
+                            options={abteilungen.map((a) => ({
+                                value: a.id,
+                                label: a.name,
+                            })).sort((a, b) => a.label.localeCompare(b.label))}
+                        />
                     </Form.Item>
                     <Form.Item
-                        label='Rolle'
+                        label={t('navigation:users.addToAbteilung.roleLabel')}
                         name='role'
                         rules={[
                             {required: true}
@@ -91,7 +111,7 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
                     </Form.Item>
                     <Form.Item wrapperCol={{offset: 8, span: 16}}>
                         <Button type='primary' htmlType='submit'>
-                            Zu Abteilung hinzufügen
+                            {t('navigation:users.addToAbteilung.submit')}
                         </Button>
                     </Form.Item>
                 </Form>
@@ -101,26 +121,27 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
 }
 
 export const AddUserToAbteilungButton = (props: EditAbteilungMemberProps) => {
-    const {uid} = props;
+    const {uid, size} = props;
 
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const { t } = useTranslation();
 
     return <>
-        <Button type='primary' onClick={() => setIsModalVisible(!isModalVisible)}>
-            Benutzer zu Abteilung hinzufügen
+        <Button type='primary' size={size} onClick={() => setIsModalVisible(!isModalVisible)}>
+            {t('navigation:users.addToAbteilung.button')}
         </Button>
         <Modal
-            title='Benutzer zu Abteilung hinzufügen'
+            title={t('navigation:users.addToAbteilung.title')}
             open={isModalVisible}
             onCancel={() => setIsModalVisible(false)}
             footer={[
                 <Button key='back' onClick={() => setIsModalVisible(false)}>
-                    Abbrechen
+                    {t('common:buttons.cancel')}
                 </Button>,
             ]}
         >
             <AddUserToAbteilung uid={uid} onSuccess={() => {
-                message.success('Der Benutzer wurde erfolgreich zur Abteilung hinzugefügt')
+                message.success(t('navigation:users.addToAbteilung.success'))
                 setIsModalVisible(false)
             }}/>
         </Modal>

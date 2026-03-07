@@ -1,14 +1,17 @@
 import { Avatar, Form, InputNumber, List, Radio, Tooltip } from 'antd'
 import { DamagedMaterial, DamagedMaterialDetails } from 'types/material.types';
+import { useTranslation } from 'react-i18next';
 
 export interface OrderItemsProps {
     items: DamagedMaterialDetails[]
     updateDamagedMaterial: (mat: DamagedMaterialDetails) => void
+    isMobile: boolean
 }
 
 export const OrderItemsDamaged = (props: OrderItemsProps) => {
 
-    const { items, updateDamagedMaterial } = props;
+    const { items, updateDamagedMaterial, isMobile } = props;
+    const { t } = useTranslation();
 
 
     return <div
@@ -20,11 +23,11 @@ export const OrderItemsDamaged = (props: OrderItemsProps) => {
         }}
     >
         <List
-            itemLayout='horizontal'
-            header={<div>Beschädigtes / Verlorenes Material</div>}
+            itemLayout={isMobile ? 'vertical' : 'horizontal'}
+            header={<div>{t('order:itemsDamaged.header')}</div>}
             dataSource={items}
             renderItem={item => (
-                <List.Item style={{ borderColor: '#B5B2B0' }}>
+                <List.Item style={{ borderColor: '#B5B2B0', flexWrap: isMobile ? 'wrap' : undefined }}>
                     <List.Item.Meta
                         avatar={item.imageUrls && item.imageUrls.length > 0 ? <Avatar src={item.imageUrls[0]} /> : undefined}
                         title={
@@ -33,21 +36,21 @@ export const OrderItemsDamaged = (props: OrderItemsProps) => {
                             </>
                         }
                     />
-                    <Form.Item label='Anzahl'>
-                        <InputNumber 
-                            min={1} 
-                            max={item.count} 
-                            value={item.count} 
-                            onChange={(val) => { updateDamagedMaterial({...item, count: val || 0}) }} />
-                    </Form.Item>
-                    <Form.Item style={{marginLeft: '1%'}}>
-                        <Radio.Group onChange={(e) => { updateDamagedMaterial({...item, type: e.target.value}) }} value={item.type}>
-                            <Radio value='damaged'><Tooltip title='Material wird als kaputt markiert.'>Kaputt</Tooltip></Radio>
-                            <Radio value='lost'><Tooltip title='Material wird als verloren markiert.'>Verloren</Tooltip></Radio>
-                        </Radio.Group>
-                    </Form.Item>
-
-
+                    <div style={isMobile ? { display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', width: '100%' } : { display: 'flex', alignItems: 'center' }}>
+                        <Form.Item label={t('order:itemsDamaged.count')} style={{ marginBottom: 0 }}>
+                            <InputNumber
+                                min={1}
+                                max={item.count}
+                                value={item.count}
+                                onChange={(val) => { updateDamagedMaterial({...item, count: val || 0}) }} />
+                        </Form.Item>
+                        <Form.Item style={{ marginBottom: 0, marginLeft: isMobile ? 0 : '1%' }}>
+                            <Radio.Group onChange={(e) => { updateDamagedMaterial({...item, type: e.target.value}) }} value={item.type}>
+                                <Radio value='damaged'><Tooltip title={t('order:itemsDamaged.damagedTooltip')}>{t('order:itemsDamaged.damaged')}</Tooltip></Radio>
+                                <Radio value='lost'><Tooltip title={t('order:itemsDamaged.lostTooltip')}>{t('order:itemsDamaged.lost')}</Tooltip></Radio>
+                            </Radio.Group>
+                        </Form.Item>
+                    </div>
                 </List.Item>
             )}
         />

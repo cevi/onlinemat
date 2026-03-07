@@ -39,6 +39,12 @@ export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) 
     can('update', 'Standort');
     can('delete', 'Standort');
 
+    //Sammlung
+    can('create', 'Sammlung');
+    can('read', 'Sammlung');
+    can('update', 'Sammlung');
+    can('delete', 'Sammlung');
+
     //UserData
     can('read', 'UserData');
     can('update', 'UserData');
@@ -52,6 +58,11 @@ export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) 
     can('update', 'Order');
     can('delete', 'Order');
     can('deliver', 'Order');
+
+    //Invitation
+    can('create', 'Invitation');
+    can('read', 'Invitation');
+    can('delete', 'Invitation');
 
   } else {
     //add roles based on abteilung
@@ -85,12 +96,22 @@ export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) 
           can('update', 'Standort', { abteilungId: abteilungId });
           can('delete', 'Standort', { abteilungId: abteilungId });
 
+          //Sammlung
+          can('create', 'Sammlung', { abteilungId: abteilungId });
+          can('update', 'Sammlung', { abteilungId: abteilungId });
+          can('delete', 'Sammlung', { abteilungId: abteilungId });
+
           //Order
           can('create', 'Order', { abteilungId: abteilungId });
           can('read', 'Order', { abteilungId: abteilungId });
           can('update', 'Order', { abteilungId: abteilungId });
           can('delete', 'Order', { abteilungId: abteilungId });
           can('deliver', 'Order', { abteilungId: abteilungId });
+
+          //Invitation
+          can('create', 'Invitation', { abteilungId: abteilungId });
+          can('read', 'Invitation', { abteilungId: abteilungId });
+          can('delete', 'Invitation', { abteilungId: abteilungId });
 
           break;
 
@@ -110,6 +131,11 @@ export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) 
           can('create', 'Standort', { abteilungId: abteilungId });
           can('update', 'Standort', { abteilungId: abteilungId });
           can('delete', 'Standort', { abteilungId: abteilungId });
+
+          //Sammlung
+          can('create', 'Sammlung', { abteilungId: abteilungId });
+          can('update', 'Sammlung', { abteilungId: abteilungId });
+          can('delete', 'Sammlung', { abteilungId: abteilungId });
 
           //Order
           can('create', 'Order', { abteilungId: abteilungId });

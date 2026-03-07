@@ -1,5 +1,5 @@
 import React from 'react';
-import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined, GlobalOutlined, SearchOutlined } from '@ant-design/icons'
+import { HomeOutlined, LoginOutlined, UserOutlined, TeamOutlined, GlobalOutlined, SearchOutlined, NotificationOutlined, BarChartOutlined } from '@ant-design/icons'
 import { HomeView } from 'views/home/home';
 import { LoginView } from 'views/login/login';
 import { ProfileView } from 'views/profile/profile';
@@ -8,6 +8,9 @@ import { AbteilungenView } from 'views/abteilung/abteilungen';
 import { AbteilungMaterialView } from 'views/abteilung/material/abteilungMaterials';
 import { AbteilungDetail } from 'components/abteilung/AbteilungDetails';
 import { SearchView } from 'views/search/search';
+import { ReleaseNotesView } from 'views/releaseNotes/ReleaseNotesView';
+import { ReleaseNoteEditorView } from 'views/releaseNotes/ReleaseNoteEditorView';
+import { StatsView } from 'views/staff/stats/StatsView';
 
 
 export interface AppRoute {
@@ -29,7 +32,7 @@ export interface AppRoute {
 
 export const HomeRoute: AppRoute = {
     key: '/',
-    displayName: 'Home',
+    displayName: 'navigation:routes.home',
     icon: <HomeOutlined />,
     showInMenue: true,
     exact: true,
@@ -40,7 +43,7 @@ export const HomeRoute: AppRoute = {
 export const AppRoutes: AppRoute[] = [
     {
         key: '/login',
-        displayName: 'Login',
+        displayName: 'navigation:routes.login',
         icon: <LoginOutlined />,
         public: true,
         showInMenue: false,
@@ -50,7 +53,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/suche',
-        displayName: 'Suchen',
+        displayName: 'navigation:routes.search',
         icon: <SearchOutlined />,
         public: false,
         private: true,
@@ -61,7 +64,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/abteilungen',
-        displayName: 'Abteilungen',
+        displayName: 'navigation:routes.abteilungen',
         icon: <GlobalOutlined />,
         public: false,
         private: true,
@@ -72,7 +75,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/abteilungen/:abteilungSlugOrId',
-        displayName: 'Abteilungen Details',
+        displayName: 'navigation:routes.abteilungenDetails',
         showInMenue: false,
         private: true,
         exact: true,
@@ -81,7 +84,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/abteilungen/:abteilungSlugOrId/:tab',
-        displayName: 'Abteilungen Details',
+        displayName: 'navigation:routes.abteilungenDetails',
         showInMenue: false,
         private: true,
         exact: true,
@@ -90,7 +93,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/abteilungen/:abteilungSlugOrId/:tab/:orderId',
-        displayName: 'Abteilungen Details',
+        displayName: 'navigation:routes.abteilungenDetails',
         showInMenue: false,
         private: true,
         exact: true,
@@ -99,7 +102,7 @@ export const AppRoutes: AppRoute[] = [
     },
     {
         key: '/users',
-        displayName: 'Benutzer',
+        displayName: 'navigation:routes.users',
         icon: <TeamOutlined />,
         public: false,
         private: true,
@@ -110,8 +113,20 @@ export const AppRoutes: AppRoute[] = [
         element: <UsersView/>
     },
     {
+        key: '/stats',
+        displayName: 'navigation:routes.stats',
+        icon: <BarChartOutlined />,
+        public: false,
+        private: true,
+        staffOnly: true,
+        showInMenue: true,
+        exact: true,
+        view: StatsView,
+        element: <StatsView/>
+    },
+    {
         key: '/profile',
-        displayName: 'Profile',
+        displayName: 'navigation:routes.profile',
         icon: <UserOutlined />,
         public: false,
         private: true,
@@ -119,5 +134,36 @@ export const AppRoutes: AppRoute[] = [
         exact: true,
         view: ProfileView,
         element: <ProfileView/>
+    },
+    {
+        key: '/release-notes',
+        displayName: 'releaseNote:title',
+        icon: <NotificationOutlined />,
+        showInMenue: true,
+        private: true,
+        staffOnly: true,
+        exact: true,
+        view: ReleaseNotesView,
+        element: <ReleaseNotesView/>
+    },
+    {
+        key: '/release-notes/new',
+        displayName: 'releaseNote:newButton',
+        showInMenue: false,
+        private: true,
+        staffOnly: true,
+        exact: true,
+        view: ReleaseNoteEditorView,
+        element: <ReleaseNoteEditorView/>
+    },
+    {
+        key: '/release-notes/:id/edit',
+        displayName: 'releaseNote:editButton',
+        showInMenue: false,
+        private: true,
+        staffOnly: true,
+        exact: true,
+        view: ReleaseNoteEditorView,
+        element: <ReleaseNoteEditorView/>
     }
 ]

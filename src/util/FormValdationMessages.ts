@@ -1,49 +1,53 @@
-const typeTemplate = "'${name}' ist kein gültiger ${type}";
+import i18n from 'config/i18n/i18n';
 
-export const validateMessages = {
-    default: "Überprüfungsfehler im Feld '${name}'",
-    required: "'${name}' ist erforderlich!",
-    enum: "'${name}' muss einer der folgenden sein [${enum}]",
-    whitespace: "'${name}' kann nicht leer sein",
-    date: {
-        format: "'${name}' ist für das Format Datum ungültig",
-        parse: "'${name}' konnte nicht als Datum gelesen werden",
-        invalid: "'${name}' ist ein ungültiges Datum",
-    },
-    types: {
-        string: typeTemplate,
-        method: typeTemplate,
-        array: typeTemplate,
-        object: typeTemplate,
-        number: typeTemplate,
-        date: typeTemplate,
-        boolean: typeTemplate,
-        integer: typeTemplate,
-        float: typeTemplate,
-        regexp: typeTemplate,
-        email: "Das ist keine gültige Emailadresse",
-        url: typeTemplate,
-        hex: typeTemplate,
-    },
-    string: {
-        len: "'${name}' muss genau ${len} Zeichen betragen",
-        min: "'${name}' muss mindestens ${min} Zeichen betragen",
-        max: "'${name}' darf nicht länger als ${max} Zeichen sein",
-        range: "'${name}' muss zwischen ${min} und ${max} Zeichen liegen",
-    },
-    number: {
-        len: "'${name}' muss gleich ${len} sein",
-        min: "'${name}' kann nicht kleiner sein als ${min}",
-        max: "'${name}' kann nicht grösser sein als ${max}",
-        range: "'${name}' muss zwischen ${min} und ${max} sein",
-    },
-    array: {
-        len: "'${name}' muss genau ${len} lang sein",
-        min: "'${name}' darf nicht kürzer als ${min} sein",
-        max: "'${name}' darf nicht länger als ${max} sein",
-        range: "'${name}' muss eine Länge zwischen ${min} und ${max} haben",
-    },
-    pattern: {
-        mismatch: "'${name}' stimmt nicht mit Muster ${pattern} überein",
-    },
+export const getValidateMessages = () => {
+    const typeTemplate = i18n.t('validation:types.string');
+
+    return {
+        default: i18n.t('validation:default'),
+        required: i18n.t('validation:required'),
+        enum: i18n.t('validation:enum'),
+        whitespace: i18n.t('validation:whitespace'),
+        date: {
+            format: i18n.t('validation:date.format'),
+            parse: i18n.t('validation:date.parse'),
+            invalid: i18n.t('validation:date.invalid'),
+        },
+        types: {
+            string: typeTemplate,
+            method: typeTemplate,
+            array: typeTemplate,
+            object: typeTemplate,
+            number: typeTemplate,
+            date: typeTemplate,
+            boolean: typeTemplate,
+            integer: typeTemplate,
+            float: typeTemplate,
+            regexp: typeTemplate,
+            email: i18n.t('validation:types.email'),
+            url: typeTemplate,
+            hex: typeTemplate,
+        },
+        string: {
+            len: i18n.t('validation:string.len'),
+            min: i18n.t('validation:string.min'),
+            max: i18n.t('validation:string.max'),
+            range: i18n.t('validation:string.range'),
+        },
+        number: {
+            len: i18n.t('validation:number.len'),
+            min: i18n.t('validation:number.min'),
+            max: i18n.t('validation:number.max'),
+            range: i18n.t('validation:number.range'),
+        },
+        array: {
+            len: i18n.t('validation:array.len'),
+            min: i18n.t('validation:array.min'),
+            max: i18n.t('validation:array.max'),
+            range: i18n.t('validation:array.range'),
+        },
+        pattern: {
+            mismatch: i18n.t('validation:pattern.mismatch'),
+        },
+    };
 };

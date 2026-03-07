@@ -17,19 +17,15 @@ const main = () => {
   let gitCommitHash = execSyncWrapper('git rev-parse --short=7 HEAD');
 
   const obj = {
-    gitBranch,
-    gitCommitHash
+    gitBranch: gitBranch || 'unknown',
+    gitCommitHash: gitCommitHash || 'unknown'
   };
 
-  if(gitBranch && gitCommitHash) {
-    const filePath = path.resolve('src', 'generatedGitInfo.json');
-    const fileContents = JSON.stringify(obj, null, 2);
-  
-    fs.writeFileSync(filePath, fileContents);
-    console.log(`Wrote the following contents to ${filePath}\n${fileContents}`);
-  } else {
-    console.log('Skipped writing generatedGitInfo.json. Could not get git info')
-  }
+  const filePath = path.resolve('src', 'generatedGitInfo.json');
+  const fileContents = JSON.stringify(obj, null, 2);
+
+  fs.writeFileSync(filePath, fileContents);
+  console.log(`Wrote the following contents to ${filePath}\n${fileContents}`);
 
   
 };

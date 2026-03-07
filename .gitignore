@@ -9,6 +9,8 @@ generatedGitInfo.json
 
 # testing
 /coverage
+playwright-report
+test-results
 
 # production
 /build
@@ -24,6 +26,9 @@ yarn-error.log*
 
 # JetBrains IDEA
 /.idea
+
+test-results
+playwright-report
 
 # Environment file
 .env.*

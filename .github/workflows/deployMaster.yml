@@ -16,6 +16,18 @@ jobs:
       - name: 🛎️ Checkout
         uses: actions/checkout@v4
 
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: 📦 Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: 🧪 Run tests
+        run: yarn test:run
+
       - name: 🔐 Login to private Registry (registry.cevi.tools)
         uses: docker/login-action@v3
         with:

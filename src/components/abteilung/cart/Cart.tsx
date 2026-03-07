@@ -7,12 +7,15 @@ import { Abteilung } from 'types/abteilung.type';
 import { CartItem, DetailedCartItem } from 'types/cart.types';
 import { getCartName } from 'util/CartUtil';
 import { CartTable } from './CartTable';
-import { useContext, useEffect, useRef, useState } from 'react';
-import { MaterialsContext } from '../AbteilungDetails';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { CategorysContext, MaterialsContext, SammlungenContext, StandorteContext } from '../AbteilungDetails';
 import { CreateOrder } from '../order/CreateOrder';
 import { functions } from 'config/firebase/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { getAvailableMatCount } from 'util/MaterialUtil';
+import { useTranslation } from 'react-i18next';
+import { useIsMobile } from 'hooks/useIsMobile';
+import { useUser } from 'hooks/use-user';
 
 export interface CartProps {
     abteilung: Abteilung
@@ -25,15 +28,22 @@ export const Cart = (props: CartProps) => {
     const { abteilung, cartItems, changeCart } = props;
 
     const { Step } = Steps;
+    const isMobile = useIsMobile();
 
     const cookieName = getCartName(abteilung.id);
 
     const [cookies, setCookie] = useCookies([cookieName]);
 
     const navigate = useNavigate();
+    const { t } = useTranslation();
+    const userState = useUser();
+    const isGuest = useMemo(() => userState.appUser?.userData?.roles?.[abteilung.id] === 'guest', [abteilung, userState.appUser?.userData]);
 
     //fetch materials
     const materialsContext = useContext(MaterialsContext);
+    const { categories } = useContext(CategorysContext);
+    const { standorte } = useContext(StandorteContext);
+    const { sammlungen } = useContext(SammlungenContext);
 
     const materials = materialsContext.materials;
     const matLoading = materialsContext.loading;
@@ -44,6 +54,15 @@ export const Cart = (props: CartProps) => {
 
     const [currentStep, setCurrentStep] = useState<number>(cartItems.length <= 0 ? -1 : 0);
     const [query, setQuery] = useState<string | undefined>(undefined);
+
+    // Sync currentStep when cartItems changes (e.g. loaded from cookie after mount)
+    useEffect(() => {
+        if (currentStep === -1 && cartItems.length > 0) {
+            setCurrentStep(0);
+        } else if (currentStep === 0 && cartItems.length === 0) {
+            setCurrentStep(-1);
+        }
+    }, [cartItems]);
 
     const [createdOrderId, setCreatedOrderId] = useState<string | undefined>(undefined);
     const [orderLoading, setOrderLoading] = useState<boolean>(false);
@@ -56,23 +75,31 @@ export const Cart = (props: CartProps) => {
         cartItems.forEach(item => {
             const mat = materials.find(m => m.id === item.matId);
             const maxCount = getAvailableMatCount(mat);
+            const standortNames = mat?.standort?.map(sId => standorte.find(s => s.id === sId)?.name).filter((n): n is string => !!n) || [];
+            const categorieNames = mat?.categorieIds?.map(cId => categories.find(c => c.id === cId)?.name).filter((n): n is string => !!n) || [];
+            const sammlungName = item.sammlungId ? sammlungen.find(s => s.id === item.sammlungId)?.name : undefined;
             const mergedItem: DetailedCartItem = {
                 ...item,
                 name: mat && mat.name || 'Loading...',
                 maxCount,
                 imageUrls: mat && mat.imageUrls || [],
+                comment: mat?.comment,
+                weightInKg: mat?.weightInKg,
+                standortNames,
+                categorieNames,
+                sammlungName,
                 __caslSubjectType__: 'DetailedCartItem'
             }
             localItemsMerged.push(mergedItem);
         })
         setCartItemsMerged(localItemsMerged);
-    }, [cartItems, materials])
+    }, [cartItems, materials, categories, standorte, sammlungen])
 
     const createOrder = async (orderToCreate: any): Promise<{orderId: string | undefined, collisions: { [matId: string]: number } | undefined}> => {
         try {
             setOrderError(undefined)
             setOrderLoading(true)
-            
+
             const result = await httpsCallable(functions, 'createOrder')({ abteilungId: abteilung.id, order: orderToCreate });
             const orderId: string | undefined = result.data.id;
             const collisions: { [matId: string]: number } | undefined = result.data.collisions;
@@ -80,11 +107,11 @@ export const Cart = (props: CartProps) => {
                 setCreatedOrderId(orderId)
                 setCurrentStep(currentStep + 1)
                 changeCartAndCookie([])
-                message.success(`Bestellung erfolgreich erstellt`);
+                message.success(isGuest ? t('order:create.successPending') : t('order:create.success'));
             }
 
             if(collisions) {
-                message.error(`Leider ist nicht alles Material verfügbar.`);
+                message.error(t('order:create.notAllAvailable'));
             }
 
             setOrderLoading(false)
@@ -94,8 +121,8 @@ export const Cart = (props: CartProps) => {
                 collisions
             };
         } catch (ex) {
-            message.error(`Es ist ein Fehler aufgetreten: ${ex}`)
-            setOrderError(`Es ist ein Fehler aufgetreten ${ex}`)
+            message.error(t('common:errors.generic', { error: ex }))
+            setOrderError(t('common:errors.generic', { error: ex }))
         }
         setOrderLoading(false)
 
@@ -123,18 +150,24 @@ export const Cart = (props: CartProps) => {
     const ProgressBar = () => {
         const minStep = 0;
         const maxStep = 2;
-        return <><Steps current={currentStep}>
-            <Step title='Material' description='Material auswählen' />
-            <Step title='Bestellen' description={orderError ? orderError : 'Bestellung aufgeben'} icon={orderLoading ? <LoadingOutlined /> : undefined} status={orderError ? 'error' : undefined}/>
-            <Step title='Abschliessen' description='Bestellung abschliessen' status={currentStep === maxStep ? 'finish' : undefined}/>
+        return <><Steps current={currentStep} size={isMobile ? 'small' : 'default'}>
+            <Step title={t('order:cart.steps.material')} description={isMobile ? undefined : t('order:cart.steps.materialDescription')} />
+            <Step title={t('order:cart.steps.order')} description={isMobile ? undefined : (orderError ? orderError : t('order:cart.steps.orderDescription'))} icon={orderLoading ? <LoadingOutlined /> : undefined} status={orderError ? 'error' : undefined}/>
+            <Step title={t('order:cart.steps.finish')} description={isMobile ? undefined : t('order:cart.steps.finishDescription')} status={currentStep === maxStep ? 'finish' : undefined}/>
         </Steps>
-            {currentStep > minStep && currentStep < maxStep  && <Button disabled={orderLoading} onClick={() => setCurrentStep(0)}>Zurück</Button>}
-            {currentStep < maxStep - 1 && <Button disabled={orderLoading} type='primary' style={{ float: 'right' }} onClick={() => setCurrentStep(currentStep + 1)}>Weiter</Button>}
-            {currentStep === maxStep - 1 && <Button disabled={orderLoading || cartItemsMerged.length <= 0} type='primary' style={{ float: 'right' }} onClick={() => {
-                if(!createOrderRef || !createOrderRef.current) return;
-                //TODO: typescript
-                (createOrderRef.current as any).submitOrder()
-            }}>Bestellen</Button>}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12 }}>
+                <div>
+                    {currentStep > minStep && currentStep < maxStep  && <Button disabled={orderLoading} onClick={() => setCurrentStep(0)}>{t('common:buttons.back')}</Button>}
+                </div>
+                <div>
+                    {currentStep < maxStep - 1 && <Button disabled={orderLoading} type='primary' onClick={() => setCurrentStep(currentStep + 1)}>{t('common:buttons.next')}</Button>}
+                    {currentStep === maxStep - 1 && <Button disabled={orderLoading || cartItemsMerged.length <= 0} type='primary' onClick={() => {
+                        if(!createOrderRef || !createOrderRef.current) return;
+                        //TODO: typescript
+                        (createOrderRef.current as any).submitOrder()
+                    }}>{t('order:cart.submitOrder')}</Button>}
+                </div>
+            </div>
         </>
     }
 
@@ -142,26 +175,26 @@ export const Cart = (props: CartProps) => {
     if (currentStep === 0) return <Row gutter={[16, 16]}>
         <Col span={24}>
             <Input.Search
-                placeholder='nach Material suchen'
+                placeholder={t('order:cart.searchPlaceholder')}
                 allowClear
-                enterButton='Suchen'
+                enterButton={t('common:buttons.search')}
                 size='large'
                 onSearch={(query) => setQuery(query)}
             />
         </Col>
 
         <Col span={24}>
-            <CartTable abteilung={abteilung} cartItems={query ? cartItemsMerged.filter(item => item.name.toLowerCase().includes(query.toLowerCase())) : cartItemsMerged} changeCart={changeCartAndCookie} />
+            <CartTable abteilung={abteilung} cartItems={query ? cartItemsMerged.filter(item => item.name.toLowerCase().includes(query.toLowerCase())) : cartItemsMerged} allCartItems={cartItemsMerged} changeCart={changeCartAndCookie} />
         </Col>
         <Col span={24}>
             <Popconfirm
-                title='Möchtest du deinen Warenkorb wirklich löschen?'
+                title={t('order:cart.deleteConfirm')}
                 onConfirm={() => changeCartAndCookie([])}
                 onCancel={() => { }}
-                okText='Ja'
-                cancelText='Nein'
+                okText={t('common:confirm.yes')}
+                cancelText={t('common:confirm.no')}
             >
-                <Button type='ghost' danger icon={<DeleteOutlined />}>Warenkorb löschen</Button>
+                <Button type='dashed' danger icon={<DeleteOutlined />}>{t('order:cart.deleteButton')}</Button>
             </Popconfirm>
         </Col>
         <Col span={24}>
@@ -180,24 +213,24 @@ export const Cart = (props: CartProps) => {
     </Row>
 
     if (currentStep === 2) return <><Result
-        status='success'
-        title='Bestellung erfolgreich!'
-        subTitle={`Die Bestellung: ${createdOrderId} wurde erfolgreich erstellt`}
+        status={isGuest ? 'info' : 'success'}
+        title={isGuest ? t('order:cart.success.pendingTitle') : t('order:cart.success.title')}
+        subTitle={isGuest ? t('order:cart.success.pendingSubtitle', { orderId: createdOrderId }) : t('order:cart.success.subtitle', { orderId: createdOrderId })}
         extra={[
             <Button type='primary' key='backToAbteilung' onClick={()=> navigate(abteilungMatLink)}>
-                Zurück
+                {t('common:buttons.back')}
             </Button>,
-            <Button key='viewOrder' onClick={()=> navigate(`/abteilungen/${abteilung.slug || abteilung.id}/order/${createdOrderId}`)}>Bestellung ansehen</Button>,
+            <Button key='viewOrder' onClick={()=> navigate(`/abteilungen/${abteilung.slug || abteilung.id}/order/${createdOrderId}`)}>{t('order:cart.success.viewOrder')}</Button>,
         ]}
     />
         <ProgressBar />
     </>
 
     return <Result
-        title='Leider ist dein Warenkorb leer'
+        title={t('order:cart.empty.title')}
         extra={
             <Button type='primary' key='orderMat' onClick={() => navigate(abteilungMatLink)}>
-                Material bestellen
+                {t('order:cart.empty.orderMaterial')}
             </Button>
         }
     />

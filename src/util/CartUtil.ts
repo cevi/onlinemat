@@ -1,10 +1,63 @@
 import { CartItem, DetailedCartItem } from "types/cart.types";
+import { Material } from "types/material.types";
+import { SammlungItem } from "types/sammlung.types";
+import { getAvailableMatCount } from "./MaterialUtil";
+
+export interface UnavailableItem {
+    matId: string;
+    name: string;
+    requested: number;
+    available: number;
+}
+
+export interface PrepareSammlungResult {
+    availableItems: CartItem[];
+    unavailableItems: UnavailableItem[];
+}
+
+export const prepareSammlungForCart = (
+    sammlungItems: SammlungItem[],
+    allMaterials: Material[],
+    existingCart: CartItem[],
+): PrepareSammlungResult => {
+    const availableItems: CartItem[] = [];
+    const unavailableItems: UnavailableItem[] = [];
+
+    for (const item of sammlungItems) {
+        const mat = allMaterials.find(m => m.id === item.matId);
+        if (!mat) continue;
+
+        const totalAvailable = getAvailableMatCount(mat);
+        const alreadyInCart = existingCart.find(c => c.matId === item.matId)?.count || 0;
+        const remaining = Math.max(0, totalAvailable - alreadyInCart);
+        const toAdd = Math.min(item.count, remaining);
+
+        if (toAdd < item.count) {
+            unavailableItems.push({
+                matId: item.matId,
+                name: mat.name,
+                requested: item.count,
+                available: remaining,
+            });
+        }
+
+        if (toAdd > 0) {
+            availableItems.push({
+                __caslSubjectType__: 'CartItem',
+                matId: item.matId,
+                count: toAdd,
+            });
+        }
+    }
+
+    return { availableItems, unavailableItems };
+};
 
 export const getCartName = (abteilungId: string)=> {
     return `cart_${abteilungId}`;
 }
 
-export const cookieToCart = (cookieRaw: any, abteilungId: string): CartItem[] => {
+export const cookieToCart = (cookieRaw: CartItem[] | undefined, abteilungId: string): CartItem[] => {
     let cartItems: CartItem[] = [];
     if(cookieRaw) {
         cartItems = cookieRaw as CartItem[]
@@ -22,17 +75,47 @@ export const getCartCount = (cartItems: CartItem[]) => {
 }
 
 export const removeFromCart = (cartItems: DetailedCartItem[], item: DetailedCartItem): CartItem[] => {
-    return cartItems.filter(i => i.matId !== item.matId).map(i => ({
-        __caslSubjectType__: 'CartItem',
+    return cartItems.filter(i => !(i.matId === item.matId && i.sammlungId === item.sammlungId)).map(i => ({
+        __caslSubjectType__: 'CartItem' as const,
         count: i.count,
-        matId: i.matId
-    } as CartItem));
+        matId: i.matId,
+        ...(i.sammlungId ? { sammlungId: i.sammlungId } : {}),
+    }));
+}
+
+export const removeSammlungFromCart = (cartItems: CartItem[], sammlungId: string): CartItem[] => {
+    return cartItems.filter(i => i.sammlungId !== sammlungId);
 }
 
 export const changeCountFromCart = (cartItems: DetailedCartItem[], item: DetailedCartItem, count: number | null): CartItem[] => {
     return cartItems.map(i => ({
-        __caslSubjectType__: 'CartItem',
-        count: i.matId === item.matId ? count || 0: i.count,
-        matId: i.matId
-    } as CartItem));
+        __caslSubjectType__: 'CartItem' as const,
+        count: i.matId === item.matId && i.sammlungId === item.sammlungId ? count || 0: i.count,
+        matId: i.matId,
+        ...(i.sammlungId ? { sammlungId: i.sammlungId } : {}),
+    }));
 }
+
+export const replaceCart = (orderItems: CartItem[]): CartItem[] => {
+    return orderItems.map(item => ({
+        __caslSubjectType__: 'CartItem' as const,
+        matId: item.matId,
+        count: item.count,
+        ...(item.sammlungId ? { sammlungId: item.sammlungId } : {}),
+    }));
+};
+
+export const mergeCart = (existingCart: CartItem[], orderItems: CartItem[]): CartItem[] => {
+    const merged = [...existingCart];
+    orderItems.forEach(orderItem => {
+        if (!merged.find(ci => ci.matId === orderItem.matId)) {
+            merged.push({
+                __caslSubjectType__: 'CartItem' as const,
+                matId: orderItem.matId,
+                count: orderItem.count,
+                ...(orderItem.sammlungId ? { sammlungId: orderItem.sammlungId } : {}),
+            });
+        }
+    });
+    return merged;
+};

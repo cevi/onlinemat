@@ -1,0 +1,78 @@
+{
+  "export": {
+    "button": "Excel Export"
+  },
+  "import": {
+    "title": "Import collections",
+    "importAdd": "Import and add",
+    "importAddTooltip": "Existing collections will be supplemented with the content of the Excel spreadsheet.",
+    "importReplace": "Import and replace",
+    "importReplaceTooltip": "Existing collections will be deleted and replaced with the content of the Excel spreadsheet.",
+    "importReplaceConfirm": "Do you really want to delete all existing collections of this department?",
+    "nameRequired": "You must assign the name of the collection.",
+    "materialienRequired": "You must assign the materials column.",
+    "success": "Successfully imported {{imported}}/{{total}} collections.",
+    "materialWarning": "{{count}} material(s) could not be matched: {{names}}",
+    "skippedEmpty": "{{count}} collection(s) skipped (no matching materials found).",
+    "selectPlaceholder": "Matching field",
+    "noneOption": "Not available",
+    "example": "Example: {{value}}",
+    "defaultValue": "Default value"
+  },
+  "excelFields": {
+    "name": "Name*:",
+    "description": "Description:",
+    "imageUrls": "Images:",
+    "materialien": "Materials*:",
+    "materialienHelp": "Format: MaterialName:count, comma-separated"
+  },
+  "add": {
+    "button": "Add collection",
+    "title": "Add collection",
+    "submit": "Add collection",
+    "success": "Collection {{name}} successfully created"
+  },
+  "edit": {
+    "title": "Edit collection",
+    "submit": "Save changes",
+    "success": "Collection {{name}} successfully edited"
+  },
+  "delete": {
+    "confirm": "Do you really want to delete {{name}}?",
+    "success": "Collection {{name}} successfully deleted"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Collection name",
+    "description": "Description",
+    "descriptionPlaceholder": "Description of the collection",
+    "imageUrls": "Image URLs",
+    "imageUrlPlaceholder": "Image URL",
+    "addImage": "Add image",
+    "items": "Materials",
+    "addItem": "Add material",
+    "material": "Material",
+    "materialPlaceholder": "Select material",
+    "count": "Quantity"
+  },
+  "table": {
+    "name": "Name",
+    "description": "Description",
+    "items": "Materials",
+    "itemCount": "{{count}} material(s)",
+    "edit": "Edit",
+    "cart": "Cart"
+  },
+  "cart": {
+    "added": "Collection {{name}} added to cart",
+    "alreadyInCart": "This collection is already in the cart",
+    "unavailableTitle": "Not all materials available",
+    "unavailableMessage": "The following materials are not available or not in the requested quantity:",
+    "unavailableItem": "{{name}}: {{available}} of {{requested}} available",
+    "addAvailable": "Add available",
+    "cancel": "Cancel"
+  },
+  "cartItem": {
+    "sammlungLabel": "Collection"
+  }
+}
