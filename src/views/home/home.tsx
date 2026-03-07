@@ -17,9 +17,7 @@ export const HomeView = () => {
     const { t } = useTranslation('navigation');
     const { user, isAuthenticated, loginWithRedirect  } = useAuth0();
 
-    const backgroundStyle = isAuthenticated ? {backgroundImage:`url(${ceviLogoImage})`,backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundSize: '20%', backgroundPositionY: '25%'} : {};
-
-    return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])} style={backgroundStyle}>
+    return <div className={classNames(appStyles['flex-grower'], appStyles['center-container-stretch'])}>
         {isAuthenticated && <Typography.Title level={3}>{t('navigation:home.title')}</Typography.Title>}
 
         {
@@ -54,11 +52,10 @@ export const HomeView = () => {
         {
             !!user && <div className={classNames(appStyles['flex-grower'], appStyles['center-container'])}>
                 <Result
-                    status='success'
+                    icon={<img src={ceviLogoImage} alt="Onlinemat" style={{width: 120}} />}
                     title={t('navigation:home.dashboard')}
                     subTitle={t('navigation:home.welcome', { name: user.given_name })}
-                >
-                </Result>
+                />
             </div>
         }
     </div>

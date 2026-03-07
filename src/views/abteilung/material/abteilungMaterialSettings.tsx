@@ -58,7 +58,7 @@ export const AbteilungMaterialSettingsView = (props: AbteilungMaterialSettingsVi
 
             <Col xs={24} lg={12}>
                 <Card title={t('material:settings.visibilityTitle')}>
-                    <Space>
+                    <Space wrap>
                         <Popconfirm
                             title={t('material:settings.setAllInternalConfirm')}
                             onConfirm={handleSetAllInternal}

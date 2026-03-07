@@ -67,7 +67,8 @@
       "email": "Email",
       "abteilungen": "Departments",
       "staff": "Staff",
-      "actions": "Actions"
+      "actions": "Actions",
+      "lastLogin": "Last Login"
     },
     "syncDisplayNames": {
       "button": "Sync display names",

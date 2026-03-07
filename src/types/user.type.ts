@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface UserData {
   __caslSubjectType__: "UserData";
   id: string;
@@ -13,6 +15,7 @@ export interface UserData {
   staff?: boolean;
   defaultAbteilung?: string;
   readReleaseNoteIds?: string[];
+  lastLogin?: Timestamp;
   roles: { [abteilungId: string]: role };
 }
 

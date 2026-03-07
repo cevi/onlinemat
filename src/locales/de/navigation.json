@@ -67,7 +67,8 @@
       "email": "Email",
       "abteilungen": "Abteilungen",
       "staff": "Staff",
-      "actions": "Aktionen"
+      "actions": "Aktionen",
+      "lastLogin": "Letzter Login"
     },
     "syncDisplayNames": {
       "button": "Namen synchronisieren",

@@ -27,6 +27,18 @@ export const EditProfile = forwardRef((props: EditProfileProps, ref) => {
   const abteilungenContext = useContext(AbteilungenContext);
   const abteilungen = abteilungenContext.abteilungen;
 
+  const resolvedDefaultAbteilung = userData?.defaultAbteilung
+    ? (() => {
+        const match = abteilungen.find(a => a.slug === userData.defaultAbteilung || a.id === userData.defaultAbteilung);
+        return match ? (match.slug || match.id) : userData.defaultAbteilung;
+      })()
+    : undefined;
+
+  const initialValues = {
+    ...userData,
+    defaultAbteilung: resolvedDefaultAbteilung,
+  };
+
   useImperativeHandle(ref, () => ({
     saveEditProfile() {
       prepareEditProfile();
@@ -60,7 +72,7 @@ export const EditProfile = forwardRef((props: EditProfileProps, ref) => {
   return (
     <Form
       form={form}
-      initialValues={userData}
+      initialValues={initialValues}
       layout="vertical"
       validateMessages={getValidateMessages()}
     >
