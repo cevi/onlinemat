@@ -61,9 +61,9 @@
     "dev": "npm run git-info && vite",
     "build": "npm run git-info && vite build",
     "preview": "vite preview",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test": "npm run git-info && vitest",
+    "test:run": "npm run git-info && vitest run",
+    "test:coverage": "npm run git-info && vitest run --coverage",
     "test:e2e": "npx playwright test",
     "test:e2e:headed": "npx playwright test --headed",
     "test:e2e:ui": "npx playwright test --ui"
