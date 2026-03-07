@@ -58,8 +58,8 @@
   },
   "scripts": {
     "git-info": "node src/gitInfo.js",
-    "dev": "npm run git-info && vite",
-    "build": "npm run git-info && vite build",
+    "dev": "yarn git-info && vite",
+    "build": "yarn git-info && vite build",
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",

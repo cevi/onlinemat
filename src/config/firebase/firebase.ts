@@ -17,7 +17,8 @@ export const auth = getAuth(app);
 export const functions = getFunctions(app);
 
 if (import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true') {
-    connectFirestoreEmulator(db, '127.0.0.1', 8080);
-    connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
-    connectFunctionsEmulator(functions, '127.0.0.1', 5001);
+    const emulatorHost = import.meta.env.VITE_FIREBASE_EMULATOR_HOST ?? '127.0.0.1';
+    connectFirestoreEmulator(db, emulatorHost, 8080);
+    connectAuthEmulator(auth, `http://${emulatorHost}:9099`, { disableWarnings: true });
+    connectFunctionsEmulator(functions, emulatorHost, 5001);
 }

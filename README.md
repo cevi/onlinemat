@@ -2,6 +2,24 @@
 
 ## Getting started
 
+### One-command local dev (recommended)
+
+From `onlinemat/`, run:
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose-local-dev.yml up
+```
+
+This starts:
+- Frontend dev server at [http://localhost:3000](http://localhost:3000)
+- Firebase Emulator UI at [http://localhost:4000](http://localhost:4000)
+- Auth, Firestore, and Functions emulators (ports 9099, 8080, 5001)
+- Automatic local data seeding (no extra secrets required)
+
+Default local mock user is `admin@test.com` (`test-admin-uid`) with admin access to seeded test data.
+
+First startup can take longer because dependencies are installed and Cloud Functions are built inside containers.
+
 ### First installation
 
 1. Install [node.js version management](https://github.com/coreybutler/nvm-windows)
@@ -96,6 +114,8 @@ Don't forget to create the `.env` file with all the keys and values in it.
 Copy the `.env.example` file to `.env` and add the missing secrets.
 Note: environment variables use the `VITE_` prefix (e.g. `VITE_FIREBASE_API_KEY`).
 To get the `.env` values for the dev instance, please contact onlinemat@cevi.tools
+
+If you are using Docker local dev (`docker-compose -f docker-compose.yml -f docker-compose-local-dev.yml up`), `.env` secrets are not required.
 
 **Where is the backend?**
 For the backend we use Firebase. It's a NoSQL database provided by Google.
