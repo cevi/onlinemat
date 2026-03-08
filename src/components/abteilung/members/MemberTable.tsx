@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { useUser } from 'hooks/use-user';
 import { Table, Select, Button, Tooltip, List, Tag } from 'antd';
 import { Abteilung, AbteilungMemberUserData } from 'types/abteilung.type';
 import { approveMemberRequest, banMember, changeRoleOfMember, denyMemberRequest, removeMember, unBanMember } from 'util/MemberUtil';
@@ -35,6 +36,13 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
     const { Option } = Select;
     const isMobile = useIsMobile();
 
+    const user = useUser();
+    const currentUid = user.appUser?.firebaseUser.uid ?? null;
+
+    const approvedMembers = members.filter(m => m.approved && !m.banned);
+    const isOnlyApprovedMember = approvedMembers.length <= 1;
+    const isOnlyAdmin = approvedMembers.filter(m => m.role === 'admin').length <= 1;
+
     const renderActions = (record: AbteilungMemberUserData) => {
 
         if (record.banned && !!record.banned) {
@@ -56,13 +64,29 @@ export const MemberTableImpl = (props: MemberImplTableProps) => {
             </div>
         }
 
+        const isCurrentUser = record.userId === currentUid;
+        const removeDisabled = isCurrentUser && (isOnlyAdmin || isOnlyApprovedMember);
+        const removeTooltip = isCurrentUser && isOnlyApprovedMember
+            ? t('member:actions.removeDisabledLastMember')
+            : isCurrentUser && isOnlyAdmin
+            ? t('member:actions.removeDisabledLastAdmin')
+            : undefined;
+        const roleSelectDisabled = isCurrentUser && isOnlyAdmin;
+
         return <div key={`role_action_div_${record.id}`} className={classNames(moduleStyles['actions'])}>
-            <Select key={`${record.userId}_roleSelection`} value={record.role} style={{ width: 120 }} size={isMobile ? 'small' : 'middle'} onChange={(role) => changeRoleOfMember(abteilungId, record.userId, role)}>
-                {
-                    roles.map(role => <Option key={`${record.userId}_role_${role.key}`} value={role.key}>{role.name}</Option>)
-                }
-            </Select>
-            <Button key={`remove_action_${record.id}`} type='dashed' danger size={isMobile ? 'small' : 'middle'} onClick={() => removeMember(abteilungId, record.userId)}>{t('member:actions.remove')}</Button>
+            <Tooltip title={roleSelectDisabled ? t('member:actions.roleChangeDisabledLastAdmin') : undefined}>
+                <Select key={`${record.userId}_roleSelection`} value={record.role} style={{ width: 120 }} size={isMobile ? 'small' : 'middle'} disabled={roleSelectDisabled} onChange={(role) => changeRoleOfMember(abteilungId, record.userId, role)}>
+                    {
+                        roles.map(role => <Option key={`${record.userId}_role_${role.key}`} value={role.key}>{role.name}</Option>)
+                    }
+                </Select>
+            </Tooltip>
+            <Tooltip title={removeTooltip}>
+                {/* span wrapper needed: disabled Button suppresses pointer events, preventing Tooltip from firing */}
+                <span>
+                    <Button key={`remove_action_${record.id}`} type='dashed' danger size={isMobile ? 'small' : 'middle'} disabled={removeDisabled} onClick={() => removeMember(abteilungId, record.userId)}>{t('member:actions.remove')}</Button>
+                </span>
+            </Tooltip>
         </div>
 
     }

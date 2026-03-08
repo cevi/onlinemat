@@ -13,7 +13,10 @@
     "ban": "Ban",
     "banTooltip": "The request will be denied and the user will not be able to submit a new request in the future",
     "unban": "Unban user",
-    "remove": "Remove"
+    "remove": "Remove",
+    "removeDisabledLastAdmin": "You are the only admin of this Abteilung. Assign the admin role to another member first.",
+    "removeDisabledLastMember": "You are the only member of this Abteilung and cannot remove yourself.",
+    "roleChangeDisabledLastAdmin": "You are the only admin. Assign the admin role to another member before changing your own role."
   },
   "syncDisplayNames": {
     "button": "Sync display names",
