@@ -13,7 +13,10 @@
     "ban": "Sperren",
     "banTooltip": "Die Anfrage wird abgelehnt und es kann in Zukunft kein neuer Antrag gestellt werden",
     "unban": "Entsperren",
-    "remove": "Entfernen"
+    "remove": "Entfernen",
+    "removeDisabledLastAdmin": "Du bist der einzige Admin dieser Abteilung. Weise zuerst einem anderen Mitglied die Admin-Rolle zu.",
+    "removeDisabledLastMember": "Du bist das einzige Mitglied dieser Abteilung und kannst dich nicht selbst entfernen.",
+    "roleChangeDisabledLastAdmin": "Du bist der einzige Admin. Weise zuerst einem anderen Mitglied die Admin-Rolle zu, bevor du deine eigene Rolle änderst."
   },
   "syncDisplayNames": {
     "button": "Namen synchronisieren",

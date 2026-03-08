@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemberTableImpl } from '../MemberTable';
 import { AbteilungMemberUserData } from 'types/abteilung.type';
+import * as useUserModule from 'hooks/use-user';
 
 // Polyfill window.matchMedia for jsdom (required by antd responsive observer)
 Object.defineProperty(window, 'matchMedia', {
@@ -27,6 +28,12 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('hooks/useIsMobile', () => ({
   useIsMobile: () => false,
+}));
+
+vi.mock('hooks/use-user', () => ({
+  useUser: () => ({
+    appUser: { firebaseUser: { uid: 'other_user' } },
+  }),
 }));
 
 vi.mock('util/MemberUtil', () => ({
@@ -174,5 +181,49 @@ describe('MemberTableImpl', () => {
     // Both should be rendered (sorting is internal to the component)
     expect(screen.getByText('Approved User')).toBeInTheDocument();
     expect(screen.getByText('Pending User')).toBeInTheDocument();
+  });
+
+  describe('Last admin/member protection', () => {
+    it('disables role select for current user when they are the only admin', () => {
+      vi.spyOn(useUserModule, 'useUser').mockReturnValue({
+        appUser: { firebaseUser: { uid: 'u1' } },
+      } as any);
+
+      render(
+        <MemberTableImpl abteilungId="abt1" members={[makeApprovedMember({ userId: 'u1' })]} loading={false} />
+      );
+
+      expect(document.querySelector('.ant-select-disabled')).toBeTruthy();
+    });
+
+    it('disables remove button for current user when they are the only admin', () => {
+      vi.spyOn(useUserModule, 'useUser').mockReturnValue({
+        appUser: { firebaseUser: { uid: 'u1' } },
+      } as any);
+
+      render(
+        <MemberTableImpl abteilungId="abt1" members={[makeApprovedMember({ userId: 'u1' })]} loading={false} />
+      );
+
+      const removeBtn = screen.getByText('member:actions.remove').closest('button');
+      expect(removeBtn).toBeDisabled();
+    });
+
+    it('does NOT disable controls when there is a second admin', () => {
+      vi.spyOn(useUserModule, 'useUser').mockReturnValue({
+        appUser: { firebaseUser: { uid: 'u1' } },
+      } as any);
+
+      const members = [
+        makeApprovedMember({ userId: 'u1' }),
+        makeApprovedMember({ userId: 'u2', id: 'member2', displayName: 'Bob', email: 'bob@test.com' }),
+      ];
+
+      render(
+        <MemberTableImpl abteilungId="abt1" members={members} loading={false} />
+      );
+
+      expect(document.querySelector('.ant-select-disabled')).toBeNull();
+    });
   });
 });
