@@ -88,7 +88,7 @@ export const AddUserToAbteilung = (props: EditAbteilungMemberProps) => {
                         <Select
                             showSearch
                             placeholder={t('navigation:users.addToAbteilung.abteilungPlaceholder')}
-                            optionFilterProp='children'
+                            optionFilterProp='label'
                             options={abteilungen.map((a) => ({
                                 value: a.id,
                                 label: a.name,
