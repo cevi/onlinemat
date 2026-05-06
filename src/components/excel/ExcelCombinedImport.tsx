@@ -439,7 +439,7 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
                     const matCatIdsRaw: string | null = matCategories ? (row[indexes[matCategories]] as string) : null;
                     const materialCategorieIds: string[] = [];
                     if (matCatIdsRaw) {
-                        const catNames = matCatIdsRaw.replaceAll(' ', '').split(',').filter(Boolean);
+                        const catNames = matCatIdsRaw.split(',').map(s => s.trim()).filter(Boolean);
                         for (const catName of catNames) {
                             const existing = allCategories.find(c => c.name.toLowerCase() === catName.toLowerCase());
                             if (existing) { materialCategorieIds.push(existing.id); continue; }
@@ -456,7 +456,7 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
                     const matOrtRaw: string | null = matStandort ? (row[indexes[matStandort]] as string) : null;
                     const matStandortIds: string[] = [];
                     if (matOrtRaw) {
-                        const ortNames = matOrtRaw.replaceAll(' ', '').split(',').filter(Boolean);
+                        const ortNames = matOrtRaw.split(',').map(s => s.trim()).filter(Boolean);
                         for (const ortName of ortNames) {
                             const existing = allStandorte.find(s => s.name.toLowerCase() === ortName.toLowerCase());
                             if (existing) { matStandortIds.push(existing.id); continue; }
@@ -472,7 +472,7 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
                     // Images
                     const matImagesRaw: string | null = matImages ? (row[indexes[matImages]] as string) : defaultImages;
                     const imageUrls = matImagesRaw
-                        ? String(matImagesRaw).replaceAll(' ', '').split(',').filter(u => u.startsWith('https://') || u.startsWith('http://'))
+                        ? String(matImagesRaw).split(',').map(s => s.trim()).filter(u => u.startsWith('https://') || u.startsWith('http://'))
                         : [];
 
                     // Metadata
