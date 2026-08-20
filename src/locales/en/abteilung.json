@@ -10,7 +10,8 @@
     "gruppen": "Groups",
     "einstellungen": "Settings",
     "materialEinstellungen": "Material Settings",
-    "sammlungen": "Collections"
+    "sammlungen": "Collections",
+    "protokoll": "Audit log"
   },
   "card": {
     "details": "Details",

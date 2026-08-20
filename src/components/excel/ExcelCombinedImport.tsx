@@ -27,6 +27,8 @@ import { massImportMaterial, deleteAllMaterials } from 'util/MaterialUtil';
 import { massImportSammlung, deleteAllSammlungen } from 'util/SammlungUtil';
 import { massImportCategory, deleteAllCategories } from 'util/CategoryUtil';
 import { massImportStandort, deleteAllStandorte } from 'util/StandortUtil';
+import { logImportAuditEntry } from 'util/AuditLogUtil';
+import { useUser } from 'hooks/use-user';
 
 export interface ExcelCombinedImportProps {
     abteilung: Abteilung;
@@ -197,6 +199,7 @@ const sheetTypeLabels: Record<Exclude<SheetType, 'skip'>, string> = {
 
 export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
     const { abteilung, allSheets, showModal, setShow } = props;
+    const user = useUser();
     const { t } = useTranslation();
 
     const { categories } = useContext(CategorysContext);
@@ -617,6 +620,17 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
                 standorte: importedStandorte,
             }));
             setShow(false);
+
+            const actorId = user.appUser?.userData?.id;
+            if (actorId) {
+                await logImportAuditEntry(abteilung.id, { id: actorId, name: user.appUser?.userData?.displayName || actorId }, {
+                    mode,
+                    materials: importedMaterials,
+                    sammlungen: importedSammlungen,
+                    kategorien: importedKategorien,
+                    standorte: importedStandorte,
+                }, t);
+            }
         } catch (err) {
             message.error(t('common:errors.generic', { error: String(err) }));
             console.error('Import error:', err);

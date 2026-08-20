@@ -71,7 +71,8 @@
     "next": "Weiter",
     "back": "Zurück",
     "rows": "Zeilen",
-    "noAssignment": "Mindestens ein Datenblatt muss zugeordnet werden."
+    "noAssignment": "Mindestens ein Datenblatt muss zugeordnet werden.",
+    "invalidFileType": "Bitte wähle eine Excel- oder CSV-Datei (.xlsx, .xls, .csv)."
   },
   "sammlungFields": {
     "name": "Name*:",

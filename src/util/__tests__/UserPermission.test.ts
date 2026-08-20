@@ -84,6 +84,10 @@ describe('UserPermission - updateAbility', () => {
       expect(ability.can('read', 'users')).toBe(true);
     });
 
+    it('can read the AuditLog globally', () => {
+      expect(ability.can('read', 'AuditLog')).toBe(true);
+    });
+
     it('can manage Invitations', () => {
       expect(ability.can('create', 'Invitation')).toBe(true);
       expect(ability.can('read', 'Invitation')).toBe(true);
@@ -128,6 +132,11 @@ describe('UserPermission - updateAbility', () => {
       expect(ability.can('update', subject)).toBe(true);
       expect(ability.can('delete', subject)).toBe(true);
       expect(ability.can('deliver', subject)).toBe(true);
+    });
+
+    it('can read the AuditLog of own abteilung only', () => {
+      expect(ability.can('read', { __caslSubjectType__: 'AuditLog', abteilungId } as any)).toBe(true);
+      expect(ability.can('read', { __caslSubjectType__: 'AuditLog', abteilungId: 'other' } as any)).toBe(false);
     });
 
     it('can manage Invitations in own abteilung', () => {
@@ -209,6 +218,11 @@ describe('UserPermission - updateAbility', () => {
       expect(ability.can('delete', { __caslSubjectType__: 'Abteilung', id: abteilungId } as any)).toBe(false);
     });
 
+    it('can read the AuditLog of own abteilung', () => {
+      expect(ability.can('read', { __caslSubjectType__: 'AuditLog', abteilungId } as any)).toBe(true);
+      expect(ability.can('read', { __caslSubjectType__: 'AuditLog', abteilungId: 'other' } as any)).toBe(false);
+    });
+
     it('cannot manage Invitations', () => {
       const subject = { __caslSubjectType__: 'Invitation', abteilungId } as any;
       expect(ability.can('create', subject)).toBe(false);
@@ -276,6 +290,10 @@ describe('UserPermission - updateAbility', () => {
 
     it('can read Abteilung', () => {
       expect(ability.can('read', { __caslSubjectType__: 'Abteilung', id: abteilungId } as any)).toBe(true);
+    });
+
+    it('cannot read the AuditLog', () => {
+      expect(ability.can('read', { __caslSubjectType__: 'AuditLog', abteilungId } as any)).toBe(false);
     });
 
     it('cannot manage Material', () => {
