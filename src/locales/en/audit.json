@@ -26,7 +26,8 @@
     "abteilung": "Department",
     "order": "Order",
     "invitation": "Invitation",
-    "import": "Excel import"
+    "import": "Excel import",
+    "export": "Excel export"
   },
   "actions": {
     "create": "Created",
@@ -116,5 +117,9 @@
     "detail": "{{mode}}: {{materials}} material(s), {{sammlungen}} collection(s), {{kategorien}} category(ies), {{standorte}} location(s)",
     "modeAdd": "Added",
     "modeReplace": "Replaced (existing data deleted)"
+  },
+  "export": {
+    "label": "Excel export",
+    "detail": "{{materials}} material(s), {{sammlungen}} collection(s), {{kategorien}} category(ies), {{standorte}} location(s) exported"
   }
 }
