@@ -64,6 +64,9 @@ export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) 
     can('read', 'Invitation');
     can('delete', 'Invitation');
 
+    //AuditLog
+    can('read', 'AuditLog');
+
   } else {
     //add roles based on abteilung
 
@@ -113,6 +116,9 @@ export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) 
           can('read', 'Invitation', { abteilungId: abteilungId });
           can('delete', 'Invitation', { abteilungId: abteilungId });
 
+          //AuditLog
+          can('read', 'AuditLog', { abteilungId: abteilungId });
+
           break;
 
         case 'matchef':
@@ -143,6 +149,9 @@ export const updateAbility = (ability: MongoAbility<Abilities>, user: UserData) 
           can('update', 'Order', { abteilungId: abteilungId });
           can('delete', 'Order', { abteilungId: abteilungId });
           can('deliver', 'Order', { abteilungId: abteilungId });
+
+          //AuditLog (only material/order related entries, enforced by Firestore rules)
+          can('read', 'AuditLog', { abteilungId: abteilungId });
 
           break;
 

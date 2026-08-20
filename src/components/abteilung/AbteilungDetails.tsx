@@ -12,6 +12,7 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 import {
     AppstoreAddOutlined,
     ContainerOutlined,
+    HistoryOutlined,
     SettingOutlined,
     ShoppingCartOutlined,
     TagsOutlined,
@@ -44,6 +45,7 @@ import { OrderView } from './order/OrderView';
 import { AbteilungDataProvider } from './AbteilungDataProvider';
 import { AbteilungMaterialSettingsView } from 'views/abteilung/material/abteilungMaterialSettings';
 import { AbteilungSammlungenView } from 'views/abteilung/sammlung/abteilungSammlungen';
+import { AuditLog } from './audit/AuditLog';
 
 // Re-export contexts for backward compatibility
 export {
@@ -101,7 +103,7 @@ export type AbteilungDetailViewParams = {
     tab: string
 };
 
-export type AbteilungTab = 'mat' | 'matsettings' | 'settings' | 'members' | 'groups' | 'cart' | 'orders' | 'order' | 'sammlung';
+export type AbteilungTab = 'mat' | 'matsettings' | 'settings' | 'members' | 'groups' | 'cart' | 'orders' | 'order' | 'sammlung' | 'audit';
 
 
 export const AbteilungDetail = () => {
@@ -111,7 +113,7 @@ export const AbteilungDetail = () => {
     const navigate = useNavigate();
     const { state } = useLocation();
 
-    const validTabs: AbteilungTab[] = ['mat', 'matsettings', 'settings', 'members', 'groups', 'cart', 'orders', 'order', 'sammlung'];
+    const validTabs: AbteilungTab[] = ['mat', 'matsettings', 'settings', 'members', 'groups', 'cart', 'orders', 'order', 'sammlung', 'audit'];
     const selectedMenu: AbteilungTab = validTabs.includes(tab as AbteilungTab) ? (tab as AbteilungTab) : 'mat';
 
     const abteilungenContext = useContext(AbteilungenContext);
@@ -131,6 +133,7 @@ export const AbteilungDetail = () => {
     const [autoJoinError, setAutoJoinError] = useState(false);
 
     const canUpdate = useMemo(() => ability.can('update', { __caslSubjectType__: 'Abteilung', id: abteilung?.id } as Abteilung), [abteilung]);
+    const canReadAudit = useMemo(() => !!abteilung && ability.can('read', { __caslSubjectType__: 'AuditLog', abteilungId: abteilung.id } as any), [abteilung]);
 
     const userState = useUser();
     const isGuest = useMemo(() => {
@@ -251,6 +254,8 @@ export const AbteilungDetail = () => {
                 return <OrderView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
             case 'sammlung':
                 return <AbteilungSammlungenView abteilung={abteilung} cartItems={cartItems} changeCart={changeCart} />
+            case 'audit':
+                return canReadAudit ? <AuditLog abteilung={abteilung} /> : <NoAccessToAbteilung abteilung={abteilung} />
         }
     }
 
@@ -281,6 +286,9 @@ export const AbteilungDetail = () => {
                 { key: 'members', icon: <TeamOutlined />, label: t('abteilung:tabs.mitglieder'), onClick: () => navigateToMenu('members') },
                 { key: 'settings', icon: <SettingOutlined />, label: t('abteilung:tabs.einstellungen'), onClick: () => navigateToMenu('settings') },
             ] : []),
+            ...(canReadAudit ? [
+                { key: 'audit', icon: <HistoryOutlined />, label: t('abteilung:tabs.protokoll'), onClick: () => navigateToMenu('audit') },
+            ] : []),
         ];
 
         setAbteilungMenuItems(items);
@@ -292,7 +300,7 @@ export const AbteilungDetail = () => {
             setAbteilungSelectedKey('');
             setAbteilungName('');
         };
-    }, [abteilung, isMobile, canUpdate, isGuest, selectedMenu, t]);
+    }, [abteilung, isMobile, canUpdate, canReadAudit, isGuest, selectedMenu, t]);
 
     if (abteilungLoading || !abteilung) return <Spin />
 
@@ -327,6 +335,9 @@ export const AbteilungDetail = () => {
                     ...(canUpdate ? [
                         { key: 'members', icon: <TeamOutlined />, label: <MembersTabLabel /> },
                         { key: 'settings', icon: <SettingOutlined />, label: t('abteilung:tabs.einstellungen') },
+                    ] : []),
+                    ...(canReadAudit ? [
+                        { key: 'audit', icon: <HistoryOutlined />, label: t('abteilung:tabs.protokoll') },
                     ] : []),
                     { key: 'cart', icon: <ShoppingCartOutlined />, label: getCartCount(cartItems), style: { marginLeft: 'auto' } },
                 ] as MenuProps['items']}

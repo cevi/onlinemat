@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useContext, useRef, useState } from 'react';
 import { Abteilung } from 'types/abteilung.type';
 import { ExcelJson } from 'types/excel.type';
-import { exportAbteilungToXlsx, excelToJsonAllSheets } from 'util/ExcelUtil';
+import { exportAbteilungToXlsx, excelToJsonAllSheets, SPREADSHEET_ACCEPT, isSupportedSpreadsheetFile } from 'util/ExcelUtil';
 import { CategorysContext, MaterialsContext, StandorteContext } from 'contexts/AbteilungContexts';
 import { SammlungenContext } from 'contexts/AbteilungContexts';
 import { ExcelCombinedImport } from './ExcelCombinedImport';
@@ -32,6 +32,12 @@ export const ImportExportButtons = (props: ImportExportButtonsProps) => {
     };
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && !isSupportedSpreadsheetFile(file.name)) {
+            message.error(t('excel:combined.invalidFileType'));
+            clearFileInput();
+            return;
+        }
         const res = await excelToJsonAllSheets(e);
         if (res) {
             setAllSheets(res);
@@ -50,6 +56,7 @@ export const ImportExportButtons = (props: ImportExportButtonsProps) => {
             <input
                 style={{ display: 'none' }}
                 type="file"
+                accept={SPREADSHEET_ACCEPT}
                 name="excelFile"
                 ref={excelInput}
                 onChange={handleFileChange}

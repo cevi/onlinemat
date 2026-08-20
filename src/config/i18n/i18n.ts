@@ -19,6 +19,7 @@ import excelDe from 'locales/de/excel.json';
 import releaseNoteDe from 'locales/de/releaseNote.json';
 import statsDe from 'locales/de/stats.json';
 import sammlungDe from 'locales/de/sammlung.json';
+import auditDe from 'locales/de/audit.json';
 
 // English translations
 import commonEn from 'locales/en/common.json';
@@ -37,6 +38,7 @@ import excelEn from 'locales/en/excel.json';
 import releaseNoteEn from 'locales/en/releaseNote.json';
 import statsEn from 'locales/en/stats.json';
 import sammlungEn from 'locales/en/sammlung.json';
+import auditEn from 'locales/en/audit.json';
 
 const LANGUAGE_KEY = 'onlinemat-language';
 
@@ -78,6 +80,7 @@ i18n
         releaseNote: releaseNoteDe,
         stats: statsDe,
         sammlung: sammlungDe,
+    audit: auditDe,
       },
       en: {
         common: commonEn,
@@ -96,6 +99,7 @@ i18n
         releaseNote: releaseNoteEn,
         stats: statsEn,
         sammlung: sammlungEn,
+    audit: auditEn,
       },
     },
     lng: getSavedLanguage(),
