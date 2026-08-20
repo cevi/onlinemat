@@ -1,9 +1,9 @@
-import { addDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { addDoc, collection, doc, serverTimestamp, setDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import { TFunction } from 'i18next';
 import dayjs from 'dayjs';
 import { db } from 'config/firebase/firebase';
-import { abteilungenAuditLogCollection, abteilungenCollection } from 'config/firebase/collections';
-import { AUDIT_RETENTION_DAYS, AuditAction, AuditLogEntry } from 'types/auditLog.types';
+import { abteilungenAuditLogCollection, abteilungenCollection, abteilungenImportSessionsCollection } from 'config/firebase/collections';
+import { AUDIT_RETENTION_DAYS, AuditAction, AuditEntityType, AuditLogEntry } from 'types/auditLog.types';
 import { dateFormat, dateFormatWithTime } from './constants';
 
 const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
@@ -95,34 +95,88 @@ export const buildImportAuditDetail = (summary: ImportAuditSummary, t: TFunction
     });
 };
 
+export const buildExportAuditDetail = (summary: Omit<ImportAuditSummary, 'mode'>, t: TFunction): string => {
+    return t('audit:export.detail', {
+        materials: summary.materials,
+        sammlungen: summary.sammlungen,
+        kategorien: summary.kategorien,
+        standorte: summary.standorte,
+    });
+};
+
+export interface AuditActor {
+    id: string;
+    name: string;
+}
+
 /**
- * Adds a summary entry for an Excel import to the audit trail.
- * The individual created/deleted documents are logged server-side; this entry
- * groups them so the import is recognizable as one action.
- * Never throws – the import itself already succeeded.
+ * Writes a client-side summary entry (only 'import' / 'export' are allowed by the
+ * Firestore rules). Never throws – the actual operation already succeeded.
  */
-export const logImportAuditEntry = async (
+const writeClientAuditEntry = async (
     abteilungId: string,
-    actor: { id: string; name: string },
-    summary: ImportAuditSummary,
-    t: TFunction,
+    actor: AuditActor,
+    entityType: Extract<AuditEntityType, 'import' | 'export'>,
+    entityLabel: string,
+    detail: string,
 ): Promise<void> => {
     try {
         await addDoc(collection(db, abteilungenCollection, abteilungId, abteilungenAuditLogCollection), {
-            entityType: 'import',
-            entityId: 'import',
-            entityLabel: t('audit:import.label'),
+            entityType,
+            entityId: entityType,
+            entityLabel,
             action: 'create',
             actorId: actor.id,
             actorName: actor.name,
             changes: [],
-            detail: buildImportAuditDetail(summary, t),
+            detail,
             source: 'client',
             visibility: 'matchef',
             timestamp: serverTimestamp(),
             expiresAt: Timestamp.fromMillis(Date.now() + AUDIT_RETENTION_DAYS * 24 * 60 * 60 * 1000),
         });
     } catch (err) {
-        console.error('Failed to write import audit entry', err);
+        console.error(`Failed to write ${entityType} audit entry`, err);
+    }
+};
+
+/**
+ * Adds a summary entry for an Excel import. The individual document writes are
+ * suppressed server-side while an import session is open (see startImportSession).
+ */
+export const logImportAuditEntry = (abteilungId: string, actor: AuditActor, summary: ImportAuditSummary, t: TFunction): Promise<void> =>
+    writeClientAuditEntry(abteilungId, actor, 'import', t('audit:import.label'), buildImportAuditDetail(summary, t));
+
+/** Adds a summary entry for an Excel export (who exported which data). */
+export const logExportAuditEntry = (abteilungId: string, actor: AuditActor, summary: Omit<ImportAuditSummary, 'mode'>, t: TFunction): Promise<void> =>
+    writeClientAuditEntry(abteilungId, actor, 'export', t('audit:export.label'), buildExportAuditDetail(summary, t));
+
+/**
+ * Marks the start of an Excel import for this user. While the session is open
+ * (and up to 30 minutes if it is never finished) the audit trigger does not log
+ * the individual material/category/... writes of this user.
+ * Returns false if the marker could not be written; the import still proceeds.
+ */
+export const startImportSession = async (abteilungId: string, uid: string): Promise<boolean> => {
+    try {
+        await setDoc(doc(db, abteilungenCollection, abteilungId, abteilungenImportSessionsCollection, uid), {
+            startedAt: serverTimestamp(),
+            finishedAt: null,
+        });
+        return true;
+    } catch (err) {
+        console.error('Failed to start import session', err);
+        return false;
+    }
+};
+
+/** Closes the import session so subsequent manual edits are logged again. */
+export const finishImportSession = async (abteilungId: string, uid: string): Promise<void> => {
+    try {
+        await updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenImportSessionsCollection, uid), {
+            finishedAt: serverTimestamp(),
+        });
+    } catch (err) {
+        console.error('Failed to finish import session', err);
     }
 };

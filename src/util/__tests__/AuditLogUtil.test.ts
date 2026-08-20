@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { TFunction } from 'i18next';
-import { auditEntryMatchesQuery, buildImportAuditDetail, formatAuditValue, getAuditActionColor, getAuditFieldLabel } from '../AuditLogUtil';
+import { auditEntryMatchesQuery, buildExportAuditDetail, buildImportAuditDetail, formatAuditValue, getAuditActionColor, getAuditFieldLabel } from '../AuditLogUtil';
 import { AuditLogEntry } from 'types/auditLog.types';
 
 vi.mock('config/firebase/firebase', () => ({ db: {} }));
@@ -19,6 +19,9 @@ const translations: Record<string, string> = {
 const t = ((key: string, opts?: Record<string, unknown>) => {
   if (key === 'audit:import.detail' && opts) {
     return `${opts.mode}: ${opts.materials} Material, ${opts.sammlungen} Sammlungen, ${opts.kategorien} Kategorien, ${opts.standorte} Standorte`;
+  }
+  if (key === 'audit:export.detail' && opts) {
+    return `${opts.materials} Material, ${opts.sammlungen} Sammlungen, ${opts.kategorien} Kategorien, ${opts.standorte} Standorte exportiert`;
   }
   return translations[key] ?? key;
 }) as unknown as TFunction;
@@ -117,6 +120,11 @@ describe('AuditLogUtil', () => {
     it('describes an additive import', () => {
       expect(buildImportAuditDetail({ mode: 'add', materials: 10, sammlungen: 1, kategorien: 2, standorte: 0 }, t))
         .toBe('Hinzugefügt: 10 Material, 1 Sammlungen, 2 Kategorien, 0 Standorte');
+    });
+
+    it('describes an export', () => {
+      expect(buildExportAuditDetail({ materials: 42, sammlungen: 3, kategorien: 7, standorte: 2 }, t))
+        .toBe('42 Material, 3 Sammlungen, 7 Kategorien, 2 Standorte exportiert');
     });
 
     it('describes a replacing import', () => {

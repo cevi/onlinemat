@@ -9,7 +9,8 @@ export type AuditEntityType =
     | 'abteilung'
     | 'order'
     | 'invitation'
-    | 'import';
+    | 'import'
+    | 'export';
 
 export type AuditAction = 'create' | 'update' | 'delete';
 export type AuditVisibility = 'admin' | 'matchef';
@@ -22,13 +23,14 @@ export const AUDIT_ENTITY_TYPES: AuditEntityType[] = [
     'sammlung',
     'order',
     'import',
+    'export',
     'member',
     'invitation',
     'abteilung',
 ];
 
 /** Entity types a matchef may see; everything else is admin/staff only. */
-export const MATCHEF_VISIBLE_ENTITY_TYPES: AuditEntityType[] = ['material', 'category', 'standort', 'sammlung', 'order', 'import'];
+export const MATCHEF_VISIBLE_ENTITY_TYPES: AuditEntityType[] = ['material', 'category', 'standort', 'sammlung', 'order', 'import', 'export'];
 
 /** Retention of audit entries (enforced by a Firestore TTL policy on `expiresAt`). */
 export const AUDIT_RETENTION_DAYS = 365;

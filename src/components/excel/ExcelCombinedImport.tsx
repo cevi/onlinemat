@@ -27,7 +27,7 @@ import { massImportMaterial, deleteAllMaterials } from 'util/MaterialUtil';
 import { massImportSammlung, deleteAllSammlungen } from 'util/SammlungUtil';
 import { massImportCategory, deleteAllCategories } from 'util/CategoryUtil';
 import { massImportStandort, deleteAllStandorte } from 'util/StandortUtil';
-import { logImportAuditEntry } from 'util/AuditLogUtil';
+import { finishImportSession, logImportAuditEntry, startImportSession } from 'util/AuditLogUtil';
 import { useUser } from 'hooks/use-user';
 
 export interface ExcelCombinedImportProps {
@@ -353,6 +353,10 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
     const importAll = async (mode: 'add' | 'replace') => {
         if (!allSheets) return;
 
+        // Open an import session so the audit trail gets one summary entry instead of one entry per document
+        const actorId = user.appUser?.userData?.id;
+        const sessionOpen = actorId ? await startImportSession(abteilung.id, actorId) : false;
+
         try {
             // 1. Delete all if replace mode
             if (mode === 'replace') {
@@ -621,7 +625,6 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
             }));
             setShow(false);
 
-            const actorId = user.appUser?.userData?.id;
             if (actorId) {
                 await logImportAuditEntry(abteilung.id, { id: actorId, name: user.appUser?.userData?.displayName || actorId }, {
                     mode,
@@ -634,6 +637,10 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
         } catch (err) {
             message.error(t('common:errors.generic', { error: String(err) }));
             console.error('Import error:', err);
+        } finally {
+            if (sessionOpen && actorId) {
+                await finishImportSession(abteilung.id, actorId);
+            }
         }
     };
 
