@@ -27,6 +27,8 @@ import { massImportMaterial, deleteAllMaterials } from 'util/MaterialUtil';
 import { massImportSammlung, deleteAllSammlungen } from 'util/SammlungUtil';
 import { massImportCategory, deleteAllCategories } from 'util/CategoryUtil';
 import { massImportStandort, deleteAllStandorte } from 'util/StandortUtil';
+import { finishImportSession, logImportAuditEntry, startImportSession } from 'util/AuditLogUtil';
+import { useUser } from 'hooks/use-user';
 
 export interface ExcelCombinedImportProps {
     abteilung: Abteilung;
@@ -197,6 +199,7 @@ const sheetTypeLabels: Record<Exclude<SheetType, 'skip'>, string> = {
 
 export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
     const { abteilung, allSheets, showModal, setShow } = props;
+    const user = useUser();
     const { t } = useTranslation();
 
     const { categories } = useContext(CategorysContext);
@@ -350,6 +353,10 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
     const importAll = async (mode: 'add' | 'replace') => {
         if (!allSheets) return;
 
+        // Open an import session so the audit trail gets one summary entry instead of one entry per document
+        const actorId = user.appUser?.userData?.id;
+        const sessionOpen = actorId ? await startImportSession(abteilung.id, actorId) : false;
+
         try {
             // 1. Delete all if replace mode
             if (mode === 'replace') {
@@ -439,7 +446,7 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
                     const matCatIdsRaw: string | null = matCategories ? (row[indexes[matCategories]] as string) : null;
                     const materialCategorieIds: string[] = [];
                     if (matCatIdsRaw) {
-                        const catNames = matCatIdsRaw.replaceAll(' ', '').split(',').filter(Boolean);
+                        const catNames = matCatIdsRaw.split(',').map(s => s.trim()).filter(Boolean);
                         for (const catName of catNames) {
                             const existing = allCategories.find(c => c.name.toLowerCase() === catName.toLowerCase());
                             if (existing) { materialCategorieIds.push(existing.id); continue; }
@@ -456,7 +463,7 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
                     const matOrtRaw: string | null = matStandort ? (row[indexes[matStandort]] as string) : null;
                     const matStandortIds: string[] = [];
                     if (matOrtRaw) {
-                        const ortNames = matOrtRaw.replaceAll(' ', '').split(',').filter(Boolean);
+                        const ortNames = matOrtRaw.split(',').map(s => s.trim()).filter(Boolean);
                         for (const ortName of ortNames) {
                             const existing = allStandorte.find(s => s.name.toLowerCase() === ortName.toLowerCase());
                             if (existing) { matStandortIds.push(existing.id); continue; }
@@ -472,7 +479,7 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
                     // Images
                     const matImagesRaw: string | null = matImages ? (row[indexes[matImages]] as string) : defaultImages;
                     const imageUrls = matImagesRaw
-                        ? String(matImagesRaw).replaceAll(' ', '').split(',').filter(u => u.startsWith('https://') || u.startsWith('http://'))
+                        ? String(matImagesRaw).split(',').map(s => s.trim()).filter(u => u.startsWith('https://') || u.startsWith('http://'))
                         : [];
 
                     // Metadata
@@ -617,9 +624,23 @@ export const ExcelCombinedImport = (props: ExcelCombinedImportProps) => {
                 standorte: importedStandorte,
             }));
             setShow(false);
+
+            if (actorId) {
+                await logImportAuditEntry(abteilung.id, { id: actorId, name: user.appUser?.userData?.displayName || actorId }, {
+                    mode,
+                    materials: importedMaterials,
+                    sammlungen: importedSammlungen,
+                    kategorien: importedKategorien,
+                    standorte: importedStandorte,
+                }, t);
+            }
         } catch (err) {
             message.error(t('common:errors.generic', { error: String(err) }));
             console.error('Import error:', err);
+        } finally {
+            if (sessionOpen && actorId) {
+                await finishImportSession(abteilung.id, actorId);
+            }
         }
     };
 

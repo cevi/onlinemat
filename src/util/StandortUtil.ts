@@ -18,8 +18,11 @@ export const deleteStandort = async (abteilungId: string, standort: Standort) =>
 }
 
 export const editStandort = async (abteilungId: string, standort: Standort) => {
+    const sanitized = Object.fromEntries(
+        Object.entries(standort).filter(([, v]) => v !== undefined)
+    );
     await firestoreOperation(
-        () => updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenStandortCollection, standort.id), standort),
+        () => updateDoc(doc(db, abteilungenCollection, abteilungId, abteilungenStandortCollection, standort.id), sanitized),
         i18n.t('standort:edit.success', { name: standort.name }),
     );
 }

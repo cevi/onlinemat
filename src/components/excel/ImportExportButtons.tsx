@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useContext, useRef, useState } from 'react';
 import { Abteilung } from 'types/abteilung.type';
 import { ExcelJson } from 'types/excel.type';
-import { exportAbteilungToXlsx, excelToJsonAllSheets } from 'util/ExcelUtil';
+import { exportAbteilungToXlsx, excelToJsonAllSheets, SPREADSHEET_ACCEPT, isSupportedSpreadsheetFile } from 'util/ExcelUtil';
 import { CategorysContext, MaterialsContext, StandorteContext } from 'contexts/AbteilungContexts';
 import { SammlungenContext } from 'contexts/AbteilungContexts';
 import { ExcelCombinedImport } from './ExcelCombinedImport';
+import { logExportAuditEntry } from 'util/AuditLogUtil';
+import { useUser } from 'hooks/use-user';
 
 export interface ImportExportButtonsProps {
     abteilung: Abteilung;
@@ -15,6 +17,7 @@ export interface ImportExportButtonsProps {
 export const ImportExportButtons = (props: ImportExportButtonsProps) => {
     const { abteilung } = props;
     const { t } = useTranslation();
+    const user = useUser();
 
     const { materials } = useContext(MaterialsContext);
     const { categories } = useContext(CategorysContext);
@@ -32,6 +35,12 @@ export const ImportExportButtons = (props: ImportExportButtonsProps) => {
     };
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && !isSupportedSpreadsheetFile(file.name)) {
+            message.error(t('excel:combined.invalidFileType'));
+            clearFileInput();
+            return;
+        }
         const res = await excelToJsonAllSheets(e);
         if (res) {
             setAllSheets(res);
@@ -43,6 +52,15 @@ export const ImportExportButtons = (props: ImportExportButtonsProps) => {
 
     const handleExport = () => {
         exportAbteilungToXlsx(abteilung, materials, sammlungen, categories, standorte);
+        const actorId = user.appUser?.userData?.id;
+        if (actorId) {
+            logExportAuditEntry(abteilung.id, { id: actorId, name: user.appUser?.userData?.displayName || actorId }, {
+                materials: materials.length,
+                sammlungen: sammlungen.length,
+                kategorien: categories.length,
+                standorte: standorte.length,
+            }, t);
+        }
     };
 
     return (
@@ -50,6 +68,7 @@ export const ImportExportButtons = (props: ImportExportButtonsProps) => {
             <input
                 style={{ display: 'none' }}
                 type="file"
+                accept={SPREADSHEET_ACCEPT}
                 name="excelFile"
                 ref={excelInput}
                 onChange={handleFileChange}

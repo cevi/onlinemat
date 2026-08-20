@@ -7,6 +7,8 @@ export const abteilungenOrdersCollection = 'orders';
 export const abteilungenStandortCollection = 'standorte';
 export const abteilungenInvitationsCollection = 'invitations';
 export const abteilungenSammlungCollection = 'sammlungen';
+export const abteilungenAuditLogCollection = 'auditLog';
+export const abteilungenImportSessionsCollection = 'importSessions';
 
 //User
 export const usersCollection = 'users';

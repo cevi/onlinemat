@@ -126,6 +126,24 @@ export const exportAbteilungToXlsx = (abteilung: Abteilung, materials: Material[
     XLSX.writeFile(wb, `${abteilung.name}_Export_${dayjs().format(dateFormat)}.xlsx`);
 }
 
+/** File extensions the import understands (SheetJS parses all of them). */
+export const SUPPORTED_SPREADSHEET_EXTENSIONS = ['.xlsx', '.xls', '.csv'];
+
+/** Value for the `accept` attribute of the import file input (extensions + MIME types). */
+export const SPREADSHEET_ACCEPT = [
+    ...SUPPORTED_SPREADSHEET_EXTENSIONS,
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+    'text/csv',
+].join(',');
+
+/** `accept` is only a hint for the file picker - validate the chosen file name as well. */
+export const isSupportedSpreadsheetFile = (fileName: string | undefined | null): boolean => {
+    if (!fileName) return false;
+    const lower = fileName.toLowerCase();
+    return SUPPORTED_SPREADSHEET_EXTENSIONS.some(ext => lower.endsWith(ext));
+};
+
 export const excelToJsonAllSheets = async (e: React.ChangeEvent<HTMLInputElement>): Promise<{ [sheetName: string]: ExcelJson } | undefined> => {
     if (!e) return undefined;
     e.preventDefault();

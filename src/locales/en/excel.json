@@ -71,7 +71,8 @@
     "next": "Next",
     "back": "Back",
     "rows": "rows",
-    "noAssignment": "At least one worksheet must be assigned."
+    "noAssignment": "At least one worksheet must be assigned.",
+    "invalidFileType": "Please select an Excel or CSV file (.xlsx, .xls, .csv)."
   },
   "sammlungFields": {
     "name": "Name*:",
