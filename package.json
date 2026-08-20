@@ -16,7 +16,7 @@
     "antd": "^5",
     "classnames": "^2.2.6",
     "dayjs": "^1.11.19",
-    "firebase": "^10",
+    "firebase": "^12.18.0",
     "i18next": "^25.8.7",
     "react": "^18",
     "react-cookie": "^4.1.1",
@@ -24,14 +24,14 @@
     "react-i18next": "^16.5.4",
     "react-markdown": "^10.1.0",
     "react-redux": "^8",
-    "react-router": "^6.30",
-    "react-router-dom": "^6.30",
+    "react-router": "^6.30.4",
+    "react-router-dom": "^6.30.4",
     "recharts": "^3.7.0",
     "redux": "^4.0.5",
     "redux-actions": "^2.6.5",
     "redux-thunk": "^2.3.0",
-    "sass": "^1.32.8",
-    "xlsx": "^0.18.0"
+    "sass": "^1.103.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
@@ -45,16 +45,19 @@
     "@types/react-redux": "^7.1.7",
     "@types/redux-actions": "^2.6.1",
     "@vitejs/plugin-react": "^5.1.4",
-    "@vitest/coverage-v8": "^4.0.18",
-    "jsdom": "^28.0.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "jsdom": "^29.0.0",
     "msw": "^2",
     "typescript": "^5",
-    "vite": "^7.3.1",
+    "vite": "^7.3.6",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.11"
   },
   "resolutions": {
-    "caniuse-lite": "1.0.30001632"
+    "caniuse-lite": "1.0.30001632",
+    "lodash": "^4.18.1",
+    "vite": "^7.3.6",
+    "**/universal-cookie/cookie": "^0.7.2"
   },
   "scripts": {
     "git-info": "node src/gitInfo.js",
